@@ -22,6 +22,7 @@ This projects depends on
 
 - Python 3
 - configparser
+- PyYAML
 
 If you need Python 2 support consider sending patches. The most
 obvious place to start is to use the trollius package intead of
