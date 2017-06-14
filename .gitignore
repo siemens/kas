@@ -1,0 +1,7 @@
+*.pyc
+build
+ebs-yocto
+ebs-yocto_dependencies
+kas-*
+kas.egg-info
+.vscode
