@@ -90,7 +90,9 @@ def kas(argv):
 
     for cmd in sub_cmds:
         if cmd.run(args):
-            break
+            return
+
+    parser.print_help()
 
 
 def main():
