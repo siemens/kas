@@ -14,9 +14,17 @@ Currently supported Yocto versions:
 - 2.1 (Krogoth)
 - 2.2 (Morty)
 
+Older or newer versions may work as well but haven't been tested intensively.
 
-Dependencies
-------------
+Key features provided by the build tool:
+- clone and checkout bitbake layers
+- create default bitbake settings (machine, arch, ...)
+- launch minimal build environment, reducing risk of host contamination
+- initiate bitbake build process
+
+
+Dependencies & installation
+---------------------------
 
 This projects depends on
 
@@ -28,41 +36,36 @@ If you need Python 2 support consider sending patches. The most
 obvious place to start is to use the trollius package intead of
 asyncio.
 
+To install kas into your python site-package repository, run
 
-Build Tool features
--------------------
-
-Key features provided by the build tool:
-- clone and checkout bitbake layers
-- create default bitbake settings (machine, arch, ...)
-- automatically apply proxy settings in build environment (creates a minimal
-  environment)
-- initiate bitbake build process
+```sh
+$ sudo pip install
+```
 
 
 Usage
 -----
 
 There are three options for using kas:
-- Install it via pip to get the `kas` command
-- Use the docker image. In this case replace `kas` in the examples below
-with `docker run -it <kas-image>`
+- Install it locally via pip to get the `kas` command.
+- Use the docker image. In this case run the commands in the examples
+below within `docker run -it <kas-image> sh` or bind-mount the project into the
+container.
 - Use the **run-kas** wrapper from this directory. In this case replace `kas`
 in the examples below with `path/to/run-kas`.
-
 
 Start build:
 
 ```sh
-$ kas build project/ebs.py
+$ kas build /path/to/kas-project.yml
 ```
 
-Note: In the docker case you have to bind-mount the config to the container
-first.
+Alternatively, experienced bitbake users can invoke usual **bitbake** steps
+manually, e.g.
 
-Alternatively, experienced bitbake users can do the usual **oe-init-buildenv**,
-**bitbake** steps, but then you need to take care about necessary proxy
-settings by yourself.
+```sh
+$ kas shell /path/to/kas-project.yml -c 'bitbake dosfsutils-native'
+```
 
 
 Use Cases
@@ -74,7 +77,7 @@ Use Cases
     $ mkdir $PROJECT_DIR
     $ cd $PROJECT_DIR
     $ git clone $PROJECT_URL meta-project
-    $ kas build meta-project/kas-project.py
+    $ kas build meta-project/kas-project.yml
     ```
 
 2.  Update/rebuild
@@ -82,7 +85,7 @@ Use Cases
     ```sh
     $ cd $PROJECT_DIR/meta-project
     $ git pull
-    $ kas build kas-project.py
+    $ kas build kas-project.yml
     ```
 
 
@@ -199,15 +202,6 @@ are derived from the repo url in the kas config.  (E.g. url:
 "https://github.com/siemens/meta-iot2000.git" resolves to the name
 "github.com.siemens.meta-iot2000.git")
 
-Install
--------
-
-```sh
-$ sudo pip install
-```
-
-Will install kas into your python site-package repository.
-
 
 Development
 -----------
@@ -237,9 +231,26 @@ http_proxy=<http_proxy> --build-arg https_proxy=<https_proxy>` to the
 call.
 
 
-shell
-----
+Community Resources
+-------------------
 
-```sh
-$ kas shell kas-project.json -c 'bitbake dosfsutils-native'
-```
+Project home:
+
+ - https://github.com/siemens/kas
+
+Source code:
+
+ - https://github.com/siemens/kas.git
+ - git@github.com:siemens/kas.git
+
+Mailing list:
+
+  - kas-devel@googlegroups.com
+
+  - Subscription:
+    - kas-devel+subscribe@googlegroups.com
+    - https://groups.google.com/forum/#!forum/kas-devel/join
+
+  - Archives
+    - https://groups.google.com/forum/#!forum/kas-devel
+    - https://www.mail-archive.com/kas-devel@googlegroups.com/
