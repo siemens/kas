@@ -67,7 +67,6 @@ class Build:
         macro.add(ReposCheckout())
         macro.add(SetupEnviron())
 
-        # TODO if cfg.has_changed() was not working properly
         macro.add(WriteConfig())
 
         # Build

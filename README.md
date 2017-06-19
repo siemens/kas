@@ -29,7 +29,6 @@ Dependencies & installation
 This projects depends on
 
 - Python 3
-- configparser
 - PyYAML
 
 If you need Python 2 support consider sending patches. The most
@@ -66,6 +65,10 @@ manually, e.g.
 ```sh
 $ kas shell /path/to/kas-project.yml -c 'bitbake dosfsutils-native'
 ```
+
+kas will place downloads and build artifacts under the current directory when
+being invoked. You can specify a different location via the environment variable
+`KAS_WORK_DIR`.
 
 
 Use Cases

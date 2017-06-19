@@ -26,10 +26,8 @@ import logging
 import errno
 import json
 import platform
-import hashlib
 import yaml
 from .repos import Repo
-from .kasstate import KasState
 from .libkas import run_cmd
 
 __license__ = 'MIT'
@@ -38,41 +36,15 @@ __copyright__ = 'Copyright (c) Siemens AG, 2017'
 
 class Config:
     def __init__(self):
-        self.state = KasState()
-
-    def _get_prop(self, item, default):
-        return self.state.get_option(self.section, item, default)
-
-    def _set_prop(self, item, value):
-        self.state.set_option(self.section, item, value)
-
-    @property
-    def section(self):
-        return os.path.realpath(self.filename)
+        self.__kas_work_dir = os.environ.get('KAS_WORK_DIR', os.getcwd())
 
     @property
     def build_dir(self):
-        return self._get_prop('build_dir', os.getcwd() + '/build')
-
-    @build_dir.setter
-    def build_dir(self, value):
-        self._set_prop('build_dir', value)
+        return os.path.join(self.__kas_work_dir, 'build')
 
     @property
     def kas_work_dir(self):
-        return self._get_prop('kas_work_dir', os.getcwd())
-
-    @kas_work_dir.setter
-    def kas_work_dir(self, value):
-        self._set_prop('kas_work_dir', value)
-
-    @property
-    def hash(self):
-        return self._get_prop('config_hash', 0)
-
-    @hash.setter
-    def hash(self, value):
-        self._set_prop('config_hash', value)
+        return self.__kas_work_dir
 
     def setup_environ(self):
         (distro, version, id) = platform.dist()
@@ -91,9 +63,6 @@ class Config:
     def get_repo_ref_dir(self):
         return os.environ.get('KAS_REPO_REF_DIR', None)
 
-    def has_changed(self):
-        return self.config_hash != self.hash
-
 
 class ConfigPython(Config):
     def __init__(self, filename, target):
@@ -103,7 +72,6 @@ class ConfigPython(Config):
             with open(self.filename) as file:
                 env = {}
                 data = file.read()
-                self.hash = hashlib.sha512(str(data).encode('utf-8')).hexdigest()
                 exec(data, env)
                 self._config = env
         except IOError:
@@ -291,8 +259,6 @@ class ConfigJson(ConfigStatic):
         self.filename = os.path.abspath(filename)
         try:
             with open(self.filename, 'r') as f:
-                self.hash = hashlib.sha512(f.read().encode('utf-8')).hexdigest()
-                f.seek(0)
                 self._config = json.load(f)
         except json.decoder.JSONDecodeError  as msg:
             logging.error('Could not load JSON config: {}'.format(msg))
@@ -320,8 +286,6 @@ class ConfigYaml(ConfigStatic):
         self.filename = os.path.abspath(filename)
         try:
             with open(self.filename, 'r') as f:
-                self.hash = hashlib.sha512(f.read().encode('utf-8')).hexdigest()
-                f.seek(0)
                 self._config = yaml.load(f)
         except yaml.loader.ParserError as msg:
             logging.error('Could not load YAML config: {}'.format(msg))
