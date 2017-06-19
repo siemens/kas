@@ -3,9 +3,8 @@
 USER_ID=${USERID:-30000}
 
 # Create a non-root user that will perform the actual build
-id build 2>/dev/null || \
-    useradd --uid $USER_ID --create-home --home-dir /build build
+id builder 2>/dev/null || \
+    useradd --uid $USER_ID --create-home --home-dir /builder builder
 
-cd /build
-exec gosu build "$@"
-
+cd /builder
+exec gosu builder "$@"
