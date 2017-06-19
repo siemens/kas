@@ -1,6 +1,6 @@
 #!/bin/bash
 
-USER_ID=${USERID:-30000}
+USER_ID=${USER_ID:-30000}
 
 # Create a non-root user that will perform the actual build
 id builder 2>/dev/null || \
