@@ -23,7 +23,7 @@
 from setuptools import setup, find_packages
 from os import path
 
-from kas.__version__ import __version__
+from kas import __version__
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'

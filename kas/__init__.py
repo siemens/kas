@@ -22,3 +22,4 @@
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
+from .__version__ import __version__

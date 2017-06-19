@@ -37,7 +37,7 @@ except ImportError:
 
 from .build import Build
 from .shell import Shell
-from .__version__ import __version__
+from . import __version__
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
