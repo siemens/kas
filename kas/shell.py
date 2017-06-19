@@ -73,7 +73,7 @@ class ShellCommand(Command):
         return 'shell'
 
     def execute(self, config):
-        cmd = ['/bin/sh']
+        cmd = [config.environ.get('SHELL', '/bin/sh')]
         if self.cmd:
             cmd.append('-c')
             cmd.append(self.cmd)
