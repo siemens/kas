@@ -10,9 +10,9 @@ RUN apt-get update && apt-get install -y locales && \
 RUN apt-get -y install gawk wget git-core diffstat unzip \
                        texinfo gcc-multilib build-essential \
                        chrpath socat cpio python python3 \
-                       libsdl1.2-dev xterm tar bzip2 curl \
-                       dosfstools mtools parted syslinux tree \
-                       python3-pip bc python3-yaml lsb-release
+                       tar bzip2 curl dosfstools mtools parted \
+                       syslinux tree python3-pip bc python3-yaml \
+                       lsb-release
 RUN wget -nv -O /usr/bin/gosu "https://github.com/tianon/gosu/releases/download/1.10/gosu-amd64" && \
     chmod +x /usr/bin/gosu
 COPY . /kas
