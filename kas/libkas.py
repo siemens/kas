@@ -170,6 +170,8 @@ def get_oe_environ(config, build_dir):
         ew = env['BB_ENV_EXTRAWHITE'] + ' '.join(vars)
         env.update({'BB_ENV_EXTRAWHITE': ew})
 
+    vars.extend(['SSH_AGENT_PID', 'SSH_AUTH_SOCK'])
+
     for v in vars:
         if v in os.environ:
             env[v] = os.environ[v]
