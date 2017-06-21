@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from .__version__ import __version__
+
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
-from .__version__ import __version__

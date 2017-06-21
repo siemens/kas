@@ -62,6 +62,7 @@ def _read_stream(stream, cb):
         else:
             break
 
+
 @asyncio.coroutine
 def _stream_subprocess(cmd, cwd, env, shell, stdout_cb, stderr_cb):
     if shell:

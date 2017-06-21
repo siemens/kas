@@ -199,8 +199,8 @@ class ConfigStatic(Config):
                 (rc, output) = run_cmd(['/usr/bin/git',
                                         'rev-parse',
                                         '--show-toplevel'],
-                                        cwd=os.path.dirname(self.filename),
-                                        env=self.environ)
+                                       cwd=os.path.dirname(self.filename),
+                                       env=self.environ)
                 url = output.strip()
                 r = Repo(url=url,
                          path=url,
@@ -260,7 +260,7 @@ class ConfigJson(ConfigStatic):
         try:
             with open(self.filename, 'r') as f:
                 self._config = json.load(f)
-        except json.decoder.JSONDecodeError  as msg:
+        except json.decoder.JSONDecodeError as msg:
             logging.error('Could not load JSON config: {}'.format(msg))
             sys.exit(1)
         self.setup_environ()

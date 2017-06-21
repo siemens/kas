@@ -170,7 +170,8 @@ class ReposFetch(Command):
                 os.makedirs(os.path.dirname(repo.path), exist_ok=True)
                 gitsrcdir = os.path.join(config.get_repo_ref_dir() or '',
                                          repo.qualified_name)
-                logging.debug('Looking for repo ref dir in {}'.format(gitsrcdir))
+                logging.debug('Looking for repo ref dir in {}'.
+                              format(gitsrcdir))
                 if config.get_repo_ref_dir() and os.path.exists(gitsrcdir):
                     run_cmd(['/usr/bin/git',
                              'clone',
@@ -179,7 +180,8 @@ class ReposFetch(Command):
                             env=config.environ,
                             cwd=config.kas_work_dir)
                 else:
-                    run_cmd(['/usr/bin/git', 'clone', '-q', repo.url, repo.path],
+                    run_cmd(['/usr/bin/git', 'clone', '-q', repo.url,
+                             repo.path],
                             env=config.environ,
                             cwd=config.kas_work_dir)
                 continue
