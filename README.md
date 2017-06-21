@@ -30,7 +30,7 @@ This projects depends on
 
 - Python 3
 - distro Python 3 package
-- PyYAML Python 3 package
+- PyYAML Python 3 package (optional, for yaml file support)
 
 If you need Python 2 support consider sending patches. The most
 obvious place to start is to use the trollius package intead of
@@ -105,32 +105,113 @@ be used.
 
 Currently there is supports for JSON and Yaml.
 
-```JSON
-{
-    "machine": "qemu",
-    "distro": "poky",
-    "repos": [
-        { "url": "" },
-        { "url": "https://git.yoctoproject.org/git/poky",
-          "refspec": "krogoth",
-          "layers": [ "meta", "meta-poky", "meta-yocto-bsp"]}
-    ]
-}
+```YAML
+header:
+  version: "0.9"
+machine: qemu
+distro: poky
+repos:
+  # This entry includes the repository where the config file is located
+  # to the bblayers.conf:
+  meta-custom:
+  # Here we include a list of layers from the poky repository to the
+  # bblayers.conf:
+  poky:
+    url: "https://git.yoctoproject.org/git/poky"
+    refspec: 89e6c98d92887913cadf06b2adb97f26cde4849b
+    layers:
+      meta:
+      meta-poky:
+      meta-yocto-bsp:
 ```
 
 A minimal input file consist out of 'machine', 'distro', and 'repos'.
 
 Additionally, you can add 'bblayers_conf_header' and 'local_conf_header'
-which are arrays of strings, e.g.
+which are strings that are added to the head of the respective files
+(`bblayers.conf` or `local.conf`):
 
-```JSON
-    "bblayers_conf_header": ["POKY_BBLAYERS_CONF_VERSION = \"2\"",
-                             "BBPATH = \"${TOPDIR}\"",
-                             "BBFILES ?= \"\""],
-    "local_conf_header": ["PATCHRESOLVE = \"noop\"",
-                          "CONF_VERSION = \"1\"",
-                          "IMAGE_FSTYPES = \"tar\""]
+```YAML
+bblayers_conf_header:
+  meta-custom: |
+    POKY_BBLAYERS_CONF_VERSION = "2"
+    BBPATH = "${TOPDIR}"
+    BBFILES ?= ""
+local_conf_header:
+  meta-custom: |
+    PATCHRESOLVE = "noop"
+    CONF_VERSION = "1"
+    IMAGE_FSTYPES = "tar"
 ```
+
+`meta-custom` in these examples should be a unique name (in project scope) for
+this configuration entries. We assume that your configuration file is part of
+a `meta-custom` repository/layer. This way its possible to overwrite or append
+entries in files that include this configuration by naming an entry the same
+(overwriting) or using a unused name (appending).
+
+### Including in-tree configuration files
+
+Its currently possible to include kas configuration files from the same
+repository/layer like this:
+
+```YAML
+header:
+  version: "0.9"
+  includes:
+    - base.yml
+    - bsp.yml
+    - product.yml
+```
+
+The specified files are addressed relative to your current configuration file.
+
+### Including configuration files from other repos
+
+Its also possible to include configuration files from other repos like this:
+
+```YAML
+header:
+  version: "0.9"
+  includes:
+    - repo: poky
+      file: kas-poky.yml
+    - repo: meta-bsp-collection
+      file: hw1/kas-hw-bsp1.yml
+    - repo: meta-custom
+      file: products/product.yml
+repos:
+  meta-custom:
+  meta-bsp-collection:
+    url: "https://www.example.com/git/meta-bsp-collection"
+    refspec: 3f786850e387550fdab836ed7e6dc881de23001b
+    layers:
+      # Additional to the layers that are added from this repository
+      # in the hw1/kas-hw-bsp1.yml, we add here an additional bsp
+      # meta layer:
+      meta-custom-bsp:
+  poky:
+    url: "https://git.yoctoproject.org/git/poky"
+    refspec: 89e6c98d92887913cadf06b2adb97f26cde4849b
+    layers:
+      # If `kas-poky.yml` adds the `meta-yocto-bsp` layer and we
+      # do not want it in our bblayers for this project, we can
+      # overwrite it by setting:
+      meta-yocto-bsp: exclude
+```
+
+The files are addressed relative to the git repository path.
+
+The include mechanism collects and merges the content from top to buttom and
+depth first. That means that settings in one include file are overwritten
+by settings in a latter include file and entries from the last include file can
+be overwritten by the current file. While merging all the dictionaries are
+merged recursive while preserving the order in which the entries are added to
+the dictionary. This means that `local_conf_header` entries are added to the
+`local.conf` file in the same order in which they are defined in the different
+include files. Note that the order of the configuration file entries is not
+preserved within one include file, because the parser creates normal
+unordered dictionaries.
 
 ##  Dynamic project configuration
 
