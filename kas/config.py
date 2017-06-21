@@ -289,9 +289,9 @@ class ConfigStatic(Config):
         repos = []
         for repo in self._config['repos']:
             try:
-                sublayers = repo['sublayers']
+                layers = repo['layers']
             except KeyError:
-                sublayers = None
+                layers = None
 
             url = repo['url']
             if url == '':
@@ -304,14 +304,14 @@ class ConfigStatic(Config):
                 url = output.strip()
                 rep = Repo(url=url,
                            path=url,
-                           sublayers=sublayers)
+                           layers=layers)
                 rep.disable_git_operations()
             else:
                 name = os.path.basename(os.path.splitext(url)[0])
                 rep = Repo(url=url,
                            path=os.path.join(self.kas_work_dir, name),
                            refspec=repo['refspec'],
-                           sublayers=sublayers)
+                           layers=layers)
             repos.append(rep)
 
         return repos

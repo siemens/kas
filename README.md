@@ -113,7 +113,7 @@ Currently there is supports for JSON and Yaml.
         { "url": "" },
         { "url": "https://git.yoctoproject.org/git/poky",
           "refspec": "krogoth",
-          "sublayers": [ "meta", "meta-poky", "meta-yocto-bsp"]}
+          "layers": [ "meta", "meta-poky", "meta-yocto-bsp"]}
     ]
 }
 ```
@@ -156,7 +156,7 @@ def get_repos(target):
     repos.append(Repo(
         url='https://git.yoctoproject.org/git/poky',
         refspec='krogoth',
-        sublayers=['meta', 'meta-poky', 'meta-yocto-bsp'])))
+        layers=['meta', 'meta-poky', 'meta-yocto-bsp'])))
 
     return repos
 ```

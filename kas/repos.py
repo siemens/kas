@@ -35,11 +35,11 @@ class Repo:
         Represents a repository in the kas configuration.
     """
 
-    def __init__(self, url, path, refspec=None, sublayers=None):
+    def __init__(self, url, path, refspec=None, layers=None):
         self.url = url
         self.path = path
         self.refspec = refspec
-        self.sublayers = sublayers
+        self._layers = layers
         self.name = os.path.basename(self.path)
         self.git_operation_disabled = False
 
@@ -51,10 +51,10 @@ class Repo:
 
     def __getattr__(self, item):
         if item == 'layers':
-            if not self.sublayers:
+            if not self._layers:
                 return [self.path]
             else:
-                return [self.path + '/' + l for l in self.sublayers]
+                return [self.path + '/' + l for l in self._layers]
         elif item == 'qualified_name':
             url = urlparse(self.url)
             return ('{url.netloc}{url.path}'
@@ -65,4 +65,5 @@ class Repo:
                     .replace('*', '.'))
 
     def __str__(self):
-        return '%s:%s %s' % (self.url, self.refspec, self.sublayers)
+        return '%s:%s %s %s' % (self.url, self.refspec,
+                                self.path, self._layers)
