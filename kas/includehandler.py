@@ -30,9 +30,68 @@ import sys
 import collections
 import functools
 import logging
+from distutils.version import StrictVersion
+
+from . import __version__, __compatible_version__
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
+
+
+def load_config(filename):
+    """
+        Load the configuration file and test if version is supported.
+    """
+    (_, ext) = os.path.splitext(filename)
+    config = None
+    if ext == '.json':
+        import json
+        with open(filename, 'rb') as fds:
+            config = json.load(fds)
+    elif ext == '.yml':
+        import yaml
+        with open(filename, 'rb') as fds:
+            config = yaml.safe_load(fds)
+    else:
+        logging.error('Config file extension not recognized: %s',
+                      filename)
+        sys.exit(1)
+
+    file_version_string = config.get('header', {}).get('version', None)
+
+    if file_version_string is None:
+        logging.error('Version missing: %s', filename)
+        sys.exit(1)
+
+    try:
+        if not isinstance(file_version_string, str):
+            logging.error('Version has to be a string: %s',
+                          filename)
+            sys.exit(1)
+
+        file_version = StrictVersion()
+        file_version.parse(file_version_string)
+        kas_version = StrictVersion()
+        kas_version.parse(__version__)
+        lower_version = StrictVersion()
+        lower_version.parse(__compatible_version__)
+
+        # Remove patch version, because we provide limited forwards
+        # compatibility:
+        if file_version.version[2] > 0:
+            file_version.prerelease = None
+            file_version.version = tuple(list(file_version.version[:2]) + [0])
+
+        if file_version < lower_version or kas_version < file_version:
+            logging.error('This version of kas is compatible with version %s '
+                          'to %s, file has version %s: %s',
+                          lower_version, kas_version, file_version, filename)
+            sys.exit(1)
+    except ValueError:
+        logging.exception('Not expected version format: %s', filename)
+        raise
+
+    return config
 
 
 class IncludeException(Exception):
@@ -88,19 +147,6 @@ class GlobalIncludes(IncludeHandler):
     def get_config(self, repos=None):
         repos = repos or {}
 
-        def _internal_file_parser(filename):
-            (_, ext) = os.path.splitext(filename)
-            if ext == '.json':
-                import json
-                with open(filename, 'rb') as fds:
-                    return json.load(fds)
-            elif ext == '.yml':
-                import yaml
-                with open(filename, 'rb') as fds:
-                    return yaml.safe_load(fds)
-            logging.error('Config file extension not recognized: %s', ext)
-            sys.exit(1)
-
         def _internal_include_handler(filename):
             """
             Recursively load include files and find missing repos.
@@ -129,7 +175,7 @@ class GlobalIncludes(IncludeHandler):
             """
             missing_repos = []
             configs = []
-            current_config = _internal_file_parser(filename)
+            current_config = load_config(filename)
             if not isinstance(current_config, collections.Mapping):
                 raise IncludeException('Configuration file does not contain a '
                                        'dictionary as base type')
