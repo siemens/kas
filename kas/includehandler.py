@@ -109,14 +109,15 @@ class GlobalIncludes(IncludeHandler):
 
             topfile.yml:
             -------
-            includes:
-              - include1.yml
-              - file: include2.yml
-              - repo: repo1
-                file: include-repo1.yml
-              - repo: repo2
-                file: include-repo2.yml
-              - include3.yml
+            header:
+              includes:
+                - include1.yml
+                - file: include2.yml
+                - repo: repo1
+                  file: include-repo1.yml
+                - repo: repo2
+                  file: include-repo2.yml
+                - include3.yml
             -------
 
             Includes are merged in in this order:
@@ -132,7 +133,9 @@ class GlobalIncludes(IncludeHandler):
             if not isinstance(current_config, collections.Mapping):
                 raise IncludeException('Configuration file does not contain a '
                                        'dictionary as base type')
-            for include in current_config.get('includes', []):
+            header = current_config.get('header', {})
+
+            for include in header.get('includes', []):
                 if isinstance(include, str):
                     includefile = ''
                     if include.startswith(os.path.pathsep):
