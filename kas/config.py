@@ -27,8 +27,6 @@ import os
 import sys
 import logging
 import errno
-import json
-import yaml
 
 try:
     from distro import id as get_distro_id
@@ -59,6 +57,7 @@ class Config:
     def __init__(self):
         self.__kas_work_dir = os.environ.get('KAS_WORK_DIR', os.getcwd())
         self.environ = {}
+        self._config = {}
 
     @property
     def build_dir(self):
@@ -100,6 +99,84 @@ class Config:
 
         return os.environ.get('KAS_REPO_REF_DIR', None)
 
+    def get_proxy_config(self):
+        """
+            Returns the proxy settings
+        """
+        return self._config.get('proxy_config', {
+            'http_proxy': os.environ.get('http_proxy', ''),
+            'https_proxy': os.environ.get('https_proxy', ''),
+            'no_proxy': os.environ.get('no_proxy', '')
+            })
+
+    def get_repos(self):
+        """
+            Returns the list of repos.
+        """
+        # pylint: disable=no-self-use
+
+        return []
+
+    def pre_hook(self, fname):
+        """
+            Returns a function that is executed before every command or None.
+        """
+        # pylint: disable=unused-argument
+
+        pass
+
+    def post_hook(self, fname):
+        """
+            Returs a function that is executed after every command or None.
+        """
+        # pylint: disable=unused-argument
+
+        pass
+
+    def get_hook(self, fname):
+        """
+            Returns a function that is executed instead of the command or None.
+        """
+        # pylint: disable=unused-argument
+
+        pass
+
+    def get_bitbake_target(self):
+        """
+            Return the bitbake target
+        """
+        return self._config.get('target', 'core-image-minimal')
+
+    def get_bblayers_conf_header(self):
+        """
+            Returns the bblayers.conf header
+        """
+        return '\n'.join(self._config.get('bblayers_conf_header', {}).values())
+
+    def get_local_conf_header(self):
+        """
+            Returns the local.conf header
+        """
+        return '\n'.join(self._config.get('local_conf_header', {}).values())
+
+    def get_machine(self):
+        """
+            Returns the machine
+        """
+        return self._config.get('machine', 'qemu')
+
+    def get_distro(self):
+        """
+            Returns the distro
+        """
+        return self._config.get('distro', 'poky')
+
+    def get_gitlabci_config(self):
+        """
+            Returns the GitlabCI configuration
+        """
+        return self._config.get('gitlabci_config', '')
+
 
 class ConfigPython(Config):
     """
@@ -137,27 +214,18 @@ class ConfigPython(Config):
         return output
 
     def pre_hook(self, fname):
-        """
-            Returns a function that is executed before every command or None.
-        """
         try:
             self._config[fname + '_prepend'](self)
         except KeyError:
             pass
 
     def post_hook(self, fname):
-        """
-            Returs a function that is executed after every command or None.
-        """
         try:
             self._config[fname + '_append'](self)
         except KeyError:
             pass
 
     def get_hook(self, fname):
-        """
-            Returns a function that is executed instead of the command or None.
-        """
         try:
             return self._config[fname]
         except KeyError:
@@ -171,15 +239,9 @@ class ConfigPython(Config):
         self.repos = self._config['get_repos'](self, target)
 
     def get_proxy_config(self):
-        """
-            Returns the proxy settings
-        """
         return self._config['get_proxy_config']()
 
     def get_repos(self):
-        """
-            Returns the list of repos
-        """
         return iter(self.repos)
 
     def get_target(self):
@@ -245,178 +307,119 @@ class ConfigPython(Config):
 
 class ConfigStatic(Config):
     """
-        An abstract class for static configuration files
+        Implements the static kas configuration based on config files.
     """
 
     def __init__(self, filename, _):
+        from .includehandler import GlobalIncludes, IncludeException
         super().__init__()
-        self.filename = os.path.abspath(filename)
         self._config = {}
-
-    def pre_hook(self, _):
-        """
-            Not used
-        """
-        pass
-
-    def post_hook(self, _):
-        """
-            Not used
-        """
-        pass
-
-    def get_hook(self, _):
-        """
-            Not used
-        """
-        pass
-
-    def get_proxy_config(self):
-        """
-            Returns the proxy settings
-        """
-        try:
-            return self._config['proxy_config']
-        except KeyError:
-            return {'http_proxy': os.environ.get('http_proxy', ''),
-                    'https_proxy': os.environ.get('https_proxy', ''),
-                    'no_proxy': os.environ.get('no_proxy', '')}
+        self.setup_environ()
+        self.filename = os.path.abspath(filename)
+        self.handler = GlobalIncludes(self.filename)
+        complete = False
+        repos = {}
+        missing_repos_old = []
+        while not complete:
+            complete = True
+            self._config, missing_repos = self.handler.get_config(repos=repos)
+            if missing_repos_old and missing_repos == missing_repos_old:
+                raise IncludeException('Could not fetch all repos needed by '
+                                       'includes.')
+            missing_repos_old = missing_repos
+            if missing_repos:
+                complete = False
+                self._fetch_missing_repos(missing_repos)
+                repo_dict = self.get_repo_dict()
+                repos = {r: repo_dict[r].path for r in repo_dict}
 
     def get_repos(self):
         """
-            Returns the list of repos
+            Returns the list of repos.
         """
-        repos = []
-        for repo in self._config['repos']:
-            try:
-                layers = repo['layers']
-            except KeyError:
-                layers = None
+        return list(self.get_repo_dict().values())
 
-            url = repo['url']
-            if url == '':
-                # in-tree configuration
-                (_, output) = run_cmd(['/usr/bin/git',
-                                       'rev-parse',
-                                       '--show-toplevel'],
-                                      cwd=os.path.dirname(self.filename),
-                                      env=self.environ)
-                url = output.strip()
+    def get_repo_dict(self):
+        """
+            Returns a dictionary containing the repositories with
+            their name (as it is defined in the config file) as key
+            and the `Repo` instances as value.
+        """
+        repo_config_dict = self._config.get('repos', {})
+        repo_dict = {}
+        for repo in repo_config_dict:
+
+            repo_config_dict[repo] = repo_config_dict[repo] or {}
+            layers_dict = repo_config_dict[repo].get('layers', {})
+            layers = list(filter(lambda x, laydict=layers_dict:
+                                 str(laydict[x]).lower() not in
+                                 ['disabled', 'excluded', 'n', 'no', '0',
+                                  'false'],
+                                 layers_dict))
+            url = repo_config_dict[repo].get('url', None)
+            name = repo_config_dict[repo].get('name', repo)
+            refspec = repo_config_dict[repo].get('refspec', None)
+            path = repo_config_dict[repo].get('path', None)
+
+            if url is None:
+                # No git operation on repository
+                if path is None:
+                    # In-tree configuration
+                    path = os.path.dirname(self.filename)
+                    (_, output) = run_cmd(['/usr/bin/git',
+                                           'rev-parse',
+                                           '--show-toplevel'],
+                                          cwd=path,
+                                          env=self.environ)
+                    path = output.strip()
+
+                url = path
                 rep = Repo(url=url,
-                           path=url,
+                           path=path,
                            layers=layers)
                 rep.disable_git_operations()
             else:
-                name = os.path.basename(os.path.splitext(url)[0])
+                path = path or os.path.join(self.kas_work_dir, name)
                 rep = Repo(url=url,
-                           path=os.path.join(self.kas_work_dir, name),
-                           refspec=repo['refspec'],
+                           path=path,
+                           refspec=refspec,
                            layers=layers)
-            repos.append(rep)
+            repo_dict[repo] = rep
+        return repo_dict
 
-        return repos
-
-    def get_bitbake_target(self):
+    def _fetch_missing_repos(self, missing_repos):
         """
-            Return the bitbake target
+            Fetches all repos from the missing_repos list.
         """
-        try:
-            return self._config['target']
-        except KeyError:
-            return 'core-image-minimal'
+        from .libcmds import (Macro, ReposFetch, ReposCheckout)
 
-    def get_bblayers_conf_header(self):
-        """
-            Returns the bblayers.conf header
-        """
-        try:
-            return self._config['bblayers_conf_header']
-        except KeyError:
-            return ''
+        class MissingRepoConfig(Config):
+            """
+                Custom config class, because we only want to
+                fetch the missing repositories needed for a
+                complete configuration not all of them.
+            """
+            def __init__(self, outerself):
+                super().__init__()
+                self.outerself = outerself
+                self.filename = outerself.filename
+                self.environ = outerself.environ
+                self.__kas_work_dir = outerself.kas_work_dir
 
-    def get_local_conf_header(self):
-        """
-            Returns the local.conf header
-        """
-        try:
-            return self._config['local_conf_header']
-        except KeyError:
-            return ''
+            def get_repo_ref_dir(self):
+                return self.outerself.get_repo_ref_dir()
 
-    def get_machine(self):
-        """
-            Returns the machine
-        """
-        try:
-            return self._config['machine']
-        except KeyError:
-            return 'qemu'
+            def get_proxy_config(self):
+                return self.outerself.get_proxy_config()
 
-    def get_distro(self):
-        """
-            Returns the distro
-        """
-        try:
-            return self._config['distro']
-        except KeyError:
-            return 'poky'
+            def get_repos(self):
+                return list(map(lambda x: self.outerself.get_repo_dict()[x],
+                                missing_repos))
 
-    def get_gitlabci_config(self):
-        """
-            Returns the GitlabCI configuration
-        """
-        try:
-            return self._config['gitlabci_config']
-        except KeyError:
-            return ''
-
-
-class ConfigJson(ConfigStatic):
-    """
-        Implements the configuration based on JSON files
-    """
-
-    def __init__(self, filename, target):
-        super().__init__(filename, target)
-        self.filename = os.path.abspath(filename)
-        try:
-            with open(self.filename, 'r') as fds:
-                self._config = json.load(fds)
-        except json.decoder.JSONDecodeError as msg:
-            logging.error('Could not load JSON config: %s', msg)
-            sys.exit(1)
-        self.setup_environ()
-
-    def get_bblayers_conf_header(self):
-        header_list = super().get_bblayers_conf_header()
-        conf = ''
-        for line in header_list:
-            conf += str(line) + '\n'
-        return conf
-
-    def get_local_conf_header(self):
-        header_list = super().get_local_conf_header()
-        conf = ''
-        for line in header_list:
-            conf += str(line) + '\n'
-        return conf
-
-
-class ConfigYaml(ConfigStatic):
-    """
-        Implements  the configuration based on Yaml files
-    """
-
-    def __init__(self, filename, target):
-        super().__init__(filename, target)
-        self.filename = os.path.abspath(filename)
-        try:
-            with open(self.filename, 'r') as fds:
-                self._config = yaml.load(fds)
-        except yaml.loader.ParserError as msg:
-            logging.error('Could not load YAML config: %s', msg)
-            sys.exit(1)
-        self.setup_environ()
+        macro = Macro()
+        macro.add(ReposFetch())
+        macro.add(ReposCheckout())
+        macro.run(MissingRepoConfig(self))
 
 
 def load_config(filename, target):
@@ -428,10 +431,8 @@ def load_config(filename, target):
     (_, ext) = os.path.splitext(filename)
     if ext == '.py':
         cfg = ConfigPython(filename, target)
-    elif ext == '.json':
-        cfg = ConfigJson(filename, target)
-    elif ext == '.yml':
-        cfg = ConfigYaml(filename, target)
+    elif ext in ['.json', '.yml']:
+        cfg = ConfigStatic(filename, target)
     else:
         logging.error('Config file extenstion not recognized')
         sys.exit(1)
