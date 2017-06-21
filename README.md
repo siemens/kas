@@ -1,6 +1,12 @@
 Setup tool for bitbake based projects
 =====================================
 
+|Branch  |Build Status|
+|--------|------------|
+|`master`|[![Build Status](https://travis-ci.org/siemens/kas.svg?branch=master)](https://travis-ci.org/siemens/kas)|
+|`next`  |[![Build Status](https://travis-ci.org/siemens/kas.svg?branch=next)](https://travis-ci.org/siemens/kas)|
+
+
 This tool provides an easy mechanism to setup bitbake based
 projects.
 
