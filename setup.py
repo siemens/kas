@@ -19,18 +19,21 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+"""
+    Setup script for kas, a setup tool for bitbake based projects
+"""
 
-from setuptools import setup, find_packages
 from os import path
+from setuptools import setup, find_packages
 
 from kas import __version__
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
 
-here = path.abspath(path.dirname(__file__))
-with open(path.join(here, 'README.md')) as f:
-    long_description = f.read()
+HERE = path.abspath(path.dirname(__file__))
+with open(path.join(HERE, 'README.md')) as f:
+    LONG_DESCRIPTION = f.read()
 
 
 setup(
@@ -38,7 +41,7 @@ setup(
     version=__version__,
 
     description='Setup tool for bitbake based projects',
-    long_description=long_description,
+    long_description=LONG_DESCRIPTION,
 
     license='MIT',
 

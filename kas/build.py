@@ -19,6 +19,9 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+"""
+    The build plugin for kas.
+"""
 
 import os
 from .config import load_config
@@ -33,6 +36,10 @@ __copyright__ = 'Copyright (c) Siemens AG, 2017'
 
 
 class Build:
+    """
+        This class implements the build plugin for kas.
+    """
+
     def __init__(self, parser):
         bld_psr = parser.add_parser('build')
 
@@ -49,6 +56,11 @@ class Build:
                              default=[])
 
     def run(self, args):
+        """
+            Executes the build command of the kas plugin.
+        """
+        # pylint: disable=no-self-use
+
         if args.cmd != 'build':
             return False
 
@@ -82,14 +94,21 @@ class Build:
 
 
 class BuildCommand(Command):
+    """
+        Implement the bitbake build step.
+    """
+
     def __init__(self, task):
-        Command.__init__
+        super().__init__()
         self.task = task
 
     def __str__(self):
         return 'build'
 
     def execute(self, config):
+        """
+            Executes the bitbake build command.
+        """
         # Start bitbake build of image
         bitbake = find_program(config.environ['PATH'], 'bitbake')
         run_cmd([bitbake, '-k', config.get_bitbake_target(), '-c', self.task],

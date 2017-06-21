@@ -19,14 +19,31 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+"""
+    This module contains the implementation of the kas configuration.
+"""
 
 import os
 import sys
 import logging
 import errno
 import json
-import platform
 import yaml
+
+try:
+    from distro import id as get_distro_id
+except ImportError:
+    import platform
+
+    def get_distro_id():
+        """
+            Wrapper around platform.dist to simulate distro.id
+            platform.dist is deprecated and will be removed in python 3.7
+            Use the 'distro' package instead.
+        """
+        # pylint: disable=deprecated-method
+        return platform.dist()[0]
+
 from .repos import Repo
 from .libkas import run_cmd
 
@@ -35,24 +52,39 @@ __copyright__ = 'Copyright (c) Siemens AG, 2017'
 
 
 class Config:
+    """
+        This is an abstract class, that defines the interface of the
+        kas configuration.
+    """
     def __init__(self):
         self.__kas_work_dir = os.environ.get('KAS_WORK_DIR', os.getcwd())
+        self.environ = {}
 
     @property
     def build_dir(self):
+        """
+            The path of the build directory.
+        """
         return os.path.join(self.__kas_work_dir, 'build')
 
     @property
     def kas_work_dir(self):
+        """
+            The path to the kas work directory.
+        """
         return self.__kas_work_dir
 
     def setup_environ(self):
-        (distro, version, id) = platform.dist()
-        if distro in ['fedora', 'SuSE']:
+        """
+            Sets the environment variables for process that are
+            started by kas.
+        """
+        distro_id = get_distro_id()
+        if distro_id in ['fedora', 'SuSE']:
             self.environ = {'LC_ALL': 'en_US.utf8',
                             'LANG': 'en_US.utf8',
                             'LANGUAGE': 'en_US'}
-        elif distro in ['Ubuntu', 'debian']:
+        elif distro_id in ['Ubuntu', 'debian']:
             self.environ = {'LC_ALL': 'en_US.UTF-8',
                             'LANG': 'en_US.UTF-8',
                             'LANGUAGE': 'en_US:en'}
@@ -61,17 +93,27 @@ class Config:
             self.environ = {}
 
     def get_repo_ref_dir(self):
+        """
+            The path to the directory that contains the repository references.
+        """
+        # pylint: disable=no-self-use
+
         return os.environ.get('KAS_REPO_REF_DIR', None)
 
 
 class ConfigPython(Config):
+    """
+        Implementation of a configuration that uses a Python script.
+    """
     def __init__(self, filename, target):
+        # pylint: disable=exec-used
+
         super().__init__()
         self.filename = os.path.abspath(filename)
         try:
-            with open(self.filename) as file:
+            with open(self.filename) as fds:
                 env = {}
-                data = file.read()
+                data = fds.read()
                 exec(data, env)
                 self._config = env
         except IOError:
@@ -82,80 +124,119 @@ class ConfigPython(Config):
         self.setup_environ()
 
     def __str__(self):
-        s = 'target: {}\n'.format(self.target)
-        s += 'repos:\n'
-        for r in self.get_repos():
-            s += '  {}\n'.format(r.__str__())
-        s += 'environ:\n'
-        for k, v in self.environ.items():
-            s += '  {} = {}\n'.format(k, v)
-        s += 'proxy:\n'
-        for k, v in self.get_proxy_config().items():
-            s += '  {} = {}\n'.format(k, v)
-        return s
+        output = 'target: {}\n'.format(self.target)
+        output += 'repos:\n'
+        for repo in self.get_repos():
+            output += '  {}\n'.format(repo.__str__())
+        output += 'environ:\n'
+        for key, value in self.environ.items():
+            output += '  {} = {}\n'.format(key, value)
+        output += 'proxy:\n'
+        for key, value in self.get_proxy_config().items():
+            output += '  {} = {}\n'.format(key, value)
+        return output
 
     def pre_hook(self, fname):
+        """
+            Returns a function that is executed before every command or None.
+        """
         try:
             self._config[fname + '_prepend'](self)
         except KeyError:
             pass
 
     def post_hook(self, fname):
+        """
+            Returs a function that is executed after every command or None.
+        """
         try:
             self._config[fname + '_append'](self)
         except KeyError:
             pass
 
     def get_hook(self, fname):
+        """
+            Returns a function that is executed instead of the command or None.
+        """
         try:
             return self._config[fname]
         except KeyError:
             return None
 
     def create_config(self, target):
+        """
+            Sets the configuration for `target`
+        """
         self.target = target
         self.repos = self._config['get_repos'](self, target)
 
     def get_proxy_config(self):
+        """
+            Returns the proxy settings
+        """
         return self._config['get_proxy_config']()
 
     def get_repos(self):
+        """
+            Returns the list of repos
+        """
         return iter(self.repos)
 
     def get_target(self):
+        """
+            Returns the target
+        """
         return self.target
 
     def get_bitbake_target(self):
+        """
+            Return the bitbake target
+        """
         try:
             return self._config['get_bitbake_target'](self)
         except KeyError:
             return self.target
 
     def get_bblayers_conf_header(self):
+        """
+            Returns the bblayers.conf header
+        """
         try:
             return self._config['get_bblayers_conf_header']()
         except KeyError:
             return ''
 
     def get_local_conf_header(self):
+        """
+            Returns the local.conf header
+        """
         try:
             return self._config['get_local_conf_header']()
-        except:
+        except KeyError:
             return ''
 
     def get_machine(self):
+        """
+            Returns the machine
+        """
         try:
             return self._config['get_machine'](self)
         except KeyError:
             return 'qemu'
 
     def get_distro(self):
+        """
+            Returns the distro
+        """
         try:
             return self._config['get_distro'](self)
         except KeyError:
             return 'poky'
 
     def get_gitlabci_config(self):
+        """
+            Returns the GitlabCI configuration
+        """
         try:
             return self._config['get_gitlabci_config'](self)
         except KeyError:
@@ -163,21 +244,37 @@ class ConfigPython(Config):
 
 
 class ConfigStatic(Config):
-    def __init__(self, filename, target):
+    """
+        An abstract class for static configuration files
+    """
+
+    def __init__(self, filename, _):
         super().__init__()
         self.filename = os.path.abspath(filename)
-        self._config = []
+        self._config = {}
 
-    def pre_hook(self, target):
+    def pre_hook(self, _):
+        """
+            Not used
+        """
         pass
 
-    def post_hook(self, target):
+    def post_hook(self, _):
+        """
+            Not used
+        """
         pass
 
-    def get_hook(self, fname):
-        return None
+    def get_hook(self, _):
+        """
+            Not used
+        """
+        pass
 
     def get_proxy_config(self):
+        """
+            Returns the proxy settings
+        """
         try:
             return self._config['proxy_config']
         except KeyError:
@@ -186,6 +283,9 @@ class ConfigStatic(Config):
                     'no_proxy': os.environ.get('no_proxy', '')}
 
     def get_repos(self):
+        """
+            Returns the list of repos
+        """
         repos = []
         for repo in self._config['repos']:
             try:
@@ -196,57 +296,75 @@ class ConfigStatic(Config):
             url = repo['url']
             if url == '':
                 # in-tree configuration
-                (rc, output) = run_cmd(['/usr/bin/git',
-                                        'rev-parse',
-                                        '--show-toplevel'],
-                                       cwd=os.path.dirname(self.filename),
-                                       env=self.environ)
+                (_, output) = run_cmd(['/usr/bin/git',
+                                       'rev-parse',
+                                       '--show-toplevel'],
+                                      cwd=os.path.dirname(self.filename),
+                                      env=self.environ)
                 url = output.strip()
-                r = Repo(url=url,
-                         path=url,
-                         sublayers=sublayers)
-                r.disable_git_operations()
+                rep = Repo(url=url,
+                           path=url,
+                           sublayers=sublayers)
+                rep.disable_git_operations()
             else:
                 name = os.path.basename(os.path.splitext(url)[0])
-                r = Repo(url=url,
-                         path=os.path.join(self.kas_work_dir, name),
-                         refspec=repo['refspec'],
-                         sublayers=sublayers)
-            repos.append(r)
+                rep = Repo(url=url,
+                           path=os.path.join(self.kas_work_dir, name),
+                           refspec=repo['refspec'],
+                           sublayers=sublayers)
+            repos.append(rep)
 
         return repos
 
     def get_bitbake_target(self):
+        """
+            Return the bitbake target
+        """
         try:
             return self._config['target']
         except KeyError:
             return 'core-image-minimal'
 
     def get_bblayers_conf_header(self):
+        """
+            Returns the bblayers.conf header
+        """
         try:
             return self._config['bblayers_conf_header']
         except KeyError:
             return ''
 
     def get_local_conf_header(self):
+        """
+            Returns the local.conf header
+        """
         try:
             return self._config['local_conf_header']
         except KeyError:
             return ''
 
     def get_machine(self):
+        """
+            Returns the machine
+        """
         try:
             return self._config['machine']
         except KeyError:
             return 'qemu'
 
     def get_distro(self):
+        """
+            Returns the distro
+        """
         try:
             return self._config['distro']
         except KeyError:
             return 'poky'
 
     def get_gitlabci_config(self):
+        """
+            Returns the GitlabCI configuration
+        """
         try:
             return self._config['gitlabci_config']
         except KeyError:
@@ -254,47 +372,60 @@ class ConfigStatic(Config):
 
 
 class ConfigJson(ConfigStatic):
+    """
+        Implements the configuration based on JSON files
+    """
+
     def __init__(self, filename, target):
         super().__init__(filename, target)
         self.filename = os.path.abspath(filename)
         try:
-            with open(self.filename, 'r') as f:
-                self._config = json.load(f)
+            with open(self.filename, 'r') as fds:
+                self._config = json.load(fds)
         except json.decoder.JSONDecodeError as msg:
-            logging.error('Could not load JSON config: {}'.format(msg))
+            logging.error('Could not load JSON config: %s', msg)
             sys.exit(1)
         self.setup_environ()
 
     def get_bblayers_conf_header(self):
-        list = super().get_bblayers_conf_header()
+        header_list = super().get_bblayers_conf_header()
         conf = ''
-        for line in list:
+        for line in header_list:
             conf += str(line) + '\n'
         return conf
 
     def get_local_conf_header(self):
-        list = super().get_local_conf_header()
+        header_list = super().get_local_conf_header()
         conf = ''
-        for line in list:
+        for line in header_list:
             conf += str(line) + '\n'
         return conf
 
 
 class ConfigYaml(ConfigStatic):
+    """
+        Implements  the configuration based on Yaml files
+    """
+
     def __init__(self, filename, target):
         super().__init__(filename, target)
         self.filename = os.path.abspath(filename)
         try:
-            with open(self.filename, 'r') as f:
-                self._config = yaml.load(f)
+            with open(self.filename, 'r') as fds:
+                self._config = yaml.load(fds)
         except yaml.loader.ParserError as msg:
-            logging.error('Could not load YAML config: {}'.format(msg))
+            logging.error('Could not load YAML config: %s', msg)
             sys.exit(1)
         self.setup_environ()
 
 
 def load_config(filename, target):
-    f, ext = os.path.splitext(filename)
+    """
+        Return configuration generated from `filename`.
+    """
+    # pylint: disable=redefined-variable-type
+
+    (_, ext) = os.path.splitext(filename)
     if ext == '.py':
         cfg = ConfigPython(filename, target)
     elif ext == '.json':

@@ -21,6 +21,10 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+"""
+    This module is the main entry point for kas, setup tool for bitbake based
+    projects
+"""
 
 import argparse
 import traceback
@@ -31,9 +35,9 @@ import pkg_resources
 
 try:
     import colorlog
-    have_colorlog = True
+    HAVE_COLORLOG = True
 except ImportError:
-    have_colorlog = False
+    HAVE_COLORLOG = False
 
 from .build import Build
 from .shell import Shell
@@ -44,27 +48,34 @@ __copyright__ = 'Copyright (c) Siemens AG, 2017'
 
 
 def create_logger():
+    """
+        Setup the logging environment
+    """
     log = logging.getLogger()  # root logger
     log.setLevel(logging.INFO)
-    format = '%(asctime)s - %(levelname)-8s - %(message)s'
+    format_str = '%(asctime)s - %(levelname)-8s - %(message)s'
     date_format = '%Y-%m-%d %H:%M:%S'
-    if have_colorlog and os.isatty(2):
-        cformat = '%(log_color)s' + format
+    if HAVE_COLORLOG and os.isatty(2):
+        cformat = '%(log_color)s' + format_str
         colors = {'DEBUG': 'reset',
                   'INFO': 'reset',
                   'WARNING': 'bold_yellow',
                   'ERROR': 'bold_red',
                   'CRITICAL': 'bold_red'}
-        f = colorlog.ColoredFormatter(cformat, date_format, log_colors=colors)
+        formatter = colorlog.ColoredFormatter(cformat, date_format,
+                                              log_colors=colors)
     else:
-        f = logging.Formatter(format, date_format)
-    ch = logging.StreamHandler()
-    ch.setFormatter(f)
-    log.addHandler(ch)
+        formatter = logging.Formatter(format_str, date_format)
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(formatter)
+    log.addHandler(stream_handler)
     return logging.getLogger(__name__)
 
 
 def kas(argv):
+    """
+        The main entry point of kas.
+    """
     create_logger()
 
     parser = argparse.ArgumentParser(description='Steer ebs-yocto builds')
@@ -96,10 +107,15 @@ def kas(argv):
 
 
 def main():
+    """
+        The main function that operates as a wrapper around kas.
+    """
+    # pylint: disable=broad-except
+
     try:
         sys.exit(kas(sys.argv[1:]))
     except Exception as err:
-        logging.error('%s' % err)
+        logging.error('%s', err)
         traceback.print_exc()
         sys.exit(1)
 

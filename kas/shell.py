@@ -19,6 +19,10 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+"""
+    This module contains a kas plugin that opens a shell within the kas
+    environment
+"""
 
 import subprocess
 from kas.config import load_config
@@ -29,6 +33,10 @@ __copyright__ = 'Copyright (c) Siemens AG, 2017'
 
 
 class Shell:
+    """
+        Implements a kas plugin that opens a shell within the kas environment.
+    """
+
     def __init__(self, parser):
         sh_prs = parser.add_parser('shell')
 
@@ -45,6 +53,11 @@ class Shell:
                             default='')
 
     def run(self, args):
+        """
+            Runs this kas plugin
+        """
+        # pylint: disable= no-self-use
+
         if args.cmd != 'shell':
             return False
 
@@ -63,8 +76,12 @@ class Shell:
 
 
 class ShellCommand(Command):
+    """
+        This class implements the command that starts a shell.
+    """
+
     def __init__(self, cmd):
-        Command.__init__(self)
+        super().__init__()
         self.cmd = []
         if cmd:
             self.cmd = cmd

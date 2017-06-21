@@ -19,12 +19,14 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+"""
+    This module contain common commands used by kas plugins.
+"""
 
 import tempfile
 import logging
 import shutil
 import os
-from urllib.parse import urlparse
 from .libkas import (ssh_cleanup_agent, ssh_setup_agent, ssh_no_host_key_check,
                      run_cmd, get_oe_environ)
 
@@ -33,41 +35,63 @@ __copyright__ = 'Copyright (c) Siemens AG, 2017'
 
 
 class Macro:
+    """
+        Contains commands and provide method to run them.
+    """
     def __init__(self):
         self.commands = []
 
     def add(self, command):
+        """
+            Appends commands to the command list.
+        """
         self.commands.append(command)
 
-    def run(self, config, skip=[]):
-        for c in self.commands:
-            name = str(c)
-            if name in skip:
+    def run(self, config, skip=None):
+        """
+            Runs command from the command list respective to the configuration.
+        """
+        skip = skip or []
+        for command in self.commands:
+            command_name = str(command)
+            if command_name in skip:
                 continue
-            pre = config.pre_hook(name)
-            if pre:
-                logging.debug('execute ' + pre)
-                pre(config)
-            cmd = config.get_hook(name)
-            if cmd:
-                logging.debug('execute ' + cmd)
-                cmd(config)
+            pre_hook = config.pre_hook(command_name)
+            if pre_hook:
+                logging.debug('execute %s', pre_hook)
+                pre_hook(config)
+            command_hook = config.get_hook(command_name)
+            if command_hook:
+                logging.debug('execute %s', command_hook)
+                command_hook(config)
             else:
-                logging.debug('execute ' + str(c))
-                c.execute(config)
-            post = config.post_hook(name)
-            if post:
-                logging.debug('execute ' + post)
-                post(config)
+                logging.debug('execute %s', command_name)
+                command.execute(config)
+            post_hook = config.post_hook(command_name)
+            if post_hook:
+                logging.debug('execute %s', post_hook)
+                post_hook(config)
 
 
 class Command:
+    """
+        An abstract class that defines the interface of a command.
+    """
+
     def execute(self, config):
+        """
+            This method executes the command.
+        """
         pass
 
 
 class SetupHome(Command):
+    """
+        Setups the home directory of kas.
+    """
+
     def __init__(self):
+        super().__init__()
         self.tmpdirname = tempfile.mkdtemp()
 
     def __del__(self):
@@ -77,14 +101,18 @@ class SetupHome(Command):
         return 'setup_home'
 
     def execute(self, config):
-        with open(self.tmpdirname + '/.wgetrc', 'w') as f:
-            f.write('\n')
-        with open(self.tmpdirname + '/.netrc', 'w') as f:
-            f.write('\n')
+        with open(self.tmpdirname + '/.wgetrc', 'w') as fds:
+            fds.write('\n')
+        with open(self.tmpdirname + '/.netrc', 'w') as fds:
+            fds.write('\n')
         config.environ['HOME'] = self.tmpdirname
 
 
 class SetupDir(Command):
+    """
+        Creates the build directory.
+    """
+
     def __str__(self):
         return 'setup_dir'
 
@@ -95,6 +123,10 @@ class SetupDir(Command):
 
 
 class SetupSSHAgent(Command):
+    """
+        Setup the ssh agent configuration.
+    """
+
     def __str__(self):
         return 'setup_ssh_agent'
 
@@ -104,7 +136,9 @@ class SetupSSHAgent(Command):
 
 
 class CleanupSSHAgent(Command):
-    """Remove all the identities and stop the ssh-agent instance"""
+    """
+        Remove all the identities and stop the ssh-agent instance.
+    """
 
     def __str__(self):
         return 'cleanup_ssh_agent'
@@ -114,6 +148,10 @@ class CleanupSSHAgent(Command):
 
 
 class SetupProxy(Command):
+    """
+        Setups proxy configuration in the kas environment.
+    """
+
     def __str__(self):
         return 'setup_proxy'
 
@@ -122,6 +160,10 @@ class SetupProxy(Command):
 
 
 class SetupEnviron(Command):
+    """
+        Setups the kas environment.
+    """
+
     def __str__(self):
         return 'setup_environ'
 
@@ -130,34 +172,39 @@ class SetupEnviron(Command):
 
 
 class WriteConfig(Command):
+    """
+        Writes bitbake configuration files into the build directory.
+    """
+
     def __str__(self):
         return 'write_config'
 
     def execute(self, config):
-        self._write_bblayers_conf(config)
-        self._write_local_conf(config)
+        def _write_bblayers_conf(config):
+            filename = config.build_dir + '/conf/bblayers.conf'
+            with open(filename, 'w') as fds:
+                fds.write(config.get_bblayers_conf_header())
+                fds.write('BBLAYERS ?= " \\\n')
+                for repo in config.get_repos():
+                    fds.write(' \\\n'.join(repo.layers + ['']))
+                fds.write('"\n')
 
-    def _append_layers(self, config, file):
-        for repo in config.get_repos():
-            file.write(' \\\n'.join(repo.layers + ['']))
+        def _write_local_conf(config):
+            filename = config.build_dir + '/conf/local.conf'
+            with open(filename, 'w') as fds:
+                fds.write(config.get_local_conf_header())
+                fds.write('MACHINE ?= "{}"\n'.format(config.get_machine()))
+                fds.write('DISTRO ?= "{}"\n'.format(config.get_distro()))
 
-    def _write_bblayers_conf(self, config):
-        filename = config.build_dir + '/conf/bblayers.conf'
-        with open(filename, 'w') as file:
-            file.write(config.get_bblayers_conf_header())
-            file.write('BBLAYERS ?= " \\\n')
-            self._append_layers(config, file)
-            file.write('"\n')
-
-    def _write_local_conf(self, config):
-        filename = config.build_dir + '/conf/local.conf'
-        with open(filename, 'w') as file:
-            file.write(config.get_local_conf_header())
-            file.write('MACHINE ?= "{}"\n'.format(config.get_machine()))
-            file.write('DISTRO ?= "{}"\n'.format(config.get_distro()))
+        _write_bblayers_conf(config)
+        _write_local_conf(config)
 
 
 class ReposFetch(Command):
+    """
+        Fetches repositories defined in the configuration
+    """
+
     def __str__(self):
         return 'repos_fetch'
 
@@ -170,8 +217,7 @@ class ReposFetch(Command):
                 os.makedirs(os.path.dirname(repo.path), exist_ok=True)
                 gitsrcdir = os.path.join(config.get_repo_ref_dir() or '',
                                          repo.qualified_name)
-                logging.debug('Looking for repo ref dir in {}'.
-                              format(gitsrcdir))
+                logging.debug('Looking for repo ref dir in %s', gitsrcdir)
                 if config.get_repo_ref_dir() and os.path.exists(gitsrcdir):
                     run_cmd(['/usr/bin/git',
                              'clone',
@@ -187,22 +233,26 @@ class ReposFetch(Command):
                 continue
 
             # Does refspec in the current repository?
-            (rc, output) = run_cmd(['/usr/bin/git', 'cat-file',
-                                    '-t', repo.refspec], env=config.environ,
-                                   cwd=repo.path, fail=False)
-            if rc == 0:
+            (retc, output) = run_cmd(['/usr/bin/git', 'cat-file',
+                                      '-t', repo.refspec], env=config.environ,
+                                     cwd=repo.path, fail=False)
+            if retc == 0:
                 continue
 
             # No it is missing, try to fetch
-            (rc, output) = run_cmd(['/usr/bin/git', 'fetch', '--all'],
-                                   env=config.environ,
-                                   cwd=repo.path, fail=False)
-            if rc:
-                logging.warning('Could not update repository {}: {}'.
-                                format(repo.name, output))
+            (retc, output) = run_cmd(['/usr/bin/git', 'fetch', '--all'],
+                                     env=config.environ,
+                                     cwd=repo.path, fail=False)
+            if retc:
+                logging.warning('Could not update repository %s: %s',
+                                repo.name, output)
 
 
 class ReposCheckout(Command):
+    """
+        Ensures that the right revision of each repo is check out.
+    """
+
     def __str__(self):
         return 'repos_checkout'
 
@@ -212,22 +262,21 @@ class ReposCheckout(Command):
                 continue
 
             # Check if repos is dirty
-            (rc, output) = run_cmd(['/usr/bin/git', 'diff', '--shortstat'],
-                                   env=config.environ, cwd=repo.path,
-                                   fail=False)
+            (_, output) = run_cmd(['/usr/bin/git', 'diff', '--shortstat'],
+                                  env=config.environ, cwd=repo.path,
+                                  fail=False)
             if len(output):
-                logging.warning('Repo {} is dirty. no checkout'.
-                                format(repo.name))
+                logging.warning('Repo %s is dirty. no checkout', repo.name)
                 continue
 
             # Check if current HEAD is what in the config file is defined.
-            (rc, output) = run_cmd(['/usr/bin/git', 'rev-parse',
-                                    '--verify', 'HEAD'], env=config.environ,
-                                   cwd=repo.path)
+            (_, output) = run_cmd(['/usr/bin/git', 'rev-parse',
+                                   '--verify', 'HEAD'],
+                                  env=config.environ, cwd=repo.path)
 
             if output.strip() == repo.refspec:
-                logging.info(('Repo {} has already checkout out correct '
-                              'refspec. nothing to do').format(repo.name))
+                logging.info('Repo %s has already checkout out correct '
+                             'refspec. nothing to do', repo.name)
                 continue
 
             run_cmd(['/usr/bin/git', 'checkout', '-q',
