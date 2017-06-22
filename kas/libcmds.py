@@ -28,7 +28,7 @@ import logging
 import shutil
 import os
 from .libkas import (ssh_cleanup_agent, ssh_setup_agent, ssh_no_host_key_check,
-                     run_cmd, get_oe_environ)
+                     run_cmd, get_build_environ)
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
@@ -168,7 +168,7 @@ class SetupEnviron(Command):
         return 'setup_environ'
 
     def execute(self, config):
-        config.environ.update(get_oe_environ(config, config.build_dir))
+        config.environ.update(get_build_environ(config, config.build_dir))
 
 
 class WriteConfig(Command):

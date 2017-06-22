@@ -158,29 +158,32 @@ def find_program(paths, name):
     return None
 
 
-def get_oe_environ(config, build_dir):
+def get_build_environ(config, build_dir):
     """
-        Create the openembedded environment variables.
+        Create the build environment variables.
     """
     # pylint: disable=too-many-locals
-    # nasty side effect function: running oe-init-build-env also
+    # nasty side effect function: running oe/isar-init-build-env also
     # creates the conf directory
 
-    oe_path = None
-    for repo in config.get_repos():
-        if os.path.exists(repo.path + '/oe-init-build-env'):
-            oe_path = repo.path
+    permutations = \
+        [(repo, script) for repo in config.get_repos()
+         for script in ['oe-init-build-env', 'isar-init-build-env']]
+    for (repo, script) in permutations:
+        if os.path.exists(repo.path + '/' + script):
+            init_path = repo.path
+            init_script = script
             break
-    if not oe_path:
-        logging.error('Did not find oe-init-build-env')
+    else:
+        logging.error('Did not find any init-build-env script')
         sys.exit(1)
 
     get_bb_env_file = tempfile.mktemp()
     with open(get_bb_env_file, 'w') as fds:
         script = """#!/bin/bash
-        source oe-init-build-env $1 > /dev/null 2>&1
+        source %s $1 > /dev/null 2>&1
         env
-        """
+        """ % init_script
         fds.write(script)
     os.chmod(get_bb_env_file, 0o775)
 
@@ -188,7 +191,7 @@ def get_oe_environ(config, build_dir):
     env['PATH'] = '/bin:/usr/bin'
 
     (_, output) = run_cmd([get_bb_env_file, build_dir],
-                          cwd=oe_path, env=env, liveupdate=False)
+                          cwd=init_path, env=env, liveupdate=False)
 
     os.remove(get_bb_env_file)
 
