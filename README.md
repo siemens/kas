@@ -45,7 +45,7 @@ asyncio.
 To install kas into your python site-package repository, run
 
 ```sh
-$ sudo pip install
+$ sudo pip3 install .
 ```
 
 
@@ -301,7 +301,7 @@ This project uses pip to manage the package. If you want to work on the
 project yourself you can create the necessary links via:
 
 ```sh
-$ sudo pip install -e .
+$ sudo pip3 install -e .
 ```
 
 That will install a backlink /usr/bin/kas to this project. Now you are
