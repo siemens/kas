@@ -73,4 +73,9 @@ setup(
             'kas=kas.kas:main',
         ],
     },
+
+    install_requires=[
+        'PyYAML>=3.0',
+        'distro>=1.0.0',
+    ],
 )
