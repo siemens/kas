@@ -1,6 +1,6 @@
 # This image builds Yocto 2.2 jobs using the kas tool
 
-FROM debian:8.8
+FROM debian:jessie-slim
 
 ENV LOCALE=en_US.UTF-8
 RUN apt-get update && \
