@@ -43,7 +43,7 @@ except ImportError:
         return platform.dist()[0]
 
 from .repos import Repo
-from .libkas import run_cmd
+from .libkas import run_cmd, repo_fetch, repo_checkout
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
@@ -329,8 +329,10 @@ class ConfigStatic(Config):
             missing_repos_old = missing_repos
             if missing_repos:
                 complete = False
-                self._fetch_missing_repos(missing_repos)
                 repo_dict = self.get_repo_dict()
+                for repo in missing_repos:
+                    repo_fetch(self, repo_dict[repo])
+                    repo_checkout(self, repo_dict[repo])
                 repos = {r: repo_dict[r].path for r in repo_dict}
 
     def get_repos(self):
@@ -386,40 +388,6 @@ class ConfigStatic(Config):
                            layers=layers)
             repo_dict[repo] = rep
         return repo_dict
-
-    def _fetch_missing_repos(self, missing_repos):
-        """
-            Fetches all repos from the missing_repos list.
-        """
-        from .libcmds import (Macro, ReposFetch, ReposCheckout)
-
-        class MissingRepoConfig(Config):
-            """
-                Custom config class, because we only want to
-                fetch the missing repositories needed for a
-                complete configuration not all of them.
-            """
-            def __init__(self, outerself):
-                super().__init__()
-                self.outerself = outerself
-                self.filename = outerself.filename
-                self.environ = outerself.environ
-                self.__kas_work_dir = outerself.kas_work_dir
-
-            def get_repo_ref_dir(self):
-                return self.outerself.get_repo_ref_dir()
-
-            def get_proxy_config(self):
-                return self.outerself.get_proxy_config()
-
-            def get_repos(self):
-                return list(map(lambda x: self.outerself.get_repo_dict()[x],
-                                missing_repos))
-
-        macro = Macro()
-        macro.add(ReposFetch())
-        macro.add(ReposCheckout())
-        macro.run(MissingRepoConfig(self))
 
 
 def load_config(filename, target):

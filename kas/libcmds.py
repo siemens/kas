@@ -28,7 +28,7 @@ import logging
 import shutil
 import os
 from .libkas import (ssh_cleanup_agent, ssh_setup_agent, ssh_no_host_key_check,
-                     run_cmd, get_build_environ)
+                     get_build_environ, repo_fetch, repo_checkout)
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
@@ -210,42 +210,7 @@ class ReposFetch(Command):
 
     def execute(self, config):
         for repo in config.get_repos():
-            if repo.git_operation_disabled:
-                continue
-
-            if not os.path.exists(repo.path):
-                os.makedirs(os.path.dirname(repo.path), exist_ok=True)
-                gitsrcdir = os.path.join(config.get_repo_ref_dir() or '',
-                                         repo.qualified_name)
-                logging.debug('Looking for repo ref dir in %s', gitsrcdir)
-                if config.get_repo_ref_dir() and os.path.exists(gitsrcdir):
-                    run_cmd(['/usr/bin/git',
-                             'clone',
-                             '--reference', gitsrcdir,
-                             repo.url, repo.path],
-                            env=config.environ,
-                            cwd=config.kas_work_dir)
-                else:
-                    run_cmd(['/usr/bin/git', 'clone', '-q', repo.url,
-                             repo.path],
-                            env=config.environ,
-                            cwd=config.kas_work_dir)
-                continue
-
-            # Does refspec in the current repository?
-            (retc, output) = run_cmd(['/usr/bin/git', 'cat-file',
-                                      '-t', repo.refspec], env=config.environ,
-                                     cwd=repo.path, fail=False)
-            if retc == 0:
-                continue
-
-            # No it is missing, try to fetch
-            (retc, output) = run_cmd(['/usr/bin/git', 'fetch', '--all'],
-                                     env=config.environ,
-                                     cwd=repo.path, fail=False)
-            if retc:
-                logging.warning('Could not update repository %s: %s',
-                                repo.name, output)
+            repo_fetch(config, repo)
 
 
 class ReposCheckout(Command):
@@ -258,27 +223,4 @@ class ReposCheckout(Command):
 
     def execute(self, config):
         for repo in config.get_repos():
-            if repo.git_operation_disabled:
-                continue
-
-            # Check if repos is dirty
-            (_, output) = run_cmd(['/usr/bin/git', 'diff', '--shortstat'],
-                                  env=config.environ, cwd=repo.path,
-                                  fail=False)
-            if len(output):
-                logging.warning('Repo %s is dirty. no checkout', repo.name)
-                continue
-
-            # Check if current HEAD is what in the config file is defined.
-            (_, output) = run_cmd(['/usr/bin/git', 'rev-parse',
-                                   '--verify', 'HEAD'],
-                                  env=config.environ, cwd=repo.path)
-
-            if output.strip() == repo.refspec:
-                logging.info('Repo %s has already checkout out correct '
-                             'refspec. nothing to do', repo.name)
-                continue
-
-            run_cmd(['/usr/bin/git', 'checkout', '-q',
-                     '{refspec}'.format(refspec=repo.refspec)],
-                    cwd=repo.path)
+            repo_checkout(config, repo)

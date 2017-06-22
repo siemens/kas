@@ -158,6 +158,78 @@ def find_program(paths, name):
     return None
 
 
+def repo_fetch(config, repo):
+    """
+        Fetches the repository to the kas_work_dir.
+    """
+    if repo.git_operation_disabled:
+        return
+
+    if not os.path.exists(repo.path):
+        os.makedirs(os.path.dirname(repo.path), exist_ok=True)
+        gitsrcdir = os.path.join(config.get_repo_ref_dir() or '',
+                                 repo.qualified_name)
+        logging.debug('Looking for repo ref dir in %s', gitsrcdir)
+        if config.get_repo_ref_dir() and os.path.exists(gitsrcdir):
+            run_cmd(['/usr/bin/git',
+                     'clone',
+                     '--reference', gitsrcdir,
+                     repo.url, repo.path],
+                    env=config.environ,
+                    cwd=config.kas_work_dir)
+        else:
+            run_cmd(['/usr/bin/git', 'clone', '-q', repo.url,
+                     repo.path],
+                    env=config.environ,
+                    cwd=config.kas_work_dir)
+        return
+
+    # Does refspec in the current repository?
+    (retc, output) = run_cmd(['/usr/bin/git', 'cat-file',
+                              '-t', repo.refspec], env=config.environ,
+                             cwd=repo.path, fail=False)
+    if retc == 0:
+        return
+
+    # No it is missing, try to fetch
+    (retc, output) = run_cmd(['/usr/bin/git', 'fetch', '--all'],
+                             env=config.environ,
+                             cwd=repo.path, fail=False)
+    if retc:
+        logging.warning('Could not update repository %s: %s',
+                        repo.name, output)
+
+
+def repo_checkout(config, repo):
+    """
+        Checks out the correct revision of the repo.
+    """
+    if repo.git_operation_disabled:
+        return
+
+    # Check if repos is dirty
+    (_, output) = run_cmd(['/usr/bin/git', 'diff', '--shortstat'],
+                          env=config.environ, cwd=repo.path,
+                          fail=False)
+    if len(output):
+        logging.warning('Repo %s is dirty. no checkout', repo.name)
+        return
+
+    # Check if current HEAD is what in the config file is defined.
+    (_, output) = run_cmd(['/usr/bin/git', 'rev-parse',
+                           '--verify', 'HEAD'],
+                          env=config.environ, cwd=repo.path)
+
+    if output.strip() == repo.refspec:
+        logging.info('Repo %s has already checkout out correct '
+                     'refspec. nothing to do', repo.name)
+        return
+
+    run_cmd(['/usr/bin/git', 'checkout', '-q',
+             '{refspec}'.format(refspec=repo.refspec)],
+            cwd=repo.path)
+
+
 def get_build_environ(config, build_dir):
     """
         Create the build environment variables.
