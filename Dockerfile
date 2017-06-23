@@ -4,15 +4,16 @@ FROM debian:jessie-slim
 
 ENV LOCALE=en_US.UTF-8
 RUN apt-get update && \
-    apt-get install -y locales && \
+    apt-get install --no-install-recommends -y locales && \
     sed -i -e "s/# $LOCALE.*/$LOCALE UTF-8/" /etc/locale.gen && \
     dpkg-reconfigure --frontend=noninteractive locales && \
-    apt-get -y install gawk wget git-core diffstat unzip \
+    apt-get install --no-install-recommends -y \
+                       gawk wget git-core diffstat unzip file \
                        texinfo gcc-multilib build-essential \
-                       chrpath socat cpio python python3 \
+                       chrpath socat cpio python python3 rsync \
                        tar bzip2 curl dosfstools mtools parted \
                        syslinux tree python3-pip bc python3-yaml \
-                       lsb-release && \
+                       lsb-release python3-setuptools && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
