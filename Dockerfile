@@ -22,5 +22,4 @@ RUN wget -nv -O /usr/bin/gosu "https://github.com/tianon/gosu/releases/download/
 COPY . /kas
 RUN pip3 install /kas
 
-COPY docker-entrypoint /docker-entrypoint
-ENTRYPOINT ["/docker-entrypoint"]
+ENTRYPOINT ["/kas/docker-entrypoint"]
