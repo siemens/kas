@@ -170,18 +170,11 @@ def repo_fetch(config, repo):
         gitsrcdir = os.path.join(config.get_repo_ref_dir() or '',
                                  repo.qualified_name)
         logging.debug('Looking for repo ref dir in %s', gitsrcdir)
+
+        cmd = ['/usr/bin/git', 'clone', '-q', repo.url, repo.path]
         if config.get_repo_ref_dir() and os.path.exists(gitsrcdir):
-            run_cmd(['/usr/bin/git',
-                     'clone',
-                     '--reference', gitsrcdir,
-                     repo.url, repo.path],
-                    env=config.environ,
-                    cwd=config.kas_work_dir)
-        else:
-            run_cmd(['/usr/bin/git', 'clone', '-q', repo.url,
-                     repo.path],
-                    env=config.environ,
-                    cwd=config.kas_work_dir)
+            cmd.extend(['--reference', gitsrcdir])
+        run_cmd(cmd, env=config.environ, cwd=config.kas_work_dir)
         return
 
     # Does refspec in the current repository?
