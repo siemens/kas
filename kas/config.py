@@ -79,7 +79,7 @@ class Config:
             started by kas.
         """
         distro_id = get_distro_id()
-        if distro_id in ['fedora', 'SuSE']:
+        if distro_id in ['fedora', 'SuSE', 'opensuse']:
             self.environ = {'LC_ALL': 'en_US.utf8',
                             'LANG': 'en_US.utf8',
                             'LANGUAGE': 'en_US'}
