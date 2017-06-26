@@ -64,7 +64,7 @@ class LogOutput:
 @asyncio.coroutine
 def _read_stream(stream, callback):
     """
-        This asynchronious method reads from the output stream of the
+        This asynchronous method reads from the output stream of the
         application and transfers each line to the callback function.
     """
     while True:
@@ -177,7 +177,7 @@ def repo_fetch(config, repo):
         run_cmd(cmd, env=config.environ, cwd=config.kas_work_dir)
         return
 
-    # Does refspec in the current repository?
+    # Does refspec exist in the current repository?
     (retc, output) = run_cmd(['/usr/bin/git', 'cat-file',
                               '-t', repo.refspec], env=config.environ,
                              cwd=repo.path, fail=False)
