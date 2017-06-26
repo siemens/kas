@@ -119,7 +119,6 @@ def run_cmd(cmd, cwd, env=None, fail=True, shell=False, liveupdate=True):
     # pylint: disable=too-many-arguments
 
     env = env or {}
-    retc = 0
     cmdstr = cmd
     if not shell:
         cmdstr = ' '.join(cmd)
