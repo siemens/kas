@@ -355,3 +355,12 @@ def ssh_no_host_key_check(_):
         os.mkdir(home + '/.ssh')
     with open(home + '/.ssh/config', 'w') as fds:
         fds.write('Host *\n\tStrictHostKeyChecking no\n\n')
+
+
+def kasplugin(plugin_class):
+    """
+        A decorator that registeres kas plugins
+    """
+    if not hasattr(kasplugin, 'plugins'):
+        setattr(kasplugin, 'plugins', [])
+    getattr(kasplugin, 'plugins').append(plugin_class)

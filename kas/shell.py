@@ -25,6 +25,7 @@
 """
 
 import subprocess
+from kas.libkas import kasplugin
 from kas.config import load_config
 from kas.libcmds import (Macro, Command, SetupProxy, SetupEnviron, SetupHome)
 
@@ -32,12 +33,17 @@ __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
 
 
+@kasplugin
 class Shell:
     """
         Implements a kas plugin that opens a shell within the kas environment.
     """
 
-    def __init__(self, parser):
+    @classmethod
+    def get_argparser(cls, parser):
+        """
+            Returns a parser for the shell plugin
+        """
         sh_prs = parser.add_parser('shell')
 
         sh_prs.add_argument('config',

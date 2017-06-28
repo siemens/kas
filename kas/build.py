@@ -25,7 +25,7 @@
 
 import os
 from .config import load_config
-from .libkas import find_program, run_cmd
+from .libkas import find_program, run_cmd, kasplugin
 from .libcmds import (Macro, Command, SetupDir, SetupProxy,
                       CleanupSSHAgent, SetupSSHAgent, SetupEnviron,
                       WriteConfig, SetupHome, ReposFetch,
@@ -35,12 +35,17 @@ __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
 
 
+@kasplugin
 class Build:
     """
         This class implements the build plugin for kas.
     """
 
-    def __init__(self, parser):
+    @classmethod
+    def get_argparser(cls, parser):
+        """
+            Returns an a parser for the build plugin
+        """
         bld_psr = parser.add_parser('build')
 
         bld_psr.add_argument('config',

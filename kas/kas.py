@@ -42,9 +42,15 @@ try:
 except ImportError:
     HAVE_COLORLOG = False
 
-from .build import Build
-from .shell import Shell
 from . import __version__
+
+# Import kas plugins
+# Since they are added by decorators, they don't need to be called,
+# just imported.
+# pylint: disable=unused-import
+from .libkas import kasplugin
+from . import build
+from . import shell
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
@@ -90,12 +96,10 @@ def _atexit_handler(loop):
     os.killpg(os.getpid(), signal.SIGTERM)
 
 
-def kas(argv):
+def kas_get_argparser():
     """
-        The main entry point of kas.
+        Creates a argparser for kas with all plugins.
     """
-    create_logger()
-
     parser = argparse.ArgumentParser(description='Steer ebs-yocto builds')
 
     parser.add_argument('--version', action='version',
@@ -106,12 +110,22 @@ def kas(argv):
                         help='Enable debug logging')
 
     subparser = parser.add_subparsers(help='sub command help', dest='cmd')
-    sub_cmds = [Build(subparser), Shell(subparser)]
+    for ext_plugin in pkg_resources.iter_entry_points('kas.plugins'):
+        ext_plugin.load()
 
-    for plugin in pkg_resources.iter_entry_points('kas.plugins'):
-        cmd = plugin.load()
-        sub_cmds.append(cmd(subparser))
+    for plugin in getattr(kasplugin, 'plugins', []):
+        plugin.get_argparser(subparser)
 
+    return parser
+
+
+def kas(argv):
+    """
+        The main entry point of kas.
+    """
+    create_logger()
+
+    parser = kas_get_argparser()
     args = parser.parse_args(argv)
 
     if args.debug:
@@ -123,8 +137,8 @@ def kas(argv):
         loop.add_signal_handler(sig, interruption)
     atexit.register(_atexit_handler, loop=loop)
 
-    for cmd in sub_cmds:
-        if cmd.run(args):
+    for plugin in getattr(kasplugin, 'plugins', []):
+        if plugin().run(args):
             return
 
     parser.print_help()
