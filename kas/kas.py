@@ -100,7 +100,8 @@ def kas_get_argparser():
     """
         Creates a argparser for kas with all plugins.
     """
-    parser = argparse.ArgumentParser(description='Steer ebs-yocto builds')
+    parser = argparse.ArgumentParser(description='kas - setup tool for '
+                                     'bitbake based project')
 
     parser.add_argument('--version', action='version',
                         version='%(prog)s ' + __version__)

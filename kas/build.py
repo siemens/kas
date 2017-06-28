@@ -46,7 +46,11 @@ class Build:
         """
             Returns an a parser for the build plugin
         """
-        bld_psr = parser.add_parser('build')
+        bld_psr = parser.add_parser('build',
+                                    help='Checks out all necessary '
+                                    'repositories and builds using '
+                                    'bitbake as specificed in the '
+                                    'configuration file.')
 
         bld_psr.add_argument('config',
                              help='Config file')

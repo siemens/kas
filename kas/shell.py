@@ -44,7 +44,9 @@ class Shell:
         """
             Returns a parser for the shell plugin
         """
-        sh_prs = parser.add_parser('shell')
+        sh_prs = parser.add_parser('shell',
+                                   help='Run a shell in the build '
+                                   'environment.')
 
         sh_prs.add_argument('config',
                             help='Config file')
