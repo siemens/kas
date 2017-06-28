@@ -1,0 +1,22 @@
+FROM kasproject/kas:latest
+
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN echo 'deb http://deb.debian.org/debian jessie-backports main' >> /etc/apt/sources.list.d/backports.list && \
+    echo 'deb http://deb.debian.org/debian stretch main' >> /etc/apt/sources.list.d/backports.list
+
+ENV LC_ALL=en_US.UTF-8
+RUN apt-get update && \
+    apt-get install -y -f --no-install-recommends --target-release jessie \
+            autoconf automake gdisk libtool bash-completion \
+            sudo grub2 grub-efi-amd64-bin grub-efi-ia32-bin qemu-user-static \
+            reprepro python3 && \
+    apt-get install -y -f --no-install-recommends --target-release jessie-backports \
+            e2fsprogs && \
+    apt-get install -y -f --no-install-recommends --target-release stretch \
+            multistrap && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp*
+
+RUN echo "builder ALL=NOPASSWD: ALL" > /etc/sudoers.d/builder-nopasswd && \
+    chmod 660 /etc/sudoers.d/builder-nopasswd

@@ -19,14 +19,17 @@ install:
 script:
   - scripts/checkcode.sh .
   - docker build -t kasproject/kas .
+  - docker build -t kasproject/kas-isar -f Dockerfile.isar .
 
 after_success:
   - if [ "$TRAVIS_BRANCH" == "master" ] || [ "$TRAVIS_BRANCH" == "next" ]; then
         docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-        docker push kasproject/kas;
-        if [ "$TRAVIS_BRANCH" == "master" ] && git describe --exact-match 2>/dev/null >/dev/null; then
-            VERSION="$(/usr/bin/python3 -c 'from kas.__version__ import __version__; print(__version__)')";
-            docker tag kasproject/kas kasproject/kas:$VERSION;
-            docker push kasproject/kas:$VERSION;
-        fi
+        for IMAGE in kasproject/kas kasproject/kas-isar; do
+            docker push $IMAGE;
+            if [ "$TRAVIS_BRANCH" == "master" ] && git describe --exact-match 2>/dev/null >/dev/null; then
+                VERSION="$(/usr/bin/python3 -c 'from kas import __version__; print(__version__)')";
+                docker tag $IMAGE $IMAGE:$VERSION;
+                docker push $IMAGE:$VERSION;
+            fi
+        done
     fi
