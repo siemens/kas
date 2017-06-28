@@ -406,7 +406,6 @@ def load_config(filename, target):
     """
         Return configuration generated from `filename`.
     """
-    # pylint: disable=redefined-variable-type
 
     (_, ext) = os.path.splitext(filename)
     if ext == '.py':

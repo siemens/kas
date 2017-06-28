@@ -53,8 +53,7 @@ class Repo:
         if item == 'layers':
             if not self._layers:
                 return [self.path]
-            else:
-                return [self.path + '/' + l for l in self._layers]
+            return [self.path + '/' + l for l in self._layers]
         elif item == 'qualified_name':
             url = urlparse(self.url)
             return ('{url.netloc}{url.path}'

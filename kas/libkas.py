@@ -220,7 +220,7 @@ def repo_checkout(config, repo):
     (_, output) = run_cmd(['/usr/bin/git', 'diff', '--shortstat'],
                           env=config.environ, cwd=repo.path,
                           fail=False)
-    if len(output):
+    if output:
         logging.warning('Repo %s is dirty. no checkout', repo.name)
         return
 

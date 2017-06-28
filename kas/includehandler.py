@@ -30,7 +30,12 @@ import sys
 import collections
 import functools
 import logging
-from distutils.version import StrictVersion
+try:
+    # pylint: disable=no-name-in-module
+    from distutils.version import StrictVersion
+except ImportError as exc:
+    logging.error("Could not import StrictVersion")
+    raise exc
 
 from . import __version__, __compatible_version__
 
@@ -250,15 +255,14 @@ class GlobalIncludes(IncludeHandler):
                     else:
                         dest[key] = upd[key]
                 return dest
-            else:
-                try:
-                    for k in upd:
-                        dest[k] = upd[k]
-                except AttributeError:
-                    # this mapping is not a dict
-                    for k in upd:
-                        dest[k] = upd[k]
-                return dest
+            try:
+                for k in upd:
+                    dest[k] = upd[k]
+            except AttributeError:
+                # this mapping is not a dict
+                for k in upd:
+                    dest[k] = upd[k]
+            return dest
 
         configs, missing_repos = _internal_include_handler(self.top_file)
         config = functools.reduce(_internal_dict_merge,
