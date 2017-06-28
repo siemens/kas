@@ -28,8 +28,5 @@ Key features provided by the build tool:
 - launch minimal build environment, reducing risk of host contamination
 - initiate bitbake build process
 
-Guides
-------
 
-  - [User guide](docs/userguide.rst)
-  - [Developer guide](docs/devguide.rst)
+[Documentation](https://kas.readthedocs.io)
