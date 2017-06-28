@@ -88,7 +88,7 @@ def interruption():
     sys.exit(1)
 
 
-def _atexit_handler(loop):
+def _atexit_handler():
     """
         Close event loop and terminate the whole process group
     """
@@ -136,7 +136,7 @@ def kas(argv):
 
     for sig in (signal.SIGINT, signal.SIGTERM):
         loop.add_signal_handler(sig, interruption)
-    atexit.register(_atexit_handler, loop=loop)
+    atexit.register(_atexit_handler)
 
     for plugin in getattr(kasplugin, 'plugins', []):
         if plugin().run(args):
