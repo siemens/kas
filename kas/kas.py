@@ -75,6 +75,13 @@ def create_logger():
     return logging.getLogger(__name__)
 
 
+def interruption():
+    """
+        Handle SIGINT/SIGTERM
+    """
+    sys.exit(1)
+
+
 def _atexit_handler(loop):
     """
         Close event loop and terminate the whole process group
@@ -112,6 +119,8 @@ def kas(argv):
 
     loop = asyncio.get_event_loop()
 
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        loop.add_signal_handler(sig, interruption)
     atexit.register(_atexit_handler, loop=loop)
 
     for cmd in sub_cmds:
