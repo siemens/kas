@@ -122,7 +122,6 @@ def run_cmd_async(cmd, cwd, env=None, fail=True, shell=False, liveupdate=True):
         for line in logo.stderr:
             msg += line
         logging.error(msg)
-        sys.exit(ret)
 
     return (ret, ''.join(logo.stdout))
 
@@ -134,8 +133,11 @@ def run_cmd(cmd, cwd, env=None, fail=True, shell=False, liveupdate=True):
     # pylint: disable=too-many-arguments
 
     loop = asyncio.get_event_loop()
-    return loop.run_until_complete(
+    (ret, output) = loop.run_until_complete(
         run_cmd_async(cmd, cwd, env, fail, shell, liveupdate))
+    if ret and fail:
+        sys.exit(ret)
+    return (ret, output)
 
 
 def find_program(paths, name):
