@@ -1,4 +1,4 @@
-# This image builds Yocto 2.2 jobs using the kas tool
+# This image builds Yocto 2.1 and 2.2 jobs using the kas tool
 
 FROM debian:jessie-slim
 
