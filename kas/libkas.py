@@ -81,12 +81,19 @@ def _read_stream(stream, callback):
 
 
 @asyncio.coroutine
-def _stream_subprocess(cmd, cwd, env, shell, stdout_cb, stderr_cb):
+def run_cmd_async(cmd, cwd, env=None, fail=True, shell=False, liveupdate=True):
     """
-        This function starts the subprocess, sets up the output stream
-        handlers and waits until the process has existed
+        Run a command asynchronously.
     """
     # pylint: disable=too-many-arguments
+
+    env = env or {}
+    cmdstr = cmd
+    if not shell:
+        cmdstr = ' '.join(cmd)
+    logging.info('%s$ %s', cwd, cmdstr)
+
+    logo = LogOutput(liveupdate)
 
     if shell:
         process = yield from asyncio.create_subprocess_shell(
@@ -105,40 +112,30 @@ def _stream_subprocess(cmd, cwd, env, shell, stdout_cb, stderr_cb):
             stderr=asyncio.subprocess.PIPE)
 
     yield from asyncio.wait([
-        _read_stream(process.stdout, stdout_cb),
-        _read_stream(process.stderr, stderr_cb)
+        _read_stream(process.stdout, logo.log_stdout),
+        _read_stream(process.stderr, logo.log_stderr)
     ])
     ret = yield from process.wait()
-    return ret
 
-
-def run_cmd(cmd, cwd, env=None, fail=True, shell=False, liveupdate=True):
-    """
-        Starts a command.
-    """
-    # pylint: disable=too-many-arguments
-
-    env = env or {}
-    cmdstr = cmd
-    if not shell:
-        cmdstr = ' '.join(cmd)
-    logging.info('%s$ %s', cwd, cmdstr)
-
-    logo = LogOutput(liveupdate)
-    loop = asyncio.get_event_loop()
-
-    retc = loop.run_until_complete(
-        _stream_subprocess(cmd, cwd, env, shell,
-                           logo.log_stdout, logo.log_stderr))
-
-    if retc and fail:
+    if ret and fail:
         msg = 'Command "{cwd}$ {cmd}" failed\n'.format(cwd=cwd, cmd=cmdstr)
         for line in logo.stderr:
             msg += line
         logging.error(msg)
-        sys.exit(retc)
+        sys.exit(ret)
 
-    return (retc, ''.join(logo.stdout))
+    return (ret, ''.join(logo.stdout))
+
+
+def run_cmd(cmd, cwd, env=None, fail=True, shell=False, liveupdate=True):
+    """
+        Runs a command synchronously.
+    """
+    # pylint: disable=too-many-arguments
+
+    loop = asyncio.get_event_loop()
+    return loop.run_until_complete(
+        run_cmd_async(cmd, cwd, env, fail, shell, liveupdate))
 
 
 def find_program(paths, name):
