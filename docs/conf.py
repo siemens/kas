@@ -21,7 +21,6 @@
 #
 import os
 import sys
-from recommonmark.parser import CommonMarkParser
 
 # Add the project directory to the path, in order to include it:
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -51,15 +50,11 @@ templates_path = ['_templates']
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-source_suffix = ['.rst', '.md']
+source_suffix = ['.rst']
 
 # The encoding of source files.
 #
 # source_encoding = 'utf-8-sig'
-
-source_parsers = {
-    '.md': CommonMarkParser,
-}
 
 # The master toctree document.
 master_doc = 'index'
