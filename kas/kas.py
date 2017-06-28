@@ -92,8 +92,13 @@ def _atexit_handler():
     """
         Close event loop and terminate the whole process group
     """
-    asyncio.get_event_loop().close()
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
     os.killpg(os.getpid(), signal.SIGTERM)
+
+    loop = asyncio.get_event_loop()
+    pending = asyncio.Task.all_tasks()
+    loop.run_until_complete(asyncio.gather(*pending))
+    loop.close()
 
 
 def kas_get_argparser():
