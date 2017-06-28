@@ -1,11 +1,5 @@
-Setup tool for bitbake based projects
-=====================================
-
-|Branch  |Build Status|
-|--------|------------|
-|`master`|[![Build Status](https://travis-ci.org/siemens/kas.svg?branch=master)](https://travis-ci.org/siemens/kas)|
-|`next`  |[![Build Status](https://travis-ci.org/siemens/kas.svg?branch=next)](https://travis-ci.org/siemens/kas)|
-
+Introduction and installation
+=============================
 
 This tool provides an easy mechanism to setup bitbake based
 projects.
@@ -27,9 +21,3 @@ Key features provided by the build tool:
 - create default bitbake settings (machine, arch, ...)
 - launch minimal build environment, reducing risk of host contamination
 - initiate bitbake build process
-
-Guides
-------
-
-  - [User guide](docs/userguide.md)
-  - [Developer guide](docs/devguide.md)

@@ -6,6 +6,10 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   intro
+   userguide
+   devguide
+
 Indices and tables
 ==================
 
