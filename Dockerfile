@@ -5,7 +5,8 @@ FROM debian:jessie-slim
 ENV LOCALE=en_US.UTF-8
 RUN apt-get update && \
     apt-get install --no-install-recommends -y locales && \
-    sed -i -e "s/# $LOCALE.*/$LOCALE UTF-8/" /etc/locale.gen && \
+    sed -i -e "s/# $LOCALE/$LOCALE/" /etc/locale.gen && \
+    ln -s /etc/locale.alias /usr/share/locale/locale.alias && \
     dpkg-reconfigure --frontend=noninteractive locales && \
     apt-get install --no-install-recommends -y \
                        gawk wget git-core diffstat unzip file \
