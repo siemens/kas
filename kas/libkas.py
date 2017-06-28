@@ -174,8 +174,10 @@ def repo_fetch(config, repo):
     # Does refspec exist in the current repository?
     (retc, output) = run_cmd(['/usr/bin/git', 'cat-file',
                               '-t', repo.refspec], env=config.environ,
-                             cwd=repo.path, fail=False)
+                             cwd=repo.path, fail=False, liveupdate=False)
     if retc == 0:
+        logging.info('Repository %s already contains %s as %s',
+                     repo.name, repo.refspec, output.strip())
         return
 
     # No it is missing, try to fetch
