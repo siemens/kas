@@ -27,8 +27,11 @@
 """
 
 import argparse
+import atexit
+import asyncio
 import traceback
 import logging
+import signal
 import sys
 import os
 import pkg_resources
@@ -72,6 +75,13 @@ def create_logger():
     return logging.getLogger(__name__)
 
 
+def _atexit_handler(loop):
+    """
+        Terminate the whole process group
+    """
+    os.killpg(os.getpid(), signal.SIGTERM)
+
+
 def kas(argv):
     """
         The main entry point of kas.
@@ -98,6 +108,10 @@ def kas(argv):
 
     if args.debug:
         logging.getLogger().setLevel(logging.DEBUG)
+
+    loop = asyncio.get_event_loop()
+
+    atexit.register(_atexit_handler, loop=loop)
 
     for cmd in sub_cmds:
         if cmd.run(args):
