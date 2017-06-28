@@ -118,7 +118,7 @@ def run_cmd_async(cmd, cwd, env=None, fail=True, shell=False, liveupdate=True):
     ret = yield from process.wait()
 
     if ret and fail:
-        msg = 'Command "{cwd}$ {cmd}" failed\n'.format(cwd=cwd, cmd=cmdstr)
+        msg = 'Command "{cwd}$ {cmd}" failed'.format(cwd=cwd, cmd=cmdstr)
         for line in logo.stderr:
             msg += line
         logging.error(msg)
@@ -166,10 +166,11 @@ def _repo_fetch_async(config, repo):
         cmd = ['/usr/bin/git', 'clone', '-q', repo.url, repo.path]
         if config.get_repo_ref_dir() and os.path.exists(gitsrcdir):
             cmd.extend(['--reference', gitsrcdir])
-        yield from run_cmd_async(cmd,
-                                 env=config.environ,
-                                 cwd=config.kas_work_dir)
-        logging.info('Repository %s cloned', repo.name)
+        (retc, _) = yield from run_cmd_async(cmd,
+                                             env=config.environ,
+                                             cwd=config.kas_work_dir)
+        if retc == 0:
+            logging.info('Repository %s cloned', repo.name)
         return
 
     # Does refspec exist in the current repository?
@@ -194,7 +195,8 @@ def _repo_fetch_async(config, repo):
     if retc:
         logging.warning('Could not update repository %s: %s',
                         repo.name, output)
-    logging.info('Repository %s updated', repo.name)
+    else:
+        logging.info('Repository %s updated', repo.name)
 
 
 def repos_fetch(config, repos):
