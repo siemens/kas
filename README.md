@@ -31,5 +31,5 @@ Key features provided by the build tool:
 Guides
 ------
 
-  - [User guide](docs/userguide.md)
+  - [User guide](docs/userguide.rst)
   - [Developer guide](docs/devguide.md)
