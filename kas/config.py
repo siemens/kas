@@ -313,27 +313,33 @@ class ConfigStatic(Config):
     def __init__(self, filename, _):
         from .includehandler import GlobalIncludes, IncludeException
         super().__init__()
-        self._config = {}
         self.setup_environ()
         self.filename = os.path.abspath(filename)
         self.handler = GlobalIncludes(self.filename)
-        complete = False
-        repos = {}
-        missing_repos_old = []
-        while not complete:
-            complete = True
-            self._config, missing_repos = self.handler.get_config(repos=repos)
-            if missing_repos_old and missing_repos == missing_repos_old:
+
+        repo_paths = {}
+        missing_repo_names_old = []
+        (self._config, missing_repo_names) = \
+            self.handler.get_config(repos=repo_paths)
+
+        while missing_repo_names:
+            if missing_repo_names == missing_repo_names_old:
                 raise IncludeException('Could not fetch all repos needed by '
                                        'includes.')
-            missing_repos_old = missing_repos
-            if missing_repos:
-                complete = False
-                repo_dict = self.get_repo_dict()
-                for repo in missing_repos:
-                    repo_fetch(self, repo_dict[repo])
-                    repo_checkout(self, repo_dict[repo])
-                repos = {r: repo_dict[r].path for r in repo_dict}
+
+            repo_dict = self.get_repo_dict()
+            missing_repos = [repo_dict[repo_name]
+                             for repo_name in missing_repo_names]
+
+            for repo in missing_repos:
+                repo_fetch(self, repo)
+                repo_checkout(self, repo)
+
+            repo_paths = {r: repo_dict[r].path for r in repo_dict}
+
+            missing_repo_names_old = missing_repo_names
+            (self._config, missing_repo_names) = \
+                self.handler.get_config(repos=repo_paths)
 
     def get_repos(self):
         """
