@@ -125,16 +125,11 @@ def run_cmd(cmd, cwd, env=None, fail=True, shell=False, liveupdate=True):
     logging.info('%s$ %s', cwd, cmdstr)
 
     logo = LogOutput(liveupdate)
-    if asyncio.get_event_loop().is_closed():
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-    else:
-        loop = asyncio.get_event_loop()
+    loop = asyncio.get_event_loop()
 
     retc = loop.run_until_complete(
         _stream_subprocess(cmd, cwd, env, shell,
                            logo.log_stdout, logo.log_stderr))
-    loop.close()
 
     if retc and fail:
         msg = 'Command "{cwd}$ {cmd}" failed\n'.format(cwd=cwd, cmd=cmdstr)

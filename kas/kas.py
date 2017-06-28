@@ -77,8 +77,9 @@ def create_logger():
 
 def _atexit_handler(loop):
     """
-        Terminate the whole process group
+        Close event loop and terminate the whole process group
     """
+    asyncio.get_event_loop().close()
     os.killpg(os.getpid(), signal.SIGTERM)
 
 
