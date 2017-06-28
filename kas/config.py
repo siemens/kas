@@ -103,11 +103,12 @@ class Config:
         """
             Returns the proxy settings
         """
-        return self._config.get('proxy_config', {
-            'http_proxy': os.environ.get('http_proxy', ''),
-            'https_proxy': os.environ.get('https_proxy', ''),
-            'no_proxy': os.environ.get('no_proxy', '')
-            })
+        proxy_config = self._config.get('proxy_config', {})
+        return {var_name: os.environ.get(var_name,
+                                         proxy_config.get(var_name, ''))
+                for var_name in ['http_proxy',
+                                 'https_proxy',
+                                 'no_proxy']}
 
     def get_repos(self):
         """
@@ -145,7 +146,9 @@ class Config:
         """
             Return the bitbake target
         """
-        return self._config.get('target', 'core-image-minimal')
+        return os.environ.get('KAS_TARGET',
+                              self._config.get('target',
+                                               'core-image-minimal'))
 
     def get_bblayers_conf_header(self):
         """
@@ -163,13 +166,15 @@ class Config:
         """
             Returns the machine
         """
-        return self._config.get('machine', 'qemu')
+        return os.environ.get('KAS_MACHINE',
+                              self._config.get('machine', 'qemu'))
 
     def get_distro(self):
         """
             Returns the distro
         """
-        return self._config.get('distro', 'poky')
+        return os.environ.get('KAS_DISTRO',
+                              self._config.get('distro', 'poky'))
 
     def get_gitlabci_config(self):
         """
