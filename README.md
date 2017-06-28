@@ -32,4 +32,4 @@ Guides
 ------
 
   - [User guide](docs/userguide.rst)
-  - [Developer guide](docs/devguide.md)
+  - [Developer guide](docs/devguide.rst)
