@@ -1,9 +1,23 @@
+language: python
+
+python:
+  - "3.4"
+  - "3.5"
+  - "3.6"
+
 sudo: required
 
 services:
   - docker
 
+install:
+  # install kas to have all kas dependencies:
+  - pip install .
+  # checkcode dependencies:
+  - pip install pylint pep8 Pygments
+
 script:
+  - scripts/checkcode.sh .
   - docker build -t kasproject/kas .
 
 after_success:
