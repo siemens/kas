@@ -39,6 +39,10 @@ Source code:
  - https://github.com/siemens/kas.git
  - git@github.com:siemens/kas.git
 
+Documentation:
+
+ - https://kas.readthedocs.org
+
 Mailing list:
 
   - kas-devel@googlegroups.com
