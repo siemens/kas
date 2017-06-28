@@ -149,9 +149,10 @@ def find_program(paths, name):
     return None
 
 
-def repo_fetch(config, repo):
+@asyncio.coroutine
+def _repo_fetch_async(config, repo):
     """
-        Fetches the repository to the kas_work_dir.
+        Start asynchronous repository fetch.
     """
     if repo.git_operation_disabled:
         return
@@ -165,25 +166,47 @@ def repo_fetch(config, repo):
         cmd = ['/usr/bin/git', 'clone', '-q', repo.url, repo.path]
         if config.get_repo_ref_dir() and os.path.exists(gitsrcdir):
             cmd.extend(['--reference', gitsrcdir])
-        run_cmd(cmd, env=config.environ, cwd=config.kas_work_dir)
+        yield from run_cmd_async(cmd,
+                                 env=config.environ,
+                                 cwd=config.kas_work_dir)
+        logging.info('Repository %s cloned', repo.name)
         return
 
     # Does refspec exist in the current repository?
-    (retc, output) = run_cmd(['/usr/bin/git', 'cat-file',
-                              '-t', repo.refspec], env=config.environ,
-                             cwd=repo.path, fail=False, liveupdate=False)
+    (retc, output) = yield from run_cmd_async(['/usr/bin/git',
+                                               'cat-file', '-t',
+                                               repo.refspec],
+                                              env=config.environ,
+                                              cwd=repo.path,
+                                              fail=False,
+                                              liveupdate=False)
     if retc == 0:
         logging.info('Repository %s already contains %s as %s',
                      repo.name, repo.refspec, output.strip())
         return
 
     # No it is missing, try to fetch
-    (retc, output) = run_cmd(['/usr/bin/git', 'fetch', '--all'],
-                             env=config.environ,
-                             cwd=repo.path, fail=False)
+    (retc, output) = yield from run_cmd_async(['/usr/bin/git',
+                                               'fetch', '--all'],
+                                              env=config.environ,
+                                              cwd=repo.path,
+                                              fail=False)
     if retc:
         logging.warning('Could not update repository %s: %s',
                         repo.name, output)
+    logging.info('Repository %s updated', repo.name)
+
+
+def repos_fetch(config, repos):
+    """
+        Fetches the list of repositories to the kas_work_dir.
+    """
+    cmds = []
+    for repo in repos:
+        cmds.append(_repo_fetch_async(config, repo))
+
+    loop = asyncio.get_event_loop()
+    return loop.run_until_complete(asyncio.wait(cmds))
 
 
 def repo_checkout(config, repo):

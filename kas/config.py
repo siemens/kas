@@ -43,7 +43,7 @@ except ImportError:
         return platform.dist()[0]
 
 from .repos import Repo
-from .libkas import run_cmd, repo_fetch, repo_checkout
+from .libkas import run_cmd, repos_fetch, repo_checkout
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
@@ -331,8 +331,9 @@ class ConfigStatic(Config):
             missing_repos = [repo_dict[repo_name]
                              for repo_name in missing_repo_names]
 
+            repos_fetch(self, missing_repos)
+
             for repo in missing_repos:
-                repo_fetch(self, repo)
                 repo_checkout(self, repo)
 
             repo_paths = {r: repo_dict[r].path for r in repo_dict}
