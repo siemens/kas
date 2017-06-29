@@ -86,6 +86,9 @@ Environment variable name                      Description
                                                machines, a ssh-agent running
                                                outside the kas environment is
                                                more useful.
+``DL_DIR`` ``SSTATE_DIR`` ``TMPDIR``           Environment variables that are
+                                               transfered to the bitbake
+                                               environment.
 ``http_proxy`` ``https_proxy`` ``no_proxy``    This overwrites the proxy
                                                configuration in the
                                                configuration file.
