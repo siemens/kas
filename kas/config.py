@@ -150,17 +150,26 @@ class Config:
                               self._config.get('target',
                                                'core-image-minimal'))
 
+    def _get_conf_header(self, header_name):
+        """
+            Returns the local.conf header
+        """
+        header = ''
+        for key, value in self._config.get(header_name, {}).items():
+            header += '# {}\n{}\n'.format(key, value)
+        return header
+
     def get_bblayers_conf_header(self):
         """
             Returns the bblayers.conf header
         """
-        return '\n'.join(self._config.get('bblayers_conf_header', {}).values())
+        return self._get_conf_header('bblayers_conf_header')
 
     def get_local_conf_header(self):
         """
             Returns the local.conf header
         """
-        return '\n'.join(self._config.get('local_conf_header', {}).values())
+        return self._get_conf_header('local_conf_header')
 
     def get_machine(self):
         """
