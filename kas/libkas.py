@@ -157,7 +157,7 @@ def _repo_fetch_async(config, repo):
         Start asynchronous repository fetch.
     """
     if repo.git_operation_disabled:
-        return
+        return 0
 
     if not os.path.exists(repo.path):
         os.makedirs(os.path.dirname(repo.path), exist_ok=True)
@@ -173,7 +173,7 @@ def _repo_fetch_async(config, repo):
                                              cwd=config.kas_work_dir)
         if retc == 0:
             logging.info('Repository %s cloned', repo.name)
-        return
+        return retc
 
     # Does refspec exist in the current repository?
     (retc, output) = yield from run_cmd_async(['/usr/bin/git',
@@ -186,7 +186,7 @@ def _repo_fetch_async(config, repo):
     if retc == 0:
         logging.info('Repository %s already contains %s as %s',
                      repo.name, repo.refspec, output.strip())
-        return
+        return retc
 
     # No it is missing, try to fetch
     (retc, output) = yield from run_cmd_async(['/usr/bin/git',
@@ -199,18 +199,27 @@ def _repo_fetch_async(config, repo):
                         repo.name, output)
     else:
         logging.info('Repository %s updated', repo.name)
+    return 0
 
 
 def repos_fetch(config, repos):
     """
         Fetches the list of repositories to the kas_work_dir.
     """
-    cmds = []
+    tasks = []
     for repo in repos:
-        cmds.append(_repo_fetch_async(config, repo))
+        if hasattr(asyncio, 'ensure_future'):
+            task = asyncio.ensure_future(_repo_fetch_async(config, repo))
+        else:
+            task = asyncio.async(_repo_fetch_async(config, repo))
+        tasks.append(task)
 
     loop = asyncio.get_event_loop()
-    return loop.run_until_complete(asyncio.wait(cmds))
+    loop.run_until_complete(asyncio.wait(tasks))
+
+    for task in tasks:
+        if task.result():
+            sys.exit(task.result())
 
 
 def repo_checkout(config, repo):
