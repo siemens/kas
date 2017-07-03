@@ -83,18 +83,15 @@ def create_logger():
 
 def interruption():
     """
-        Handle SIGINT/SIGTERM
+        Ignore SIGINT/SIGTERM in kas, let them be handled by our sub-processes
     """
-    sys.exit(1)
+    pass
 
 
 def _atexit_handler():
     """
-        Close event loop and terminate the whole process group
+        Wait for completion of the event loop
     """
-    signal.signal(signal.SIGTERM, signal.SIG_IGN)
-    os.killpg(os.getpid(), signal.SIGTERM)
-
     loop = asyncio.get_event_loop()
     pending = asyncio.Task.all_tasks()
     loop.run_until_complete(asyncio.gather(*pending))
