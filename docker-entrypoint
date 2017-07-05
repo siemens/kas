@@ -1,5 +1,16 @@
 #!/bin/bash
 
+if mount | grep -q "on / type aufs"; then
+    cat <<EOF >&2
+WARNING: Generation of wic images will fail!
+
+Your docker host setup uses broken aufs as storage driver. Adjust the docker
+configuration to use a driver (overlay, overlay2, devicemapper). You may also
+need to update the host distribution (e.g. Debian Jessie -> Stretch).
+
+EOF
+fi
+
 USER_ID=${USER_ID:-30000}
 
 # Create a non-root user that will perform the actual build
