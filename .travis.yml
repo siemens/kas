@@ -15,9 +15,12 @@ install:
   - pip install .
   # checkcode dependencies:
   - pip install pylint pep8 doc8 Pygments
+  # test dependencies:
+  - pip install pytest
 
 script:
   - scripts/checkcode.sh .
+  - pytest
   - docker build -t kasproject/kas .
   - docker build -t kasproject/kas-isar -f Dockerfile.isar .
 
