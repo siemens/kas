@@ -26,7 +26,6 @@
 """
 
 import os
-import sys
 import collections
 import functools
 import logging
@@ -41,6 +40,13 @@ from . import __version__, __compatible_version__
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
+
+
+class LoadConfigException(Exception):
+    """
+        Class for exceptions that appear while loading the configuration file.
+    """
+    pass
 
 
 def load_config(filename):
@@ -58,21 +64,30 @@ def load_config(filename):
         with open(filename, 'rb') as fds:
             config = yaml.safe_load(fds)
     else:
-        logging.error('Config file extension not recognized: %s',
-                      filename)
-        sys.exit(1)
+        raise LoadConfigException('Config file extension not recognized',
+                                  filename)
 
-    file_version_string = config.get('header', {}).get('version', None)
+    try:
+        header = config.get('header', {})
+    except AttributeError:
+        raise LoadConfigException('Config does not contain a dictionary',
+                                  filename)
 
-    if file_version_string is None:
-        logging.error('Version missing: %s', filename)
-        sys.exit(1)
+    if not header:
+        raise LoadConfigException('Header missing or empty', filename)
+
+    try:
+        file_version_string = header.get('version', None)
+    except AttributeError:
+        raise LoadConfigException('Header is not a dictionary', filename)
+
+    if not file_version_string:
+        raise LoadConfigException('Version missing or empty', filename)
 
     try:
         if not isinstance(file_version_string, str):
-            logging.error('Version has to be a string: %s',
-                          filename)
-            sys.exit(1)
+            raise LoadConfigException('Version has to be a string',
+                                      filename)
 
         file_version = StrictVersion()
         file_version.parse(file_version_string)
@@ -88,13 +103,12 @@ def load_config(filename):
             file_version.version = tuple(list(file_version.version[:2]) + [0])
 
         if file_version < lower_version or kas_version < file_version:
-            logging.error('This version of kas is compatible with version %s '
-                          'to %s, file has version %s: %s',
-                          lower_version, kas_version, file_version, filename)
-            sys.exit(1)
+            raise LoadConfigException('This version of kas is compatible with '
+                                      'version {} to {}, file has version {}'
+                                      .format(lower_version, kas_version,
+                                              file_version), filename)
     except ValueError:
-        logging.exception('Not expected version format: %s', filename)
-        raise
+        raise LoadConfigException('Not expected version format', filename)
 
     return config
 
@@ -128,7 +142,7 @@ class IncludeHandler(object):
         # pylint: disable=no-self-use,unused-argument
 
         logging.error('get_config is not implemented')
-        sys.exit(1)
+        raise NotImplementedError()
 
 
 class GlobalIncludes(IncludeHandler):
