@@ -24,7 +24,6 @@
 """
 
 import os
-import sys
 import logging
 import errno
 
@@ -421,10 +420,7 @@ def load_config(filename, target):
     (_, ext) = os.path.splitext(filename)
     if ext == '.py':
         cfg = ConfigPython(filename, target)
-    elif ext in ['.json', '.yml']:
-        cfg = ConfigStatic(filename, target)
     else:
-        logging.error('Config file extenstion not recognized')
-        sys.exit(1)
+        cfg = ConfigStatic(filename, target)
 
     return cfg
