@@ -336,6 +336,8 @@ class ConfigStatic(Config):
         (self._config, missing_repo_names) = \
             self.handler.get_config(repos=repo_paths)
 
+        self.environ.update(self.get_proxy_config())
+
         while missing_repo_names:
             if missing_repo_names == missing_repo_names_old:
                 raise IncludeException('Could not fetch all repos needed by '
