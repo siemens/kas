@@ -210,10 +210,11 @@ def repos_fetch(config, repos):
     """
     tasks = []
     for repo in repos:
-        if hasattr(asyncio, 'ensure_future'):
-            task = asyncio.ensure_future(_repo_fetch_async(config, repo))
-        else:
+        if not hasattr(asyncio, 'ensure_future'):
+            # pylint: disable=no-member,deprecated-method
             task = asyncio.async(_repo_fetch_async(config, repo))
+        else:
+            task = asyncio.ensure_future(_repo_fetch_async(config, repo))
         tasks.append(task)
 
     loop = asyncio.get_event_loop()
