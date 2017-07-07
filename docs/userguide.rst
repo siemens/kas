@@ -368,6 +368,10 @@ Static configuration reference
 Dynamic project configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+**NOTE: Dynamic project configuration is experimental. The API may change or
+even be obsoleted in future versions. Please provide feedback if you consider
+it useful.**
+
 The dynamic project configuration is plain Python with following
 mandatory functions which need to be provided:
 
@@ -430,5 +434,3 @@ the exection steps in kas core, e.g.
             run_wic(config)
 
 TODO: Document the complete configuration API.
-
-
