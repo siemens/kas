@@ -21,18 +21,22 @@ install:
 script:
   - scripts/checkcode.sh .
   - pytest
-  - docker build -t kasproject/kas .
-  - docker build -t kasproject/kas-isar -f Dockerfile.isar .
 
-after_success:
-  - if [ "$TRAVIS_BRANCH" == "master" ] || [ "$TRAVIS_BRANCH" == "next" ]; then
-        docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-        for IMAGE in kasproject/kas kasproject/kas-isar; do
-            docker push $IMAGE;
-            if [ "$TRAVIS_BRANCH" == "master" ] && git describe --exact-match 2>/dev/null >/dev/null; then
-                VERSION="$(/usr/bin/python3 -c 'from kas import __version__; print(__version__)')";
-                docker tag $IMAGE $IMAGE:$VERSION;
-                docker push $IMAGE:$VERSION;
-            fi
-        done
-    fi
+jobs:
+  include:
+    - stage: docker
+      python: "3.6"
+      script:
+        - docker build -t kasproject/kas .
+        - docker build -t kasproject/kas-isar -f Dockerfile.isar .
+        - if [ "$TRAVIS_BRANCH" == "master" ] || [ "$TRAVIS_BRANCH" == "next" ]; then
+              docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+              for IMAGE in kasproject/kas kasproject/kas-isar; do
+                  docker push $IMAGE;
+                  if [ "$TRAVIS_BRANCH" == "master" ] && git describe --exact-match 2>/dev/null >/dev/null; then
+                      VERSION="$(/usr/bin/python3 -c 'from kas import __version__; print(__version__)')";
+                      docker tag $IMAGE $IMAGE:$VERSION;
+                      docker push $IMAGE:$VERSION;
+                  fi
+              done
+          fi
