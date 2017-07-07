@@ -119,8 +119,10 @@ def run_cmd_async(cmd, cwd, env=None, fail=True, shell=False, liveupdate=True):
 
     if ret and fail:
         msg = 'Command "{cwd}$ {cmd}" failed'.format(cwd=cwd, cmd=cmdstr)
-        for line in logo.stderr:
-            msg += line
+        if logo.stderr:
+            msg += '\n--- Error summary ---\n'
+            for line in logo.stderr:
+                msg += line
         logging.error(msg)
 
     return (ret, ''.join(logo.stdout))
