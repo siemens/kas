@@ -55,8 +55,7 @@ class Build:
         bld_psr.add_argument('config',
                              help='Config file')
         bld_psr.add_argument('--target',
-                             help='Select target to build',
-                             default='core-image-minimal')
+                             help='Select target to build')
         bld_psr.add_argument('--task',
                              help='Select which task should be executed',
                              default='build')

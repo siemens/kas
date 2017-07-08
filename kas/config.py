@@ -248,7 +248,7 @@ class ConfigPython(Config):
         """
             Sets the configuration for `target`
         """
-        self.target = target
+        self.target = 'core-image-minimal' if target is None else target
         self.repos = self._config['get_repos'](self, target)
 
     def get_proxy_config(self):
@@ -323,7 +323,7 @@ class ConfigStatic(Config):
         Implements the static kas configuration based on config files.
     """
 
-    def __init__(self, filename, _):
+    def __init__(self, filename, target):
         from .includehandler import GlobalIncludes, IncludeException
         super().__init__()
         self.setup_environ()
@@ -356,6 +356,9 @@ class ConfigStatic(Config):
             missing_repo_names_old = missing_repo_names
             (self._config, missing_repo_names) = \
                 self.handler.get_config(repos=repo_paths)
+
+        if target:
+            self._config['target'] = target
 
     def get_repos(self):
         """
