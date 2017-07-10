@@ -25,5 +25,5 @@
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
 
-__version__ = '0.9.0'
-__compatible_version__ = '0.9'
+__version__ = '0.10.0'
+__compatible_version__ = '0.10'
