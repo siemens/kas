@@ -34,10 +34,14 @@ jobs:
               master|next|"$TAG")
                   docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
                   for IMAGE in kasproject/kas kasproject/kas-isar; do
-                      docker push $IMAGE;
                       if [ "$TRAVIS_BRANCH" == "$TAG" ]; then
                           docker tag $IMAGE $IMAGE:$TAG;
                           docker push $IMAGE:$TAG;
+                      elif [ "$TRAVIS_BRANCH" == "next" ]; then
+                          docker tag $IMAGE $IMAGE:next;
+                          docker push $IMAGE:next;
+                      else
+                          docker push $IMAGE;
                       fi
                   done
                   ;;
