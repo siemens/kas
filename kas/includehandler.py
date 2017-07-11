@@ -46,7 +46,8 @@ class LoadConfigException(Exception):
     """
         Class for exceptions that appear while loading the configuration file.
     """
-    pass
+    def __init__(self, message, filename):
+        super().__init__('{}: {}'.format(message, filename))
 
 
 def load_config(filename):
