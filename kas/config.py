@@ -344,7 +344,8 @@ class ConfigStatic(Config):
 
             repo_dict = self.get_repo_dict()
             missing_repos = [repo_dict[repo_name]
-                             for repo_name in missing_repo_names]
+                             for repo_name in missing_repo_names
+                             if repo_name in repo_dict]
 
             repos_fetch(self, missing_repos)
 
