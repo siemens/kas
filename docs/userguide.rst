@@ -25,9 +25,10 @@ Usage
 There are three options for using kas:
 
 - Install it locally via pip to get the ``kas`` command.
-- Use the docker image. In this case run the commands in the examples
-  below within ``docker run -it <kas-image> sh`` or bind-mount the project into
-  the container.
+- Use the docker image. In this case, run the commands in the examples below
+  within ``docker run -it kasproject/kas:<version> sh`` or bind-mount the
+  project into the container. See https://hub.docker.com/r/kasproject for all
+  available images.
 - Use the **run-kas** wrapper from this directory. In this case replace ``kas``
   in the examples below with ``path/to/run-kas``.
 
