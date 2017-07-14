@@ -43,6 +43,13 @@ setup(
     description='Setup tool for bitbake based projects',
     long_description=LONG_DESCRIPTION,
 
+    maintainer='Daniel Wagner',
+    maintainer_email='daniel.wagner@siemens.com',
+
+    url='https://github.com/siemens/kas',
+    download_url=('https://github.com/siemens/'
+                  'kas/archive/{version}.tar.gz'.format(version=__version__)),
+
     license='MIT',
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
