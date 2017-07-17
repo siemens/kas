@@ -184,9 +184,10 @@ class WriteConfig(Command):
             filename = config.build_dir + '/conf/bblayers.conf'
             with open(filename, 'w') as fds:
                 fds.write(config.get_bblayers_conf_header())
-                fds.write('BBLAYERS ?= " \\\n')
-                for repo in config.get_repos():
-                    fds.write(' \\\n'.join(repo.layers + ['']))
+                fds.write('BBLAYERS ?= " \\\n    ')
+                fds.write(' \\\n    '.join(
+                    sorted(layer for repo in config.get_repos()
+                           for layer in repo.layers)))
                 fds.write('"\n')
 
         def _write_local_conf(config):

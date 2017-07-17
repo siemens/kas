@@ -154,7 +154,7 @@ class Config:
             Returns the local.conf header
         """
         header = ''
-        for key, value in self._config.get(header_name, {}).items():
+        for key, value in sorted(self._config.get(header_name, {}).items()):
             header += '# {}\n{}\n'.format(key, value)
         return header
 
