@@ -42,7 +42,7 @@ try:
 except ImportError:
     HAVE_COLORLOG = False
 
-from . import __version__
+from . import __version__, __file_version__, __compatible_file_version__
 
 # Import kas plugins
 # Since they are added by decorators, they don't need to be called,
@@ -105,8 +105,10 @@ def kas_get_argparser():
     parser = argparse.ArgumentParser(description='kas - setup tool for '
                                      'bitbake based project')
 
-    parser.add_argument('--version', action='version',
-                        version='%(prog)s ' + __version__)
+    verstr = '%(prog)s {} (configuration format version {}, ' \
+        'earliest compatible version {})'.format(__version__, __file_version__,
+                                                 __compatible_file_version__)
+    parser.add_argument('--version', action='version', version=verstr)
 
     parser.add_argument('-d', '--debug',
                         action='store_true',
