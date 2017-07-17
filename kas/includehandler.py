@@ -29,14 +29,8 @@ import os
 import collections
 import functools
 import logging
-try:
-    # pylint: disable=no-name-in-module
-    from distutils.version import StrictVersion
-except ImportError as exc:
-    logging.error("Could not import StrictVersion")
-    raise exc
 
-from . import __version__, __compatible_version__
+from . import __file_version__, __compatible_file_version__
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
@@ -78,38 +72,29 @@ def load_config(filename):
         raise LoadConfigException('Header missing or empty', filename)
 
     try:
-        file_version_string = header.get('version', None)
+        version = header.get('version', None)
     except AttributeError:
         raise LoadConfigException('Header is not a dictionary', filename)
 
-    if not file_version_string:
+    if not version:
         raise LoadConfigException('Version missing or empty', filename)
 
     try:
-        if not isinstance(file_version_string, str):
-            raise LoadConfigException('Version has to be a string',
-                                      filename)
-
-        file_version = StrictVersion()
-        file_version.parse(file_version_string)
-        kas_version = StrictVersion()
-        kas_version.parse(__version__)
-        lower_version = StrictVersion()
-        lower_version.parse(__compatible_version__)
-
-        # Remove patch version, because we provide limited forwards
-        # compatibility:
-        if file_version.version[2] > 0:
-            file_version.prerelease = None
-            file_version.version = tuple(list(file_version.version[:2]) + [0])
-
-        if file_version < lower_version or kas_version < file_version:
-            raise LoadConfigException('This version of kas is compatible with '
-                                      'version {} to {}, file has version {}'
-                                      .format(lower_version, kas_version,
-                                              file_version), filename)
+        version_value = int(version)
     except ValueError:
-        raise LoadConfigException('Not expected version format', filename)
+        # Be compatible: version string '0.10' is equivalent to file version 1
+        if isinstance(version, str) and version == '0.10':
+            version_value = 1
+        else:
+            raise LoadConfigException('Unexpected version format', filename)
+
+    if version_value < __compatible_file_version__ or \
+       version_value > __file_version__:
+        raise LoadConfigException('This version of kas is compatible with '
+                                  'version {} to {}, file has version {}'
+                                  .format(__compatible_file_version__,
+                                          __file_version__, version_value),
+                                  filename)
 
     return config
 

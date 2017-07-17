@@ -9,6 +9,7 @@ Contents:
    intro
    userguide
    devguide
+   format-changelog
 
 Indices and tables
 ==================

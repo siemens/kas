@@ -34,8 +34,8 @@ from kas import includehandler
 
 @pytest.fixture(autouse=True)
 def fixed_version(monkeypatch):
-    monkeypatch.setattr(includehandler, '__version__', '0.5.0')
-    monkeypatch.setattr(includehandler, '__compatible_version__', '0.5')
+    monkeypatch.setattr(includehandler, '__file_version__', 5)
+    monkeypatch.setattr(includehandler, '__compatible_file_version__', 4)
 
 
 class MockFileIO(io.StringIO):
@@ -103,50 +103,37 @@ class TestLoadConfig(object):
 
         self.util_exception_content(testvector)
 
-    def test_err_version_invalid_type(self):
-        exception = includehandler.LoadConfigException
-        testvector = [
-            ('header: {version: 1}', exception),
-            ('header: {version: a}', exception),
-            ('header: {version: 0.4}', exception),
-            ('header: {version: 0.5}', exception),
-            ('header: {version: 0.6}', exception),
-        ]
-
-        self.util_exception_content(testvector)
-
     def test_err_version_invalid_format(self):
         exception = includehandler.LoadConfigException
         testvector = [
-            ('header: {version: "0.4"}', exception),
-            ('header: {version: "0.4.5"}', exception),
-            ('header: {version: "0.5a"}', exception),
-            ('header: {version: "0.5.a"}', exception),
-            ('header: {version: "0.5.4.3"}', exception),
-            ('header: {version: "0.50"}', exception),
-            ('header: {version: "0.6a"}', exception),
-            ('header: {version: "0.6"}', exception),
+            ('header: {version: "0.5"}', exception),
+            ('header: {version: "x"}', exception),
+            ('header: {version: 3}', exception),
+            ('header: {version: 6}', exception),
         ]
 
         self.util_exception_content(testvector)
 
     def test_header_valid(self):
         testvector = [
-            'header: {version: "0.5"}',
-            'header: {version: "0.5.0"}',
-            'header: {version: "0.5.1"}',
-            'header: {version: "0.5.10"}',
-            'header: {version: "0.5"}',
+            'header: {version: "4"}',
+            'header: {version: 4}',
+            'header: {version: 5}',
             ]
         for string in testvector:
             with patch_open(includehandler, string=string):
                 includehandler.load_config('x.yml')
 
+    def test_compat_version(self, monkeypatch):
+        monkeypatch.setattr(includehandler, '__compatible_file_version__', 1)
+        with patch_open(includehandler, string='header: {version: "0.10"}'):
+            includehandler.load_config('x.yml')
+
 
 class TestGlobalIncludes(object):
     header = '''
 header:
-  version: "0.5"
+  version: 5
 {}'''
 
     def util_include_content(self, testvector):

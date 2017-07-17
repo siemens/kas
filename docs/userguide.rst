@@ -135,11 +135,11 @@ arguable easier to read, this documentation focuses on the YAML format.
     # Every file needs to contain a header, that provides kas with information
     # about the context of this file.
     header:
-      # The `version` entry in the header describes for which kas version this
-      # file was created. It is used by kas to figure out if it is compatible
-      # with this file. Every version x.y.z should be compatible with
-      # the configuration file version x.y. (x, y and z are numbers)
-      version: "x.y"
+      # The `version` entry in the header describes for which configuration
+      # format version this file was created for. It is used by kas to figure
+      # out if it is compatible with this file. The version is an integer that
+      # is increased on every format change.
+      version: x
     # The machine as it is written into the `local.conf` of bitbake.
     machine: qemu
     # The distro name as it is written into the `local.conf` of bitbake.
@@ -193,7 +193,7 @@ repository/layer like this:
 .. code-block:: yaml
 
     header:
-      version: "x.y"
+      version: x
       includes:
         - base.yml
         - bsp.yml
@@ -209,7 +209,7 @@ Its also possible to include configuration files from other repos like this:
 .. code-block:: yaml
 
     header:
-      version: "x.y"
+      version: x
       includes:
         - repo: poky
           file: kas-poky.yml
@@ -256,8 +256,10 @@ Static configuration reference
     The header of every kas configuration file. It contains information about
     context of the file.
 
-  * ``version``: string [required]
-      Lets kas check if it is compatible with this file.
+  * ``version``: integer [required]
+      Lets kas check if it is compatible with this file. See the
+      :doc:`configuration format changelog <format-changelog>` for the
+      format history and latest available version.
 
   * ``includes``: list [optional]
       A list of configuration files this current file is based on. They are
