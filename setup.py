@@ -32,7 +32,7 @@ __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
 
 HERE = path.abspath(path.dirname(__file__))
-with open(path.join(HERE, 'README.md')) as f:
+with open(path.join(HERE, 'README.rst')) as f:
     LONG_DESCRIPTION = f.read()
 
 
