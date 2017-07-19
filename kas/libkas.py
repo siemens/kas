@@ -306,7 +306,8 @@ def get_build_environ(config, build_dir):
         env.update({'BB_ENV_EXTRAWHITE': extra_white})
 
     env_vars.extend(['SSH_AGENT_PID', 'SSH_AUTH_SOCK',
-                     'SHELL', 'TERM'])
+                     'SHELL', 'TERM',
+                     'GIT_PROXY_COMMAND', 'NO_PROXY'])
 
     for env_var in env_vars:
         if env_var in os.environ:

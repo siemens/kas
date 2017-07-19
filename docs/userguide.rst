@@ -93,6 +93,9 @@ Environment variables
 | ``https_proxy``       | configuration file.                                 |
 | ``no_proxy``          |                                                     |
 +-----------------------+-----------------------------------------------------+
+| ``GIT_PROXY_COMMAND`` | Set proxy for native git fetches. ``NO_PROXY`` is   |
+| ``NO_PROXY``          | evaluated by OpenEmbedded's oe-git-proxy script.    |
++-----------------------+-----------------------------------------------------+
 | ``SHELL``             | The shell to start when using the `shell` plugin.   |
 +-----------------------+-----------------------------------------------------+
 | ``TERM``              | The terminal options used in the `shell` plugin.    |
