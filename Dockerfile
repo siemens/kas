@@ -27,7 +27,7 @@ ENV GIT_PROXY_COMMAND="oe-git-proxy"
 ENV NO_PROXY="*"
 
 COPY . /kas
-RUN pip3 install /kas
+RUN pip3 --proxy=$https_proxy install /kas
 
 ENV LANG=$LOCALE
 
