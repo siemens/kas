@@ -21,6 +21,11 @@ RUN apt-get update && \
 RUN wget -nv -O /usr/bin/gosu "https://github.com/tianon/gosu/releases/download/1.10/gosu-amd64" && \
     chmod +x /usr/bin/gosu
 
+RUN wget -nv -O /usr/bin/oe-git-proxy "http://git.yoctoproject.org/cgit/cgit.cgi/poky/plain/scripts/oe-git-proxy" && \
+    chmod +x /usr/bin/oe-git-proxy
+ENV GIT_PROXY_COMMAND="oe-git-proxy"
+ENV NO_PROXY="*"
+
 COPY . /kas
 RUN pip3 install /kas
 
