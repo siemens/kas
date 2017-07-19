@@ -18,4 +18,8 @@ id builder 2>/dev/null || \
     useradd --uid $USER_ID --create-home --home-dir /builder builder
 
 cd /builder
-exec gosu builder "$@"
+if [ -n "$1" ]; then
+	exec gosu builder "$@"
+else
+	exec gosu builder bash
+fi
