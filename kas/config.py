@@ -394,12 +394,14 @@ class ConfigStatic(Config):
                 if path is None:
                     # In-tree configuration
                     path = os.path.dirname(self.filename)
-                    (_, output) = run_cmd(['/usr/bin/git',
-                                           'rev-parse',
-                                           '--show-toplevel'],
-                                          cwd=path,
-                                          env=self.environ)
-                    path = output.strip()
+                    (ret, output) = run_cmd(['/usr/bin/git',
+                                             'rev-parse',
+                                             '--show-toplevel'],
+                                            cwd=path,
+                                            env=self.environ,
+                                            fail=False)
+                    if ret == 0:
+                        path = output.strip()
 
                 url = path
                 rep = Repo(url=url,
