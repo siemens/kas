@@ -13,13 +13,24 @@ fi
 
 USER_ID=${USER_ID:-30000}
 
-# Create a non-root user that will perform the actual build
-id builder 2>/dev/null || \
-    useradd --uid $USER_ID --create-home --home-dir /builder builder
+if [ $USER_ID == 0 ]; then
+	# We shall run everything as root
+	mkdir /builder
 
-cd /builder
-if [ -n "$1" ]; then
-	exec gosu builder "$@"
+	cd /builder
+	if [ -n "$1" ]; then
+		exec "$@"
+	else
+		exec bash
+	fi
 else
-	exec gosu builder bash
+	# Create a non-root user that will perform the actual build
+	useradd --uid $USER_ID --create-home --home-dir /builder builder
+
+	cd /builder
+	if [ -n "$1" ]; then
+		exec gosu builder "$@"
+	else
+		exec gosu builder bash
+	fi
 fi
