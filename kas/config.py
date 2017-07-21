@@ -399,9 +399,12 @@ class ConfigStatic(Config):
                                              '--show-toplevel'],
                                             cwd=path,
                                             env=self.environ,
-                                            fail=False)
+                                            fail=False,
+                                            liveupdate=False)
                     if ret == 0:
                         path = output.strip()
+                    logging.info('Using %s as root for repository %s', path,
+                                 name)
 
                 url = path
                 rep = Repo(url=url,
