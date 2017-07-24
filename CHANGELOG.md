@@ -1,3 +1,11 @@
+0.11.0
+- Allow in-tree repos not to be in a git repo
+- Pass through git proxy related environment variables
+- Write deterministic local.conf and bblayers.con
+- Make configuration file versioning independent of project version
+- Cleanups for uploading project to PyPI
+- Print proper error message for config file format exception
+
 0.10.0
 - Docker image creation (Debian Stretch), pushed on kasproject/kas
 - Restructure documentation add support for Sphinx export it to readthedocs
