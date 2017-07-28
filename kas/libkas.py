@@ -278,7 +278,8 @@ def get_build_environ(config, build_dir):
     get_bb_env_file = tempfile.mktemp()
     with open(get_bb_env_file, 'w') as fds:
         script = """#!/bin/bash
-        source %s $1 > /dev/null 2>&1
+        set -e
+        source %s $1 > /dev/null
         env
         """ % init_script
         fds.write(script)
