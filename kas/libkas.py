@@ -263,15 +263,20 @@ def get_build_environ(config, build_dir):
     # nasty side effect function: running oe/isar-init-build-env also
     # creates the conf directory
 
+    init_repo = None
     permutations = \
         [(repo, script) for repo in config.get_repos()
          for script in ['oe-init-build-env', 'isar-init-build-env']]
     for (repo, script) in permutations:
         if os.path.exists(repo.path + '/' + script):
-            init_path = repo.path
+            if init_repo:
+                logging.error('Multiple init scripts found (%s vs. %s). ',
+                              repo.name, init_repo.name)
+                logging.error('Resolve ambiguity by removing one of the repos')
+                sys.exit(1)
+            init_repo = repo
             init_script = script
-            break
-    else:
+    if not init_repo:
         logging.error('Did not find any init-build-env script')
         sys.exit(1)
 
@@ -289,7 +294,7 @@ def get_build_environ(config, build_dir):
     env['PATH'] = '/bin:/usr/bin'
 
     (_, output) = run_cmd([get_bb_env_file, build_dir],
-                          cwd=init_path, env=env, liveupdate=False)
+                          cwd=init_repo.path, env=env, liveupdate=False)
 
     os.remove(get_bb_env_file)
 
