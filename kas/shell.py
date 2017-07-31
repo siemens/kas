@@ -27,7 +27,8 @@
 import subprocess
 from kas.libkas import kasplugin
 from kas.config import load_config
-from kas.libcmds import (Macro, Command, SetupProxy, SetupEnviron, SetupHome)
+from kas.libcmds import (Macro, Command, SetupDir, SetupProxy, SetupEnviron,
+                         WriteConfig, SetupHome, ReposFetch, ReposCheckout)
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
@@ -73,8 +74,13 @@ class Shell:
 
         macro = Macro()
 
+        macro.add(SetupDir())
         macro.add(SetupProxy())
         macro.add(SetupEnviron())
+        macro.add(ReposFetch())
+        macro.add(ReposCheckout())
+        macro.add(SetupEnviron())
+        macro.add(WriteConfig())
         macro.add(SetupHome())
         macro.add(ShellCommand(args.command))
 
