@@ -57,6 +57,9 @@ class Shell:
         sh_prs.add_argument('--skip',
                             help='Skip build steps',
                             default=[])
+        sh_prs.add_argument('-k', '--keep-config-unchanged',
+                            help='Skip steps that change the configuration',
+                            action='store_true')
         sh_prs.add_argument('-c', '--command',
                             help='Run command',
                             default='')
@@ -74,13 +77,18 @@ class Shell:
 
         macro = Macro()
 
-        macro.add(SetupDir())
+        if not args.keep_config_unchanged:
+            macro.add(SetupDir())
+
         macro.add(SetupProxy())
         macro.add(SetupEnviron())
-        macro.add(ReposFetch())
-        macro.add(ReposCheckout())
-        macro.add(SetupEnviron())
-        macro.add(WriteConfig())
+
+        if not args.keep_config_unchanged:
+            macro.add(ReposFetch())
+            macro.add(ReposCheckout())
+            macro.add(SetupEnviron())
+            macro.add(WriteConfig())
+
         macro.add(SetupHome())
         macro.add(ShellCommand(args.command))
 
