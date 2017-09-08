@@ -167,7 +167,7 @@ def _repo_fetch_async(config, repo):
                                  repo.qualified_name)
         logging.debug('Looking for repo ref dir in %s', gitsrcdir)
 
-        cmd = ['/usr/bin/git', 'clone', '-q', repo.url, repo.path]
+        cmd = ['git', 'clone', '-q', repo.url, repo.path]
         if config.get_repo_ref_dir() and os.path.exists(gitsrcdir):
             cmd.extend(['--reference', gitsrcdir])
         (retc, _) = yield from run_cmd_async(cmd,
@@ -178,7 +178,7 @@ def _repo_fetch_async(config, repo):
         return retc
 
     # Does refspec exist in the current repository?
-    (retc, output) = yield from run_cmd_async(['/usr/bin/git',
+    (retc, output) = yield from run_cmd_async(['git',
                                                'cat-file', '-t',
                                                repo.refspec],
                                               env=config.environ,
@@ -191,7 +191,7 @@ def _repo_fetch_async(config, repo):
         return retc
 
     # No it is missing, try to fetch
-    (retc, output) = yield from run_cmd_async(['/usr/bin/git',
+    (retc, output) = yield from run_cmd_async(['git',
                                                'fetch', '--all'],
                                               env=config.environ,
                                               cwd=repo.path,
@@ -233,7 +233,7 @@ def repo_checkout(config, repo):
         return
 
     # Check if repos is dirty
-    (_, output) = run_cmd(['/usr/bin/git', 'diff', '--shortstat'],
+    (_, output) = run_cmd(['git', 'diff', '--shortstat'],
                           env=config.environ, cwd=repo.path,
                           fail=False)
     if output:
@@ -241,7 +241,7 @@ def repo_checkout(config, repo):
         return
 
     # Check if current HEAD is what in the config file is defined.
-    (_, output) = run_cmd(['/usr/bin/git', 'rev-parse',
+    (_, output) = run_cmd(['git', 'rev-parse',
                            '--verify', 'HEAD'],
                           env=config.environ, cwd=repo.path)
 
@@ -250,7 +250,7 @@ def repo_checkout(config, repo):
                      'refspec. nothing to do', repo.name)
         return
 
-    run_cmd(['/usr/bin/git', 'checkout', '-q',
+    run_cmd(['git', 'checkout', '-q',
              '{refspec}'.format(refspec=repo.refspec)],
             cwd=repo.path)
 
@@ -326,7 +326,7 @@ def ssh_add_key(env, key):
     """
         Add ssh key to the ssh-agent
     """
-    process = Popen(['/usr/bin/ssh-add', '-'], stdin=PIPE, stdout=None,
+    process = Popen(['ssh-add', '-'], stdin=PIPE, stdout=None,
                     stderr=PIPE, env=env)
     (_, error) = process.communicate(input=str.encode(key))
     if process.returncode and error:
@@ -338,13 +338,13 @@ def ssh_cleanup_agent(config):
         Removes the identities and stop the ssh-agent instance
     """
     # remove the identities
-    process = Popen(['/usr/bin/ssh-add', '-D'], env=config.environ)
+    process = Popen(['ssh-add', '-D'], env=config.environ)
     process.wait()
     if process.returncode != 0:
         logging.error('failed to delete SSH identities')
 
     # stop the ssh-agent
-    process = Popen(['/usr/bin/ssh-agent', '-k'], env=config.environ)
+    process = Popen(['ssh-agent', '-k'], env=config.environ)
     process.wait()
     if process.returncode != 0:
         logging.error('failed to stop SSH agent')
@@ -355,7 +355,7 @@ def ssh_setup_agent(config, envkeys=None):
         Starts the ssh-agent
     """
     envkeys = envkeys or ['SSH_PRIVATE_KEY']
-    output = os.popen('/usr/bin/ssh-agent -s').readlines()
+    output = os.popen('ssh-agent -s').readlines()
     for line in output:
         matches = re.search(r"(\S+)\=(\S+)\;", line)
         if matches:

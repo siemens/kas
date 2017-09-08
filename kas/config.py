@@ -394,7 +394,7 @@ class ConfigStatic(Config):
                 if path is None:
                     # In-tree configuration
                     path = os.path.dirname(self.filename)
-                    (ret, output) = run_cmd(['/usr/bin/git',
+                    (ret, output) = run_cmd(['git',
                                              'rev-parse',
                                              '--show-toplevel'],
                                             cwd=path,
