@@ -26,7 +26,7 @@
 
 import subprocess
 from kas.libkas import kasplugin
-from kas.config import load_config
+from kas.config import Config
 from kas.libcmds import (Macro, Command, SetupDir, SetupProxy, SetupEnviron,
                          WriteConfig, SetupHome, ReposFetch, ReposCheckout)
 
@@ -73,7 +73,7 @@ class Shell:
         if args.cmd != 'shell':
             return False
 
-        cfg = load_config(args.config, args.target, None)
+        cfg = Config(args.config, args.target)
 
         macro = Macro()
 

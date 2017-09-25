@@ -49,13 +49,49 @@ __copyright__ = 'Copyright (c) Siemens AG, 2017'
 
 class Config:
     """
-        This is an abstract class, that defines the interface of the
-        kas configuration.
+        Implements the kas configuration based on config files.
     """
-    def __init__(self):
+    def __init__(self, filename, target, task=None):
+        from .includehandler import GlobalIncludes, IncludeException
         self.__kas_work_dir = os.environ.get('KAS_WORK_DIR', os.getcwd())
         self.environ = {}
         self._config = {}
+        self.setup_environ()
+        self.filename = os.path.abspath(filename)
+        self.handler = GlobalIncludes(self.filename)
+
+        repo_paths = {}
+        missing_repo_names_old = []
+        (self._config, missing_repo_names) = \
+            self.handler.get_config(repos=repo_paths)
+
+        self.environ.update(self.get_proxy_config())
+
+        while missing_repo_names:
+            if missing_repo_names == missing_repo_names_old:
+                raise IncludeException('Could not fetch all repos needed by '
+                                       'includes.')
+
+            repo_dict = self.get_repo_dict()
+            missing_repos = [repo_dict[repo_name]
+                             for repo_name in missing_repo_names
+                             if repo_name in repo_dict]
+
+            repos_fetch(self, missing_repos)
+
+            for repo in missing_repos:
+                repo_checkout(self, repo)
+
+            repo_paths = {r: repo_dict[r].path for r in repo_dict}
+
+            missing_repo_names_old = missing_repo_names
+            (self._config, missing_repo_names) = \
+                self.handler.get_config(repos=repo_paths)
+
+        if target:
+            self._config['target'] = target
+        if task:
+            self._config['task'] = task
 
     @property
     def build_dir(self):
@@ -114,7 +150,60 @@ class Config:
         """
         # pylint: disable=no-self-use
 
-        return []
+        return list(self.get_repo_dict().values())
+
+    def get_repo_dict(self):
+        """
+            Returns a dictionary containing the repositories with
+            their name (as it is defined in the config file) as key
+            and the `Repo` instances as value.
+        """
+        repo_config_dict = self._config.get('repos', {})
+        repo_dict = {}
+        for repo in repo_config_dict:
+
+            repo_config_dict[repo] = repo_config_dict[repo] or {}
+            layers_dict = repo_config_dict[repo].get('layers', {})
+            layers = list(filter(lambda x, laydict=layers_dict:
+                                 str(laydict[x]).lower() not in
+                                 ['disabled', 'excluded', 'n', 'no', '0',
+                                  'false'],
+                                 layers_dict))
+            url = repo_config_dict[repo].get('url', None)
+            name = repo_config_dict[repo].get('name', repo)
+            refspec = repo_config_dict[repo].get('refspec', None)
+            path = repo_config_dict[repo].get('path', None)
+
+            if url is None:
+                # No git operation on repository
+                if path is None:
+                    # In-tree configuration
+                    path = os.path.dirname(self.filename)
+                    (ret, output) = run_cmd(['git',
+                                             'rev-parse',
+                                             '--show-toplevel'],
+                                            cwd=path,
+                                            env=self.environ,
+                                            fail=False,
+                                            liveupdate=False)
+                    if ret == 0:
+                        path = output.strip()
+                    logging.info('Using %s as root for repository %s', path,
+                                 name)
+
+                url = path
+                rep = Repo(url=url,
+                           path=path,
+                           layers=layers)
+                rep.disable_git_operations()
+            else:
+                path = path or os.path.join(self.kas_work_dir, name)
+                rep = Repo(url=url,
+                           path=path,
+                           refspec=refspec,
+                           layers=layers)
+            repo_dict[repo] = rep
+        return repo_dict
 
     def pre_hook(self, fname):
         """
@@ -195,116 +284,3 @@ class Config:
             Returns the GitlabCI configuration
         """
         return self._config.get('gitlabci_config', '')
-
-
-class ConfigStatic(Config):
-    """
-        Implements the static kas configuration based on config files.
-    """
-
-    def __init__(self, filename, target, task):
-        from .includehandler import GlobalIncludes, IncludeException
-        super().__init__()
-        self.setup_environ()
-        self.filename = os.path.abspath(filename)
-        self.handler = GlobalIncludes(self.filename)
-
-        repo_paths = {}
-        missing_repo_names_old = []
-        (self._config, missing_repo_names) = \
-            self.handler.get_config(repos=repo_paths)
-
-        self.environ.update(self.get_proxy_config())
-
-        while missing_repo_names:
-            if missing_repo_names == missing_repo_names_old:
-                raise IncludeException('Could not fetch all repos needed by '
-                                       'includes.')
-
-            repo_dict = self.get_repo_dict()
-            missing_repos = [repo_dict[repo_name]
-                             for repo_name in missing_repo_names
-                             if repo_name in repo_dict]
-
-            repos_fetch(self, missing_repos)
-
-            for repo in missing_repos:
-                repo_checkout(self, repo)
-
-            repo_paths = {r: repo_dict[r].path for r in repo_dict}
-
-            missing_repo_names_old = missing_repo_names
-            (self._config, missing_repo_names) = \
-                self.handler.get_config(repos=repo_paths)
-
-        if target:
-            self._config['target'] = target
-        if task:
-            self._config['task'] = task
-
-    def get_repos(self):
-        """
-            Returns the list of repos.
-        """
-        return list(self.get_repo_dict().values())
-
-    def get_repo_dict(self):
-        """
-            Returns a dictionary containing the repositories with
-            their name (as it is defined in the config file) as key
-            and the `Repo` instances as value.
-        """
-        repo_config_dict = self._config.get('repos', {})
-        repo_dict = {}
-        for repo in repo_config_dict:
-
-            repo_config_dict[repo] = repo_config_dict[repo] or {}
-            layers_dict = repo_config_dict[repo].get('layers', {})
-            layers = list(filter(lambda x, laydict=layers_dict:
-                                 str(laydict[x]).lower() not in
-                                 ['disabled', 'excluded', 'n', 'no', '0',
-                                  'false'],
-                                 layers_dict))
-            url = repo_config_dict[repo].get('url', None)
-            name = repo_config_dict[repo].get('name', repo)
-            refspec = repo_config_dict[repo].get('refspec', None)
-            path = repo_config_dict[repo].get('path', None)
-
-            if url is None:
-                # No git operation on repository
-                if path is None:
-                    # In-tree configuration
-                    path = os.path.dirname(self.filename)
-                    (ret, output) = run_cmd(['git',
-                                             'rev-parse',
-                                             '--show-toplevel'],
-                                            cwd=path,
-                                            env=self.environ,
-                                            fail=False,
-                                            liveupdate=False)
-                    if ret == 0:
-                        path = output.strip()
-                    logging.info('Using %s as root for repository %s', path,
-                                 name)
-
-                url = path
-                rep = Repo(url=url,
-                           path=path,
-                           layers=layers)
-                rep.disable_git_operations()
-            else:
-                path = path or os.path.join(self.kas_work_dir, name)
-                rep = Repo(url=url,
-                           path=path,
-                           refspec=refspec,
-                           layers=layers)
-            repo_dict[repo] = rep
-        return repo_dict
-
-
-def load_config(filename, target, task):
-    """
-        Return configuration generated from `filename`.
-    """
-
-    return ConfigStatic(filename, target, task)

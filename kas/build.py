@@ -24,7 +24,7 @@
 """
 
 import os
-from .config import load_config
+from .config import Config
 from .libkas import find_program, run_cmd, kasplugin
 from .libcmds import (Macro, Command, SetupDir, SetupProxy,
                       CleanupSSHAgent, SetupSSHAgent, SetupEnviron,
@@ -71,7 +71,7 @@ class Build:
         if args.cmd != 'build':
             return False
 
-        cfg = load_config(args.config, args.target, args.task)
+        cfg = Config(args.config, args.target, args.task)
 
         macro = Macro()
 
