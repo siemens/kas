@@ -74,6 +74,7 @@ Environment variables
 | ``KAS_DISTRO``        | This overwrites the respective setting in the       |
 | ``KAS_MACHINE``       | configuration file.                                 |
 | ``KAS_TARGET``        |                                                     |
+| ``KAS_TASK``          |                                                     |
 +-----------------------+-----------------------------------------------------+
 | ``SSH_PRIVATE_KEY``   | Path to the private key file that should be added   |
 |                       | to an internal ssh-agent. This key cannot be        |
@@ -297,6 +298,10 @@ Static configuration reference
 * ``target``: string [optional]
     Contains the target to build by bitbake. Can be overwritten by the
     ``KAS_TARGET`` environment variable and defaults to ``core-image-minimal``.
+
+* ``task``: string [optional]
+    Contains the task to build by bitbake. Can be overwritten by the
+    ``KAS_TASK`` environment variable and defaults to ``build``.
 
 * ``repos``: dict [optional]
     Contains the definitions of all available repos and layers.

@@ -149,6 +149,13 @@ class Config:
                               self._config.get('target',
                                                'core-image-minimal'))
 
+    def get_bitbake_task(self):
+        """
+            Return the bitbake task
+        """
+        return os.environ.get('KAS_TASK',
+                              self._config.get('task', 'build'))
+
     def _get_conf_header(self, header_name):
         """
             Returns the local.conf header
@@ -195,7 +202,7 @@ class ConfigPython(Config):
     """
         Implementation of a configuration that uses a Python script.
     """
-    def __init__(self, filename, target):
+    def __init__(self, filename, target, task):
         # pylint: disable=exec-used
 
         super().__init__()
@@ -210,11 +217,12 @@ class ConfigPython(Config):
             raise IOError(errno.ENOENT, os.strerror(errno.ENOENT),
                           self.filename)
 
-        self.create_config(target)
+        self.create_config(target, task)
         self.setup_environ()
 
     def __str__(self):
         output = 'target: {}\n'.format(self.target)
+        output = 'task: {}\n'.format(self.task)
         output += 'repos:\n'
         for repo in self.get_repos():
             output += '  {}\n'.format(repo.__str__())
@@ -244,11 +252,12 @@ class ConfigPython(Config):
         except KeyError:
             return None
 
-    def create_config(self, target):
+    def create_config(self, target, task):
         """
             Sets the configuration for `target`
         """
         self.target = 'core-image-minimal' if target is None else target
+        self.task = 'build' if task is None else task
         self.repos = self._config['get_repos'](self, target)
 
     def get_proxy_config(self):
@@ -323,7 +332,7 @@ class ConfigStatic(Config):
         Implements the static kas configuration based on config files.
     """
 
-    def __init__(self, filename, target):
+    def __init__(self, filename, target, task):
         from .includehandler import GlobalIncludes, IncludeException
         super().__init__()
         self.setup_environ()
@@ -360,6 +369,8 @@ class ConfigStatic(Config):
 
         if target:
             self._config['target'] = target
+        if task:
+            self._config['task'] = task
 
     def get_repos(self):
         """
@@ -421,15 +432,15 @@ class ConfigStatic(Config):
         return repo_dict
 
 
-def load_config(filename, target):
+def load_config(filename, target, task):
     """
         Return configuration generated from `filename`.
     """
 
     (_, ext) = os.path.splitext(filename)
     if ext == '.py':
-        cfg = ConfigPython(filename, target)
+        cfg = ConfigPython(filename, target, task)
     else:
-        cfg = ConfigStatic(filename, target)
+        cfg = ConfigStatic(filename, target, task)
 
     return cfg

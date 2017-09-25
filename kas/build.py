@@ -57,8 +57,7 @@ class Build:
         bld_psr.add_argument('--target',
                              help='Select target to build')
         bld_psr.add_argument('--task',
-                             help='Select which task should be executed',
-                             default='build')
+                             help='Select which task should be executed')
         bld_psr.add_argument('--skip',
                              help='Skip build steps',
                              default=[])
@@ -72,7 +71,7 @@ class Build:
         if args.cmd != 'build':
             return False
 
-        cfg = load_config(args.config, args.target)
+        cfg = load_config(args.config, args.target, args.task)
 
         macro = Macro()
 
@@ -119,5 +118,6 @@ class BuildCommand(Command):
         """
         # Start bitbake build of image
         bitbake = find_program(config.environ['PATH'], 'bitbake')
-        run_cmd([bitbake, '-k', config.get_bitbake_target(), '-c', self.task],
+        run_cmd([bitbake, '-k', config.get_bitbake_target(),
+                 '-c', config.get_bitbake_task()],
                 env=config.environ, cwd=config.build_dir)

@@ -73,7 +73,7 @@ class Shell:
         if args.cmd != 'shell':
             return False
 
-        cfg = load_config(args.config, args.target)
+        cfg = load_config(args.config, args.target, None)
 
         macro = Macro()
 
