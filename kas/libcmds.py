@@ -56,21 +56,8 @@ class Macro:
             command_name = str(command)
             if command_name in skip:
                 continue
-            pre_hook = config.pre_hook(command_name)
-            if pre_hook:
-                logging.debug('execute %s', pre_hook)
-                pre_hook(config)
-            command_hook = config.get_hook(command_name)
-            if command_hook:
-                logging.debug('execute %s', command_hook)
-                command_hook(config)
-            else:
-                logging.debug('execute %s', command_name)
-                command.execute(config)
-            post_hook = config.post_hook(command_name)
-            if post_hook:
-                logging.debug('execute %s', post_hook)
-                post_hook(config)
+            logging.debug('execute %s', command_name)
+            command.execute(config)
 
 
 class Command:

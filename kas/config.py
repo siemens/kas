@@ -205,30 +205,6 @@ class Config:
             repo_dict[repo] = rep
         return repo_dict
 
-    def pre_hook(self, fname):
-        """
-            Returns a function that is executed before every command or None.
-        """
-        # pylint: disable=unused-argument
-
-        pass
-
-    def post_hook(self, fname):
-        """
-            Returs a function that is executed after every command or None.
-        """
-        # pylint: disable=unused-argument
-
-        pass
-
-    def get_hook(self, fname):
-        """
-            Returns a function that is executed instead of the command or None.
-        """
-        # pylint: disable=unused-argument
-
-        pass
-
     def get_bitbake_target(self):
         """
             Return the bitbake target
