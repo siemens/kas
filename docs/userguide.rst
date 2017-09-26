@@ -122,15 +122,6 @@ Use Cases
 Project Configuration
 ---------------------
 
-Two types of configuration file formats are supported.
-
-For most purposes the static configuration should be used.
-In case this static configuration file does not provide enough options for
-customization, the dynamic configuration file format can be used.
-
-Static project configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 Currently JSON and YAML is supported as the base file format. Since YAML is
 arguable easier to read, this documentation focuses on the YAML format.
 
@@ -189,7 +180,7 @@ append entries in files that include this configuration by naming an entry the
 same (overwriting) or using a unused name (appending).
 
 Including in-tree configuration files
-.....................................
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Its currently possible to include kas configuration files from the same
 repository/layer like this:
@@ -206,7 +197,7 @@ repository/layer like this:
 The specified files are addressed relative to your current configuration file.
 
 Including configuration files from other repos
-..............................................
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Its also possible to include configuration files from other repos like this:
 
@@ -253,8 +244,8 @@ different include files. Note that the order of the configuration file entries
 is not preserved within one include file, because the parser creates normal
 unordered dictionaries.
 
-Static configuration reference
-..............................
+Configuration reference
+~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``header``: dict [required]
     The header of every kas configuration file. It contains information about
@@ -370,73 +361,3 @@ Static configuration reference
   * ``http_proxy``: string [optional]
   * ``https_proxy``: string [optional]
   * ``no_proxy``: string [optional]
-
-Dynamic project configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**NOTE: Dynamic project configuration is experimental. The API may change or
-even be obsoleted in future versions. Please provide feedback if you consider
-it useful.**
-
-The dynamic project configuration is plain Python with following
-mandatory functions which need to be provided:
-
-.. code-block:: python
-
-    def get_machine(config):
-        return 'qemu'
-
-
-    def get_distro(config):
-        return 'poky'
-
-
-    def get_repos(target):
-        repos = []
-
-        repos.append(Repo(
-            url='URL',
-            refspec='REFSPEC'))
-
-        repos.append(Repo(
-            url='https://git.yoctoproject.org/git/poky',
-            refspec='krogoth',
-            layers=['meta', 'meta-poky', 'meta-yocto-bsp'])))
-
-        return repos
-
-Additionally, ``get_bblayers_conf_header()``, ``get_local_conf_header()`` can
-be added.
-
-.. code-block:: python
-
-    def get_bblayers_conf_header():
-        return """POKY_BBLAYERS_CONF_VERSION = "2"
-    BBPATH = "${TOPDIR}"
-    BBFILES ?= ""
-    """
-
-
-    def get_local_conf_header():
-        return """PATCHRESOLVE = "noop"
-    CONF_VERSION = "1"
-    IMAGE_FSTYPES = "tar"
-    """
-
-Furthermore, you can add pre and post hooks (``*_prepend``, ``*_append``) for
-the exection steps in kas core, e.g.
-
-.. code-block:: python
-
-    def build_prepend(config):
-        # disable distro check
-        with open(config.build_dir + '/conf/sanity.conf', 'w') as f:
-            f.write('\n')
-
-
-    def build_append(config):
-        if 'CI' in os.environ:
-            build_native_package(config)
-            run_wic(config)
-
-TODO: Document the complete configuration API.

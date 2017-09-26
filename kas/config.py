@@ -25,7 +25,6 @@
 
 import os
 import logging
-import errno
 
 try:
     from distro import id as get_distro_id
@@ -198,135 +197,6 @@ class Config:
         return self._config.get('gitlabci_config', '')
 
 
-class ConfigPython(Config):
-    """
-        Implementation of a configuration that uses a Python script.
-    """
-    def __init__(self, filename, target, task):
-        # pylint: disable=exec-used
-
-        super().__init__()
-        self.filename = os.path.abspath(filename)
-        try:
-            with open(self.filename) as fds:
-                env = {}
-                data = fds.read()
-                exec(data, env)
-                self._config = env
-        except IOError:
-            raise IOError(errno.ENOENT, os.strerror(errno.ENOENT),
-                          self.filename)
-
-        self.create_config(target, task)
-        self.setup_environ()
-
-    def __str__(self):
-        output = 'target: {}\n'.format(self.target)
-        output = 'task: {}\n'.format(self.task)
-        output += 'repos:\n'
-        for repo in self.get_repos():
-            output += '  {}\n'.format(repo.__str__())
-        output += 'environ:\n'
-        for key, value in self.environ.items():
-            output += '  {} = {}\n'.format(key, value)
-        output += 'proxy:\n'
-        for key, value in self.get_proxy_config().items():
-            output += '  {} = {}\n'.format(key, value)
-        return output
-
-    def pre_hook(self, fname):
-        try:
-            self._config[fname + '_prepend'](self)
-        except KeyError:
-            pass
-
-    def post_hook(self, fname):
-        try:
-            self._config[fname + '_append'](self)
-        except KeyError:
-            pass
-
-    def get_hook(self, fname):
-        try:
-            return self._config[fname]
-        except KeyError:
-            return None
-
-    def create_config(self, target, task):
-        """
-            Sets the configuration for `target`
-        """
-        self.target = 'core-image-minimal' if target is None else target
-        self.task = 'build' if task is None else task
-        self.repos = self._config['get_repos'](self, target)
-
-    def get_proxy_config(self):
-        return self._config['get_proxy_config']()
-
-    def get_repos(self):
-        return iter(self.repos)
-
-    def get_target(self):
-        """
-            Returns the target
-        """
-        return self.target
-
-    def get_bitbake_target(self):
-        """
-            Return the bitbake target
-        """
-        try:
-            return self._config['get_bitbake_target'](self)
-        except KeyError:
-            return self.target
-
-    def get_bblayers_conf_header(self):
-        """
-            Returns the bblayers.conf header
-        """
-        try:
-            return self._config['get_bblayers_conf_header']()
-        except KeyError:
-            return ''
-
-    def get_local_conf_header(self):
-        """
-            Returns the local.conf header
-        """
-        try:
-            return self._config['get_local_conf_header']()
-        except KeyError:
-            return ''
-
-    def get_machine(self):
-        """
-            Returns the machine
-        """
-        try:
-            return self._config['get_machine'](self)
-        except KeyError:
-            return 'qemu'
-
-    def get_distro(self):
-        """
-            Returns the distro
-        """
-        try:
-            return self._config['get_distro'](self)
-        except KeyError:
-            return 'poky'
-
-    def get_gitlabci_config(self):
-        """
-            Returns the GitlabCI configuration
-        """
-        try:
-            return self._config['get_gitlabci_config'](self)
-        except KeyError:
-            return ''
-
-
 class ConfigStatic(Config):
     """
         Implements the static kas configuration based on config files.
@@ -437,10 +307,4 @@ def load_config(filename, target, task):
         Return configuration generated from `filename`.
     """
 
-    (_, ext) = os.path.splitext(filename)
-    if ext == '.py':
-        cfg = ConfigPython(filename, target, task)
-    else:
-        cfg = ConfigStatic(filename, target, task)
-
-    return cfg
+    return ConfigStatic(filename, target, task)
