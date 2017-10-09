@@ -1,3 +1,9 @@
+0.12.0
+- Remove dynamic configuration support (Python config files)
+- Shell command prepares complete bitbake configuration
+- Add to define task in config and environment
+- Improved error handling and reporting
+
 0.11.0
 - Allow in-tree repos not to be in a git repo
 - Pass through git proxy related environment variables
