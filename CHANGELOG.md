@@ -1,3 +1,6 @@
+0.13.0
+- Increase config file version
+
 0.12.0
 - Remove dynamic configuration support (Python config files)
 - Shell command prepares complete bitbake configuration
