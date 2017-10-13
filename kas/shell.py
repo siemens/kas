@@ -52,6 +52,7 @@ class Shell:
         sh_prs.add_argument('config',
                             help='Config file')
         sh_prs.add_argument('--target',
+                            action='append',
                             help='Select target to build',
                             default='core-image-minimal')
         sh_prs.add_argument('--skip',

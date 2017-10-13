@@ -209,13 +209,19 @@ class Config:
             repo_dict[repo] = rep
         return repo_dict
 
-    def get_bitbake_target(self):
+    def get_bitbake_targets(self):
         """
-            Return the bitbake target
+            Returns a list of bitbake targets
         """
-        return os.environ.get('KAS_TARGET',
-                              self._config.get('target',
-                                               'core-image-minimal'))
+        environ_targets = [i
+                           for i in os.environ.get('KAS_TARGET', '').split()
+                           if i]
+        if environ_targets:
+            return environ_targets
+        target = self._config.get('target', 'core-image-minimal')
+        if isinstance(target, str):
+            return [target]
+        return target
 
     def get_bitbake_task(self):
         """

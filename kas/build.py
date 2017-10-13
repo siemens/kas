@@ -55,6 +55,7 @@ class Build:
         bld_psr.add_argument('config',
                              help='Config file')
         bld_psr.add_argument('--target',
+                             action='append',
                              help='Select target to build')
         bld_psr.add_argument('--task',
                              help='Select which task should be executed')
@@ -118,6 +119,6 @@ class BuildCommand(Command):
         """
         # Start bitbake build of image
         bitbake = find_program(config.environ['PATH'], 'bitbake')
-        run_cmd([bitbake, '-k', config.get_bitbake_target(),
-                 '-c', config.get_bitbake_task()],
+        run_cmd([bitbake, '-k', '-c', config.get_bitbake_task()] +
+                config.get_bitbake_targets(),
                 env=config.environ, cwd=config.build_dir)

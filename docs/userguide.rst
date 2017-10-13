@@ -286,9 +286,11 @@ Configuration reference
     ``local.conf``. Can be overwritten by the ``KAS_DISTRO`` environment
     variable and defaults to ``poky``.
 
-* ``target``: string [optional]
-    Contains the target to build by bitbake. Can be overwritten by the
-    ``KAS_TARGET`` environment variable and defaults to ``core-image-minimal``.
+* ``target``: string [optional] or list [optional]
+    Contains the target or a list of targets to build by bitbake. Can be
+    overwritten by the ``KAS_TARGET`` environment variable and defaults to
+    ``core-image-minimal``. Space is used as a delimiter if multiple targets
+    should be specified via the environment variable.
 
 * ``task``: string [optional]
     Contains the task to build by bitbake. Can be overwritten by the
