@@ -77,30 +77,12 @@ def load_config(filename):
                                   'config file %s', filename)
 
     try:
-        header = config.get('header', {})
-    except AttributeError:
-        raise LoadConfigException('Config does not contain a dictionary',
-                                  filename)
-
-    if not header:
-        raise LoadConfigException('Header missing or empty', filename)
-
-    try:
-        version = header.get('version', None)
-    except AttributeError:
-        raise LoadConfigException('Header is not a dictionary', filename)
-
-    if not version:
-        raise LoadConfigException('Version missing or empty', filename)
-
-    try:
-        version_value = int(version)
+        version_value = int(config['header']['version'])
     except ValueError:
         # Be compatible: version string '0.10' is equivalent to file version 1
-        if isinstance(version, str) and version == '0.10':
-            version_value = 1
-        else:
-            raise LoadConfigException('Unexpected version format', filename)
+        # This check is already done in the config schema so here just set the
+        # right version
+        version_value = 1
 
     if version_value < __compatible_file_version__ or \
        version_value > __file_version__:
