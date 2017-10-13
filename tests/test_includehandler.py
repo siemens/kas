@@ -116,7 +116,6 @@ class TestLoadConfig(object):
 
     def test_header_valid(self):
         testvector = [
-            'header: {version: "4"}',
             'header: {version: 4}',
             'header: {version: 5}',
             ]
@@ -136,7 +135,9 @@ header:
   version: 5
 {}'''
 
-    def util_include_content(self, testvector):
+    def util_include_content(self, testvector, monkeypatch):
+        # disable schema validation for these tests:
+        monkeypatch.setattr(includehandler, 'CONFIGSCHEMA', {})
         for test in testvector:
             with patch_open(includehandler, dictionary=test['fdict']):
                 ginc = includehandler.GlobalIncludes('x.yml')
@@ -148,7 +149,7 @@ header:
                 assert test['conf'] == config
                 assert test['rmiss'] == missing
 
-    def test_valid_includes_none(self):
+    def test_valid_includes_none(self, monkeypatch):
         header = self.__class__.header
         testvector = [
             {
@@ -164,9 +165,9 @@ header:
             },
         ]
 
-        self.util_include_content(testvector)
+        self.util_include_content(testvector, monkeypatch)
 
-    def test_valid_includes_some(self):
+    def test_valid_includes_some(self, monkeypatch):
         header = self.__class__.header
         testvector = [
             # Include one file from the same repo:
@@ -232,9 +233,9 @@ header:
             },
         ]
 
-        self.util_include_content(testvector)
+        self.util_include_content(testvector, monkeypatch)
 
-    def test_valid_overwriting(self):
+    def test_valid_overwriting(self, monkeypatch):
         header = self.__class__.header
         testvector = [
             {
@@ -293,9 +294,9 @@ v3:
             },
         ]
 
-        self.util_include_content(testvector)
+        self.util_include_content(testvector, monkeypatch)
 
-    def test_valid_merging(self):
+    def test_valid_merging(self, monkeypatch):
         header = self.__class__.header
         testvector = [
             {
@@ -332,9 +333,11 @@ v3:
             },
         ]
 
-        self.util_include_content(testvector)
+        self.util_include_content(testvector, monkeypatch)
 
-    def test_valid_ordering(self):
+    def test_valid_ordering(self, monkeypatch):
+        # disable schema validation for this test:
+        monkeypatch.setattr(includehandler, 'CONFIGSCHEMA', {})
         header = self.__class__.header
         with patch_open(includehandler, dictionary={
             'x.yml': header.format('''  includes: ["y.yml", "z.yml"]

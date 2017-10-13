@@ -30,7 +30,10 @@ import collections
 import functools
 import logging
 
+from jsonschema.validators import Draft4Validator
+
 from . import __file_version__, __compatible_file_version__
+from . import CONFIGSCHEMA
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
@@ -61,6 +64,17 @@ def load_config(filename):
     else:
         raise LoadConfigException('Config file extension not recognized',
                                   filename)
+
+    validator = Draft4Validator(CONFIGSCHEMA)
+    validation_error = False
+
+    for error in validator.iter_errors(config):
+        validation_error = True
+        logging.error('Config file validation Error:\n%s', error)
+
+    if validation_error:
+        raise LoadConfigException('Errors occured while validating the '
+                                  'config file %s', filename)
 
     try:
         header = config.get('header', {})

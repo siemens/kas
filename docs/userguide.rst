@@ -8,6 +8,7 @@ This projects depends on
 
 - Python 3
 - distro Python 3 package
+- jsonschema Python 3 package
 - PyYAML Python 3 package (optional, for yaml file support)
 
 If you need Python 2 support consider sending patches. The most
