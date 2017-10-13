@@ -25,6 +25,7 @@
 
 import os
 import logging
+import pprint
 
 try:
     from distro import id as get_distro_id
@@ -87,6 +88,9 @@ class Config:
             missing_repo_names_old = missing_repo_names
             (self._config, missing_repo_names) = \
                 self.handler.get_config(repos=repo_paths)
+
+        logging.debug('Configuration from config file:\n%s',
+                      pprint.pformat(self._config))
 
         if target:
             self._config['target'] = target
