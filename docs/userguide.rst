@@ -93,6 +93,7 @@ Environment variables
 +-----------------------+-----------------------------------------------------+
 | ``http_proxy``        | This overwrites the proxy configuration in the      |
 | ``https_proxy``       | configuration file.                                 |
+| ``ftp_proxy``         |                                                     |
 | ``no_proxy``          |                                                     |
 +-----------------------+-----------------------------------------------------+
 | ``GIT_PROXY_COMMAND`` | Set proxy for native git fetches. ``NO_PROXY`` is   |

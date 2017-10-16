@@ -146,6 +146,7 @@ class Config:
                                          proxy_config.get(var_name, ''))
                 for var_name in ['http_proxy',
                                  'https_proxy',
+                                 'ftp_proxy',
                                  'no_proxy']}
 
     def get_repos(self):

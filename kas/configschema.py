@@ -161,6 +161,9 @@ CONFIGSCHEMA = {
                 'https_proxy': {
                     'type': 'string',
                 },
+                'ftp_proxy': {
+                    'type': 'string',
+                },
                 'no_proxy': {
                     'type': 'string',
                 },
