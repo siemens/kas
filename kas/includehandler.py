@@ -26,7 +26,7 @@
 """
 
 import os
-import collections
+from collections import OrderedDict, Mapping
 import functools
 import logging
 
@@ -177,7 +177,7 @@ class GlobalIncludes(IncludeHandler):
             missing_repos = []
             configs = []
             current_config = load_config(filename)
-            if not isinstance(current_config, collections.Mapping):
+            if not isinstance(current_config, Mapping):
                 raise IncludeException('Configuration file does not contain a '
                                        'dictionary as base type')
             header = current_config.get('header', {})
@@ -195,7 +195,7 @@ class GlobalIncludes(IncludeHandler):
                     (cfg, rep) = _internal_include_handler(includefile)
                     configs.extend(cfg)
                     missing_repos.extend(rep)
-                elif isinstance(include, collections.Mapping):
+                elif isinstance(include, Mapping):
                     includerepo = include.get('repo', None)
                     if includerepo is not None:
                         includedir = repos.get(includerepo, None)
@@ -220,6 +220,8 @@ class GlobalIncludes(IncludeHandler):
                     else:
                         missing_repos.append(includerepo)
             configs.append((filename, current_config))
+            # Remove all possible duplicates in missing_repos
+            missing_repos = list(OrderedDict.fromkeys(missing_repos))
             return (configs, missing_repos)
 
         def _internal_dict_merge(dest, upd, recursive_merge=True):
@@ -230,10 +232,10 @@ class GlobalIncludes(IncludeHandler):
             or fall back on a manual merge (helpful for non-dict types
             like FunctionWrapper)
             """
-            if (not isinstance(dest, collections.Mapping)) \
-                    or (not isinstance(upd, collections.Mapping)):
+            if (not isinstance(dest, Mapping)) \
+                    or (not isinstance(upd, Mapping)):
                 raise IncludeException('Cannot merge using non-dict')
-            dest = collections.OrderedDict(dest)
+            dest = OrderedDict(dest)
             updkeys = list(upd.keys())
             if not set(list(dest.keys())) & set(updkeys):
                 recursive_merge = False
@@ -244,8 +246,8 @@ class GlobalIncludes(IncludeHandler):
                         dest_subkey = dest.get(key, None)
                     except AttributeError:
                         dest_subkey = None
-                    if isinstance(dest_subkey, collections.Mapping) \
-                            and isinstance(val, collections.Mapping):
+                    if isinstance(dest_subkey, Mapping) \
+                            and isinstance(val, Mapping):
                         ret = _internal_dict_merge(dest_subkey, val)
                         dest[key] = ret
                     else:
