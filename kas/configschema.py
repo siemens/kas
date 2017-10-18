@@ -23,6 +23,8 @@
 '''
     This module contains the schema of the configuration file.
 '''
+__license__ = 'MIT'
+__copyright__ = 'Copyright (c) Siemens AG, 2017'
 
 CONFIGSCHEMA = {
     'type': 'object',
