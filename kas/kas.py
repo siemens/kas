@@ -136,6 +136,8 @@ def kas(argv):
     if args.debug:
         logging.getLogger().setLevel(logging.DEBUG)
 
+    logging.info('%s %s started', os.path.basename(sys.argv[0]), __version__)
+
     loop = asyncio.get_event_loop()
 
     for sig in (signal.SIGINT, signal.SIGTERM):
