@@ -73,6 +73,9 @@ class Config:
                 raise IncludeException('Could not fetch all repos needed by '
                                        'includes.')
 
+            logging.debug('Missing repos for complete config:\n%s',
+                          pprint.pformat(missing_repo_names))
+
             repo_dict = self.get_repo_dict()
             missing_repos = [repo_dict[repo_name]
                              for repo_name in missing_repo_names
