@@ -1,3 +1,7 @@
+0.14.0
+- Multi-target support
+- Avoid downloading same repo twice
+
 0.13.0
 - Increase config file version
 
