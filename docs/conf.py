@@ -24,7 +24,7 @@ import sys
 
 # Add the project directory to the path, in order to include it:
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-import kas  # noqa (disables pep8 check for this line)
+import kas  # noqa (disables pycodestyle check for this line)
 
 # -- General configuration ------------------------------------------------
 
