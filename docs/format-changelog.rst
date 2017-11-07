@@ -39,3 +39,12 @@ Added
 ~~~~~
 
 - ``Target`` key now allows to be a list of target names
+
+Version 5
+---------
+
+Changed behavior
+~~~~~~~~~~~~~~~~
+
+- Using ``multiconfig:*`` targets adds appropriate ``BBMULTICONFIG`` entries to
+  the ``local.conf`` automatically.

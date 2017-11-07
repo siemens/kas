@@ -269,6 +269,15 @@ class Config:
         return os.environ.get('KAS_DISTRO',
                               self._config.get('distro', 'poky'))
 
+    def get_multiconfig(self):
+        """
+            Returns the multiconfig array as bitbake string
+        """
+        return ' '.join(set(i.split(':')[1]
+                            for i in
+                            self.get_bitbake_targets()
+                            if i.startswith('multiconfig')))
+
     def get_gitlabci_config(self):
         """
             Returns the GitlabCI configuration

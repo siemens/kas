@@ -183,6 +183,8 @@ class WriteConfig(Command):
                 fds.write(config.get_local_conf_header())
                 fds.write('MACHINE ?= "{}"\n'.format(config.get_machine()))
                 fds.write('DISTRO ?= "{}"\n'.format(config.get_distro()))
+                fds.write('BBMULTICONFIG ?= "{}"\n'.format(
+                    config.get_multiconfig()))
 
         _write_bblayers_conf(config)
         _write_local_conf(config)
