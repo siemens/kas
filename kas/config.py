@@ -28,11 +28,18 @@ import logging
 import pprint
 
 try:
-    from distro import id as get_distro_id
+    import distro
+
+    def get_distro_id_base():
+        """
+            Returns a compatible distro id.
+        """
+        return distro.like() or distro.id()
+
 except ImportError:
     import platform
 
-    def get_distro_id():
+    def get_distro_id_base():
         """
             Wrapper around platform.dist to simulate distro.id
             platform.dist is deprecated and will be removed in python 3.7
@@ -119,17 +126,18 @@ class Config:
             Sets the environment variables for process that are
             started by kas.
         """
-        distro_id = get_distro_id()
-        if distro_id.lower() in ['fedora', 'suse', 'opensuse']:
+        distro_base = get_distro_id_base().lower()
+        if distro_base in ['fedora', 'suse', 'opensuse']:
             self.environ = {'LC_ALL': 'en_US.utf8',
                             'LANG': 'en_US.utf8',
                             'LANGUAGE': 'en_US'}
-        elif distro_id.lower() in ['debian', 'ubuntu']:
+        elif distro_base in ['debian', 'ubuntu']:
             self.environ = {'LC_ALL': 'en_US.UTF-8',
                             'LANG': 'en_US.UTF-8',
                             'LANGUAGE': 'en_US:en'}
         else:
-            logging.warning('kas: Unsupported distro. No default locales set.')
+            logging.warning('kas: "%s" is not a supported distro. '
+                            'No default locales set.', distro_base)
             self.environ = {}
 
     def get_repo_ref_dir(self):
