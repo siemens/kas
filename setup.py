@@ -86,4 +86,7 @@ setup(
         'distro>=1.0.0',
         'jsonschema>=2.5.0',
     ],
+
+    # At least python 3.4 is needed for asyncio:
+    python_requires='>=3.4',
 )
