@@ -15,7 +15,7 @@ USER_ID=${USER_ID:-30000}
 
 if [ $USER_ID == 0 ]; then
 	# We shall run everything as root
-	mkdir /builder
+	mkdir -p /builder
 
 	cd /builder
 	if [ -n "$1" ]; then
@@ -24,8 +24,10 @@ if [ $USER_ID == 0 ]; then
 		exec bash
 	fi
 else
-	# Create a non-root user that will perform the actual build
-	useradd --uid $USER_ID --create-home --home-dir /builder builder
+	if ! id $USER_ID >/dev/null 2>&1; then
+		# Create a non-root user that will perform the actual build
+		useradd --uid $USER_ID --create-home --home-dir /builder builder
+	fi
 
 	cd /builder
 	if [ -n "$1" ]; then
