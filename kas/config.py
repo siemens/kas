@@ -277,6 +277,14 @@ class Config:
         return os.environ.get('KAS_DISTRO',
                               self._config.get('distro', 'poky'))
 
+    def get_environment(self):
+        """
+            Returns the configured environment variables from the configuration
+            file, with possible overwritten values from the environment.
+        """
+        env = self._config.get('env', {})
+        return {var: os.environ.get(var, env[var]) for var in env}
+
     def get_multiconfig(self):
         """
             Returns the multiconfig array as bitbake string

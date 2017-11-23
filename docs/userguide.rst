@@ -294,6 +294,11 @@ Configuration reference
     ``core-image-minimal``. Space is used as a delimiter if multiple targets
     should be specified via the environment variable.
 
+* ``env``: dict [optional]
+    Contains environment variable names with the default values. These
+    variables are made available to bitbake via ``BB_ENV_EXTRAWHITE`` and can
+    be overwritten by the variables of the environment in which kas is started.
+
 * ``task``: string [optional]
     Contains the task to build by bitbake. Can be overwritten by the
     ``KAS_TASK`` environment variable and defaults to ``build``.

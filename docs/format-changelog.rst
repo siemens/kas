@@ -48,3 +48,12 @@ Changed behavior
 
 - Using ``multiconfig:*`` targets adds appropriate ``BBMULTICONFIG`` entries to
   the ``local.conf`` automatically.
+
+Version 6
+---------
+
+Added
+~~~~~
+
+- ``env`` key now allows to pass custom environment variables to the bitbake
+  build process.

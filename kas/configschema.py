@@ -78,6 +78,12 @@ CONFIGSCHEMA = {
         'distro': {
             'type': 'string',
         },
+        'env': {
+            'type': 'object',
+            'additionalProperties': {
+                'type': 'string',
+            },
+        },
         'target': {
             'oneOf': [
                 {
