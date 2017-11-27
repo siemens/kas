@@ -263,6 +263,16 @@ class Config:
         """
         return self._get_conf_header('local_conf_header')
 
+    def get_external_local_conf_header(self):
+        """
+            Get value from included key
+            Add external settings to local.conf
+        """
+        header = ''
+        for key, value in sorted(self._config.get("external_local_conf_header", {}).items()):
+            header += '# {}\n{}\n'.format(key, self._config.get(value))
+        return header
+
     def get_machine(self):
         """
             Returns the machine
