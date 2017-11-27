@@ -112,7 +112,11 @@ class Config:
         """
             The path of the build directory.
         """
-        return os.path.join(self.__kas_work_dir, 'build')
+        ymlbuilddir = self._config.get('machine-build-dir', 'build')
+        if ymlbuilddir:
+            return os.path.join(self.__kas_work_dir, ymlbuilddir)
+        else:
+            return os.path.join(self.__kas_work_dir, 'build')
 
     @property
     def kas_work_dir(self):
