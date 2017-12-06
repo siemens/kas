@@ -1,3 +1,8 @@
+0.15.0
+- Environment variable passthrough
+- Support major distro variants
+- Add initial support for multiconfig
+
 0.14.0
 - Multi-target support
 - Avoid downloading same repo twice
