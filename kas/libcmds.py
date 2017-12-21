@@ -169,6 +169,8 @@ class WriteConfig(Command):
     def execute(self, config):
         def _write_bblayers_conf(config):
             filename = config.build_dir + '/conf/bblayers.conf'
+            if not os.path.isdir(os.path.dirname(filename)):
+                os.makedirs(os.path.dirname(filename))
             with open(filename, 'w') as fds:
                 fds.write(config.get_bblayers_conf_header())
                 fds.write('BBLAYERS ?= " \\\n    ')
