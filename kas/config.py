@@ -131,7 +131,7 @@ class Config:
             self.environ = {'LC_ALL': 'en_US.utf8',
                             'LANG': 'en_US.utf8',
                             'LANGUAGE': 'en_US'}
-        elif distro_base in ['debian', 'ubuntu']:
+        elif distro_base in ['debian', 'ubuntu', 'gentoo']:
             self.environ = {'LC_ALL': 'en_US.UTF-8',
                             'LANG': 'en_US.UTF-8',
                             'LANGUAGE': 'en_US:en'}
