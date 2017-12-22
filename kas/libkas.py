@@ -314,7 +314,7 @@ def get_build_environ(config, build_dir):
     env.update(conf_env)
 
     if 'BB_ENV_EXTRAWHITE' in env:
-        extra_white = env['BB_ENV_EXTRAWHITE'] + ' '.join(env_vars)
+        extra_white = env['BB_ENV_EXTRAWHITE'] + ' ' + ' '.join(env_vars)
         env.update({'BB_ENV_EXTRAWHITE': extra_white})
 
     env_vars.extend(['SSH_AGENT_PID', 'SSH_AUTH_SOCK',
