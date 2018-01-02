@@ -321,7 +321,9 @@ Configuration reference
         are performed.
 
     * ``refspec``: string [optional]
-        The refspec that should be used. Required if an ``url`` was specified.
+        The refspec that should be used. If ``url`` was specified bot no
+        ``refspec`` the revision you get depends on the defaults of the version
+        control system used.
 
     * ``path``: string [optional]
         The path where the repository is stored.

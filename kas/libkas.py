@@ -177,6 +177,10 @@ def _repo_fetch_async(config, repo):
             logging.info('Repository %s cloned', repo.name)
         return retc
 
+    # take what came out of clone and stick to that forever
+    if repo.refspec is None:
+        return 0
+
     # Does refspec exist in the current repository?
     (retc, output) = yield from run_cmd_async(['git',
                                                'cat-file', '-t',
@@ -229,7 +233,7 @@ def repo_checkout(config, repo):
     """
         Checks out the correct revision of the repo.
     """
-    if repo.git_operation_disabled:
+    if repo.git_operation_disabled or repo.refspec is None:
         return
 
     # Check if repos is dirty
