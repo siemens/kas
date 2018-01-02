@@ -74,7 +74,7 @@ def load_config(filename):
 
     if validation_error:
         raise LoadConfigException('Errors occured while validating the '
-                                  'config file %s', filename)
+                                  'config file', filename)
 
     try:
         version_value = int(config['header']['version'])
