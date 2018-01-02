@@ -62,6 +62,9 @@ class Repo:
                     .replace(':', '.')
                     .replace('/', '.')
                     .replace('*', '.'))
+        else:
+            # Default behaviour
+            raise AttributeError
 
     def __str__(self):
         return '%s:%s %s %s' % (self.url, self.refspec,
