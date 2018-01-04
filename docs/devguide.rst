@@ -7,9 +7,9 @@ Deploy for development
 This project uses pip to manage the package. If you want to work on the
 project yourself you can create the necessary links via::
 
-    $ sudo pip3 install -e .
+    $ pip3 install --user -e .
 
-That will install a backlink /usr/bin/kas to this project. Now you are
+That will install a backlink ~/.local/bin/kas to this project. Now you are
 able to call it from anywhere.
 
 
