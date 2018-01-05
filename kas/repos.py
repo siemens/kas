@@ -100,6 +100,9 @@ class Repo:
 
         if typ == 'git':
             return GitRepo(url, path, refspec, layers, disable_operations)
+        if typ == 'hg':
+            return MercurialRepo(url, path, refspec, layers,
+                                 disable_operations)
         raise NotImplementedError('Repo typ "%s" not supported.' % typ)
 
     @staticmethod
@@ -107,12 +110,14 @@ class Repo:
         """
             Check if path is a version control repo and return its root path.
         """
-        (ret, output) = run_cmd(['git',
-                                 'rev-parse',
-                                 '--show-toplevel'],
-                                cwd=path,
-                                env=environ,
-                                fail=False,
+        (ret, output) = run_cmd(['git', 'rev-parse', '--show-toplevel'],
+                                cwd=path, env=environ, fail=False,
+                                liveupdate=False)
+        if ret == 0:
+            return output.strip()
+
+        (ret, output) = run_cmd(['hg', 'root'],
+                                cwd=path, env=environ, fail=False,
                                 liveupdate=False)
         if ret == 0:
             return output.strip()
@@ -227,3 +232,28 @@ class GitRepo(RepoImpl):
     def checkout_cmd(self):
         return ['git', 'checkout', '-q',
                 '{refspec}'.format(refspec=self.refspec)]
+
+
+class MercurialRepo(RepoImpl):
+    """
+        Provides the hg implementations for a Repo.
+    """
+    # pylint: disable=no-self-use,missing-docstring,unused-argument
+
+    def clone_cmd(self, gitsrcdir, config):
+        return ['hg', 'clone', self.url, self.path]
+
+    def contains_refspec_cmd(self):
+        return ['hg', 'log', '-r', self.refspec]
+
+    def fetch_cmd(self):
+        return ['hg', 'pull']
+
+    def is_dirty_cmd(self):
+        return ['hg', 'diff']
+
+    def current_rev_cmd(self):
+        return ['hg', 'identify', '-i', '--debug']
+
+    def checkout_cmd(self):
+        return ['hg', 'checkout', '{refspec}'.format(refspec=self.refspec)]
