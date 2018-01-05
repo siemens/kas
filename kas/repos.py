@@ -38,7 +38,7 @@ class Repo:
         Represents a repository in the kas configuration.
     """
 
-    def __init__(self, url, path, refspec=None, layers=None):
+    def __init__(self, url, path, refspec, layers):
         self.url = url
         self.path = path
         self.refspec = refspec
@@ -72,6 +72,36 @@ class Repo:
     def __str__(self):
         return '%s:%s %s %s' % (self.url, self.refspec,
                                 self.path, self._layers)
+
+    @staticmethod
+    def factory(url, path, refspec=None, layers=None):
+        """
+            Return an instance Repo depending on params.
+        """
+        return GitRepo(url, path, refspec, layers)
+
+    @staticmethod
+    def get_root_path(path, environ):
+        """
+            Check if path is a version control repo and return its root path.
+        """
+        (ret, output) = run_cmd(['git',
+                                 'rev-parse',
+                                 '--show-toplevel'],
+                                cwd=path,
+                                env=environ,
+                                fail=False,
+                                liveupdate=False)
+        if ret == 0:
+            return output.strip()
+
+        return path
+
+
+class GitRepo(Repo):
+    """
+        Provides the git implementations for a Repo.
+    """
 
     @asyncio.coroutine
     def fetch_async(self, config):
@@ -155,20 +185,3 @@ class Repo:
         run_cmd(['git', 'checkout', '-q',
                  '{refspec}'.format(refspec=self.refspec)],
                 cwd=self.path)
-
-    @staticmethod
-    def get_root_path(path, environ):
-        """
-            Check if path is a version control repo and return its root path.
-        """
-        (ret, output) = run_cmd(['git',
-                                 'rev-parse',
-                                 '--show-toplevel'],
-                                cwd=path,
-                                env=environ,
-                                fail=False,
-                                liveupdate=False)
-        if ret == 0:
-            return output.strip()
-
-        return path

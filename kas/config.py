@@ -199,16 +199,12 @@ class Config:
                                  name)
 
                 url = path
-                rep = Repo(url=url,
-                           path=path,
-                           layers=layers)
+                rep = Repo.factory(url=url, path=path, layers=layers)
                 rep.disable_operations()
             else:
                 path = path or os.path.join(self.kas_work_dir, name)
-                rep = Repo(url=url,
-                           path=path,
-                           refspec=refspec,
-                           layers=layers)
+                rep = Repo.factory(url=url, path=path, refspec=refspec,
+                                   layers=layers)
             repo_dict[repo] = rep
         return repo_dict
 
