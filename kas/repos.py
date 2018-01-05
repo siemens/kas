@@ -69,11 +69,35 @@ class Repo:
                                 self.path, self._layers)
 
     @staticmethod
-    def factory(url, path, typ, refspec, layers, disable_operations):
+    def factory(name, repo_config, config):
         """
             Return an instance Repo depending on params.
         """
-        # pylint: disable=too-many-arguments
+        layers_dict = repo_config.get('layers', {})
+        layers = list(filter(lambda x, laydict=layers_dict:
+                             str(laydict[x]).lower() not in
+                             ['disabled', 'excluded', 'n', 'no', '0', 'false'],
+                             layers_dict))
+        url = repo_config.get('url', None)
+        name = repo_config.get('name', name)
+        typ = repo_config.get('type', 'git')
+        refspec = repo_config.get('refspec', None)
+        path = repo_config.get('path', None)
+        disable_operations = False
+
+        if url is None:
+            # No git operation on repository
+            if path is None:
+                path = Repo.get_root_path(os.path.dirname(config.filename),
+                                          config.environ)
+                logging.info('Using %s as root for repository %s', path,
+                             name)
+
+            url = path
+            disable_operations = True
+        else:
+            path = path or os.path.join(config.kas_work_dir, name)
+
         if typ == 'git':
             return GitRepo(url, path, refspec, layers, disable_operations)
         raise NotImplementedError('Repo typ "%s" not supported.' % typ)

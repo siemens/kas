@@ -177,38 +177,9 @@ class Config:
         repo_config_dict = self._config.get('repos', {})
         repo_dict = {}
         for repo in repo_config_dict:
-
             repo_config_dict[repo] = repo_config_dict[repo] or {}
-            layers_dict = repo_config_dict[repo].get('layers', {})
-            layers = list(filter(lambda x, laydict=layers_dict:
-                                 str(laydict[x]).lower() not in
-                                 ['disabled', 'excluded', 'n', 'no', '0',
-                                  'false'],
-                                 layers_dict))
-            url = repo_config_dict[repo].get('url', None)
-            name = repo_config_dict[repo].get('name', repo)
-            typ = repo_config_dict[repo].get('type', 'git')
-            refspec = repo_config_dict[repo].get('refspec', None)
-            path = repo_config_dict[repo].get('path', None)
-            dis_ops = False
+            repo_dict[repo] = Repo.factory(repo, repo_config_dict[repo], self)
 
-            if url is None:
-                # No git operation on repository
-                if path is None:
-                    path = Repo.get_root_path(os.path.dirname(self.filename),
-                                              self.environ)
-                    logging.info('Using %s as root for repository %s', path,
-                                 name)
-
-                url = path
-                dis_ops = True
-            else:
-                path = path or os.path.join(self.kas_work_dir, name)
-
-            rep = Repo.factory(url=url, path=path, typ=typ,
-                               refspec=refspec, layers=layers,
-                               disable_operations=dis_ops)
-            repo_dict[repo] = rep
         return repo_dict
 
     def get_bitbake_targets(self):
