@@ -155,3 +155,20 @@ class Repo:
         run_cmd(['git', 'checkout', '-q',
                  '{refspec}'.format(refspec=self.refspec)],
                 cwd=self.path)
+
+    @staticmethod
+    def get_root_path(path, environ):
+        """
+            Check if path is a version control repo and return its root path.
+        """
+        (ret, output) = run_cmd(['git',
+                                 'rev-parse',
+                                 '--show-toplevel'],
+                                cwd=path,
+                                env=environ,
+                                fail=False,
+                                liveupdate=False)
+        if ret == 0:
+            return output.strip()
+
+        return path

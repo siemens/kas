@@ -49,7 +49,7 @@ except ImportError:
         return platform.dist()[0]
 
 from .repos import Repo
-from .libkas import run_cmd, repos_fetch
+from .libkas import repos_fetch
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
@@ -193,17 +193,8 @@ class Config:
             if url is None:
                 # No git operation on repository
                 if path is None:
-                    # In-tree configuration
-                    path = os.path.dirname(self.filename)
-                    (ret, output) = run_cmd(['git',
-                                             'rev-parse',
-                                             '--show-toplevel'],
-                                            cwd=path,
-                                            env=self.environ,
-                                            fail=False,
-                                            liveupdate=False)
-                    if ret == 0:
-                        path = output.strip()
+                    path = Repo.get_root_path(os.path.dirname(self.filename),
+                                              self.environ)
                     logging.info('Using %s as root for repository %s', path,
                                  name)
 
