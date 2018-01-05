@@ -15,7 +15,7 @@ RUN apt-get update && \
                        tar bzip2 curl dosfstools mtools parted \
                        syslinux tree python3-pip bc python3-yaml \
                        lsb-release python3-setuptools ssh-client \
-                       vim less && \
+                       vim less mercurial && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
