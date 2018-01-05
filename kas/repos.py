@@ -38,19 +38,14 @@ class Repo:
         Represents a repository in the kas configuration.
     """
 
-    def __init__(self, url, path, refspec, layers):
+    def __init__(self, url, path, refspec, layers, disable_operations):
+        # pylint: disable=too-many-arguments
         self.url = url
         self.path = path
         self.refspec = refspec
         self._layers = layers
         self.name = os.path.basename(self.path)
-        self.operations_disabled = False
-
-    def disable_operations(self):
-        """
-            Disabled all version control operation for this repository.
-        """
-        self.operations_disabled = True
+        self.operations_disabled = disable_operations
 
     def __getattr__(self, item):
         if item == 'layers':
@@ -74,11 +69,12 @@ class Repo:
                                 self.path, self._layers)
 
     @staticmethod
-    def factory(url, path, refspec=None, layers=None):
+    def factory(url, path, refspec, layers, disable_operations):
         """
             Return an instance Repo depending on params.
         """
-        return GitRepo(url, path, refspec, layers)
+        # pylint: disable=too-many-arguments
+        return GitRepo(url, path, refspec, layers, disable_operations)
 
     @staticmethod
     def get_root_path(path, environ):

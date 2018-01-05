@@ -189,6 +189,7 @@ class Config:
             name = repo_config_dict[repo].get('name', repo)
             refspec = repo_config_dict[repo].get('refspec', None)
             path = repo_config_dict[repo].get('path', None)
+            dis_ops = False
 
             if url is None:
                 # No git operation on repository
@@ -199,12 +200,12 @@ class Config:
                                  name)
 
                 url = path
-                rep = Repo.factory(url=url, path=path, layers=layers)
-                rep.disable_operations()
+                dis_ops = True
             else:
                 path = path or os.path.join(self.kas_work_dir, name)
-                rep = Repo.factory(url=url, path=path, refspec=refspec,
-                                   layers=layers)
+
+            rep = Repo.factory(url=url, path=path, refspec=refspec,
+                               layers=layers, disable_operations=dis_ops)
             repo_dict[repo] = rep
         return repo_dict
 
