@@ -86,7 +86,7 @@ class Repo:
         disable_operations = False
 
         if url is None:
-            # No git operation on repository
+            # No version control operation on repository
             if path is None:
                 path = Repo.get_root_path(os.path.dirname(config.filename),
                                           config.environ)
@@ -120,9 +120,9 @@ class Repo:
         return path
 
 
-class GitRepo(Repo):
+class RepoImpl(Repo):
     """
-        Provides the git implementations for a Repo.
+        Provides a generic implementation for a Repo.
     """
 
     @asyncio.coroutine
@@ -135,14 +135,11 @@ class GitRepo(Repo):
 
         if not os.path.exists(self.path):
             os.makedirs(os.path.dirname(self.path), exist_ok=True)
-            gitsrcdir = os.path.join(config.get_repo_ref_dir() or '',
-                                     self.qualified_name)
-            logging.debug('Looking for repo ref dir in %s', gitsrcdir)
+            sdir = os.path.join(config.get_repo_ref_dir() or '',
+                                self.qualified_name)
+            logging.debug('Looking for repo ref dir in %s', sdir)
 
-            cmd = ['git', 'clone', '-q', self.url, self.path]
-            if config.get_repo_ref_dir() and os.path.exists(gitsrcdir):
-                cmd.extend(['--reference', gitsrcdir])
-            (retc, _) = yield from run_cmd_async(cmd,
+            (retc, _) = yield from run_cmd_async(self.clone_cmd(sdir, config),
                                                  env=config.environ,
                                                  cwd=config.kas_work_dir)
             if retc == 0:
@@ -154,9 +151,7 @@ class GitRepo(Repo):
             return 0
 
         # Does refspec exist in the current repository?
-        (retc, output) = yield from run_cmd_async(['git',
-                                                   'cat-file', '-t',
-                                                   self.refspec],
+        (retc, output) = yield from run_cmd_async(self.contains_refspec_cmd(),
                                                   env=config.environ,
                                                   cwd=self.path,
                                                   fail=False,
@@ -167,8 +162,7 @@ class GitRepo(Repo):
             return retc
 
         # No it is missing, try to fetch
-        (retc, output) = yield from run_cmd_async(['git',
-                                                   'fetch', '--all'],
+        (retc, output) = yield from run_cmd_async(self.fetch_cmd(),
                                                   env=config.environ,
                                                   cwd=self.path,
                                                   fail=False)
@@ -187,7 +181,7 @@ class GitRepo(Repo):
             return
 
         # Check if repos is dirty
-        (_, output) = run_cmd(['git', 'diff', '--shortstat'],
+        (_, output) = run_cmd(self.is_dirty_cmd(),
                               env=config.environ, cwd=self.path,
                               fail=False)
         if output:
@@ -195,8 +189,7 @@ class GitRepo(Repo):
             return
 
         # Check if current HEAD is what in the config file is defined.
-        (_, output) = run_cmd(['git', 'rev-parse',
-                               '--verify', 'HEAD'],
+        (_, output) = run_cmd(self.current_rev_cmd(),
                               env=config.environ, cwd=self.path)
 
         if output.strip() == self.refspec:
@@ -204,6 +197,33 @@ class GitRepo(Repo):
                          'refspec. nothing to do', self.name)
             return
 
-        run_cmd(['git', 'checkout', '-q',
-                 '{refspec}'.format(refspec=self.refspec)],
-                cwd=self.path)
+        run_cmd(self.checkout_cmd(), cwd=self.path)
+
+
+class GitRepo(RepoImpl):
+    """
+        Provides the git implementations for a Repo.
+    """
+    # pylint: disable=no-self-use,missing-docstring
+
+    def clone_cmd(self, gitsrcdir, config):
+        cmd = ['git', 'clone', '-q', self.url, self.path]
+        if config.get_repo_ref_dir() and os.path.exists(gitsrcdir):
+            cmd.extend(['--reference', gitsrcdir])
+        return cmd
+
+    def contains_refspec_cmd(self):
+        return ['git', 'cat-file', '-t', self.refspec]
+
+    def fetch_cmd(self):
+        return ['git', 'fetch', '--all']
+
+    def is_dirty_cmd(self):
+        return ['git', 'diff', '--shortstat']
+
+    def current_rev_cmd(self):
+        return ['git', 'rev-parse', '--verify', 'HEAD']
+
+    def checkout_cmd(self):
+        return ['git', 'checkout', '-q',
+                '{refspec}'.format(refspec=self.refspec)]
