@@ -153,61 +153,6 @@ def find_program(paths, name):
     return None
 
 
-@asyncio.coroutine
-def _repo_fetch_async(config, repo):
-    """
-        Start asynchronous repository fetch.
-    """
-    if repo.operations_disabled:
-        return 0
-
-    if not os.path.exists(repo.path):
-        os.makedirs(os.path.dirname(repo.path), exist_ok=True)
-        gitsrcdir = os.path.join(config.get_repo_ref_dir() or '',
-                                 repo.qualified_name)
-        logging.debug('Looking for repo ref dir in %s', gitsrcdir)
-
-        cmd = ['git', 'clone', '-q', repo.url, repo.path]
-        if config.get_repo_ref_dir() and os.path.exists(gitsrcdir):
-            cmd.extend(['--reference', gitsrcdir])
-        (retc, _) = yield from run_cmd_async(cmd,
-                                             env=config.environ,
-                                             cwd=config.kas_work_dir)
-        if retc == 0:
-            logging.info('Repository %s cloned', repo.name)
-        return retc
-
-    # take what came out of clone and stick to that forever
-    if repo.refspec is None:
-        return 0
-
-    # Does refspec exist in the current repository?
-    (retc, output) = yield from run_cmd_async(['git',
-                                               'cat-file', '-t',
-                                               repo.refspec],
-                                              env=config.environ,
-                                              cwd=repo.path,
-                                              fail=False,
-                                              liveupdate=False)
-    if retc == 0:
-        logging.info('Repository %s already contains %s as %s',
-                     repo.name, repo.refspec, output.strip())
-        return retc
-
-    # No it is missing, try to fetch
-    (retc, output) = yield from run_cmd_async(['git',
-                                               'fetch', '--all'],
-                                              env=config.environ,
-                                              cwd=repo.path,
-                                              fail=False)
-    if retc:
-        logging.warning('Could not update repository %s: %s',
-                        repo.name, output)
-    else:
-        logging.info('Repository %s updated', repo.name)
-    return 0
-
-
 def repos_fetch(config, repos):
     """
         Fetches the list of repositories to the kas_work_dir.
@@ -216,9 +161,9 @@ def repos_fetch(config, repos):
     for repo in repos:
         if not hasattr(asyncio, 'ensure_future'):
             # pylint: disable=no-member,deprecated-method
-            task = asyncio.async(_repo_fetch_async(config, repo))
+            task = asyncio.async(repo.fetch_async(config))
         else:
-            task = asyncio.ensure_future(_repo_fetch_async(config, repo))
+            task = asyncio.ensure_future(repo.fetch_async(config))
         tasks.append(task)
 
     loop = asyncio.get_event_loop()
@@ -227,36 +172,6 @@ def repos_fetch(config, repos):
     for task in tasks:
         if task.result():
             sys.exit(task.result())
-
-
-def repo_checkout(config, repo):
-    """
-        Checks out the correct revision of the repo.
-    """
-    if repo.operations_disabled or repo.refspec is None:
-        return
-
-    # Check if repos is dirty
-    (_, output) = run_cmd(['git', 'diff', '--shortstat'],
-                          env=config.environ, cwd=repo.path,
-                          fail=False)
-    if output:
-        logging.warning('Repo %s is dirty. no checkout', repo.name)
-        return
-
-    # Check if current HEAD is what in the config file is defined.
-    (_, output) = run_cmd(['git', 'rev-parse',
-                           '--verify', 'HEAD'],
-                          env=config.environ, cwd=repo.path)
-
-    if output.strip() == repo.refspec:
-        logging.info('Repo %s has already checkout out correct '
-                     'refspec. nothing to do', repo.name)
-        return
-
-    run_cmd(['git', 'checkout', '-q',
-             '{refspec}'.format(refspec=repo.refspec)],
-            cwd=repo.path)
 
 
 def get_build_environ(config, build_dir):

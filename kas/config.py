@@ -49,7 +49,7 @@ except ImportError:
         return platform.dist()[0]
 
 from .repos import Repo
-from .libkas import run_cmd, repos_fetch, repo_checkout
+from .libkas import run_cmd, repos_fetch
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
@@ -91,7 +91,7 @@ class Config:
             repos_fetch(self, missing_repos)
 
             for repo in missing_repos:
-                repo_checkout(self, repo)
+                repo.checkout(self)
 
             repo_paths = {r: repo_dict[r].path for r in repo_dict}
 

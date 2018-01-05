@@ -24,7 +24,10 @@
 """
 
 import os
+import asyncio
+import logging
 from urllib.parse import urlparse
+from .libkas import run_cmd_async, run_cmd
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
@@ -69,3 +72,86 @@ class Repo:
     def __str__(self):
         return '%s:%s %s %s' % (self.url, self.refspec,
                                 self.path, self._layers)
+
+    @asyncio.coroutine
+    def fetch_async(self, config):
+        """
+            Start asynchronous repository fetch.
+        """
+        if self.operations_disabled:
+            return 0
+
+        if not os.path.exists(self.path):
+            os.makedirs(os.path.dirname(self.path), exist_ok=True)
+            gitsrcdir = os.path.join(config.get_repo_ref_dir() or '',
+                                     self.qualified_name)
+            logging.debug('Looking for repo ref dir in %s', gitsrcdir)
+
+            cmd = ['git', 'clone', '-q', self.url, self.path]
+            if config.get_repo_ref_dir() and os.path.exists(gitsrcdir):
+                cmd.extend(['--reference', gitsrcdir])
+            (retc, _) = yield from run_cmd_async(cmd,
+                                                 env=config.environ,
+                                                 cwd=config.kas_work_dir)
+            if retc == 0:
+                logging.info('Repository %s cloned', self.name)
+            return retc
+
+        # take what came out of clone and stick to that forever
+        if self.refspec is None:
+            return 0
+
+        # Does refspec exist in the current repository?
+        (retc, output) = yield from run_cmd_async(['git',
+                                                   'cat-file', '-t',
+                                                   self.refspec],
+                                                  env=config.environ,
+                                                  cwd=self.path,
+                                                  fail=False,
+                                                  liveupdate=False)
+        if retc == 0:
+            logging.info('Repository %s already contains %s as %s',
+                         self.name, self.refspec, output.strip())
+            return retc
+
+        # No it is missing, try to fetch
+        (retc, output) = yield from run_cmd_async(['git',
+                                                   'fetch', '--all'],
+                                                  env=config.environ,
+                                                  cwd=self.path,
+                                                  fail=False)
+        if retc:
+            logging.warning('Could not update repository %s: %s',
+                            self.name, output)
+        else:
+            logging.info('Repository %s updated', self.name)
+        return 0
+
+    def checkout(self, config):
+        """
+            Checks out the correct revision of the repo.
+        """
+        if self.operations_disabled or self.refspec is None:
+            return
+
+        # Check if repos is dirty
+        (_, output) = run_cmd(['git', 'diff', '--shortstat'],
+                              env=config.environ, cwd=self.path,
+                              fail=False)
+        if output:
+            logging.warning('Repo %s is dirty. no checkout', self.name)
+            return
+
+        # Check if current HEAD is what in the config file is defined.
+        (_, output) = run_cmd(['git', 'rev-parse',
+                               '--verify', 'HEAD'],
+                              env=config.environ, cwd=self.path)
+
+        if output.strip() == self.refspec:
+            logging.info('Repo %s has already checkout out correct '
+                         'refspec. nothing to do', self.name)
+            return
+
+        run_cmd(['git', 'checkout', '-q',
+                 '{refspec}'.format(refspec=self.refspec)],
+                cwd=self.path)

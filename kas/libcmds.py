@@ -28,7 +28,7 @@ import logging
 import shutil
 import os
 from .libkas import (ssh_cleanup_agent, ssh_setup_agent, ssh_no_host_key_check,
-                     get_build_environ, repos_fetch, repo_checkout)
+                     get_build_environ, repos_fetch)
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
@@ -214,4 +214,4 @@ class ReposCheckout(Command):
 
     def execute(self, config):
         for repo in config.get_repos():
-            repo_checkout(config, repo)
+            repo.checkout(config)
