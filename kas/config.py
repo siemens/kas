@@ -187,6 +187,7 @@ class Config:
                                  layers_dict))
             url = repo_config_dict[repo].get('url', None)
             name = repo_config_dict[repo].get('name', repo)
+            typ = repo_config_dict[repo].get('type', 'git')
             refspec = repo_config_dict[repo].get('refspec', None)
             path = repo_config_dict[repo].get('path', None)
             dis_ops = False
@@ -204,8 +205,9 @@ class Config:
             else:
                 path = path or os.path.join(self.kas_work_dir, name)
 
-            rep = Repo.factory(url=url, path=path, refspec=refspec,
-                               layers=layers, disable_operations=dis_ops)
+            rep = Repo.factory(url=url, path=path, typ=typ,
+                               refspec=refspec, layers=layers,
+                               disable_operations=dis_ops)
             repo_dict[repo] = rep
         return repo_dict
 

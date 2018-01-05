@@ -114,6 +114,9 @@ CONFIGSCHEMA = {
                             'url': {
                                 'type': 'string',
                             },
+                            'type': {
+                                'type': 'string',
+                            },
                             'refspec': {
                                 'type': 'string',
                             },

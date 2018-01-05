@@ -57,3 +57,12 @@ Added
 
 - ``env`` key now allows to pass custom environment variables to the bitbake
   build process.
+
+Version 7
+---------
+
+Added
+~~~~~
+
+- ``type`` property to ``repos`` to be able to express which version control
+  system to use.

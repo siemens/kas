@@ -69,12 +69,14 @@ class Repo:
                                 self.path, self._layers)
 
     @staticmethod
-    def factory(url, path, refspec, layers, disable_operations):
+    def factory(url, path, typ, refspec, layers, disable_operations):
         """
             Return an instance Repo depending on params.
         """
         # pylint: disable=too-many-arguments
-        return GitRepo(url, path, refspec, layers, disable_operations)
+        if typ == 'git':
+            return GitRepo(url, path, refspec, layers, disable_operations)
+        raise NotImplementedError('Repo typ "%s" not supported.' % typ)
 
     @staticmethod
     def get_root_path(path, environ):
