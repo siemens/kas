@@ -317,8 +317,12 @@ Configuration reference
         the ``<repo-id>`` will be used.
 
     * ``url``: string [optional]
-        The url of the git repository. If this is missing, no git operations
-        are performed.
+        The url of the repository. If this is missing, no version control
+        operations are performed.
+
+    * ``type``: string [optional]
+        The type of version control repository. The default value is ``git``
+        and ``hg`` is also supported.
 
     * ``refspec``: string [optional]
         The refspec that should be used. If ``url`` was specified bot no
