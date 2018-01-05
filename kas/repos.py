@@ -41,13 +41,13 @@ class Repo:
         self.refspec = refspec
         self._layers = layers
         self.name = os.path.basename(self.path)
-        self.git_operation_disabled = False
+        self.operations_disabled = False
 
-    def disable_git_operations(self):
+    def disable_operations(self):
         """
-            Disabled all git operation for this repository.
+            Disabled all version control operation for this repository.
         """
-        self.git_operation_disabled = True
+        self.operations_disabled = True
 
     def __getattr__(self, item):
         if item == 'layers':

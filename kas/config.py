@@ -211,7 +211,7 @@ class Config:
                 rep = Repo(url=url,
                            path=path,
                            layers=layers)
-                rep.disable_git_operations()
+                rep.disable_operations()
             else:
                 path = path or os.path.join(self.kas_work_dir, name)
                 rep = Repo(url=url,

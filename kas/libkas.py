@@ -158,7 +158,7 @@ def _repo_fetch_async(config, repo):
     """
         Start asynchronous repository fetch.
     """
-    if repo.git_operation_disabled:
+    if repo.operations_disabled:
         return 0
 
     if not os.path.exists(repo.path):
@@ -233,7 +233,7 @@ def repo_checkout(config, repo):
     """
         Checks out the correct revision of the repo.
     """
-    if repo.git_operation_disabled or repo.refspec is None:
+    if repo.operations_disabled or repo.refspec is None:
         return
 
     # Check if repos is dirty
