@@ -83,7 +83,6 @@ class Shell:
             macro.add(SetupDir())
 
         macro.add(SetupProxy())
-        macro.add(SetupEnviron())
 
         if 'SSH_PRIVATE_KEY' in os.environ:
             macro.add(SetupSSHAgent())
@@ -93,6 +92,8 @@ class Shell:
             macro.add(ReposCheckout())
             macro.add(SetupEnviron())
             macro.add(WriteConfig())
+        else:
+            macro.add(SetupEnviron())
 
         # Shell
         macro.add(SetupHome())
