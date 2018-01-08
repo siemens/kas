@@ -25,6 +25,7 @@
 """
 
 import subprocess
+import os
 from kas.libkas import kasplugin
 from kas.config import Config
 from kas.libcmds import (Macro, Command, SetupDir, SetupProxy, SetupEnviron,
@@ -77,11 +78,15 @@ class Shell:
 
         macro = Macro()
 
+        # Prepare
         if not args.keep_config_unchanged:
             macro.add(SetupDir())
 
         macro.add(SetupProxy())
         macro.add(SetupEnviron())
+
+        if 'SSH_PRIVATE_KEY' in os.environ:
+            macro.add(SetupSSHAgent())
 
         if not args.keep_config_unchanged:
             macro.add(ReposFetch())
@@ -89,8 +94,12 @@ class Shell:
             macro.add(SetupEnviron())
             macro.add(WriteConfig())
 
+        # Shell
         macro.add(SetupHome())
         macro.add(ShellCommand(args.command))
+
+        if 'SSH_PRIVATE_KEY' in os.environ:
+            macro.add(CleanupSSHAgent())
 
         macro.run(cfg, args.skip)
 
