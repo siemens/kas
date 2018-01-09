@@ -29,7 +29,8 @@ import os
 from kas.libkas import kasplugin
 from kas.config import Config
 from kas.libcmds import (Macro, Command, SetupDir, SetupProxy, SetupEnviron,
-                         WriteConfig, SetupHome, ReposFetch, ReposCheckout)
+                         WriteConfig, SetupHome, ReposFetch, ReposCheckout,
+                         CleanupSSHAgent, SetupSSHAgent)
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
