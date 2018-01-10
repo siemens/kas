@@ -1,3 +1,7 @@
+0.16.0
+- Support Mercurial repos
+- Support Gentoo distro
+
 0.15.0
 - Environment variable passthrough
 - Support major distro variants
