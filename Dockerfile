@@ -16,6 +16,10 @@ RUN apt-get update && \
                        syslinux tree python3-pip bc python3-yaml \
                        lsb-release python3-setuptools ssh-client \
                        vim less mercurial && \
+    echo 'deb http://deb.debian.org/debian stretch main' >> /etc/apt/sources.list.d/backports.list && \
+    apt-get update && \
+    apt-get install -y -f --no-install-recommends --target-release stretch \
+            xz-utils && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
