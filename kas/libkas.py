@@ -29,6 +29,7 @@ import sys
 import logging
 import tempfile
 import asyncio
+import errno
 from subprocess import Popen, PIPE
 
 __license__ = 'MIT'
@@ -95,21 +96,30 @@ def run_cmd_async(cmd, cwd, env=None, fail=True, shell=False, liveupdate=True):
 
     logo = LogOutput(liveupdate)
 
-    if shell:
-        process = yield from asyncio.create_subprocess_shell(
-            cmd,
-            env=env,
-            cwd=cwd,
-            universal_newlines=True,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE)
-    else:
-        process = yield from asyncio.create_subprocess_exec(
-            *cmd,
-            cwd=cwd,
-            env=env,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE)
+    try:
+        if shell:
+            process = yield from asyncio.create_subprocess_shell(
+                cmd,
+                env=env,
+                cwd=cwd,
+                universal_newlines=True,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE)
+        else:
+            process = yield from asyncio.create_subprocess_exec(
+                *cmd,
+                cwd=cwd,
+                env=env,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE)
+    except FileNotFoundError as ex:
+        if fail:
+            raise ex
+        return (errno.ENOENT, str(ex))
+    except PermissionError as ex:
+        if fail:
+            raise ex
+        return (errno.EPERM, str(ex))
 
     yield from asyncio.wait([
         _read_stream(process.stdout, logo.log_stdout),
