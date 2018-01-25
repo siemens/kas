@@ -338,6 +338,7 @@ Configuration reference
         If the ``url`` as well as the ``path`` is defined, the path is used to
         overwrite the checkout directory, that defaults to ``kas_work_dir``
         + ``repo.name``.
+        In case of a relative path name ``kas_work_dir`` is prepended.
 
     * ``layers``: dict [optional]
         Contains the layers from this repository that should be added to the

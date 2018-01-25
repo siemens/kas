@@ -96,7 +96,12 @@ class Repo:
             url = path
             disable_operations = True
         else:
-            path = path or os.path.join(config.kas_work_dir, name)
+            if path is None:
+                path = os.path.join(config.kas_work_dir, name)
+            else:
+                if not os.path.isabs(path):
+                    # Relative pathes are assumed to start from work_dir
+                    path = os.path.join(config.kas_work_dir, path)
 
         if typ == 'git':
             return GitRepo(url, path, refspec, layers, disable_operations)
