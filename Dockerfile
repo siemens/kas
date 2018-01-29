@@ -15,7 +15,7 @@ RUN apt-get update && \
                        tar bzip2 curl dosfstools mtools parted \
                        syslinux tree python3-pip bc python3-yaml \
                        lsb-release python3-setuptools ssh-client \
-                       vim less mercurial && \
+                       vim less mercurial iproute2 && \
     echo 'deb http://deb.debian.org/debian stretch main' >> /etc/apt/sources.list.d/backports.list && \
     apt-get update && \
     apt-get install -y -f --no-install-recommends --target-release stretch \
