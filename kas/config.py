@@ -112,7 +112,11 @@ class Config:
         """
             The path of the build directory.
         """
-        return os.path.join(self.__kas_work_dir, 'build')
+        ymlbuilddir = self._config.get('machine-build-dir', 'build')
+        if ymlbuilddir:
+            return os.path.join(self.__kas_work_dir, ymlbuilddir)
+        else:
+            return os.path.join(self.__kas_work_dir, 'build')
 
     @property
     def kas_work_dir(self):
@@ -223,6 +227,16 @@ class Config:
             Returns the local.conf header
         """
         return self._get_conf_header('local_conf_header')
+
+    def get_external_local_conf_header(self):
+        """
+            Get value from included key
+            Add external settings to local.conf
+        """
+        header = ''
+        for key, value in sorted(self._config.get("external_local_conf_header", {}).items()):
+            header += '# {}\n{}\n'.format(key, self._config.get(value))
+        return header
 
     def get_machine(self):
         """

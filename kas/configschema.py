@@ -29,7 +29,7 @@ __copyright__ = 'Copyright (c) Siemens AG, 2017'
 CONFIGSCHEMA = {
     'type': 'object',
     'required': ['header'],
-    'additionalProperties': False,
+    'additionalProperties': True,
     'properties': {
         'header': {
             'type': 'object',
