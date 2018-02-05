@@ -183,8 +183,8 @@ class WriteConfig(Command):
             filename = config.build_dir + '/conf/local.conf'
             with open(filename, 'w') as fds:
                 fds.write(config.get_local_conf_header())
-                fds.write('MACHINE ?= "{}"\n'.format(config.get_machine()))
-                fds.write('DISTRO ?= "{}"\n'.format(config.get_distro()))
+                fds.write('MACHINE ??= "{}"\n'.format(config.get_machine()))
+                fds.write('DISTRO ??= "{}"\n'.format(config.get_distro()))
                 fds.write('BBMULTICONFIG ?= "{}"\n'.format(
                     config.get_multiconfig()))
 
