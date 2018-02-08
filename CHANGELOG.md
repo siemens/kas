@@ -1,3 +1,8 @@
+0.17.0
+- Add iproute and zx-utils to the docker image
+- Fix relative path for repos
+- Write MACHINE and DISTRO as weak defaults
+
 0.16.0
 - Support Mercurial repos
 - Support Gentoo distro
