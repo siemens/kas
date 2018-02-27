@@ -8,7 +8,7 @@ RUN echo 'deb http://deb.debian.org/debian jessie-backports main' >> /etc/apt/so
     apt-get install -y -f --no-install-recommends --target-release jessie \
             autoconf automake gdisk libtool bash-completion \
             sudo grub2 grub-efi-amd64-bin grub-efi-ia32-bin \
-            reprepro python3 binfmt-support && \
+            reprepro python3 binfmt-support debootstrap && \
     apt-get install -y -f --no-install-recommends --target-release jessie-backports \
             e2fsprogs && \
     apt-get install -y -f --no-install-recommends --target-release stretch \
