@@ -19,7 +19,7 @@ echo "$NEW_VERSION" > newchangelog
 git shortlog "$OLD_VERSION".. >> newchangelog
 cat CHANGELOG.md >> newchangelog
 
-emacs newchangelog
+emacs newchangelog --eval "(text-mode)"
 
 echo -n "All fine, ready to release? [y/N]"
 read a
@@ -49,8 +49,6 @@ highlights=$(cat CHANGELOG.md | sed -e "/$OLD_VERSION/,\$d")
 prolog=release-email.txt
 echo \
 "
-Subject: [ANNOUNCE] Release $NEW_VERSION
-
 Hi,
 
 A new release $NEW_VERSION is available. A big thanks to all contributors:
