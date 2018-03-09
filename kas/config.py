@@ -74,6 +74,7 @@ class Config:
             self.handler.get_config(repos=repo_paths)
 
         self.environ.update(self.get_proxy_config())
+        self.repo_dict = self._get_repo_dict()
 
         while missing_repo_names:
             if missing_repo_names == missing_repo_names_old:
@@ -83,17 +84,17 @@ class Config:
             logging.debug('Missing repos for complete config:\n%s',
                           pprint.pformat(missing_repo_names))
 
-            repo_dict = self.get_repo_dict()
-            missing_repos = [repo_dict[repo_name]
+            self.repo_dict = self._get_repo_dict()
+            missing_repos = [self.repo_dict[repo_name]
                              for repo_name in missing_repo_names
-                             if repo_name in repo_dict]
+                             if repo_name in self.repo_dict]
 
             repos_fetch(self, missing_repos)
 
             for repo in missing_repos:
                 repo.checkout(self)
 
-            repo_paths = {r: repo_dict[r].path for r in repo_dict}
+            repo_paths = {r: self.repo_dict[r].path for r in self.repo_dict}
 
             missing_repo_names_old = missing_repo_names
             (self._config, missing_repo_names) = \
@@ -166,9 +167,9 @@ class Config:
         """
         # pylint: disable=no-self-use
 
-        return list(self.get_repo_dict().values())
+        return list(self.repo_dict.values())
 
-    def get_repo_dict(self):
+    def _get_repo_dict(self):
         """
             Returns a dictionary containing the repositories with
             their name (as it is defined in the config file) as key
