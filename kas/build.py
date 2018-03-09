@@ -29,7 +29,7 @@ from .libkas import find_program, run_cmd, kasplugin
 from .libcmds import (Macro, Command, SetupDir, SetupProxy,
                       CleanupSSHAgent, SetupSSHAgent, SetupEnviron,
                       WriteConfig, SetupHome, ReposFetch,
-                      ReposCheckout)
+                      ReposApplyPatches, ReposCheckout)
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
@@ -86,11 +86,12 @@ class Build:
         macro.add(ReposFetch())
         macro.add(ReposCheckout())
         macro.add(SetupEnviron())
+        macro.add(SetupHome())
+        macro.add(ReposApplyPatches())
 
         macro.add(WriteConfig())
 
         # Build
-        macro.add(SetupHome())
         macro.add(BuildCommand(args.task))
 
         if 'SSH_PRIVATE_KEY' in os.environ:

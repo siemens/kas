@@ -30,7 +30,7 @@ from kas.libkas import kasplugin
 from kas.config import Config
 from kas.libcmds import (Macro, Command, SetupDir, SetupProxy, SetupEnviron,
                          WriteConfig, SetupHome, ReposFetch, ReposCheckout,
-                         CleanupSSHAgent, SetupSSHAgent)
+                         ReposApplyPatches, CleanupSSHAgent, SetupSSHAgent)
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
@@ -91,13 +91,15 @@ class Shell:
         if not args.keep_config_unchanged:
             macro.add(ReposFetch())
             macro.add(ReposCheckout())
-            macro.add(SetupEnviron())
+
+        macro.add(SetupEnviron())
+        macro.add(SetupHome())
+
+        if not args.keep_config_unchanged:
+            macro.add(ReposApplyPatches())
             macro.add(WriteConfig())
-        else:
-            macro.add(SetupEnviron())
 
         # Shell
-        macro.add(SetupHome())
         macro.add(ShellCommand(args.command))
 
         if 'SSH_PRIVATE_KEY' in os.environ:

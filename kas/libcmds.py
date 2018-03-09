@@ -28,7 +28,7 @@ import logging
 import shutil
 import os
 from .libkas import (ssh_cleanup_agent, ssh_setup_agent, ssh_no_host_key_check,
-                     get_build_environ, repos_fetch)
+                     get_build_environ, repos_fetch, repos_apply_patches)
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
@@ -92,6 +92,8 @@ class SetupHome(Command):
             fds.write('\n')
         with open(self.tmpdirname + '/.netrc', 'w') as fds:
             fds.write('\n')
+        shutil.copyfile(os.path.expanduser('~/.gitconfig'),
+                        self.tmpdirname + '/.gitconfig')
         config.environ['HOME'] = self.tmpdirname
 
 
@@ -202,6 +204,18 @@ class ReposFetch(Command):
 
     def execute(self, config):
         repos_fetch(config, config.get_repos())
+
+
+class ReposApplyPatches(Command):
+    """
+        Applies the patches defined in the configuration to the repositories.
+    """
+
+    def __str__(self):
+        return 'repos_apply_patches'
+
+    def execute(self, config):
+        repos_apply_patches(config, config.get_repos())
 
 
 class ReposCheckout(Command):

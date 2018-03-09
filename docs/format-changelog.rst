@@ -66,3 +66,12 @@ Added
 
 - ``type`` property to ``repos`` to be able to express which version control
   system to use.
+
+Version 8
+---------
+
+Added
+~~~~~
+
+- ``patches`` property to ``repos`` to be able to apply additional patches to
+  the repo.

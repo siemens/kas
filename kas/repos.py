@@ -38,12 +38,14 @@ class Repo:
         Represents a repository in the kas configuration.
     """
 
-    def __init__(self, url, path, refspec, layers, disable_operations):
+    def __init__(self, url, path, refspec, layers, patches,
+                 disable_operations):
         # pylint: disable=too-many-arguments
         self.url = url
         self.path = path
         self.refspec = refspec
         self._layers = layers
+        self._patches = patches
         self.name = os.path.basename(self.path)
         self.operations_disabled = disable_operations
 
@@ -78,6 +80,15 @@ class Repo:
                              str(laydict[x]).lower() not in
                              ['disabled', 'excluded', 'n', 'no', '0', 'false'],
                              layers_dict))
+        patches_dict = repo_config.get('patches', {})
+        patches = list(
+            {
+                'id': p,
+                'repo': patches_dict[p]['repo'],
+                'path': patches_dict[p]['path'],
+            }
+            for p in sorted(patches_dict)
+            if patches_dict[p])
         url = repo_config.get('url', None)
         name = repo_config.get('name', name)
         typ = repo_config.get('type', 'git')
@@ -104,9 +115,10 @@ class Repo:
                     path = os.path.join(config.kas_work_dir, path)
 
         if typ == 'git':
-            return GitRepo(url, path, refspec, layers, disable_operations)
+            return GitRepo(url, path, refspec, layers, patches,
+                           disable_operations)
         if typ == 'hg':
-            return MercurialRepo(url, path, refspec, layers,
+            return MercurialRepo(url, path, refspec, layers, patches,
                                  disable_operations)
         raise NotImplementedError('Repo typ "%s" not supported.' % typ)
 
@@ -209,6 +221,58 @@ class RepoImpl(Repo):
 
         run_cmd(self.checkout_cmd(), cwd=self.path)
 
+    @asyncio.coroutine
+    def apply_patches_async(self, config):
+        """
+            Applies patches to repository asynchronously.
+        """
+        if self.operations_disabled:
+            return 0
+
+        for patch in self._patches:
+            other_repo = config.repo_dict.get(patch['repo'], None)
+
+            if not other_repo:
+                logging.warning('Could not find referenced repo. '
+                                '(missing repo: %s, repo: %s, '
+                                'patch entry: %s)',
+                                patch['repo'],
+                                self.name,
+                                patch['id'])
+                continue
+
+            path = os.path.join(other_repo.path, patch['path'])
+            cmd = []
+
+            if os.path.isfile(path):
+                cmd = self.apply_patches_file_cmd(path)
+            elif os.path.isdir(path):
+                cmd = self.apply_patches_quilt_cmd(path)
+            else:
+                logging.warning('Could not find patch. '
+                                '(patch path: %s, repo: %s, patch entry: %s)',
+                                path,
+                                self.name,
+                                patch['id'])
+                continue
+
+            (retc, output) = yield from run_cmd_async(cmd,
+                                                      env=config.environ,
+                                                      cwd=self.path,
+                                                      fail=False)
+
+            if retc:
+                logging.error('Could not apply patch. Please fix repos and '
+                              'patches. (patch path: %s, repo: %s, patch '
+                              'entry: %s, vcs output: %s)',
+                              path, self.name, patch['id'], output)
+                return 1
+            else:
+                logging.info('Patch applied. '
+                             '(patch path: %s, repo: %s, patch entry: %s)',
+                             path, self.name, patch['id'])
+        return 0
+
 
 class GitRepo(RepoImpl):
     """
@@ -238,6 +302,13 @@ class GitRepo(RepoImpl):
         return ['git', 'checkout', '-q',
                 '{refspec}'.format(refspec=self.refspec)]
 
+    def apply_patches_file_cmd(self, path):
+        return ['git', 'am', '-q', path]
+
+    def apply_patches_quilt_cmd(self, path):
+        return ['git', 'quiltimport', '--author', 'kas <kas@example.com>',
+                '--patches', path]
+
 
 class MercurialRepo(RepoImpl):
     """
@@ -262,3 +333,9 @@ class MercurialRepo(RepoImpl):
 
     def checkout_cmd(self):
         return ['hg', 'checkout', '{refspec}'.format(refspec=self.refspec)]
+
+    def apply_patches_file_cmd(self, path):
+        raise NotImplementedError()
+
+    def apply_patches_quilt_cmd(self, path):
+        raise NotImplementedError()

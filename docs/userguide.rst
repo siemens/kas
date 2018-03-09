@@ -352,6 +352,22 @@ Configuration reference
           '0', 'false']``. This way it is possible to overwrite the inclusion
           of a layer in latter loaded configuration files.
 
+    * ``patches``: dict [optional]
+        Contains the patches that should be applied to this repo before it is
+        used.
+
+      * ``<patches-id>``: dict [optional]
+          One entry in patches with its specific and unique id. All available
+          patch entries are applied in the order of their sorted
+          ``<patches-id>``.
+
+        * ``repo``: string [required]
+            The identifier of the repo where the path of this entry is relative
+            to.
+
+        * ``path``: string [required]
+            The path to one patch file or a quilt formatted patchset directory.
+
 * ``bblayers_conf_header``: dict [optional]
     This contains strings that should be added to the ``bblayers.conf`` before
     any layers are included.

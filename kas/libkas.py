@@ -184,6 +184,27 @@ def repos_fetch(config, repos):
             sys.exit(task.result())
 
 
+def repos_apply_patches(config, repos):
+    """
+        Applies the patches to the repositories.
+    """
+    tasks = []
+    for repo in repos:
+        if not hasattr(asyncio, 'ensure_future'):
+            # pylint: disable=no-member,deprecated-method
+            task = asyncio.async(repo.apply_patches_async(config))
+        else:
+            task = asyncio.ensure_future(repo.apply_patches_async(config))
+        tasks.append(task)
+
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(asyncio.wait(tasks))
+
+    for task in tasks:
+        if task.result():
+            sys.exit(task.result())
+
+
 def get_build_environ(config, build_dir):
     """
         Create the build environment variables.

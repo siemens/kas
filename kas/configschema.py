@@ -142,6 +142,29 @@ CONFIGSCHEMA = {
                                     ],
                                 },
                             },
+                            'patches': {
+                                'type': 'object',
+                                'additionalProperties': {
+                                    'oneOf': [
+                                        {
+                                            'type': 'object',
+                                            'additionalProperties': False,
+                                            'required': ['repo', 'path'],
+                                            'properties': {
+                                                'repo': {
+                                                    'type': 'string'
+                                                },
+                                                'path': {
+                                                    'type': 'string'
+                                                },
+                                            },
+                                        },
+                                        {
+                                            'type': 'null'
+                                        },
+                                    ],
+                                },
+                            },
                         },
                     },
                     {
