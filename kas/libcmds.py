@@ -92,8 +92,10 @@ class SetupHome(Command):
             fds.write('\n')
         with open(self.tmpdirname + '/.netrc', 'w') as fds:
             fds.write('\n')
-        shutil.copyfile(os.path.expanduser('~/.gitconfig'),
-                        self.tmpdirname + '/.gitconfig')
+        with open(self.tmpdirname + '/.gitconfig', 'w') as fds:
+            fds.write('[User]\n'
+                      '\temail = kas@example.com\n'
+                      '\tname = Kas User\n')
         config.environ['HOME'] = self.tmpdirname
 
 
