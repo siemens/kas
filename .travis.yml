@@ -37,6 +37,8 @@ jobs:
                       if [ "$TRAVIS_BRANCH" == "$TAG" ]; then
                           docker tag $IMAGE $IMAGE:$TAG;
                           docker push $IMAGE:$TAG;
+                          docker tag $IMAGE $IMAGE:latest-release;
+                          docker push $IMAGE:latest-release;
                       elif [ "$TRAVIS_BRANCH" == "next" ]; then
                           docker tag $IMAGE $IMAGE:next;
                           docker push $IMAGE:next;
