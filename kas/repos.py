@@ -293,7 +293,7 @@ class GitRepo(RepoImpl):
         return ['git', 'fetch', '--all']
 
     def is_dirty_cmd(self):
-        return ['git', 'diff', '--shortstat']
+        return ['git', 'diff-index', 'HEAD', '--shortstat']
 
     def current_rev_cmd(self):
         return ['git', 'rev-parse', '--verify', 'HEAD']
