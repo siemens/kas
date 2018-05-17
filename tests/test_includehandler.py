@@ -79,7 +79,7 @@ class TestLoadConfig(object):
             ('a', exception),
             ('1', exception),
             ('a:', exception)
-            ]
+        ]
 
         self.util_exception_content(testvector)
 
@@ -118,7 +118,7 @@ class TestLoadConfig(object):
         testvector = [
             'header: {version: 4}',
             'header: {version: 5}',
-            ]
+        ]
         for string in testvector:
             with patch_open(includehandler, string=string):
                 includehandler.load_config('x.yml')

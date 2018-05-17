@@ -120,6 +120,6 @@ class BuildCommand(Command):
         """
         # Start bitbake build of image
         bitbake = find_program(config.environ['PATH'], 'bitbake')
-        run_cmd([bitbake, '-k', '-c', config.get_bitbake_task()] +
-                config.get_bitbake_targets(),
+        run_cmd(([bitbake, '-k', '-c', config.get_bitbake_task()]
+                 + config.get_bitbake_targets()),
                 env=config.environ, cwd=config.build_dir)

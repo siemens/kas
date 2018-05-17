@@ -45,8 +45,8 @@ CONFIGSCHEMA = {
                         {
                             'type': 'integer',
                         },
-                        ],
-                    },
+                    ],
+                },
                 'includes': {
                     'type': 'array',
                     'items': {
