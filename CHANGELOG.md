@@ -1,3 +1,8 @@
+0.18.0
+- Add patch support for repos
+- Use git diff-index to check if repo is dirty
+- docker: add debootstrap and qemu-user-static
+
 0.17.0
 - Add iproute and zx-utils to the docker image
 - Fix relative path for repos
