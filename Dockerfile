@@ -1,25 +1,22 @@
-# This image builds Yocto 2.1 and 2.2 jobs using the kas tool
+# This image builds Yocto jobs using the kas tool
 
-FROM debian:jessie-slim
+FROM debian:stretch-slim
 
-ENV LOCALE=en_US.UTF-8
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && \
-    apt-get install --no-install-recommends -y locales && \
-    sed -i -e "s/# $LOCALE/$LOCALE/" /etc/locale.gen && \
-    ln -s /etc/locale.alias /usr/share/locale/locale.alias && \
-    dpkg-reconfigure --frontend=noninteractive locales && \
-    apt-get install --no-install-recommends -y \
+    apt-get install -y locales && \
+    localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+ENV LANG=en_US.utf8
+
+RUN apt-get install --no-install-recommends -y \
                        gawk wget git-core diffstat unzip file \
                        texinfo gcc-multilib build-essential \
                        chrpath socat cpio python python3 rsync \
                        tar bzip2 curl dosfstools mtools parted \
                        syslinux tree python3-pip bc python3-yaml \
                        lsb-release python3-setuptools ssh-client \
-                       vim less mercurial iproute2 && \
-    echo 'deb http://deb.debian.org/debian stretch main' >> /etc/apt/sources.list.d/backports.list && \
-    apt-get update && \
-    apt-get install -y -f --no-install-recommends --target-release stretch \
-            xz-utils && \
+                       vim less mercurial iproute2 xz-utils && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -33,7 +30,5 @@ ENV NO_PROXY="*"
 
 COPY . /kas
 RUN pip3 --proxy=$https_proxy install /kas
-
-ENV LANG=$LOCALE
 
 ENTRYPOINT ["/kas/docker-entrypoint"]
