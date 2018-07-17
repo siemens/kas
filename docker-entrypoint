@@ -27,7 +27,10 @@ else
 	GOSU="gosu builder"
 fi
 
-cd /builder
+if [ "$PWD" = / ]; then
+	cd /builder
+fi
+
 if [ -n "$1" ]; then
 	case "$1" in
 	build|shell|-*)
