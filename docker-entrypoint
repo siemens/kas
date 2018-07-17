@@ -29,7 +29,14 @@ fi
 
 cd /builder
 if [ -n "$1" ]; then
-	exec $GOSU "$@"
+	case "$1" in
+	build|shell|-*)
+		exec $GOSU kas "$@"
+		;;
+	*)
+		exec $GOSU "$@"
+		;;
+	esac
 else
 	exec $GOSU bash
 fi
