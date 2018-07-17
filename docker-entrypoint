@@ -5,8 +5,8 @@ if mount | grep -q "on / type aufs"; then
 WARNING: Generation of wic images will fail!
 
 Your docker host setup uses broken aufs as storage driver. Adjust the docker
-configuration to use a driver (overlay, overlay2, devicemapper). You may also
-need to update the host distribution (e.g. Debian Jessie -> Stretch).
+configuration to use a different driver (overlay, overlay2, devicemapper). You
+may also need to update the host distribution (e.g. Debian Jessie -> Stretch).
 
 EOF
 fi
