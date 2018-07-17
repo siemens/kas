@@ -17,22 +17,19 @@ if [ $USER_ID == 0 ]; then
 	# We shall run everything as root
 	mkdir -p /builder
 
-	cd /builder
-	if [ -n "$1" ]; then
-		exec "$@"
-	else
-		exec bash
-	fi
+	GOSU=""
 else
 	if ! id $USER_ID >/dev/null 2>&1; then
 		# Create a non-root user that will perform the actual build
 		useradd --uid $USER_ID --create-home --home-dir /builder builder
 	fi
 
-	cd /builder
-	if [ -n "$1" ]; then
-		exec gosu builder "$@"
-	else
-		exec gosu builder bash
-	fi
+	GOSU="gosu builder"
+fi
+
+cd /builder
+if [ -n "$1" ]; then
+	exec $GOSU "$@"
+else
+	exec $GOSU bash
 fi
