@@ -59,7 +59,7 @@ def patch_open(component, string='', dictionary=None):
         del component.open
 
 
-class TestLoadConfig(object):
+class TestLoadConfig:
     def test_err_invalid_ext(self):
         # Test for invalid file extension:
         exception = includehandler.LoadConfigException
@@ -129,7 +129,7 @@ class TestLoadConfig(object):
             includehandler.load_config('x.yml')
 
 
-class TestGlobalIncludes(object):
+class TestGlobalIncludes:
     header = '''
 header:
   version: 5
