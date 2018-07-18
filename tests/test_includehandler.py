@@ -339,13 +339,15 @@ v3:
         # disable schema validation for this test:
         monkeypatch.setattr(includehandler, 'CONFIGSCHEMA', {})
         header = self.__class__.header
-        with patch_open(includehandler, dictionary={
-            'x.yml': header.format('''  includes: ["y.yml", "z.yml"]
+        data = {'x.yml':
+                header.format('''  includes: ["y.yml", "z.yml"]
 v: {v1: x, v2: x}'''),
-            os.path.abspath('y.yml'): header.format('''  includes: ["z.yml"]
+                os.path.abspath('y.yml'):
+                header.format('''  includes: ["z.yml"]
 v: {v2: y, v3: y, v5: y}'''),
-            os.path.abspath('z.yml'): header.format('''
-v: {v3: z, v4: z}''')}):
+                os.path.abspath('z.yml'): header.format('''
+v: {v3: z, v4: z}''')}
+        with patch_open(includehandler, dictionary=data):
             ginc = includehandler.GlobalIncludes('x.yml')
             config, _ = ginc.get_config()
             keys = list(config['v'].keys())
