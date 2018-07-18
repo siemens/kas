@@ -50,6 +50,7 @@ class Repo:
         self.operations_disabled = disable_operations
 
     def __getattr__(self, item):
+        # pylint: disable=no-else-return
         if item == 'layers':
             if not self._layers:
                 return [self.path]
@@ -62,9 +63,8 @@ class Repo:
                     .replace(':', '.')
                     .replace('/', '.')
                     .replace('*', '.'))
-        else:
-            # Default behaviour
-            raise AttributeError
+        # Default behaviour
+        raise AttributeError
 
     def __str__(self):
         return '%s:%s %s %s' % (self.url, self.refspec,
@@ -267,10 +267,10 @@ class RepoImpl(Repo):
                               'entry: %s, vcs output: %s)',
                               path, self.name, patch['id'], output)
                 return 1
-            else:
-                logging.info('Patch applied. '
-                             '(patch path: %s, repo: %s, patch entry: %s)',
-                             path, self.name, patch['id'])
+
+            logging.info('Patch applied. '
+                         '(patch path: %s, repo: %s, patch entry: %s)',
+                         path, self.name, patch['id'])
         return 0
 
 
