@@ -174,6 +174,8 @@ class GlobalIncludes(IncludeHandler):
             the current file overwrites every include. (evaluation depth first
             and from top to buttom)
             """
+            # pylint: disable=too-many-arguments
+
             missing_repos = []
             configs = []
             current_config = load_config(filename)
