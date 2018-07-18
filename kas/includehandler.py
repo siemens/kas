@@ -102,7 +102,7 @@ class IncludeException(Exception):
     pass
 
 
-class IncludeHandler(object):
+class IncludeHandler:
     """
         Abstract class that defines the interface of an include handler.
     """
