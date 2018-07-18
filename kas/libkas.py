@@ -88,6 +88,10 @@ def run_cmd_async(cmd, cwd, env=None, fail=True, shell=False, liveupdate=True):
     """
     # pylint: disable=too-many-arguments
 
+    # Disable incorrect warning on asyncio.wait_for,
+    # https://github.com/PyCQA/pylint/issues/996.
+    # pylint: disable=not-an-iterable
+
     env = env or {}
     cmdstr = cmd
     if not shell:
