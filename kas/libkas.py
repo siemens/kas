@@ -209,7 +209,7 @@ def repos_apply_patches(config, repos):
             sys.exit(task.result())
 
 
-def get_build_environ(config, build_dir):
+def get_build_environ(context, build_dir):
     """
         Create the build environment variables.
     """
@@ -219,7 +219,7 @@ def get_build_environ(config, build_dir):
 
     init_repo = None
     permutations = \
-        [(repo, script) for repo in config.get_repos()
+        [(repo, script) for repo in context.config.get_repos()
          for script in ['oe-init-build-env', 'isar-init-build-env']]
     for (repo, script) in permutations:
         if os.path.exists(repo.path + '/' + script):
@@ -260,7 +260,7 @@ def get_build_environ(config, build_dir):
         except ValueError:
             pass
 
-    conf_env = config.get_environment()
+    conf_env = context.config.get_environment()
 
     env_vars = ['SSTATE_DIR', 'DL_DIR', 'TMPDIR']
     env_vars.extend(conf_env)
@@ -324,6 +324,7 @@ def ssh_setup_agent(config, envkeys=None):
     for envkey in envkeys:
         key = os.environ.get(envkey)
         if key:
+            logging.info("adding SSH key")
             ssh_add_key(config.environ, key)
         else:
             logging.warning('%s is missing', envkey)

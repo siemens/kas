@@ -24,8 +24,6 @@
 """
 
 import os
-import logging
-import pprint
 
 try:
     import distro
@@ -49,7 +47,6 @@ except ImportError:
         return platform.dist()[0]
 
 from .repos import Repo
-from .libkas import repos_fetch
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
@@ -60,108 +57,33 @@ class Config:
         Implements the kas configuration based on config files.
     """
     def __init__(self, filename, target, task=None):
-        from .includehandler import GlobalIncludes, IncludeException
-        self.__kas_work_dir = os.environ.get('KAS_WORK_DIR', os.getcwd())
-        self.environ = {}
+        from .includehandler import GlobalIncludes
         self._config = {}
-        self.setup_environ()
         self.filename = os.path.abspath(filename)
         self.handler = GlobalIncludes(self.filename)
-
-        repo_paths = {}
-        missing_repo_names_old = []
-        (self._config, missing_repo_names) = \
-            self.handler.get_config(repos=repo_paths)
-
-        self.environ.update(self.get_proxy_config())
         self.repo_dict = self._get_repo_dict()
-
-        while missing_repo_names:
-            if missing_repo_names == missing_repo_names_old:
-                raise IncludeException('Could not fetch all repos needed by '
-                                       'includes.')
-
-            logging.debug('Missing repos for complete config:\n%s',
-                          pprint.pformat(missing_repo_names))
-
-            self.repo_dict = self._get_repo_dict()
-            missing_repos = [self.repo_dict[repo_name]
-                             for repo_name in missing_repo_names
-                             if repo_name in self.repo_dict]
-
-            repos_fetch(self, missing_repos)
-
-            for repo in missing_repos:
-                repo.checkout(self)
-
-            repo_paths = {r: self.repo_dict[r].path for r in self.repo_dict}
-
-            missing_repo_names_old = missing_repo_names
-            (self._config, missing_repo_names) = \
-                self.handler.get_config(repos=repo_paths)
-
-        self.repo_dict = self._get_repo_dict()
-
-        logging.debug('Configuration from config file:\n%s',
-                      pprint.pformat(self._config))
+        self.context = None
 
         if target:
             self._config['target'] = target
         if task:
             self._config['task'] = task
 
-    @property
-    def build_dir(self):
+    def set_context(self, ctx):
         """
-            The path of the build directory.
+            Set a reference to the ctx that includes this config
         """
-        return os.path.join(self.__kas_work_dir, 'build')
+        self.context = ctx
 
-    @property
-    def kas_work_dir(self):
+    def find_missing_repos(self):
         """
-            The path to the kas work directory.
+            Returns repos that are in config but not on disk
         """
-        return self.__kas_work_dir
+        repo_paths = {}
+        (self._config, missing_repo_names) = \
+            self.handler.get_config(repos=repo_paths)
 
-    def setup_environ(self):
-        """
-            Sets the environment variables for process that are
-            started by kas.
-        """
-        distro_base = get_distro_id_base().lower()
-        if distro_base in ['fedora', 'suse', 'opensuse']:
-            self.environ = {'LC_ALL': 'en_US.utf8',
-                            'LANG': 'en_US.utf8',
-                            'LANGUAGE': 'en_US'}
-        elif distro_base in ['debian', 'ubuntu', 'gentoo']:
-            self.environ = {'LC_ALL': 'en_US.UTF-8',
-                            'LANG': 'en_US.UTF-8',
-                            'LANGUAGE': 'en_US:en'}
-        else:
-            logging.warning('kas: "%s" is not a supported distro. '
-                            'No default locales set.', distro_base)
-            self.environ = {}
-
-    def get_repo_ref_dir(self):
-        """
-            The path to the directory that contains the repository references.
-        """
-        # pylint: disable=no-self-use
-
-        return os.environ.get('KAS_REPO_REF_DIR', None)
-
-    def get_proxy_config(self):
-        """
-            Returns the proxy settings
-        """
-        proxy_config = self._config.get('proxy_config', {})
-        return {var_name: os.environ.get(var_name,
-                                         proxy_config.get(var_name, ''))
-                for var_name in ['http_proxy',
-                                 'https_proxy',
-                                 'ftp_proxy',
-                                 'no_proxy']}
+        return missing_repo_names
 
     def get_repos(self):
         """
@@ -169,6 +91,9 @@ class Config:
         """
         # pylint: disable=no-self-use
 
+        # Always keep repo_dict and repos synchronous
+        # when calling get_repos
+        self.repo_dict = self._get_repo_dict()
         return list(self.repo_dict.values())
 
     def _get_repo_dict(self):

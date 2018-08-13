@@ -75,6 +75,7 @@ class Repo:
         """
             Return an instance Repo depending on params.
         """
+        ctx = config.context
         layers_dict = repo_config.get('layers', {})
         layers = list(filter(lambda x, laydict=layers_dict:
                              str(laydict[x]).lower() not in
@@ -100,7 +101,7 @@ class Repo:
             # No version control operation on repository
             if path is None:
                 path = Repo.get_root_path(os.path.dirname(config.filename),
-                                          config.environ)
+                                          config.context.environ)
                 logging.info('Using %s as root for repository %s', path,
                              name)
 
@@ -108,11 +109,11 @@ class Repo:
             disable_operations = True
         else:
             if path is None:
-                path = os.path.join(config.kas_work_dir, name)
+                path = os.path.join(ctx.kas_work_dir, name)
             else:
                 if not os.path.isabs(path):
                     # Relative pathes are assumed to start from work_dir
-                    path = os.path.join(config.kas_work_dir, path)
+                    path = os.path.join(ctx.kas_work_dir, path)
 
         if typ == 'git':
             return GitRepo(url, path, refspec, layers, patches,
@@ -148,7 +149,7 @@ class RepoImpl(Repo):
     """
 
     @asyncio.coroutine
-    def fetch_async(self, config):
+    def fetch_async(self, ctx):
         """
             Start asynchronous repository fetch.
         """
@@ -157,13 +158,13 @@ class RepoImpl(Repo):
 
         if not os.path.exists(self.path):
             os.makedirs(os.path.dirname(self.path), exist_ok=True)
-            sdir = os.path.join(config.get_repo_ref_dir() or '',
+            sdir = os.path.join(ctx.kas_repo_ref_dir or '',
                                 self.qualified_name)
             logging.debug('Looking for repo ref dir in %s', sdir)
 
-            (retc, _) = yield from run_cmd_async(self.clone_cmd(sdir, config),
-                                                 env=config.environ,
-                                                 cwd=config.kas_work_dir)
+            (retc, _) = yield from run_cmd_async(self.clone_cmd(sdir, ctx),
+                                                 env=ctx.environ,
+                                                 cwd=ctx.kas_work_dir)
             if retc == 0:
                 logging.info('Repository %s cloned', self.name)
             return retc
@@ -174,7 +175,7 @@ class RepoImpl(Repo):
 
         # Does refspec exist in the current repository?
         (retc, output) = yield from run_cmd_async(self.contains_refspec_cmd(),
-                                                  env=config.environ,
+                                                  env=ctx.environ,
                                                   cwd=self.path,
                                                   fail=False,
                                                   liveupdate=False)
@@ -185,7 +186,7 @@ class RepoImpl(Repo):
 
         # No it is missing, try to fetch
         (retc, output) = yield from run_cmd_async(self.fetch_cmd(),
-                                                  env=config.environ,
+                                                  env=ctx.environ,
                                                   cwd=self.path,
                                                   fail=False)
         if retc:
@@ -195,7 +196,7 @@ class RepoImpl(Repo):
             logging.info('Repository %s updated', self.name)
         return 0
 
-    def checkout(self, config):
+    def checkout(self, ctx):
         """
             Checks out the correct revision of the repo.
         """
@@ -204,7 +205,7 @@ class RepoImpl(Repo):
 
         # Check if repos is dirty
         (_, output) = run_cmd(self.is_dirty_cmd(),
-                              env=config.environ, cwd=self.path,
+                              env=ctx.environ, cwd=self.path,
                               fail=False)
         if output:
             logging.warning('Repo %s is dirty. no checkout', self.name)
@@ -212,7 +213,7 @@ class RepoImpl(Repo):
 
         # Check if current HEAD is what in the config file is defined.
         (_, output) = run_cmd(self.current_rev_cmd(),
-                              env=config.environ, cwd=self.path)
+                              env=ctx.environ, cwd=self.path)
 
         if output.strip() == self.refspec:
             logging.info('Repo %s has already checkout out correct '
@@ -222,7 +223,7 @@ class RepoImpl(Repo):
         run_cmd(self.checkout_cmd(), cwd=self.path)
 
     @asyncio.coroutine
-    def apply_patches_async(self, config):
+    def apply_patches_async(self, ctx):
         """
             Applies patches to repository asynchronously.
         """
@@ -230,7 +231,7 @@ class RepoImpl(Repo):
             return 0
 
         for patch in self._patches:
-            other_repo = config.repo_dict.get(patch['repo'], None)
+            other_repo = ctx.config.repo_dict.get(patch['repo'], None)
 
             if not other_repo:
                 logging.warning('Could not find referenced repo. '
@@ -257,20 +258,20 @@ class RepoImpl(Repo):
                 continue
 
             (retc, output) = yield from run_cmd_async(cmd,
-                                                      env=config.environ,
+                                                      env=ctx.environ,
                                                       cwd=self.path,
                                                       fail=False)
-
+            # pylint: disable=no-else-return
             if retc:
                 logging.error('Could not apply patch. Please fix repos and '
                               'patches. (patch path: %s, repo: %s, patch '
                               'entry: %s, vcs output: %s)',
                               path, self.name, patch['id'], output)
                 return 1
-
-            logging.info('Patch applied. '
-                         '(patch path: %s, repo: %s, patch entry: %s)',
-                         path, self.name, patch['id'])
+            else:
+                logging.info('Patch applied. '
+                             '(patch path: %s, repo: %s, patch entry: %s)',
+                             path, self.name, patch['id'])
         return 0
 
 
@@ -280,9 +281,9 @@ class GitRepo(RepoImpl):
     """
     # pylint: disable=no-self-use,missing-docstring
 
-    def clone_cmd(self, gitsrcdir, config):
+    def clone_cmd(self, gitsrcdir, ctx):
         cmd = ['git', 'clone', '-q', self.url, self.path]
-        if config.get_repo_ref_dir() and os.path.exists(gitsrcdir):
+        if ctx.kas_repo_ref_dir and os.path.exists(gitsrcdir):
             cmd.extend(['--reference', gitsrcdir])
         return cmd
 

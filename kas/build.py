@@ -24,12 +24,11 @@
 """
 
 import os
-from .config import Config
+from .context import Context
 from .libkas import find_program, run_cmd, kasplugin
-from .libcmds import (Macro, Command, SetupDir, SetupProxy,
-                      CleanupSSHAgent, SetupSSHAgent, SetupEnviron,
-                      WriteConfig, SetupHome, ReposFetch,
-                      ReposApplyPatches, ReposCheckout)
+from .libcmds import (Macro, Command, SetupDir, CleanupSSHAgent,
+                      SetupSSHAgent, SetupEnviron, SetupRepos,
+                      WriteBBConfig, SetupHome, ReposApplyPatches)
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
@@ -72,24 +71,22 @@ class Build:
         if args.cmd != 'build':
             return False
 
-        cfg = Config(args.config, args.target, args.task)
+        ctx = Context(args.config, args.target, args.task)
 
         macro = Macro()
 
         # Prepare
         macro.add(SetupDir())
-        macro.add(SetupProxy())
 
         if 'SSH_PRIVATE_KEY' in os.environ:
             macro.add(SetupSSHAgent())
 
-        macro.add(ReposFetch())
-        macro.add(ReposCheckout())
+        macro.add(SetupRepos())
         macro.add(SetupEnviron())
         macro.add(SetupHome())
         macro.add(ReposApplyPatches())
 
-        macro.add(WriteConfig())
+        macro.add(WriteBBConfig())
 
         # Build
         macro.add(BuildCommand(args.task))
@@ -97,7 +94,7 @@ class Build:
         if 'SSH_PRIVATE_KEY' in os.environ:
             macro.add(CleanupSSHAgent())
 
-        macro.run(cfg, args.skip)
+        macro.run(ctx, args.skip)
 
         return True
 
@@ -114,12 +111,12 @@ class BuildCommand(Command):
     def __str__(self):
         return 'build'
 
-    def execute(self, config):
+    def execute(self, ctx):
         """
             Executes the bitbake build command.
         """
         # Start bitbake build of image
-        bitbake = find_program(config.environ['PATH'], 'bitbake')
-        run_cmd(([bitbake, '-k', '-c', config.get_bitbake_task()]
-                 + config.get_bitbake_targets()),
-                env=config.environ, cwd=config.build_dir)
+        bitbake = find_program(ctx.environ['PATH'], 'bitbake')
+        run_cmd(([bitbake, '-k', '-c', ctx.config.get_bitbake_task()]
+                 + ctx.config.get_bitbake_targets()),
+                env=ctx.environ, cwd=ctx.build_dir)

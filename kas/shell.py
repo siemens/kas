@@ -27,10 +27,10 @@
 import subprocess
 import os
 from kas.libkas import kasplugin
-from kas.config import Config
-from kas.libcmds import (Macro, Command, SetupDir, SetupProxy, SetupEnviron,
-                         WriteConfig, SetupHome, ReposFetch, ReposCheckout,
-                         ReposApplyPatches, CleanupSSHAgent, SetupSSHAgent)
+from kas.context import Context
+from kas.libcmds import (Macro, Command, SetupDir, SetupEnviron,
+                         WriteBBConfig, SetupHome, ReposApplyPatches,
+                         CleanupSSHAgent, SetupSSHAgent, SetupRepos)
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
@@ -75,7 +75,7 @@ class Shell:
         if args.cmd != 'shell':
             return False
 
-        cfg = Config(args.config, args.target)
+        ctx = Context(args.config, args.target, None)
 
         macro = Macro()
 
@@ -83,21 +83,18 @@ class Shell:
         if not args.keep_config_unchanged:
             macro.add(SetupDir())
 
-        macro.add(SetupProxy())
-
         if 'SSH_PRIVATE_KEY' in os.environ:
             macro.add(SetupSSHAgent())
 
-        if not args.keep_config_unchanged:
-            macro.add(ReposFetch())
-            macro.add(ReposCheckout())
+        ctx.keep_config = args.keep_config_unchanged
+        macro.add(SetupRepos())
 
         macro.add(SetupEnviron())
         macro.add(SetupHome())
 
         if not args.keep_config_unchanged:
             macro.add(ReposApplyPatches())
-            macro.add(WriteConfig())
+            macro.add(WriteBBConfig())
 
         # Shell
         macro.add(ShellCommand(args.command))
@@ -105,7 +102,7 @@ class Shell:
         if 'SSH_PRIVATE_KEY' in os.environ:
             macro.add(CleanupSSHAgent())
 
-        macro.run(cfg, args.skip)
+        macro.run(ctx, args.skip)
 
         return True
 
@@ -124,10 +121,10 @@ class ShellCommand(Command):
     def __str__(self):
         return 'shell'
 
-    def execute(self, config):
-        cmd = [config.environ.get('SHELL', '/bin/sh')]
+    def execute(self, ctx):
+        cmd = [ctx.environ.get('SHELL', '/bin/sh')]
         if self.cmd:
             cmd.append('-c')
             cmd.append(self.cmd)
-        subprocess.call(cmd, env=config.environ,
-                        cwd=config.build_dir)
+        subprocess.call(cmd, env=ctx.environ,
+                        cwd=ctx.build_dir)

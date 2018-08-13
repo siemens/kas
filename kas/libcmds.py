@@ -27,8 +27,10 @@ import tempfile
 import logging
 import shutil
 import os
+import pprint
 from .libkas import (ssh_cleanup_agent, ssh_setup_agent, ssh_no_host_key_check,
                      get_build_environ, repos_fetch, repos_apply_patches)
+from .includehandler import IncludeException
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
@@ -47,7 +49,7 @@ class Macro:
         """
         self.commands.append(command)
 
-    def run(self, config, skip=None):
+    def run(self, ctx, skip=None):
         """
             Runs command from the command list respective to the configuration.
         """
@@ -57,7 +59,7 @@ class Macro:
             if command_name in skip:
                 continue
             logging.debug('execute %s', command_name)
-            command.execute(config)
+            command.execute(ctx)
 
 
 class Command:
@@ -65,7 +67,7 @@ class Command:
         An abstract class that defines the interface of a command.
     """
 
-    def execute(self, config):
+    def execute(self, ctx):
         """
             This method executes the command.
         """
@@ -87,7 +89,7 @@ class SetupHome(Command):
     def __str__(self):
         return 'setup_home'
 
-    def execute(self, config):
+    def execute(self, ctx):
         with open(self.tmpdirname + '/.wgetrc', 'w') as fds:
             fds.write('\n')
         with open(self.tmpdirname + '/.netrc', 'w') as fds:
@@ -96,7 +98,7 @@ class SetupHome(Command):
             fds.write('[User]\n'
                       '\temail = kas@example.com\n'
                       '\tname = Kas User\n')
-        config.environ['HOME'] = self.tmpdirname
+        ctx.environ['HOME'] = self.tmpdirname
 
 
 class SetupDir(Command):
@@ -107,10 +109,10 @@ class SetupDir(Command):
     def __str__(self):
         return 'setup_dir'
 
-    def execute(self, config):
-        os.chdir(config.kas_work_dir)
-        if not os.path.exists(config.build_dir):
-            os.mkdir(config.build_dir)
+    def execute(self, ctx):
+        os.chdir(ctx.kas_work_dir)
+        if not os.path.exists(ctx.build_dir):
+            os.mkdir(ctx.build_dir)
 
 
 class SetupSSHAgent(Command):
@@ -121,9 +123,9 @@ class SetupSSHAgent(Command):
     def __str__(self):
         return 'setup_ssh_agent'
 
-    def execute(self, config):
-        ssh_setup_agent(config)
-        ssh_no_host_key_check(config)
+    def execute(self, ctx):
+        ssh_setup_agent(ctx)
+        ssh_no_host_key_check(ctx)
 
 
 class CleanupSSHAgent(Command):
@@ -134,20 +136,8 @@ class CleanupSSHAgent(Command):
     def __str__(self):
         return 'cleanup_ssh_agent'
 
-    def execute(self, config):
-        ssh_cleanup_agent(config)
-
-
-class SetupProxy(Command):
-    """
-        Setups proxy configuration in the kas environment.
-    """
-
-    def __str__(self):
-        return 'setup_proxy'
-
-    def execute(self, config):
-        config.environ.update(config.get_proxy_config())
+    def execute(self, ctx):
+        ssh_cleanup_agent(ctx)
 
 
 class SetupEnviron(Command):
@@ -158,42 +148,44 @@ class SetupEnviron(Command):
     def __str__(self):
         return 'setup_environ'
 
-    def execute(self, config):
-        config.environ.update(get_build_environ(config, config.build_dir))
+    def execute(self, ctx):
+        ctx.environ.update(get_build_environ(ctx, ctx.build_dir))
 
 
-class WriteConfig(Command):
+class WriteBBConfig(Command):
     """
         Writes bitbake configuration files into the build directory.
     """
 
     def __str__(self):
-        return 'write_config'
+        return 'write_bbconfig'
 
-    def execute(self, config):
-        def _write_bblayers_conf(config):
-            filename = config.build_dir + '/conf/bblayers.conf'
+    def execute(self, ctx):
+        def _write_bblayers_conf(ctx):
+            filename = ctx.build_dir + '/conf/bblayers.conf'
             if not os.path.isdir(os.path.dirname(filename)):
                 os.makedirs(os.path.dirname(filename))
             with open(filename, 'w') as fds:
-                fds.write(config.get_bblayers_conf_header())
+                fds.write(ctx.config.get_bblayers_conf_header())
                 fds.write('BBLAYERS ?= " \\\n    ')
                 fds.write(' \\\n    '.join(
-                    sorted(layer for repo in config.get_repos()
+                    sorted(layer for repo in ctx.config.get_repos()
                            for layer in repo.layers)))
                 fds.write('"\n')
 
-        def _write_local_conf(config):
-            filename = config.build_dir + '/conf/local.conf'
+        def _write_local_conf(ctx):
+            filename = ctx.build_dir + '/conf/local.conf'
             with open(filename, 'w') as fds:
-                fds.write(config.get_local_conf_header())
-                fds.write('MACHINE ??= "{}"\n'.format(config.get_machine()))
-                fds.write('DISTRO ??= "{}"\n'.format(config.get_distro()))
+                fds.write(ctx.config.get_local_conf_header())
+                fds.write('MACHINE ??= "{}"\n'.format(
+                    ctx.config.get_machine()))
+                fds.write('DISTRO ??= "{}"\n'.format(
+                    ctx.config.get_distro()))
                 fds.write('BBMULTICONFIG ?= "{}"\n'.format(
-                    config.get_multiconfig()))
+                    ctx.config.get_multiconfig()))
 
-        _write_bblayers_conf(config)
-        _write_local_conf(config)
+        _write_bblayers_conf(ctx)
+        _write_local_conf(ctx)
 
 
 class ReposFetch(Command):
@@ -204,8 +196,8 @@ class ReposFetch(Command):
     def __str__(self):
         return 'repos_fetch'
 
-    def execute(self, config):
-        repos_fetch(config, config.get_repos())
+    def execute(self, ctx):
+        repos_fetch(ctx, ctx.config.get_repos())
 
 
 class ReposApplyPatches(Command):
@@ -216,8 +208,8 @@ class ReposApplyPatches(Command):
     def __str__(self):
         return 'repos_apply_patches'
 
-    def execute(self, config):
-        repos_apply_patches(config, config.get_repos())
+    def execute(self, ctx):
+        repos_apply_patches(ctx, ctx.config.get_repos())
 
 
 class ReposCheckout(Command):
@@ -228,6 +220,62 @@ class ReposCheckout(Command):
     def __str__(self):
         return 'repos_checkout'
 
-    def execute(self, config):
-        for repo in config.get_repos():
-            repo.checkout(config)
+    def execute(self, ctx):
+        for repo in ctx.config.get_repos():
+            repo.checkout(ctx)
+
+
+class SetupRepos(Command):
+    """
+        Setup repos including the include logic
+    """
+
+    def __str__(self):
+        return 'setup_repos'
+
+    def execute(self, ctx):
+        missing_repo_names = ctx.config.find_missing_repos()
+        missing_repo_names_old = None
+
+        # pylint: disable=pointless-string-statement
+        """XXX This will be refactored"""
+        # pylint: disable=protected-access
+
+        while missing_repo_names:
+            if missing_repo_names == missing_repo_names_old:
+                raise IncludeException('Could not fetch all repos needed by '
+                                       'includes.')
+
+            logging.debug('Missing repos for complete config:\n%s',
+                          pprint.pformat(missing_repo_names))
+
+            ctx.config.repo_dict = ctx.config._get_repo_dict()
+
+            missing_repos = [ctx.config.repo_dict[repo_name]
+                             for repo_name in missing_repo_names
+                             if repo_name in ctx.config.repo_dict]
+
+            repos_fetch(ctx, missing_repos)
+
+            for repo in missing_repos:
+                repo.checkout(ctx)
+
+            ctx.config.repo_dict = ctx.config._get_repo_dict()
+
+            repo_paths = {r: ctx.config.repo_dict[r].path for r
+                          in ctx.config.repo_dict}
+            missing_repo_names_old = missing_repo_names
+
+            (ctx.config._config, missing_repo_names) = \
+                ctx.config.handler.get_config(repos=repo_paths)
+
+        # now fetch everything with complete config and check out layers
+        # except if keep_config is set
+        if not ctx.keep_config:
+            repos_fetch(ctx, ctx.config.get_repos())
+
+            for repo in ctx.config.get_repos():
+                repo.checkout(ctx)
+
+        logging.debug('Configuration from config file:\n%s',
+                      pprint.pformat(ctx.config._config))
