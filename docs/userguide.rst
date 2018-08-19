@@ -64,7 +64,7 @@ Environment variables
 |                       | directory is the default.                           |
 +-----------------------+-----------------------------------------------------+
 | ``KAS_REPO_REF_DIR``  | The path to the repository reference directory.     |
-|                       | Repositories in this directory are user as          |
+|                       | Repositories in this directory are used as          |
 |                       | references when cloning. In order for kas to find   |
 |                       | those repositories, they have to be named in a      |
 |                       | specific way. The repo URLs are translated like     |
