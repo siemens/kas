@@ -51,19 +51,22 @@ class Context:
             Sets the environment variables for process that are
             started by kas.
         """
-        distro_base = get_distro_id_base().lower()
-        if distro_base in ['fedora', 'suse', 'opensuse']:
-            self.environ = {'LC_ALL': 'en_US.utf8',
-                            'LANG': 'en_US.utf8',
-                            'LANGUAGE': 'en_US'}
-        elif distro_base in ['debian', 'ubuntu', 'gentoo']:
-            self.environ = {'LC_ALL': 'en_US.UTF-8',
-                            'LANG': 'en_US.UTF-8',
-                            'LANGUAGE': 'en_US:en'}
-        else:
-            logging.warning('kas: "%s" is not a supported distro. '
-                            'No default locales set.', distro_base)
-            self.environ = {}
+        self.environ = {}
+        distro_bases = get_distro_id_base().lower().split()
+        for distro_base in distro_bases:
+            if distro_base in ['fedora', 'suse', 'opensuse']:
+                self.environ = {'LC_ALL': 'en_US.utf8',
+                                'LANG': 'en_US.utf8',
+                                'LANGUAGE': 'en_US'}
+                break
+            elif distro_base in ['debian', 'ubuntu', 'gentoo']:
+                self.environ = {'LC_ALL': 'en_US.UTF-8',
+                                'LANG': 'en_US.UTF-8',
+                                'LANGUAGE': 'en_US:en'}
+                break
+        if self.environ == {}:
+            logging.warning('kas: No supported distros found in %s. '
+                            'No default locales set.', distro_bases)
 
         for key in ['http_proxy', 'https_proxy', 'ftp_proxy', 'no_proxy']:
             val = os.environ.get(key, None)
