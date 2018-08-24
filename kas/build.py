@@ -122,4 +122,4 @@ class BuildCommand(Command):
         bitbake = find_program(ctx.environ['PATH'], 'bitbake')
         run_cmd(([bitbake, '-k', '-c', ctx.config.get_bitbake_task()]
                  + ctx.config.get_bitbake_targets()),
-                env=ctx.environ, cwd=ctx.build_dir)
+                cwd=ctx.build_dir)

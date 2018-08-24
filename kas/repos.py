@@ -163,7 +163,6 @@ class RepoImpl(Repo):
             logging.debug('Looking for repo ref dir in %s', sdir)
 
             (retc, _) = yield from run_cmd_async(self.clone_cmd(sdir, ctx),
-                                                 env=ctx.environ,
                                                  cwd=ctx.kas_work_dir)
             if retc == 0:
                 logging.info('Repository %s cloned', self.name)
@@ -175,7 +174,6 @@ class RepoImpl(Repo):
 
         # Does refspec exist in the current repository?
         (retc, output) = yield from run_cmd_async(self.contains_refspec_cmd(),
-                                                  env=ctx.environ,
                                                   cwd=self.path,
                                                   fail=False,
                                                   liveupdate=False)
@@ -186,7 +184,6 @@ class RepoImpl(Repo):
 
         # No it is missing, try to fetch
         (retc, output) = yield from run_cmd_async(self.fetch_cmd(),
-                                                  env=ctx.environ,
                                                   cwd=self.path,
                                                   fail=False)
         if retc:
@@ -196,7 +193,7 @@ class RepoImpl(Repo):
             logging.info('Repository %s updated', self.name)
         return 0
 
-    def checkout(self, ctx):
+    def checkout(self, _):
         """
             Checks out the correct revision of the repo.
         """
@@ -205,7 +202,7 @@ class RepoImpl(Repo):
 
         # Check if repos is dirty
         (_, output) = run_cmd(self.is_dirty_cmd(),
-                              env=ctx.environ, cwd=self.path,
+                              cwd=self.path,
                               fail=False)
         if output:
             logging.warning('Repo %s is dirty. no checkout', self.name)
@@ -213,7 +210,7 @@ class RepoImpl(Repo):
 
         # Check if current HEAD is what in the config file is defined.
         (_, output) = run_cmd(self.current_rev_cmd(),
-                              env=ctx.environ, cwd=self.path)
+                              cwd=self.path)
 
         if output.strip() == self.refspec:
             logging.info('Repo %s has already checkout out correct '
@@ -258,7 +255,6 @@ class RepoImpl(Repo):
                 continue
 
             (retc, output) = yield from run_cmd_async(cmd,
-                                                      env=ctx.environ,
                                                       cwd=self.path,
                                                       fail=False)
             # pylint: disable=no-else-return

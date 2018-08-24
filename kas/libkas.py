@@ -31,6 +31,7 @@ import tempfile
 import asyncio
 import errno
 from subprocess import Popen, PIPE
+from .context import get_context
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
@@ -92,7 +93,7 @@ def run_cmd_async(cmd, cwd, env=None, fail=True, shell=False, liveupdate=True):
     # https://github.com/PyCQA/pylint/issues/996.
     # pylint: disable=not-an-iterable
 
-    env = env or {}
+    env = env or get_context().environ
     cmdstr = cmd
     if not shell:
         cmdstr = ' '.join(cmd)
