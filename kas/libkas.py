@@ -294,44 +294,46 @@ def ssh_add_key(env, key):
         logging.error('failed to add ssh key: %s', error)
 
 
-def ssh_cleanup_agent(config):
+def ssh_cleanup_agent():
     """
         Removes the identities and stop the ssh-agent instance
     """
+    env = get_context().environ
     # remove the identities
-    process = Popen(['ssh-add', '-D'], env=config.environ)
+    process = Popen(['ssh-add', '-D'], env=env)
     process.wait()
     if process.returncode != 0:
         logging.error('failed to delete SSH identities')
 
     # stop the ssh-agent
-    process = Popen(['ssh-agent', '-k'], env=config.environ)
+    process = Popen(['ssh-agent', '-k'], env=env)
     process.wait()
     if process.returncode != 0:
         logging.error('failed to stop SSH agent')
 
 
-def ssh_setup_agent(config, envkeys=None):
+def ssh_setup_agent(envkeys=None):
     """
         Starts the ssh-agent
     """
+    env = get_context().environ
     envkeys = envkeys or ['SSH_PRIVATE_KEY']
     output = os.popen('ssh-agent -s').readlines()
     for line in output:
         matches = re.search(r"(\S+)\=(\S+)\;", line)
         if matches:
-            config.environ[matches.group(1)] = matches.group(2)
+            env[matches.group(1)] = matches.group(2)
 
     for envkey in envkeys:
         key = os.environ.get(envkey)
         if key:
             logging.info("adding SSH key")
-            ssh_add_key(config.environ, key)
+            ssh_add_key(env, key)
         else:
             logging.warning('%s is missing', envkey)
 
 
-def ssh_no_host_key_check(_):
+def ssh_no_host_key_check():
     """
         Disables ssh host key check
     """

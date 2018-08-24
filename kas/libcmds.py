@@ -124,8 +124,8 @@ class SetupSSHAgent(Command):
         return 'setup_ssh_agent'
 
     def execute(self, ctx):
-        ssh_setup_agent(ctx)
-        ssh_no_host_key_check(ctx)
+        ssh_setup_agent()
+        ssh_no_host_key_check()
 
 
 class CleanupSSHAgent(Command):
@@ -137,7 +137,7 @@ class CleanupSSHAgent(Command):
         return 'cleanup_ssh_agent'
 
     def execute(self, ctx):
-        ssh_cleanup_agent(ctx)
+        ssh_cleanup_agent()
 
 
 class SetupEnviron(Command):
