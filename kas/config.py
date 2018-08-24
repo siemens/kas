@@ -82,9 +82,12 @@ class Config:
         """
         repo_config_dict = self._config.get('repos', {})
         repo_dict = {}
+        repo_fallback_path = os.path.dirname(self.filename)
         for repo in repo_config_dict:
             repo_config_dict[repo] = repo_config_dict[repo] or {}
-            repo_dict[repo] = Repo.factory(repo, repo_config_dict[repo], self)
+            repo_dict[repo] = Repo.factory(repo,
+                                           repo_config_dict[repo],
+                                           repo_fallback_path)
 
         return repo_dict
 

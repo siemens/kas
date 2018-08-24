@@ -27,6 +27,7 @@ import os
 import asyncio
 import logging
 from urllib.parse import urlparse
+from .context import get_context
 from .libkas import run_cmd_async, run_cmd
 
 __license__ = 'MIT'
@@ -71,11 +72,10 @@ class Repo:
                                 self.path, self._layers)
 
     @staticmethod
-    def factory(name, repo_config, config):
+    def factory(name, repo_config, repo_fallback_path):
         """
             Return an instance Repo depending on params.
         """
-        ctx = config.context
         layers_dict = repo_config.get('layers', {})
         layers = list(filter(lambda x, laydict=layers_dict:
                              str(laydict[x]).lower() not in
@@ -100,7 +100,7 @@ class Repo:
         if url is None:
             # No version control operation on repository
             if path is None:
-                path = Repo.get_root_path(os.path.dirname(config.filename))
+                path = Repo.get_root_path(repo_fallback_path)
                 logging.info('Using %s as root for repository %s', path,
                              name)
 
@@ -108,11 +108,11 @@ class Repo:
             disable_operations = True
         else:
             if path is None:
-                path = os.path.join(ctx.kas_work_dir, name)
+                path = os.path.join(get_context().kas_work_dir, name)
             else:
                 if not os.path.isabs(path):
                     # Relative pathes are assumed to start from work_dir
-                    path = os.path.join(ctx.kas_work_dir, path)
+                    path = os.path.join(get_context().kas_work_dir, path)
 
         if typ == 'git':
             return GitRepo(url, path, refspec, layers, patches,
