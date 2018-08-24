@@ -24,28 +24,6 @@
 """
 
 import os
-
-try:
-    import distro
-
-    def get_distro_id_base():
-        """
-            Returns a compatible distro id.
-        """
-        return distro.like() or distro.id()
-
-except ImportError:
-    import platform
-
-    def get_distro_id_base():
-        """
-            Wrapper around platform.dist to simulate distro.id
-            platform.dist is deprecated and will be removed in python 3.7
-            Use the 'distro' package instead.
-        """
-        # pylint: disable=deprecated-method
-        return platform.dist()[0]
-
 from .repos import Repo
 
 __license__ = 'MIT'
