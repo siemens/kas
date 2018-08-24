@@ -28,6 +28,7 @@ import subprocess
 import os
 from .libkas import kasplugin
 from .context import create_global_context
+from .config import Config
 from .libcmds import (Macro, Command, SetupDir, SetupEnviron,
                       WriteBBConfig, SetupHome, ReposApplyPatches,
                       CleanupSSHAgent, SetupSSHAgent, SetupRepos)
@@ -75,7 +76,9 @@ class Shell:
         if args.cmd != 'shell':
             return False
 
-        ctx = create_global_context(args.config, args.target, None)
+        ctx = create_global_context()
+        ctx.config = Config(args.config, args.target, None)
+        ctx.config.set_context(ctx)
 
         macro = Macro()
 

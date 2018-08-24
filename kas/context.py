@@ -25,7 +25,6 @@
 
 import os
 import logging
-from .config import Config
 
 try:
     import distro
@@ -48,16 +47,17 @@ except ImportError:
         # pylint: disable=deprecated-method
         return platform.dist()[0]
 
+
 __context__ = None
 
 
-def create_global_context(config_filename, bitbake_target, bitbake_task):
+def create_global_context():
     """
         Create global context as singleton.
     """
     # pylint: disable=global-statement
     global __context__
-    __context__ = Context(config_filename, bitbake_target, bitbake_task)
+    __context__ = Context()
     return __context__
 
 
@@ -73,15 +73,12 @@ class Context:
     """
         Implements the kas build context.
     """
-    def __init__(self, config_filename, bitbake_target, bitbake_task):
+    def __init__(self):
         self.__kas_work_dir = os.environ.get('KAS_WORK_DIR', os.getcwd())
         self.__kas_repo_ref_dir = os.environ.get('KAS_REPO_REF_DIR', None)
-
         self.setup_initial_environ()
         self.keep_config = False
-
-        self.config = Config(config_filename, bitbake_target, bitbake_task)
-        self.config.set_context(self)
+        self.config = None
 
     def setup_initial_environ(self):
         """
