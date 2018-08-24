@@ -26,11 +26,11 @@
 
 import subprocess
 import os
-from kas.libkas import kasplugin
-from kas.context import Context
-from kas.libcmds import (Macro, Command, SetupDir, SetupEnviron,
-                         WriteBBConfig, SetupHome, ReposApplyPatches,
-                         CleanupSSHAgent, SetupSSHAgent, SetupRepos)
+from .libkas import kasplugin
+from .context import Context
+from .libcmds import (Macro, Command, SetupDir, SetupEnviron,
+                      WriteBBConfig, SetupHome, ReposApplyPatches,
+                      CleanupSSHAgent, SetupSSHAgent, SetupRepos)
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
