@@ -40,18 +40,11 @@ class Config:
         self.filename = os.path.abspath(filename)
         self.handler = IncludeHandler(self.filename)
         self.repo_dict = self._get_repo_dict()
-        self.context = None
 
         if target:
             self._config['target'] = target
         if task:
             self._config['task'] = task
-
-    def set_context(self, ctx):
-        """
-            Set a reference to the ctx that includes this config
-        """
-        self.context = ctx
 
     def find_missing_repos(self):
         """

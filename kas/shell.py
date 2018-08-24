@@ -78,7 +78,6 @@ class Shell:
 
         ctx = create_global_context()
         ctx.config = Config(args.config, args.target, None)
-        ctx.config.set_context(ctx)
 
         macro = Macro()
 

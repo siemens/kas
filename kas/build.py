@@ -74,7 +74,6 @@ class Build:
 
         ctx = create_global_context()
         ctx.config = Config(args.config, args.target, args.task)
-        ctx.config.set_context(ctx)
 
         macro = Macro()
 
