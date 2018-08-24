@@ -100,8 +100,7 @@ class Repo:
         if url is None:
             # No version control operation on repository
             if path is None:
-                path = Repo.get_root_path(os.path.dirname(config.filename),
-                                          config.context.environ)
+                path = Repo.get_root_path(os.path.dirname(config.filename))
                 logging.info('Using %s as root for repository %s', path,
                              name)
 
@@ -124,19 +123,17 @@ class Repo:
         raise NotImplementedError('Repo typ "%s" not supported.' % typ)
 
     @staticmethod
-    def get_root_path(path, environ):
+    def get_root_path(path):
         """
             Check if path is a version control repo and return its root path.
         """
         (ret, output) = run_cmd(['git', 'rev-parse', '--show-toplevel'],
-                                cwd=path, env=environ, fail=False,
-                                liveupdate=False)
+                                cwd=path, fail=False, liveupdate=False)
         if ret == 0:
             return output.strip()
 
         (ret, output) = run_cmd(['hg', 'root'],
-                                cwd=path, env=environ, fail=False,
-                                liveupdate=False)
+                                cwd=path, fail=False, liveupdate=False)
         if ret == 0:
             return output.strip()
 
