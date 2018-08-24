@@ -146,7 +146,7 @@ class RepoImpl(Repo):
     """
 
     @asyncio.coroutine
-    def fetch_async(self, ctx):
+    def fetch_async(self):
         """
             Start asynchronous repository fetch.
         """
@@ -155,12 +155,13 @@ class RepoImpl(Repo):
 
         if not os.path.exists(self.path):
             os.makedirs(os.path.dirname(self.path), exist_ok=True)
-            sdir = os.path.join(ctx.kas_repo_ref_dir or '',
+            sdir = os.path.join(get_context().kas_repo_ref_dir or '',
                                 self.qualified_name)
             logging.debug('Looking for repo ref dir in %s', sdir)
 
-            (retc, _) = yield from run_cmd_async(self.clone_cmd(sdir, ctx),
-                                                 cwd=ctx.kas_work_dir)
+            (retc, _) = yield from run_cmd_async(
+                self.clone_cmd(sdir),
+                cwd=get_context().kas_work_dir)
             if retc == 0:
                 logging.info('Repository %s cloned', self.name)
             return retc
@@ -190,7 +191,7 @@ class RepoImpl(Repo):
             logging.info('Repository %s updated', self.name)
         return 0
 
-    def checkout(self, _):
+    def checkout(self):
         """
             Checks out the correct revision of the repo.
         """
@@ -217,7 +218,7 @@ class RepoImpl(Repo):
         run_cmd(self.checkout_cmd(), cwd=self.path)
 
     @asyncio.coroutine
-    def apply_patches_async(self, ctx):
+    def apply_patches_async(self):
         """
             Applies patches to repository asynchronously.
         """
@@ -225,7 +226,8 @@ class RepoImpl(Repo):
             return 0
 
         for patch in self._patches:
-            other_repo = ctx.config.repo_dict.get(patch['repo'], None)
+            other_repo = get_context().config.repo_dict.get(patch['repo'],
+                                                            None)
 
             if not other_repo:
                 logging.warning('Could not find referenced repo. '
@@ -274,9 +276,9 @@ class GitRepo(RepoImpl):
     """
     # pylint: disable=no-self-use,missing-docstring
 
-    def clone_cmd(self, gitsrcdir, ctx):
+    def clone_cmd(self, gitsrcdir):
         cmd = ['git', 'clone', '-q', self.url, self.path]
-        if ctx.kas_repo_ref_dir and os.path.exists(gitsrcdir):
+        if get_context().kas_repo_ref_dir and os.path.exists(gitsrcdir):
             cmd.extend(['--reference', gitsrcdir])
         return cmd
 

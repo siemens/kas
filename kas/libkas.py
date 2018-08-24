@@ -168,7 +168,7 @@ def find_program(paths, name):
     return None
 
 
-def repos_fetch(config, repos):
+def repos_fetch(repos):
     """
         Fetches the list of repositories to the kas_work_dir.
     """
@@ -176,9 +176,9 @@ def repos_fetch(config, repos):
     for repo in repos:
         if not hasattr(asyncio, 'ensure_future'):
             # pylint: disable=no-member,deprecated-method
-            task = asyncio.async(repo.fetch_async(config))
+            task = asyncio.async(repo.fetch_async())
         else:
-            task = asyncio.ensure_future(repo.fetch_async(config))
+            task = asyncio.ensure_future(repo.fetch_async())
         tasks.append(task)
 
     loop = asyncio.get_event_loop()
@@ -189,7 +189,7 @@ def repos_fetch(config, repos):
             sys.exit(task.result())
 
 
-def repos_apply_patches(config, repos):
+def repos_apply_patches(repos):
     """
         Applies the patches to the repositories.
     """
@@ -197,9 +197,9 @@ def repos_apply_patches(config, repos):
     for repo in repos:
         if not hasattr(asyncio, 'ensure_future'):
             # pylint: disable=no-member,deprecated-method
-            task = asyncio.async(repo.apply_patches_async(config))
+            task = asyncio.async(repo.apply_patches_async())
         else:
-            task = asyncio.ensure_future(repo.apply_patches_async(config))
+            task = asyncio.ensure_future(repo.apply_patches_async())
         tasks.append(task)
 
     loop = asyncio.get_event_loop()

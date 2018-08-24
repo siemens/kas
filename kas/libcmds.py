@@ -197,7 +197,7 @@ class ReposFetch(Command):
         return 'repos_fetch'
 
     def execute(self, ctx):
-        repos_fetch(ctx, ctx.config.get_repos())
+        repos_fetch(ctx.config.get_repos())
 
 
 class ReposApplyPatches(Command):
@@ -209,7 +209,7 @@ class ReposApplyPatches(Command):
         return 'repos_apply_patches'
 
     def execute(self, ctx):
-        repos_apply_patches(ctx, ctx.config.get_repos())
+        repos_apply_patches(ctx.config.get_repos())
 
 
 class ReposCheckout(Command):
@@ -222,7 +222,7 @@ class ReposCheckout(Command):
 
     def execute(self, ctx):
         for repo in ctx.config.get_repos():
-            repo.checkout(ctx)
+            repo.checkout()
 
 
 class SetupRepos(Command):
@@ -255,10 +255,10 @@ class SetupRepos(Command):
                              for repo_name in missing_repo_names
                              if repo_name in ctx.config.repo_dict]
 
-            repos_fetch(ctx, missing_repos)
+            repos_fetch(missing_repos)
 
             for repo in missing_repos:
-                repo.checkout(ctx)
+                repo.checkout()
 
             ctx.config.repo_dict = ctx.config._get_repo_dict()
 
@@ -272,10 +272,10 @@ class SetupRepos(Command):
         # now fetch everything with complete config and check out layers
         # except if keep_config is set
         if not ctx.keep_config:
-            repos_fetch(ctx, ctx.config.get_repos())
+            repos_fetch(ctx.config.get_repos())
 
             for repo in ctx.config.get_repos():
-                repo.checkout(ctx)
+                repo.checkout()
 
         logging.debug('Configuration from config file:\n%s',
                       pprint.pformat(ctx.config._config))
