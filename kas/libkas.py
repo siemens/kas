@@ -210,7 +210,7 @@ def repos_apply_patches(config, repos):
             sys.exit(task.result())
 
 
-def get_build_environ(context, build_dir):
+def get_build_environ():
     """
         Create the build environment variables.
     """
@@ -220,7 +220,7 @@ def get_build_environ(context, build_dir):
 
     init_repo = None
     permutations = \
-        [(repo, script) for repo in context.config.get_repos()
+        [(repo, script) for repo in get_context().config.get_repos()
          for script in ['oe-init-build-env', 'isar-init-build-env']]
     for (repo, script) in permutations:
         if os.path.exists(repo.path + '/' + script):
@@ -248,7 +248,7 @@ def get_build_environ(context, build_dir):
     env = {}
     env['PATH'] = '/usr/sbin:/usr/bin:/sbin:/bin'
 
-    (_, output) = run_cmd([get_bb_env_file, build_dir],
+    (_, output) = run_cmd([get_bb_env_file, get_context().build_dir],
                           cwd=init_repo.path, env=env, liveupdate=False)
 
     os.remove(get_bb_env_file)
@@ -261,7 +261,7 @@ def get_build_environ(context, build_dir):
         except ValueError:
             pass
 
-    conf_env = context.config.get_environment()
+    conf_env = get_context().config.get_environment()
 
     env_vars = ['SSTATE_DIR', 'DL_DIR', 'TMPDIR']
     env_vars.extend(conf_env)
