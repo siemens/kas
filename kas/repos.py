@@ -123,7 +123,7 @@ class Repo:
         raise NotImplementedError('Repo typ "%s" not supported.' % typ)
 
     @staticmethod
-    def get_root_path(path):
+    def get_root_path(path, fallback=True):
         """
             Check if path is a version control repo and return its root path.
         """
@@ -137,7 +137,7 @@ class Repo:
         if ret == 0:
             return output.strip()
 
-        return path
+        return path if fallback else None
 
 
 class RepoImpl(Repo):
