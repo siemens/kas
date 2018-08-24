@@ -34,9 +34,6 @@ class Context:
         Implements the kas build context.
     """
     def __init__(self, config_filename, bitbake_target, bitbake_task):
-        self.config_filename = config_filename
-        self.bitbake_target = bitbake_target
-        self.bitbake_task = bitbake_task
         self.__kas_work_dir = os.environ.get('KAS_WORK_DIR', os.getcwd())
         self.__kas_repo_ref_dir = os.environ.get('KAS_REPO_REF_DIR', None)
 
