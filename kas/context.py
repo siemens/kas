@@ -48,6 +48,25 @@ except ImportError:
         # pylint: disable=deprecated-method
         return platform.dist()[0]
 
+__context__ = None
+
+
+def create_global_context(config_filename, bitbake_target, bitbake_task):
+    """
+        Create global context as singleton.
+    """
+    # pylint: disable=global-statement
+    global __context__
+    __context__ = Context(config_filename, bitbake_target, bitbake_task)
+    return __context__
+
+
+def get_context():
+    """
+        Return singleton global context.
+    """
+    return __context__
+
 
 # pylint: disable=too-many-instance-attributes
 class Context:

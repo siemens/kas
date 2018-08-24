@@ -24,7 +24,7 @@
 """
 
 import os
-from .context import Context
+from .context import create_global_context
 from .libkas import find_program, run_cmd, kasplugin
 from .libcmds import (Macro, Command, SetupDir, CleanupSSHAgent,
                       SetupSSHAgent, SetupEnviron, SetupRepos,
@@ -71,7 +71,7 @@ class Build:
         if args.cmd != 'build':
             return False
 
-        ctx = Context(args.config, args.target, args.task)
+        ctx = create_global_context(args.config, args.target, args.task)
 
         macro = Macro()
 
