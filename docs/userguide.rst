@@ -246,6 +246,33 @@ different include files. Note that the order of the configuration file entries
 is not preserved within one include file, because the parser creates normal
 unordered dictionaries.
 
+Including configuration files via the command line
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When specifying the kas configuration file on the command line, additional
+configurations can be included ad-hoc:
+
+    $ kas build kas-base.yml:debug-image.yml:board.yml
+
+This is equivalent to static inclusion from some kas-combined.yml like this:
+
+.. code-block:: yaml
+
+    header:
+      version: x
+      includes:
+        - kas-base.yml
+        - debug.image.yml
+        - board.yml
+
+Command line inclusion allows to create configurations on-demand, without the
+need to write a kas configuration file for each possible combination.
+
+Note that all configuration files combined via the command line either have to
+come from the same repository or have to live outside of any versioning control.
+kas will refuse any other combination in order to avoid complications and
+configuration flaws that can easily emerge from them.
+
 Configuration reference
 ~~~~~~~~~~~~~~~~~~~~~~~
 

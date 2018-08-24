@@ -25,6 +25,7 @@
 
 import os
 from .repos import Repo
+from .includehandler import IncludeHandler, IncludeException
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
@@ -35,10 +36,22 @@ class Config:
         Implements the kas configuration based on config files.
     """
     def __init__(self, filename, target, task=None):
-        from .includehandler import IncludeHandler
         self._config = {}
-        self.filename = os.path.abspath(filename)
-        self.handler = IncludeHandler(self.filename)
+        self.filenames = []
+
+        for configfile in filename.split(':'):
+            configfile = os.path.abspath(configfile)
+            repo_path = Repo.get_root_path(os.path.dirname(configfile),
+                                           fallback=False)
+            if self.filenames == []:
+                common_path = repo_path
+            elif repo_path != common_path:
+                raise IncludeException('All concatenated config files must '
+                                       'belong to the same repository or all '
+                                       'must be outside of versioning control')
+            self.filenames.append(configfile)
+
+        self.handler = IncludeHandler(self.filenames)
         self.repo_dict = self._get_repo_dict()
 
         if target:
@@ -75,7 +88,7 @@ class Config:
         """
         repo_config_dict = self._config.get('repos', {})
         repo_dict = {}
-        repo_fallback_path = os.path.dirname(self.filename)
+        repo_fallback_path = os.path.dirname(self.filenames[0])
         for repo in repo_config_dict:
             repo_config_dict[repo] = repo_config_dict[repo] or {}
             repo_dict[repo] = Repo.factory(repo,

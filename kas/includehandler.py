@@ -120,8 +120,8 @@ class IncludeHandler:
         The includes are read and merged depth first from top to buttom.
     """
 
-    def __init__(self, top_file):
-        self.top_file = top_file
+    def __init__(self, top_files):
+        self.top_files = top_files
 
     def get_config(self, repos=None):
         """
@@ -253,7 +253,13 @@ class IncludeHandler:
                     dest[k] = upd[k]
             return dest
 
-        configs, missing_repos = _internal_include_handler(self.top_file)
+        configs = []
+        missing_repos = []
+        for configfile in self.top_files:
+            cfgs, reps = _internal_include_handler(configfile)
+            configs.extend(cfgs)
+            missing_repos.extend(reps)
+
         config = functools.reduce(_internal_dict_merge,
                                   map(lambda x: x[1], configs))
         return config, missing_repos
