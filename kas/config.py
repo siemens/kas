@@ -57,10 +57,10 @@ class Config:
         Implements the kas configuration based on config files.
     """
     def __init__(self, filename, target, task=None):
-        from .includehandler import GlobalIncludes
+        from .includehandler import IncludeHandler
         self._config = {}
         self.filename = os.path.abspath(filename)
-        self.handler = GlobalIncludes(self.filename)
+        self.handler = IncludeHandler(self.filename)
         self.repo_dict = self._get_repo_dict()
         self.context = None
 

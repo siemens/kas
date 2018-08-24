@@ -104,7 +104,20 @@ class IncludeException(Exception):
 
 class IncludeHandler:
     """
-        Abstract class that defines the interface of an include handler.
+        Implements a handler where every configuration file should
+        contain a dictionary as the base type with and 'includes'
+        key containing a list of includes.
+
+        The includes can be specified in two ways, as a string
+        containing the relative path from the current file or as a
+        dictionary. The dictionary should have a 'file' key, containing
+        the relative path to the include file and optionally a 'repo'
+        key, containing the key of the repository. If the 'repo' key is
+        missing the value of the 'file' key is treated the same as if
+        just a string was defined, meaning the path is relative to the
+        current config file otherwise its relative to the repository path.
+
+        The includes are read and merged depth first from top to buttom.
     """
 
     def __init__(self, top_file):
@@ -121,31 +134,7 @@ class IncludeHandler:
             repos -- A list of missing repo names that are needed \
                      to create a complete configuration
         """
-        # pylint: disable=no-self-use,unused-argument
 
-        logging.error('get_config is not implemented')
-        raise NotImplementedError()
-
-
-class GlobalIncludes(IncludeHandler):
-    """
-        Implements a handler where every configuration file should
-        contain a dictionary as the base type with and 'includes'
-        key containing a list of includes.
-
-        The includes can be specified in two ways, as a string
-        containg the relative path from the current file or as a
-        dictionary. The dictionary should have a 'file' key, containing
-        the relative path to the include file and optionally a 'repo'
-        key, containing the key of the repository. If the 'repo' key is
-        missing the value of the 'file' key is threated the same as if
-        just a string was defined, meaning the path is relative to the
-        current config file otherwise its relative to the repository path.
-
-        The includes are read and merged depth first from top to buttom.
-    """
-
-    def get_config(self, repos=None):
         repos = repos or {}
 
         def _internal_include_handler(filename):
