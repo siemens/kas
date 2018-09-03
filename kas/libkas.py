@@ -83,7 +83,7 @@ def _read_stream(stream, callback):
 
 
 @asyncio.coroutine
-def run_cmd_async(cmd, cwd, env=None, fail=True, shell=False, liveupdate=True):
+def run_cmd_async(cmd, cwd, env=None, fail=True, liveupdate=True):
     """
         Run a command asynchronously.
     """
@@ -94,29 +94,18 @@ def run_cmd_async(cmd, cwd, env=None, fail=True, shell=False, liveupdate=True):
     # pylint: disable=not-an-iterable
 
     env = env or get_context().environ
-    cmdstr = cmd
-    if not shell:
-        cmdstr = ' '.join(cmd)
+    cmdstr = ' '.join(cmd)
     logging.info('%s$ %s', cwd, cmdstr)
 
     logo = LogOutput(liveupdate)
 
     try:
-        if shell:
-            process = yield from asyncio.create_subprocess_shell(
-                cmd,
-                env=env,
-                cwd=cwd,
-                universal_newlines=True,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE)
-        else:
-            process = yield from asyncio.create_subprocess_exec(
-                *cmd,
-                cwd=cwd,
-                env=env,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE)
+        process = yield from asyncio.create_subprocess_exec(
+            *cmd,
+            cwd=cwd,
+            env=env,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE)
     except FileNotFoundError as ex:
         if fail:
             raise ex
@@ -143,7 +132,7 @@ def run_cmd_async(cmd, cwd, env=None, fail=True, shell=False, liveupdate=True):
     return (ret, ''.join(logo.stdout))
 
 
-def run_cmd(cmd, cwd, env=None, fail=True, shell=False, liveupdate=True):
+def run_cmd(cmd, cwd, env=None, fail=True, liveupdate=True):
     """
         Runs a command synchronously.
     """
@@ -151,7 +140,7 @@ def run_cmd(cmd, cwd, env=None, fail=True, shell=False, liveupdate=True):
 
     loop = asyncio.get_event_loop()
     (ret, output) = loop.run_until_complete(
-        run_cmd_async(cmd, cwd, env, fail, shell, liveupdate))
+        run_cmd_async(cmd, cwd, env, fail, liveupdate))
     if ret and fail:
         sys.exit(ret)
     return (ret, output)
