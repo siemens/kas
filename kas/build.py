@@ -23,7 +23,10 @@
     The build plugin for kas.
 """
 
+import logging
 import os
+import subprocess
+import sys
 from .context import create_global_context
 from .config import Config
 from .libkas import find_program, run_cmd, kasplugin
@@ -119,6 +122,10 @@ class BuildCommand(Command):
         """
         # Start bitbake build of image
         bitbake = find_program(ctx.environ['PATH'], 'bitbake')
-        run_cmd(([bitbake, '-k', '-c', ctx.config.get_bitbake_task()]
-                 + ctx.config.get_bitbake_targets()),
-                cwd=ctx.build_dir)
+        cmd = ([bitbake, '-k', '-c', ctx.config.get_bitbake_task()]
+               + ctx.config.get_bitbake_targets())
+        if sys.stdout.isatty():
+            logging.info('%s$ %s', ctx.build_dir, ' '.join(cmd))
+            subprocess.call(cmd, env=ctx.environ, cwd=ctx.build_dir)
+        else:
+            run_cmd(cmd, cwd=ctx.build_dir)
