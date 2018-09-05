@@ -74,6 +74,38 @@ class Command:
         pass
 
 
+class Loop(Command):
+    """
+        A class that defines a set of commands as a loop.
+    """
+    def __init__(self, name):
+        self.commands = []
+        self.name = name
+
+    def __str__(self):
+        return self.name
+
+    def add(self, command):
+        """
+            Appends commands to the loop.
+        """
+        self.commands.append(command)
+
+    def execute(self, ctx):
+        """
+            Executes the loop.
+        """
+        loop_name = str(self)
+
+        def executor(command):
+            command_name = str(command)
+            logging.debug('Loop %s: execute %s', loop_name, command_name)
+            return command.execute(ctx)
+
+        while all(executor(c) for c in self.commands):
+            pass
+
+
 class SetupHome(Command):
     """
         Setups the home directory of kas.
