@@ -31,7 +31,9 @@ from .context import create_global_context
 from .config import Config
 from .libcmds import (Macro, Command, SetupDir, SetupEnviron,
                       WriteBBConfig, SetupHome, ReposApplyPatches,
-                      CleanupSSHAgent, SetupSSHAgent, SetupRepos)
+                      CleanupSSHAgent, SetupSSHAgent,
+                      Loop, InitSetupRepos, FinishSetupRepos,
+                      SetupReposStep)
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
@@ -89,7 +91,14 @@ class Shell:
             macro.add(SetupSSHAgent())
 
         ctx.keep_config = args.keep_config_unchanged
-        macro.add(SetupRepos())
+
+        macro.add(InitSetupRepos())
+
+        repo_loop = Loop('repo_setup_loop')
+        repo_loop.add(SetupReposStep())
+
+        macro.add(repo_loop)
+        macro.add(FinishSetupRepos())
 
         macro.add(SetupEnviron())
         macro.add(SetupHome())

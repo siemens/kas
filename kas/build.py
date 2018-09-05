@@ -31,8 +31,10 @@ from .context import create_global_context
 from .config import Config
 from .libkas import find_program, run_cmd, kasplugin
 from .libcmds import (Macro, Command, SetupDir, CleanupSSHAgent,
-                      SetupSSHAgent, SetupEnviron, SetupRepos,
-                      WriteBBConfig, SetupHome, ReposApplyPatches)
+                      SetupSSHAgent, SetupEnviron,
+                      WriteBBConfig, SetupHome, ReposApplyPatches,
+                      Loop, InitSetupRepos, FinishSetupRepos,
+                      SetupReposStep)
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017'
@@ -86,7 +88,14 @@ class Build:
         if 'SSH_PRIVATE_KEY' in os.environ:
             macro.add(SetupSSHAgent())
 
-        macro.add(SetupRepos())
+        macro.add(InitSetupRepos())
+
+        repo_loop = Loop('repo_setup_loop')
+        repo_loop.add(SetupReposStep())
+
+        macro.add(repo_loop)
+        macro.add(FinishSetupRepos())
+
         macro.add(SetupEnviron())
         macro.add(SetupHome())
         macro.add(ReposApplyPatches())

@@ -257,50 +257,74 @@ class ReposCheckout(Command):
             repo.checkout()
 
 
-class SetupRepos(Command):
+class InitSetupRepos(Command):
     """
         Setup repos including the include logic
     """
 
     def __str__(self):
-        return 'setup_repos'
+        return 'init_setup_repos'
 
     def execute(self, ctx):
-        missing_repo_names = ctx.config.find_missing_repos()
-        missing_repo_names_old = None
+        ctx.missing_repo_names = ctx.config.find_missing_repos()
+        ctx.missing_repo_names_old = None
 
-        # pylint: disable=pointless-string-statement
-        """XXX This will be refactored"""
+
+class SetupReposStep(Command):
+    """
+        Single step of the checkout repos loop
+    """
+
+    def __str__(self):
+        return 'setup_repos_step'
+
+    def execute(self, ctx):
+        """ TODO refactor protected-access """
         # pylint: disable=protected-access
+        if not ctx.missing_repo_names:
+            return False
 
-        while missing_repo_names:
-            if missing_repo_names == missing_repo_names_old:
-                raise IncludeException('Could not fetch all repos needed by '
-                                       'includes.')
+        if ctx.missing_repo_names == ctx.missing_repo_names_old:
+            raise IncludeException('Could not fetch all repos needed by '
+                                   'includes.')
 
-            logging.debug('Missing repos for complete config:\n%s',
-                          pprint.pformat(missing_repo_names))
+        logging.debug('Missing repos for complete config:\n%s',
+                      pprint.pformat(ctx.missing_repo_names))
 
-            ctx.config.repo_dict = ctx.config._get_repo_dict()
+        ctx.config.repo_dict = ctx.config._get_repo_dict()
 
-            missing_repos = [ctx.config.repo_dict[repo_name]
-                             for repo_name in missing_repo_names
+        ctx.missing_repos = [ctx.config.repo_dict[repo_name]
+                             for repo_name in ctx.missing_repo_names
                              if repo_name in ctx.config.repo_dict]
 
-            repos_fetch(missing_repos)
+        repos_fetch(ctx.missing_repos)
 
-            for repo in missing_repos:
-                repo.checkout()
+        for repo in ctx.missing_repos:
+            repo.checkout()
 
-            ctx.config.repo_dict = ctx.config._get_repo_dict()
+        ctx.config.repo_dict = ctx.config._get_repo_dict()
 
-            repo_paths = {r: ctx.config.repo_dict[r].path for r
-                          in ctx.config.repo_dict}
-            missing_repo_names_old = missing_repo_names
+        repo_paths = {r: ctx.config.repo_dict[r].path for r
+                      in ctx.config.repo_dict}
+        ctx.missing_repo_names_old = ctx.missing_repo_names
 
-            (ctx.config._config, missing_repo_names) = \
-                ctx.config.handler.get_config(repos=repo_paths)
+        (ctx.config._config, ctx.missing_repo_names) = \
+            ctx.config.handler.get_config(repos=repo_paths)
 
+        return ctx.missing_repo_names
+
+
+class FinishSetupRepos(Command):
+    """
+        Command to finalize the repo setup loop
+    """
+
+    def __str__(self):
+        return 'finish_setup_repos'
+
+    def execute(self, ctx):
+        """ TODO refactor protected-access """
+        # pylint: disable=protected-access
         # now fetch everything with complete config and check out layers
         # except if keep_config is set
         if not ctx.keep_config:
