@@ -1,6 +1,6 @@
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2017
+# Copyright (c) Siemens AG, 2017-2018
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,7 @@ from subprocess import Popen, PIPE
 from .context import get_context
 
 __license__ = 'MIT'
-__copyright__ = 'Copyright (c) Siemens AG, 2017'
+__copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
 
 
 class LogOutput:
@@ -48,7 +48,7 @@ class LogOutput:
 
     def log_stdout(self, line):
         """
-            This method is called when a line over stdout is received.
+            This method is called when a line is received over stdout.
         """
         if self.live:
             logging.info(line.strip())
@@ -56,7 +56,7 @@ class LogOutput:
 
     def log_stderr(self, line):
         """
-            This method is called when a line over stderr is received.
+            This method is called when a line is received over stderr.
         """
         if self.live:
             logging.error(line.strip())
@@ -74,7 +74,7 @@ def _read_stream(stream, callback):
         try:
             line = line.decode('utf-8')
         except UnicodeDecodeError as err:
-            logging.warning('Could not decode line from stream, ignore it: %s',
+            logging.warning('Could not decode line from stream, ignoring: %s',
                             err)
         if line:
             callback(line)
@@ -201,7 +201,7 @@ def repos_apply_patches(repos):
 
 def get_build_environ():
     """
-        Create the build environment variables.
+        Creates the build environment variables.
     """
     # pylint: disable=too-many-locals
     # nasty side effect function: running oe/isar-init-build-env also
@@ -274,7 +274,7 @@ def get_build_environ():
 
 def ssh_add_key(env, key):
     """
-        Add ssh key to the ssh-agent
+        Adds an ssh key to the ssh-agent
     """
     process = Popen(['ssh-add', '-'], stdin=PIPE, stdout=None,
                     stderr=PIPE, env=env)
@@ -285,7 +285,7 @@ def ssh_add_key(env, key):
 
 def ssh_cleanup_agent():
     """
-        Removes the identities and stop the ssh-agent instance
+        Removes the identities and stops the ssh-agent instance
     """
     env = get_context().environ
     # remove the identities
@@ -335,7 +335,7 @@ def ssh_no_host_key_check():
 
 def kasplugin(plugin_class):
     """
-        A decorator that registeres kas plugins
+        A decorator that registers kas plugins
     """
     if not hasattr(kasplugin, 'plugins'):
         setattr(kasplugin, 'plugins', [])

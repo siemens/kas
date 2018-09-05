@@ -2,7 +2,7 @@
 #
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2017
+# Copyright (c) Siemens AG, 2017-2018
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -53,7 +53,7 @@ from . import build
 from . import shell
 
 __license__ = 'MIT'
-__copyright__ = 'Copyright (c) Siemens AG, 2017'
+__copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
 
 
 def create_logger():
@@ -90,7 +90,7 @@ def interruption():
 
 def _atexit_handler():
     """
-        Wait for completion of the event loop
+        Waits for completion of the event loop
     """
     loop = asyncio.get_event_loop()
     pending = asyncio.Task.all_tasks()
@@ -100,7 +100,7 @@ def _atexit_handler():
 
 def kas_get_argparser():
     """
-        Creates a argparser for kas with all plugins.
+        Creates an argparser for kas with all plugins.
     """
     parser = argparse.ArgumentParser(description='kas - setup tool for '
                                      'bitbake based project')
@@ -126,7 +126,7 @@ def kas_get_argparser():
 
 def kas(argv):
     """
-        The main entry point of kas.
+        The actual main entry point of kas.
     """
     create_logger()
 

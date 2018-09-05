@@ -53,7 +53,7 @@ __context__ = None
 
 def create_global_context():
     """
-        Create global context as singleton.
+        Creates global context as singleton.
     """
     # pylint: disable=global-statement
     global __context__
@@ -63,7 +63,7 @@ def create_global_context():
 
 def get_context():
     """
-        Return singleton global context.
+        Returns singleton global context.
     """
     return __context__
 
@@ -82,7 +82,7 @@ class Context:
 
     def setup_initial_environ(self):
         """
-            Sets the environment variables for process that are
+            Sets the environment variables for processes that are
             started by kas.
         """
         self.environ = {}
@@ -110,7 +110,7 @@ class Context:
     @property
     def build_dir(self):
         """
-            The path of the build directory
+            The path to the build directory
         """
         return os.path.join(self.__kas_work_dir, 'build')
 

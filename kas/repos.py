@@ -1,6 +1,6 @@
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2017
+# Copyright (c) Siemens AG, 2017-2018
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +31,7 @@ from .context import get_context
 from .libkas import run_cmd_async, run_cmd
 
 __license__ = 'MIT'
-__copyright__ = 'Copyright (c) Siemens AG, 2017'
+__copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
 
 
 class Repo:
@@ -74,7 +74,7 @@ class Repo:
     @staticmethod
     def factory(name, repo_config, repo_fallback_path):
         """
-            Return an instance Repo depending on params.
+            Returns a Repo instance depending on params.
         """
         layers_dict = repo_config.get('layers', {})
         layers = list(filter(lambda x, laydict=layers_dict:
@@ -125,7 +125,7 @@ class Repo:
     @staticmethod
     def get_root_path(path, fallback=True):
         """
-            Check if path is a version control repo and return its root path.
+            Checks if path is under version control and returns its root path.
         """
         (ret, output) = run_cmd(['git', 'rev-parse', '--show-toplevel'],
                                 cwd=path, fail=False, liveupdate=False)
@@ -148,7 +148,7 @@ class RepoImpl(Repo):
     @asyncio.coroutine
     def fetch_async(self):
         """
-            Start asynchronous repository fetch.
+            Starts asynchronous repository fetch.
         """
         if self.operations_disabled:
             return 0
@@ -203,7 +203,7 @@ class RepoImpl(Repo):
                               cwd=self.path,
                               fail=False)
         if output:
-            logging.warning('Repo %s is dirty. no checkout', self.name)
+            logging.warning('Repo %s is dirty - no checkout', self.name)
             return
 
         # Check if current HEAD is what in the config file is defined.
@@ -211,8 +211,8 @@ class RepoImpl(Repo):
                               cwd=self.path)
 
         if output.strip() == self.refspec:
-            logging.info('Repo %s has already checkout out correct '
-                         'refspec. nothing to do', self.name)
+            logging.info('Repo %s has already been checked out with correct '
+                         'refspec. Nothing to do.', self.name)
             return
 
         run_cmd(self.checkout_cmd(), cwd=self.path)
@@ -220,7 +220,7 @@ class RepoImpl(Repo):
     @asyncio.coroutine
     def apply_patches_async(self):
         """
-            Applies patches to repository asynchronously.
+            Applies patches to a repository asynchronously.
         """
         if self.operations_disabled:
             return 0
@@ -272,7 +272,7 @@ class RepoImpl(Repo):
 
 class GitRepo(RepoImpl):
     """
-        Provides the git implementations for a Repo.
+        Provides the git functionality for a Repo.
     """
     # pylint: disable=no-self-use,missing-docstring
 
@@ -308,7 +308,7 @@ class GitRepo(RepoImpl):
 
 class MercurialRepo(RepoImpl):
     """
-        Provides the hg implementations for a Repo.
+        Provides the hg functionality for a Repo.
     """
     # pylint: disable=no-self-use,missing-docstring,unused-argument
 

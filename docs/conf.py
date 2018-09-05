@@ -60,7 +60,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'kas'
-copyright = 'Siemens AG, 2017'
+copyright = 'Siemens AG, 2017-2018'
 author = 'Daniel Wagner, Jan Kiszka, Claudius Heine'
 
 # The version info for the project you're documenting, acts as replacement for

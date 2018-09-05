@@ -1,6 +1,6 @@
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2017
+# Copyright (c) Siemens AG, 2017-2018
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,7 @@ from .libcmds import (Macro, Command, SetupDir, CleanupSSHAgent,
                       SetupReposStep)
 
 __license__ = 'MIT'
-__copyright__ = 'Copyright (c) Siemens AG, 2017'
+__copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
 
 
 @kasplugin
@@ -115,7 +115,7 @@ class Build:
 
 class BuildCommand(Command):
     """
-        Implement the bitbake build step.
+        Implements the bitbake build step.
     """
 
     def __init__(self, task):

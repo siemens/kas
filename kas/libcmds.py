@@ -1,6 +1,6 @@
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2017
+# Copyright (c) Siemens AG, 2017-2018
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 """
-    This module contain common commands used by kas plugins.
+    This module contains common commands used by kas plugins.
 """
 
 import tempfile
@@ -33,12 +33,12 @@ from .libkas import (ssh_cleanup_agent, ssh_setup_agent, ssh_no_host_key_check,
 from .includehandler import IncludeException
 
 __license__ = 'MIT'
-__copyright__ = 'Copyright (c) Siemens AG, 2017'
+__copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
 
 
 class Macro:
     """
-        Contains commands and provide method to run them.
+        Contains commands and provides method to run them.
     """
     def __init__(self):
         self.commands = []
@@ -51,7 +51,8 @@ class Macro:
 
     def run(self, ctx, skip=None):
         """
-            Runs command from the command list respective to the configuration.
+            Runs a command from the command list with respect to the
+            configuration.
         """
         skip = skip or []
         for command in self.commands:
@@ -87,7 +88,7 @@ class Loop(Command):
 
     def add(self, command):
         """
-            Appends commands to the loop.
+            Appends a command to the loop.
         """
         self.commands.append(command)
 
@@ -108,7 +109,7 @@ class Loop(Command):
 
 class SetupHome(Command):
     """
-        Setups the home directory of kas.
+        Sets up the home directory of kas.
     """
 
     def __init__(self):
@@ -149,7 +150,7 @@ class SetupDir(Command):
 
 class SetupSSHAgent(Command):
     """
-        Setup the ssh agent configuration.
+        Sets up the ssh agent configuration.
     """
 
     def __str__(self):
@@ -162,7 +163,7 @@ class SetupSSHAgent(Command):
 
 class CleanupSSHAgent(Command):
     """
-        Remove all the identities and stop the ssh-agent instance.
+        Removes all the identities and stops the ssh-agent instance.
     """
 
     def __str__(self):
@@ -174,7 +175,7 @@ class CleanupSSHAgent(Command):
 
 class SetupEnviron(Command):
     """
-        Setups the kas environment.
+        Sets up the kas environment.
     """
 
     def __str__(self):
@@ -246,7 +247,7 @@ class ReposApplyPatches(Command):
 
 class ReposCheckout(Command):
     """
-        Ensures that the right revision of each repo is check out.
+        Ensures that the right revision of each repo is checked out.
     """
 
     def __str__(self):
@@ -259,7 +260,7 @@ class ReposCheckout(Command):
 
 class InitSetupRepos(Command):
     """
-        Setup repos including the include logic
+        Prepares setting up repos including the include logic
     """
 
     def __str__(self):
@@ -316,7 +317,7 @@ class SetupReposStep(Command):
 
 class FinishSetupRepos(Command):
     """
-        Command to finalize the repo setup loop
+        Finalizes the repo setup loop
     """
 
     def __str__(self):

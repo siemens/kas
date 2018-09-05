@@ -1,6 +1,6 @@
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2017
+# Copyright (c) Siemens AG, 2017-2018
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,7 @@ from .repos import Repo
 from .includehandler import IncludeHandler, IncludeException
 
 __license__ = 'MIT'
-__copyright__ = 'Copyright (c) Siemens AG, 2017'
+__copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
 
 
 class Config:
@@ -83,8 +83,8 @@ class Config:
     def _get_repo_dict(self):
         """
             Returns a dictionary containing the repositories with
-            their name (as it is defined in the config file) as key
-            and the `Repo` instances as value.
+            their names (as it is defined in the config file) as keys
+            and the `Repo` instances as values.
         """
         repo_config_dict = self._config.get('repos', {})
         repo_dict = {}
@@ -113,7 +113,7 @@ class Config:
 
     def get_bitbake_task(self):
         """
-            Return the bitbake task
+            Returns the bitbake task
         """
         return os.environ.get('KAS_TASK',
                               self._config.get('task', 'build'))
@@ -156,7 +156,7 @@ class Config:
     def get_environment(self):
         """
             Returns the configured environment variables from the configuration
-            file, with possible overwritten values from the environment.
+            file with possible overwritten values from the environment.
         """
         env = self._config.get('env', {})
         return {var: os.environ.get(var, env[var]) for var in env}

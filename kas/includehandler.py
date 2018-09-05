@@ -1,6 +1,6 @@
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2017
+# Copyright (c) Siemens AG, 2017-2018
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -36,12 +36,12 @@ from . import __file_version__, __compatible_file_version__
 from . import CONFIGSCHEMA
 
 __license__ = 'MIT'
-__copyright__ = 'Copyright (c) Siemens AG, 2017'
+__copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
 
 
 class LoadConfigException(Exception):
     """
-        Class for exceptions that appear while loading the configuration file.
+        Class for exceptions that appear while loading a configuration file.
     """
     def __init__(self, message, filename):
         super().__init__('{}: {}'.format(message, filename))
@@ -73,7 +73,7 @@ def load_config(filename):
         logging.error('Config file validation Error:\n%s', error)
 
     if validation_error:
-        raise LoadConfigException('Errors occured while validating the '
+        raise LoadConfigException('Error(s) occured while validating the '
                                   'config file', filename)
 
     try:
@@ -108,16 +108,17 @@ class IncludeHandler:
         contain a dictionary as the base type with and 'includes'
         key containing a list of includes.
 
-        The includes can be specified in two ways, as a string
+        The includes can be specified in two ways: as a string
         containing the relative path from the current file or as a
-        dictionary. The dictionary should have a 'file' key, containing
+        dictionary. The dictionary should have a 'file' key containing
         the relative path to the include file and optionally a 'repo'
-        key, containing the key of the repository. If the 'repo' key is
-        missing the value of the 'file' key is treated the same as if
+        key containing the key of the repository. If the 'repo' key is
+        missing the value of the 'file' key, it is treated the same as if
         just a string was defined, meaning the path is relative to the
-        current config file otherwise its relative to the repository path.
+        current config file. Otherwise it is interpreted relative to
+        the repository path.
 
-        The includes are read and merged depth first from top to buttom.
+        The includes are read and merged from the deepest level upwards.
     """
 
     def __init__(self, top_files):
@@ -126,7 +127,7 @@ class IncludeHandler:
     def get_config(self, repos=None):
         """
         Parameters:
-          repos -- A dictionary that maps repo name to directory path
+          repos -- A dictionary that maps repo names to directory paths
 
         Returns:
           (config, repos)
@@ -139,7 +140,7 @@ class IncludeHandler:
 
         def _internal_include_handler(filename):
             """
-            Recursively load include files and find missing repos.
+            Recursively loads include files and finds missing repos.
 
             Includes are done in the following way:
 
@@ -161,7 +162,7 @@ class IncludeHandler:
              'include-repo2.yml', 'include-repo2.yml', 'topfile.yml']
             On conflict the latter includes overwrite previous ones and
             the current file overwrites every include. (evaluation depth first
-            and from top to buttom)
+            and from top to bottom)
             """
             # pylint: disable=too-many-arguments
 
@@ -219,9 +220,9 @@ class IncludeHandler:
             """
             Merges upd recursively into a copy of dest as OrderedDict
 
-            If recursive_merge=False, will use the classic dict.update,
-            or fall back on a manual merge (helpful for non-dict types
-            like FunctionWrapper)
+            If recursive_merge is False, it will use the classic dict.update,
+            otherwise it will fall back on a manual merge (helpful for non-dict
+            types like FunctionWrapper)
             """
             if (not isinstance(dest, Mapping)) \
                     or (not isinstance(upd, Mapping)):
