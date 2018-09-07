@@ -1,0 +1,166 @@
+#!/bin/sh
+#
+# kas - setup tool for bitbake based projects
+#
+# Copyright (c) Siemens AG, 2018
+#
+# Authors:
+#  Jan Kiszka <jan.kiszka@siemens.com>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+set -e
+
+usage()
+{
+	echo "Usage: $0 [OPTIONS] { build | shell } KASFILE"
+	echo "       $0 [OPTIONS] clean"
+	echo -e "\nPositional arguments:"
+	echo -e "build\t\tCheck out repositories and build target."
+	echo -e "shell\t\tRun a shell in the build environment."
+	echo -e "clean\t\tClean build artifacts, keep downloads."
+	echo -e "\nOptional arguments:"
+	echo -e "--isar\t\tUse kas-isar container to build Isar image."
+	echo -e "--docker-args\tAdditional arguments to pass to docker for" \
+		"running the build."
+	echo -e "-v\t\tPrint operations."
+	exit 1
+}
+
+trace()
+{
+	[ -n "${VERBOSE}" ] && echo "+ $*"
+	eval "$*"
+}
+
+DOCKER_IMAGE=kasproject/kas
+
+if [ -n "${KAS_WORK_DIR}" ]; then
+	KAS_WORK_DIR=$(readlink -f ${KAS_WORK_DIR})
+else
+	KAS_WORK_DIR=$(pwd)
+fi
+
+while [ $# -gt 0 ]; do
+	case "$1" in
+	--isar)
+		DOCKER_IMAGE=kasproject/kas-isar
+		if ! LOOP_DEV=$(/sbin/losetup -f 2>/dev/null); then
+			if [ $(id -u) -eq 0 ]; then
+				echo "Error: loop device not available!"
+				exit 1
+			fi
+			echo "Setting up loop device requires root privileges"
+			LOOP_DEV=$(sudo /sbin/losetup -f)
+		fi
+		ISAR_ARGS="--cap-add=SYS_ADMIN --cap-add=MKNOD --privileged \
+			--device ${LOOP_DEV}"
+		shift 1
+		;;
+	--docker-args)
+		[ $# -gt 0 ] || usage
+		USER_ARGS=$2
+		shift 2
+		;;
+	-v)
+		VERBOSE=1
+		shift 1
+		;;
+	--*)
+		usage
+		;;
+	clean)
+		[ $# -eq 1 ] || usage
+		CLEAN_DIR=build/tmp
+		if [ -n "${ISAR_ARGS}" ]; then
+			trace docker run -v ${KAS_WORK_DIR}:/work:rw \
+					 --workdir=/work --rm ${ISAR_ARGS} \
+					 ${DOCKER_IMAGE} \
+					 sudo rm -rf ${CLEAN_DIR}
+		else
+			trace rm -rf ${KAS_WORK_DIR}/{CLEAN_DIR}
+		fi
+		exit 0
+		;;
+	build|shell)
+		[ $# -eq 2 ] || usage
+		CMD=$1
+		FILE=$(echo $2 | cut -d ':' -f 1)
+		if ! FIRST_KAS_FILE=$(readlink -e $FILE); then
+			echo "Error: configuration file '$FILE' not found"
+			exit 1
+		fi
+		break
+		;;
+	*)
+		usage
+		;;
+	esac
+done
+
+[ -n "${CMD}" ] || usage
+
+KAS_FILE_DIR=$(dirname ${FIRST_KAS_FILE})
+
+REPO_DIR=$(git -C ${KAS_FILE_DIR} rev-parse --show-toplevel 2>/dev/null) \
+	|| REPO_DIR=$(hg -cwd ${KAS_FILE_DIR} root 2>/dev/null) \
+	|| REPO_DIR=${KAS_FILE_DIR}
+
+KAS_FILE=/repo/$(echo $2 | sed 's|'${REPO_DIR}'/||g;s|:|:/repo/|g')
+
+trace mkdir -p ${KAS_WORK_DIR}
+
+DOCKER_ARGS="-v ${REPO_DIR}:/repo:ro \
+	     -v ${KAS_WORK_DIR}:/work:rw --workdir=/work \
+	     -e USER_ID=$(id -u) --rm"
+
+if [ -t 1 ]; then
+	DOCKER_ARGS="${DOCKER_ARGS} -t -i"
+fi
+
+if [ -n "${DL_DIR}" ]; then
+	trace mkdir -p ${DL_DIR}
+	DOCKER_ARGS="${DOCKER_ARGS} \
+		-v $(readlink -f ${DL_DIR}):/downloads:rw \
+		-e DL_DIR=/downloads"
+fi
+
+if [ -n "${SSTATE_DIR}" ]; then
+	trace mkdir -p ${SSTATE_DIR}
+	DOCKER_ARGS="${DOCKER_ARGS} \
+		-v $(readlink -f ${SSTATE_DIR}):/sstate:rw \
+		-e SSTATE_DIR=/sstate"
+fi
+
+if [ -n "${KAS_REPO_REF_DIR}" ]; then
+	DOCKER_ARGS="${DOCKER_ARGS} \
+		-v $(readlink -f ${KAS_REPO_REF_DIR}):/repo-ref:ro \
+		-e KAS_REPO_REF_DIR=${KAS_REPO_REF_DIR}"
+fi
+
+for var in SHELL TERM KAS_DISTRO KAS_MACHINE KAS_TARGET KAS_TASK \
+           http_proxy https_proxy no_proxy; do
+	if [ -n "$(eval echo \$${var})" ]; then
+		DOCKER_ARGS="${DOCKER_ARGS} \
+			-e $var=$(eval echo \$${var})"
+	fi
+done
+
+trace docker run ${DOCKER_ARGS} ${ISAR_ARGS} ${USER_ARGS} \
+		 ${DOCKER_IMAGE} ${CMD} ${KAS_FILE}
