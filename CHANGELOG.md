@@ -1,3 +1,8 @@
+0.19.0
+- Recursive include handler refactoring and cleanups
+- A lot of code cleanups, refactoring and bug fixings
+- Isar docker support improvements
+
 0.18.0
 - Add patch support for repos
 - Use git diff-index to check if repo is dirty
