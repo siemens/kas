@@ -102,7 +102,8 @@ class Context:
             logging.warning('kas: No supported distros found in %s. '
                             'No default locales set.', distro_bases)
 
-        for key in ['http_proxy', 'https_proxy', 'ftp_proxy', 'no_proxy']:
+        for key in ['http_proxy', 'https_proxy', 'ftp_proxy', 'no_proxy',
+                    'SSH_AGENT_PID', 'SSH_AUTH_SOCK']:
             val = os.environ.get(key, None)
             if val:
                 self.environ[key] = val
