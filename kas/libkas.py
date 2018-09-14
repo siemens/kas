@@ -261,7 +261,7 @@ def get_build_environ():
         extra_white = env['BB_ENV_EXTRAWHITE'] + ' ' + ' '.join(env_vars)
         env.update({'BB_ENV_EXTRAWHITE': extra_white})
 
-    env_vars.extend(['SSH_AGENT_PID', 'SSH_AUTH_SOCK',
+    env_vars.extend(['SSH_AUTH_SOCK',
                      'SHELL', 'TERM',
                      'GIT_PROXY_COMMAND', 'NO_PROXY'])
 

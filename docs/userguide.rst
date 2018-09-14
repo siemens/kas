@@ -83,9 +83,8 @@ Environment variables
 |                       | build servers. On desktop machines, an ssh-agent    |
 |                       | running outside the kas environment is more useful. |
 +-----------------------+-----------------------------------------------------+
-| ``SSH_AGENT_PID``     | SSH agent process id and authentication socket.     |
-| ``SSH_AUTH_SOCK``     | Used for cloning over SSH (alternative to           |
-|                       | ``SSH_PRIVATE_KEY``).                               |
+| ``SSH_AUTH_SOCK``     | SSH authentication socket. Used for cloning over    |
+|                       | SSH (alternative to ``SSH_PRIVATE_KEY``).           |
 +-----------------------+-----------------------------------------------------+
 | ``DL_DIR``            | Environment variables that are transferred to the   |
 | ``SSTATE_DIR``        | bitbake environment.                                |
