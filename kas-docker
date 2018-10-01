@@ -155,7 +155,7 @@ if [ -n "${KAS_REPO_REF_DIR}" ]; then
 fi
 
 for var in SHELL TERM KAS_DISTRO KAS_MACHINE KAS_TARGET KAS_TASK \
-           http_proxy https_proxy no_proxy; do
+           http_proxy https_proxy ftp_proxy no_proxy; do
 	if [ -n "$(eval echo \$${var})" ]; then
 		DOCKER_ARGS="${DOCKER_ARGS} \
 			-e $var=$(eval echo \$${var})"
