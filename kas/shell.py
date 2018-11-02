@@ -56,9 +56,6 @@ class Shell:
 
         sh_prs.add_argument('config',
                             help='Config file')
-        sh_prs.add_argument('--target',
-                            action='append',
-                            help='Select target to build')
         sh_prs.add_argument('--skip',
                             help='Skip build steps',
                             default=[])
@@ -79,7 +76,7 @@ class Shell:
             return False
 
         ctx = create_global_context()
-        ctx.config = Config(args.config, args.target, None)
+        ctx.config = Config(args.config, None, None)
 
         macro = Macro()
 
