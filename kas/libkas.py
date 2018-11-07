@@ -157,18 +157,24 @@ def find_program(paths, name):
     return None
 
 
+def _create_task(routine):
+    try:
+        creation_func = asyncio.ensure_future
+    except AttributeError:
+        # for Python < 3.5, avoiding the keyword 'async' introduced in 3.7
+        creation_func = getattr(asyncio, 'async')
+
+    # pylint: disable=deprecated-method
+    return creation_func(routine)
+
+
 def repos_fetch(repos):
     """
         Fetches the list of repositories to the kas_work_dir.
     """
     tasks = []
     for repo in repos:
-        if not hasattr(asyncio, 'ensure_future'):
-            # pylint: disable=no-member,deprecated-method
-            task = asyncio.async(repo.fetch_async())
-        else:
-            task = asyncio.ensure_future(repo.fetch_async())
-        tasks.append(task)
+        tasks.append(_create_task(repo.fetch_async()))
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(asyncio.wait(tasks))
@@ -184,12 +190,7 @@ def repos_apply_patches(repos):
     """
     tasks = []
     for repo in repos:
-        if not hasattr(asyncio, 'ensure_future'):
-            # pylint: disable=no-member,deprecated-method
-            task = asyncio.async(repo.apply_patches_async())
-        else:
-            task = asyncio.ensure_future(repo.apply_patches_async())
-        tasks.append(task)
+        tasks.append(_create_task(repo.apply_patches_async()))
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(asyncio.wait(tasks))
