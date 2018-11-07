@@ -29,17 +29,17 @@ set -e
 
 usage()
 {
-	echo "Usage: $0 [OPTIONS] { build | shell } KASFILE"
-	echo "       $0 [OPTIONS] clean"
-	echo -e "\nPositional arguments:"
-	echo -e "build\t\tCheck out repositories and build target."
-	echo -e "shell\t\tRun a shell in the build environment."
-	echo -e "clean\t\tClean build artifacts, keep downloads."
-	echo -e "\nOptional arguments:"
-	echo -e "--isar\t\tUse kas-isar container to build Isar image."
-	echo -e "--docker-args\tAdditional arguments to pass to docker for" \
-		"running the build."
-	echo -e "-v\t\tPrint operations."
+	printf "%b" "Usage: $0 [OPTIONS] { build | shell } KASFILE\n"
+	printf "%b" "       $0 [OPTIONS] clean\n"
+	printf "%b" "\nPositional arguments:\n"
+	printf "%b" "build\t\tCheck out repositories and build target.\n"
+	printf "%b" "shell\t\tRun a shell in the build environment.\n"
+	printf "%b" "clean\t\tClean build artifacts, keep downloads.\n"
+	printf "%b" "\nOptional arguments:\n"
+	printf "%b" "--isar\t\tUse kas-isar container to build Isar image.\n"
+	printf "%b" "--docker-args\tAdditional arguments to pass to docker for" \
+		"running the build.\n"
+	printf "%b" "-v\t\tPrint operations.\n"
 	exit 1
 }
 
