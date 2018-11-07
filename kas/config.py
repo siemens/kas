@@ -36,6 +36,8 @@ class Config:
         Implements the kas configuration based on config files.
     """
     def __init__(self, filename, target, task=None):
+        self._override_target = target
+        self._override_task = task
         self._config = {}
         self.filenames = []
 
@@ -53,11 +55,6 @@ class Config:
 
         self.handler = IncludeHandler(self.filenames)
         self.repo_dict = self._get_repo_dict()
-
-        if target:
-            self._config['target'] = target
-        if task:
-            self._config['task'] = task
 
     def find_missing_repos(self):
         """
@@ -101,6 +98,8 @@ class Config:
         """
             Returns a list of bitbake targets
         """
+        if self._override_target:
+            return self._override_target
         environ_targets = [i
                            for i in os.environ.get('KAS_TARGET', '').split()
                            if i]
@@ -115,6 +114,8 @@ class Config:
         """
             Returns the bitbake task
         """
+        if self._override_task:
+            return self._override_task
         return os.environ.get('KAS_TASK',
                               self._config.get('task', 'build'))
 
