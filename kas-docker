@@ -128,7 +128,7 @@ trace mkdir -p ${KAS_WORK_DIR}
 
 DOCKER_ARGS="-v ${REPO_DIR}:/repo:ro \
 	     -v ${KAS_WORK_DIR}:/work:rw --workdir=/work \
-	     -e USER_ID=$(id -u) --rm"
+	     -e USER_ID=$(id -u) -e GROUP_ID=$(id -g) --rm"
 
 if [ -t 1 ]; then
 	DOCKER_ARGS="${DOCKER_ARGS} -t -i"
