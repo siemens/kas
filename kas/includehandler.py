@@ -164,7 +164,6 @@ class IncludeHandler:
             the current file overwrites every include. (evaluation depth first
             and from top to bottom)
             """
-            # pylint: disable=too-many-arguments
 
             missing_repos = []
             configs = []

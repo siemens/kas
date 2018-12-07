@@ -72,7 +72,6 @@ class Build:
         """
             Executes the build command of the kas plugin.
         """
-        # pylint: disable=no-self-use
 
         if args.cmd != 'build':
             return False

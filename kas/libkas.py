@@ -87,11 +87,6 @@ def run_cmd_async(cmd, cwd, env=None, fail=True, liveupdate=True):
     """
         Run a command asynchronously.
     """
-    # pylint: disable=too-many-arguments
-
-    # Disable incorrect warning on asyncio.wait_for,
-    # https://github.com/PyCQA/pylint/issues/996.
-    # pylint: disable=not-an-iterable
 
     env = env or get_context().environ
     cmdstr = ' '.join(cmd)
@@ -136,7 +131,6 @@ def run_cmd(cmd, cwd, env=None, fail=True, liveupdate=True):
     """
         Runs a command synchronously.
     """
-    # pylint: disable=too-many-arguments
 
     loop = asyncio.get_event_loop()
     (ret, output) = loop.run_until_complete(
@@ -164,7 +158,6 @@ def _create_task(routine):
         # for Python < 3.5, avoiding the keyword 'async' introduced in 3.7
         creation_func = getattr(asyncio, 'async')
 
-    # pylint: disable=deprecated-method
     return creation_func(routine)
 
 
@@ -204,7 +197,6 @@ def get_build_environ():
     """
         Creates the build environment variables.
     """
-    # pylint: disable=too-many-locals
     # nasty side effect function: running oe/isar-init-build-env also
     # creates the conf directory
 

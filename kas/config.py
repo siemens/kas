@@ -70,7 +70,6 @@ class Config:
         """
             Returns the list of repos.
         """
-        # pylint: disable=no-self-use
 
         # Always keep repo_dict and repos synchronous
         # when calling get_repos

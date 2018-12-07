@@ -70,7 +70,6 @@ class Shell:
         """
             Runs this kas plugin
         """
-        # pylint: disable= no-self-use
 
         if args.cmd != 'shell':
             return False

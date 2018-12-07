@@ -47,7 +47,6 @@ from . import __version__, __file_version__, __compatible_file_version__
 # Import kas plugins
 # Since they are added by decorators, they don't need to be called,
 # just imported.
-# pylint: disable=unused-import
 from .libkas import kasplugin
 from . import build
 from . import shell
@@ -155,7 +154,6 @@ def main():
     """
         The main function that operates as a wrapper around kas.
     """
-    # pylint: disable=broad-except
 
     try:
         sys.exit(kas(sys.argv[1:]))

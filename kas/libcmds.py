@@ -281,7 +281,6 @@ class SetupReposStep(Command):
 
     def execute(self, ctx):
         """ TODO refactor protected-access """
-        # pylint: disable=protected-access
         if not ctx.missing_repo_names:
             return False
 
@@ -325,7 +324,6 @@ class FinishSetupRepos(Command):
 
     def execute(self, ctx):
         """ TODO refactor protected-access """
-        # pylint: disable=protected-access
         # now fetch everything with complete config and check out layers
         # except if keep_config is set
         if not ctx.keep_config:

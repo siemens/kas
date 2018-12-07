@@ -41,7 +41,6 @@ class Repo:
 
     def __init__(self, url, path, refspec, layers, patches,
                  disable_operations):
-        # pylint: disable=too-many-arguments
         self.url = url
         self.path = path
         self.refspec = refspec
@@ -51,7 +50,6 @@ class Repo:
         self.operations_disabled = disable_operations
 
     def __getattr__(self, item):
-        # pylint: disable=no-else-return
         if item == 'layers':
             if not self._layers:
                 return [self.path]
@@ -256,7 +254,6 @@ class RepoImpl(Repo):
             (retc, output) = yield from run_cmd_async(cmd,
                                                       cwd=self.path,
                                                       fail=False)
-            # pylint: disable=no-else-return
             if retc:
                 logging.error('Could not apply patch. Please fix repos and '
                               'patches. (patch path: %s, repo: %s, patch '
@@ -274,7 +271,6 @@ class GitRepo(RepoImpl):
     """
         Provides the git functionality for a Repo.
     """
-    # pylint: disable=no-self-use,missing-docstring
 
     def clone_cmd(self, gitsrcdir):
         cmd = ['git', 'clone', '-q', self.url, self.path]
@@ -310,7 +306,6 @@ class MercurialRepo(RepoImpl):
     """
         Provides the hg functionality for a Repo.
     """
-    # pylint: disable=no-self-use,missing-docstring,unused-argument
 
     def clone_cmd(self, gitsrcdir, config):
         return ['hg', 'clone', self.url, self.path]

@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# pylint: disable=bad-continuation,missing-docstring,redefined-builtin
-# pylint: disable=invalid-name,wrong-import-position
 #
 # kas documentation build configuration file, created by
 # sphinx-quickstart on Thu Jun 22 11:10:06 2017.

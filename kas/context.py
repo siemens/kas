@@ -44,7 +44,6 @@ except ImportError:
             platform.dist is deprecated and will be removed in python 3.7
             Use the 'distro' package instead.
         """
-        # pylint: disable=deprecated-method
         return platform.dist()[0]
 
 
@@ -55,7 +54,6 @@ def create_global_context():
     """
         Creates global context as singleton.
     """
-    # pylint: disable=global-statement
     global __context__
     __context__ = Context()
     return __context__
@@ -68,7 +66,6 @@ def get_context():
     return __context__
 
 
-# pylint: disable=too-many-instance-attributes
 class Context:
     """
         Implements the kas build context.
