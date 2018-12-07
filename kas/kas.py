@@ -51,6 +51,8 @@ from .libkas import kasplugin
 from . import build
 from . import shell
 
+__all__ = ['build', 'shell']
+
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
 
