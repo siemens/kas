@@ -14,7 +14,7 @@ install:
   # install kas to have all kas dependencies:
   - pip install .
   # checkcode dependencies:
-  - pip install pycodestyle doc8 Pygments
+  - pip install flake8 pycodestyle doc8 Pygments
   # test dependencies:
   - pip install pytest
 
