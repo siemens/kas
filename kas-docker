@@ -40,6 +40,8 @@ usage()
 	printf "%b" "--docker-args\tAdditional arguments to pass to docker for" \
 		"running the build.\n"
 	printf "%b" "-v\t\tPrint operations.\n"
+	printf "%b" "--ssh-dir\tDirectory containing SSH configurations, " \
+		"avoid $HOME/.ssh unless you fully trust the container.\n"
 	exit 1
 }
 
@@ -85,6 +87,11 @@ while [ $# -gt 0 ]; do
 	--docker-args)
 		[ $# -gt 0 ] || usage
 		USER_ARGS=$2
+		shift 2
+		;;
+	--ssh-dir)
+		[ $# -gt 2 ] || usage
+		SSH_DIR=$2
 		shift 2
 		;;
 	-v)
@@ -138,6 +145,11 @@ trace mkdir -p ${KAS_WORK_DIR}
 DOCKER_ARGS="-v ${REPO_DIR}:/repo:ro \
 	     -v ${KAS_WORK_DIR}:/work:rw --workdir=/work \
 	     -e USER_ID=$(id -u) -e GROUP_ID=$(id -g) --rm"
+
+if [ -n "${SSH_DIR}" ] ; then
+	[ -d "${SSH_DIR}" ] || echo "Passed SSH_VALUE '${SSH_DIR' is not a directory" ; exit 1
+	DOCKER_ARGS="${DOCKER_ARGS} -v $(readlink -f ${SSH_DIR}):/etc/skel/.ssh:ro"
+fi
 
 if [ -t 1 ]; then
 	DOCKER_ARGS="${DOCKER_ARGS} -t -i"
