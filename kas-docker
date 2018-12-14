@@ -160,7 +160,7 @@ done
 KAS_FILE_DIR=$(dirname ${FIRST_KAS_FILE})
 
 REPO_DIR=$(git -C ${KAS_FILE_DIR} rev-parse --show-toplevel 2>/dev/null) \
-	|| REPO_DIR=$(hg -cwd ${KAS_FILE_DIR} root 2>/dev/null) \
+	|| REPO_DIR=$(hg --cwd ${KAS_FILE_DIR} root 2>/dev/null) \
 	|| REPO_DIR=${KAS_FILE_DIR}
 
 KAS_FILE=/repo/$(echo ${KAS_FILE} | sed 's|'${REPO_DIR}'/||g;s|:|:/repo/|g')
