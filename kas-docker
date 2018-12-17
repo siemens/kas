@@ -147,7 +147,7 @@ DOCKER_ARGS="-v ${REPO_DIR}:/repo:ro \
 	     -e USER_ID=$(id -u) -e GROUP_ID=$(id -g) --rm"
 
 if [ -n "${SSH_DIR}" ] ; then
-	[ -d "${SSH_DIR}" ] || echo "Passed SSH_VALUE '${SSH_DIR' is not a directory" ; exit 1
+	[ -d "${SSH_DIR}" ] || echo "Passed SSH_VALUE '${SSH_DIR}' is not a directory" ; exit 1
 	DOCKER_ARGS="${DOCKER_ARGS} -v $(readlink -f ${SSH_DIR}):/etc/skel/.ssh:ro"
 fi
 
