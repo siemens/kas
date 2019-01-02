@@ -144,12 +144,19 @@ while [ $# -gt 0 ]; do
 		shift 1
 		;;
 	*)
-		KAS_FILE=$1
-		FILE=$(echo ${KAS_FILE} | cut -d ':' -f 1)
-		if ! FIRST_KAS_FILE=$(readlink -e $FILE); then
-			echo "Error: configuration file '$FILE' not found"
-			exit 1
-		fi
+		KAS_FILES=
+		for FILE in $(IFS=':'; echo $1); do
+			if ! REAL_FILE=$(realpath -qe $FILE); then
+				echo "Error: configuration file '${FILE}' not found"
+				exit 1
+			fi
+			if [ -z "${KAS_FILES}" ]; then
+				FIRST_KAS_FILE=${REAL_FILE}
+				KAS_FILES=${REAL_FILE}
+			else
+				KAS_FILES=${KAS_FILES}:${REAL_FILE}
+			fi
+		done
 		shift 1
 		;;
 	esac
@@ -163,7 +170,7 @@ REPO_DIR=$(git -C ${KAS_FILE_DIR} rev-parse --show-toplevel 2>/dev/null) \
 	|| REPO_DIR=$(hg --cwd ${KAS_FILE_DIR} root 2>/dev/null) \
 	|| REPO_DIR=${KAS_FILE_DIR}
 
-KAS_FILE=/repo/$(echo ${KAS_FILE} | sed 's|'${REPO_DIR}'/||g;s|:|:/repo/|g')
+KAS_FILES=/repo/$(echo ${KAS_FILES} | sed 's|'${REPO_DIR}'/||g;s|:|:/repo/|g')
 
 trace mkdir -p ${KAS_WORK_DIR}
 
@@ -213,4 +220,4 @@ for var in SHELL TERM KAS_DISTRO KAS_MACHINE KAS_TARGET KAS_TASK \
 done
 
 trace docker run "$@" ${ISAR_ARGS} ${USER_ARGS} \
-		 ${DOCKER_IMAGE} ${CMD} ${KAS_OPTIONS} ${KAS_FILE}
+		 ${DOCKER_IMAGE} ${CMD} ${KAS_OPTIONS} ${KAS_FILES}
