@@ -4,7 +4,7 @@ User Guide
 Dependencies & installation
 ---------------------------
 
-This projects depends on
+This project depends on
 
 - Python 3
 - distro Python 3 package
@@ -12,7 +12,7 @@ This projects depends on
 - PyYAML Python 3 package (optional, for yaml file support)
 
 If you need Python 2 support consider sending patches. The most
-obvious place to start is to use the trollius package intead of
+obvious place to start is to use the trollius package instead of the
 asyncio.
 
 To install kas into your python site-package repository, run::
@@ -30,8 +30,8 @@ There are three options for using kas:
   within ``docker run -it kasproject/kas:<version> sh`` or bind-mount the
   project into the container. See https://hub.docker.com/r/kasproject for all
   available images.
-- Use the **run-kas** wrapper from this directory. In this case replace ``kas``
-  in the examples below with ``path/to/run-kas``.
+- Use the **run-kas** wrapper from this directory. In this case,
+  replace ``kas`` in the examples below with ``path/to/run-kas``.
 
 Start build::
 
@@ -123,8 +123,8 @@ Use Cases
 Project Configuration
 ---------------------
 
-Currently JSON and YAML is supported as the base file format. Since YAML is
-arguable easier to read, this documentation focuses on the YAML format.
+Currently, JSON and YAML are supported as the base file formats. Since YAML is
+arguably easier to read, this documentation focuses on the YAML format.
 
 .. code-block:: yaml
 
@@ -154,7 +154,7 @@ arguable easier to read, this documentation focuses on the YAML format.
           meta-poky:
           meta-yocto-bsp:
 
-A minimal input file consist out of the ``header``, ``machine``, ``distro``,
+A minimal input file consists out of the ``header``, ``machine``, ``distro``,
 and ``repos``.
 
 Additionally, you can add ``bblayers_conf_header`` and ``local_conf_header``
@@ -178,12 +178,12 @@ which are strings that are added to the head of the respective files
 for this configuration entries. We assume that your configuration file is part
 of a ``meta-custom`` repository/layer. This way its possible to overwrite or
 append entries in files that include this configuration by naming an entry the
-same (overwriting) or using a unused name (appending).
+same (overwriting) or using an unused name (appending).
 
 Including in-tree configuration files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Its currently possible to include kas configuration files from the same
+It's currently possible to include kas configuration files from the same
 repository/layer like this:
 
 .. code-block:: yaml
@@ -200,7 +200,7 @@ The specified files are addressed relative to your current configuration file.
 Including configuration files from other repos
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Its also possible to include configuration files from other repos like this:
+It's also possible to include configuration files from other repos like this:
 
 .. code-block:: yaml
 
@@ -238,7 +238,7 @@ The include mechanism collects and merges the content from top to buttom and
 depth first. That means that settings in one include file are overwritten
 by settings in a latter include file and entries from the last include file can
 be overwritten by the current file. While merging all the dictionaries are
-merged recursive while preserving the order in which the entries are added to
+merged recursively while preserving the order in which the entries are added to
 the dictionary. This means that ``local_conf_header`` entries are added to the
 ``local.conf`` file in the same order in which they are defined in the
 different include files. Note that the order of the configuration file entries
@@ -277,12 +277,12 @@ Configuration reference
 
 * ``header``: dict [required]
     The header of every kas configuration file. It contains information about
-    context of the file.
+    the context of the file.
 
   * ``version``: integer [required]
       Lets kas check if it is compatible with this file. See the
       :doc:`configuration format changelog <format-changelog>` for the
-      format history and latest available version.
+      format history and the latest available version.
 
   * ``includes``: list [optional]
       A list of configuration files this current file is based on. They are
@@ -351,7 +351,7 @@ Configuration reference
         and ``hg`` is also supported.
 
     * ``refspec``: string [optional]
-        The refspec that should be used. If ``url`` was specified bot no
+        The refspec that should be used. If ``url`` was specified but no
         ``refspec`` the revision you get depends on the defaults of the version
         control system used.
 
