@@ -77,6 +77,13 @@ Environment variables
 | ``KAS_TARGET``        |                                                     |
 | ``KAS_TASK``          |                                                     |
 +-----------------------+-----------------------------------------------------+
+| ``KAS_PREMIRRORS``    | Specifies alternatives for repo URLs. Just like     |
+|                       | bitbake ``PREMIRRORS``, this variable consists of   |
+|                       | new-line separated entries. Each entry defines a    |
+|                       | regular expression to match a URL and, space-       |
+|                       | separated, its replacement. E.g.:                   |
+|                       | "https://.*\.somehost\.io/ https://localmirror.net/"|
++-----------------------+-----------------------------------------------------+
 | ``SSH_PRIVATE_KEY``   | Path to the private key file that should be added   |
 |                       | to an internal ssh-agent. This key cannot be        |
 |                       | password protected. This setting is useful for CI   |

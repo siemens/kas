@@ -23,6 +23,7 @@
     This module contains the Repo class.
 """
 
+import re
 import os
 import asyncio
 import logging
@@ -62,6 +63,16 @@ class Repo:
                     .replace(':', '.')
                     .replace('/', '.')
                     .replace('*', '.'))
+        elif item == 'effective_url':
+            mirrors = os.environ.get('KAS_PREMIRRORS', '')
+            for mirror in mirrors.split('\n'):
+                try:
+                    expr, subst = mirror.split()
+                    if re.match(expr, self.url):
+                        return re.sub(expr, subst, self.url)
+                except ValueError:
+                    continue
+            return self.url
         # Default behaviour
         raise AttributeError
 
@@ -273,7 +284,7 @@ class GitRepo(RepoImpl):
     """
 
     def clone_cmd(self, gitsrcdir):
-        cmd = ['git', 'clone', '-q', self.url, self.path]
+        cmd = ['git', 'clone', '-q', self.effective_url, self.path]
         if get_context().kas_repo_ref_dir and os.path.exists(gitsrcdir):
             cmd.extend(['--reference', gitsrcdir])
         return cmd
@@ -308,7 +319,7 @@ class MercurialRepo(RepoImpl):
     """
 
     def clone_cmd(self, gitsrcdir, config):
-        return ['hg', 'clone', self.url, self.path]
+        return ['hg', 'clone', self.effective_url, self.path]
 
     def contains_refspec_cmd(self):
         return ['hg', 'log', '-r', self.refspec]
