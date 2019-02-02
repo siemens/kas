@@ -239,13 +239,13 @@ class RepoImpl(Repo):
                                                             None)
 
             if not other_repo:
-                logging.warning('Could not find referenced repo. '
-                                '(missing repo: %s, repo: %s, '
-                                'patch entry: %s)',
-                                patch['repo'],
-                                self.name,
-                                patch['id'])
-                continue
+                logging.error('Could not find referenced repo. '
+                              '(missing repo: %s, repo: %s, '
+                              'patch entry: %s)',
+                              patch['repo'],
+                              self.name,
+                              patch['id'])
+                return 1
 
             path = os.path.join(other_repo.path, patch['path'])
             cmd = []
@@ -255,12 +255,12 @@ class RepoImpl(Repo):
             elif os.path.isdir(path):
                 cmd = self.apply_patches_quilt_cmd(path)
             else:
-                logging.warning('Could not find patch. '
-                                '(patch path: %s, repo: %s, patch entry: %s)',
-                                path,
-                                self.name,
-                                patch['id'])
-                continue
+                logging.error('Could not find patch. '
+                              '(patch path: %s, repo: %s, patch entry: %s)',
+                              path,
+                              self.name,
+                              patch['id'])
+                return 1
 
             (retc, output) = yield from run_cmd_async(cmd,
                                                       cwd=self.path,
