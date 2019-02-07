@@ -32,16 +32,17 @@ usage()
 	printf "%b" "Usage: $0 [OPTIONS] { build | shell } [KASOPTIONS] KASFILE\n"
 	printf "%b" "       $0 [OPTIONS] clean\n"
 	printf "%b" "\nPositional arguments:\n"
-	printf "%b" "build\t\tCheck out repositories and build target.\n"
-	printf "%b" "shell\t\tRun a shell in the build environment.\n"
-	printf "%b" "clean\t\tClean build artifacts, keep downloads.\n"
+	printf "%b" "build\t\t\tCheck out repositories and build target.\n"
+	printf "%b" "shell\t\t\tRun a shell in the build environment.\n"
+	printf "%b" "clean\t\t\tClean build artifacts, keep downloads.\n"
 	printf "%b" "\nOptional arguments:\n"
-	printf "%b" "--isar\t\tUse kas-isar container to build Isar image.\n"
-	printf "%b" "--docker-args\tAdditional arguments to pass to docker for" \
+	printf "%b" "--isar\t\t\tUse kas-isar container to build Isar image.\n"
+	printf "%b" "--docker-args\t\tAdditional arguments to pass to docker for" \
 		"running the build.\n"
-	printf "%b" "-v\t\tPrint operations.\n"
-	printf "%b" "--ssh-dir\tDirectory containing SSH configurations, " \
+	printf "%b" "-v\t\t\tPrint operations.\n"
+	printf "%b" "--ssh-dir\t\tDirectory containing SSH configurations, " \
 		"avoid $HOME/.ssh unless you fully trust the container.\n"
+	printf "%b" "--no-proxy-from-env\tDo not inherit proxy settings from environment.\n"
 	exit 1
 }
 
@@ -94,6 +95,10 @@ while [ $# -gt 0 ]; do
 		[ $# -gt 2 ] || usage
 		SSH_DIR=$2
 		shift 2
+		;;
+	--no-proxy-from-env)
+		NO_PROXY_FROM_ENV=1
+		shift 1
 		;;
 	-v)
 		VERBOSE=1
@@ -212,13 +217,19 @@ fi
 
 set -- ${DOCKER_ARGS}
 
-for var in SHELL TERM KAS_DISTRO KAS_MACHINE KAS_TARGET KAS_TASK \
-           http_proxy https_proxy ftp_proxy no_proxy NO_PROXY \
-           KAS_PREMIRRORS; do
+for var in SHELL TERM KAS_DISTRO KAS_MACHINE KAS_TARGET KAS_TASK; do
 	if [ -n "$(eval echo \$${var})" ]; then
 		set -- "$@" -e "${var}='$(eval echo \"\$${var}\")'"
 	fi
 done
+
+if [ -z "${NO_PROXY_FROM_ENV+x}" ]; then
+	for var in http_proxy https_proxy ftp_proxy no_proxy NO_PROXY; do
+		if [ -n "$(eval echo \$${var})" ]; then
+			set -- "$@" -e "${var}='$(eval echo \$${var})'"
+		fi
+	done
+fi
 
 trace docker run "$@" ${ISAR_ARGS} ${USER_ARGS} \
 		 ${DOCKER_IMAGE} ${CMD} ${KAS_OPTIONS} ${KAS_FILES}
