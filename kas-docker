@@ -217,7 +217,8 @@ fi
 
 set -- ${DOCKER_ARGS}
 
-for var in SHELL TERM KAS_DISTRO KAS_MACHINE KAS_TARGET KAS_TASK; do
+for var in SHELL TERM KAS_DISTRO KAS_MACHINE KAS_TARGET KAS_TASK \
+           KAS_PREMIRRORS; do
 	if [ -n "$(eval echo \$${var})" ]; then
 		set -- "$@" -e "${var}='$(eval echo \"\$${var}\")'"
 	fi
