@@ -1,3 +1,6 @@
+0.20.1
+- kas-docker: Restore KAS_PREMIRRORS support
+
 0.20.0
 - kas-docker: enable passing SSH configs
 - kas-docker: add --no-proxy-from-env option
