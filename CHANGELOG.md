@@ -1,3 +1,10 @@
+0.20.0
+- kas-docker: enable passing SSH configs
+- kas-docker: add --no-proxy-from-env option
+- kas-docker: Pass in NO_PROXY
+- Add KAS_PREMIRRORS support
+- Remove SSH_AGENT_PID forwarding
+
 0.19.0
 - Recursive include handler refactoring and cleanups
 - A lot of code cleanups, refactoring and bug fixings
