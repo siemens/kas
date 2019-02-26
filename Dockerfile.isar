@@ -3,7 +3,9 @@
 FROM kasproject/kas:latest
 
 ENV LC_ALL=en_US.UTF-8
-RUN apt-get update && \
+RUN echo 'deb http://deb.debian.org/debian buster main' > /etc/apt/sources.list.d/buster.list && \
+    echo "Package: qemu-user-static binfmt-support\nPin: release n=buster\nPin-Priority: 501\n\nPackage: *\nPin: release n=buster\nPin-Priority: -1" > /etc/apt/preferences.d/qemu-user-static && \
+    apt-get update && \
     apt-get install -y -f --no-install-recommends \
             autoconf automake gdisk libtool bash-completion \
             sudo grub2 grub-efi-amd64-bin grub-efi-ia32-bin \
