@@ -1,3 +1,6 @@
+1.0
+- isar: Take qemu-user-static from buster and adjust binfmt setup
+
 0.20.1
 - kas-docker: Restore KAS_PREMIRRORS support
 
