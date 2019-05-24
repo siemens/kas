@@ -97,6 +97,19 @@ CONFIGSCHEMA = {
                 },
             ],
         },
+        'multiconfig': {
+            'oneOf': [
+                {
+                    'type': 'string',
+                },
+                {
+                    'type': 'array',
+                    'items': {
+                        'type': 'string',
+                    },
+                },
+            ],
+        },
         'task': {
             'type': 'string',
         },
