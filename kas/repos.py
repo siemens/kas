@@ -175,6 +175,22 @@ class RepoImpl(Repo):
                 logging.info('Repository %s cloned', self.name)
             return retc
 
+        # Make sure the remote origin is set to the value
+        # in the kas file to avoid suprises
+        try:
+            (retc, output) = yield from run_cmd_async(
+                self.set_remote_url_cmd(),
+                cwd=self.path,
+                fail=False,
+                liveupdate=False)
+            if retc != 0:
+                logging.info('Changing remote URL to %s failed with error: %s',
+                             self.effective_url, output.strip())
+                return retc
+        except NotImplementedError:
+            logging.warning('Repo implementation does not support changing '
+                            'the remote url.')
+
         # take what came out of clone and stick to that forever
         if self.refspec is None:
             return 0
@@ -312,6 +328,9 @@ class GitRepo(RepoImpl):
         return ['git', 'quiltimport', '--author', 'kas <kas@example.com>',
                 '--patches', path]
 
+    def set_remote_url_cmd(self):
+        return ['git', 'remote', 'set-url', 'origin', self.effective_url]
+
 
 class MercurialRepo(RepoImpl):
     """
@@ -340,4 +359,8 @@ class MercurialRepo(RepoImpl):
         raise NotImplementedError()
 
     def apply_patches_quilt_cmd(self, path):
+        raise NotImplementedError()
+
+    def set_remote_url_cmd(self, url):
+        # TODO
         raise NotImplementedError()
