@@ -217,12 +217,19 @@ fi
 
 set -- ${DOCKER_ARGS}
 
-for var in SHELL TERM KAS_DISTRO KAS_MACHINE KAS_TARGET KAS_TASK \
+for var in TERM KAS_DISTRO KAS_MACHINE KAS_TARGET KAS_TASK \
            KAS_PREMIRRORS; do
 	if [ -n "$(eval echo \$${var})" ]; then
 		set -- "$@" -e "${var}='$(eval echo \"\$${var}\")'"
 	fi
 done
+
+# propagate only supported SHELL settings
+case "$SHELL" in
+/bin/sh|/bin/bash|/bin/dash)
+	set -- "$@" -e "SHELL='$(eval echo \"\$SHELL\")'"
+	;;
+esac
 
 if [ -z "${NO_PROXY_FROM_ENV+x}" ]; then
 	for var in http_proxy https_proxy ftp_proxy no_proxy NO_PROXY; do
