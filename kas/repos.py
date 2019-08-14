@@ -337,7 +337,7 @@ class MercurialRepo(RepoImpl):
         Provides the hg functionality for a Repo.
     """
 
-    def clone_cmd(self, gitsrcdir, config):
+    def clone_cmd(self, srcdir):
         return ['hg', 'clone', self.effective_url, self.path]
 
     def contains_refspec_cmd(self):
@@ -361,6 +361,5 @@ class MercurialRepo(RepoImpl):
     def apply_patches_quilt_cmd(self, path):
         raise NotImplementedError()
 
-    def set_remote_url_cmd(self, url):
-        # TODO
+    def set_remote_url_cmd(self):
         raise NotImplementedError()
