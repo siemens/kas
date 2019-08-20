@@ -250,6 +250,8 @@ class RepoImpl(Repo):
         if self.operations_disabled:
             return 0
 
+        my_patches = []
+
         for patch in self._patches:
             other_repo = get_context().config.repo_dict.get(patch['repo'],
                                                             None)
@@ -267,9 +269,18 @@ class RepoImpl(Repo):
             cmd = []
 
             if os.path.isfile(path):
-                cmd = self.apply_patches_file_cmd(path)
-            elif os.path.isdir(path):
-                cmd = self.apply_patches_quilt_cmd(path)
+                my_patches.append(path)
+            elif (os.path.isdir(path)
+                  and os.path.isfile(os.path.join(path, 'series'))):
+                with open(os.path.join(path, 'series')) as f:
+                    for line in f:
+                        if line.startswith('#'):
+                            continue
+                        p = os.path.join(path, line.split(' #')[0].rstrip())
+                        if os.path.isfile(p):
+                            my_patches.append(p)
+                        else:
+                            raise FileNotFoundError(p)
             else:
                 logging.error('Could not find patch. '
                               '(patch path: %s, repo: %s, patch entry: %s)',
@@ -278,6 +289,11 @@ class RepoImpl(Repo):
                               patch['id'])
                 return 1
 
+        if len(my_patches) == 0:
+            return 0
+
+        for path in my_patches:
+            cmd = ['patch', '-p', '1', '-i', path]
             (retc, output) = yield from run_cmd_async(cmd,
                                                       cwd=self.path,
                                                       fail=False)
@@ -291,6 +307,27 @@ class RepoImpl(Repo):
                 logging.info('Patch applied. '
                              '(patch path: %s, repo: %s, patch entry: %s)',
                              path, self.name, patch['id'])
+
+        cmd = self.add_cmd()
+        (retc, output) = yield from run_cmd_async(cmd,
+                                                  cwd=self.path,
+                                                  fail=False)
+        if retc:
+            logging.error('Could not add patched files. '
+                          'repo: %s, vcs output: %s)',
+                          self.name, output)
+            return 1
+
+        cmd = self.commit_cmd()
+        (retc, output) = yield from run_cmd_async(cmd,
+                                                  cwd=self.path,
+                                                  fail=False)
+        if retc:
+            logging.error('Could not commit patch changes. '
+                          'repo: %s, vcs output: %s)',
+                          self.name, output)
+            return 1
+
         return 0
 
 
@@ -299,11 +336,18 @@ class GitRepo(RepoImpl):
         Provides the git functionality for a Repo.
     """
 
+    def add_cmd(self):
+        return ['git', 'add', '-A']
+
     def clone_cmd(self, gitsrcdir):
         cmd = ['git', 'clone', '-q', self.effective_url, self.path]
         if get_context().kas_repo_ref_dir and os.path.exists(gitsrcdir):
             cmd.extend(['--reference', gitsrcdir])
         return cmd
+
+    def commit_cmd(self):
+        return ['git', 'commit', '-a', '--author', 'kas <kas@example.com>',
+                '-m', 'msg']
 
     def contains_refspec_cmd(self):
         return ['git', 'cat-file', '-t', self.refspec]
@@ -321,13 +365,6 @@ class GitRepo(RepoImpl):
         return ['git', 'checkout', '-q',
                 '{refspec}'.format(refspec=self.refspec)]
 
-    def apply_patches_file_cmd(self, path):
-        return ['git', 'am', '-q', path]
-
-    def apply_patches_quilt_cmd(self, path):
-        return ['git', 'quiltimport', '--author', 'kas <kas@example.com>',
-                '--patches', path]
-
     def set_remote_url_cmd(self):
         return ['git', 'remote', 'set-url', 'origin', self.effective_url]
 
@@ -337,8 +374,14 @@ class MercurialRepo(RepoImpl):
         Provides the hg functionality for a Repo.
     """
 
+    def add_cmd(self):
+        return ['hg', 'add']
+
     def clone_cmd(self, srcdir):
         return ['hg', 'clone', self.effective_url, self.path]
+
+    def commit_cmd(self):
+        return ['hg', 'commit', '--user', 'kas <kas@example.com>', '-m', 'msg']
 
     def contains_refspec_cmd(self):
         return ['hg', 'log', '-r', self.refspec]
@@ -354,12 +397,6 @@ class MercurialRepo(RepoImpl):
 
     def checkout_cmd(self):
         return ['hg', 'checkout', '{refspec}'.format(refspec=self.refspec)]
-
-    def apply_patches_file_cmd(self, path):
-        raise NotImplementedError()
-
-    def apply_patches_quilt_cmd(self, path):
-        raise NotImplementedError()
 
     def set_remote_url_cmd(self):
         raise NotImplementedError()
