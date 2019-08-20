@@ -1,0 +1,8 @@
+diff --git a/Makefile b/Makefile
+--- a/Makefile
++++ b/Makefile
+@@ -1,1 +1,4 @@
+ all: hello
++
++clean:
++	rm -f hello

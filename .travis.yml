@@ -10,6 +10,11 @@ sudo: required
 services:
   - docker
 
+addons:
+  apt:
+    packages:
+      - mercurial
+
 install:
   # install kas to have all kas dependencies:
   - pip install .

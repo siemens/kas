@@ -1,0 +1,28 @@
+header:
+  version: 8
+
+repos:
+  this:
+
+  kas:
+    url: https://github.com/siemens/kas.git
+    refspec: 907816a5c4094b59a36aec12226e71c461c05b77
+    patches:
+      plain:
+        repo: this
+        path: patches/kas/001.patch
+      quilt:
+        repo: this
+        path: patches/kas/quilt/
+
+  hello:
+    url: https://www.mercurial-scm.org/repo/hello/
+    refspec: 82e55d328c8c
+    type: hg
+    patches:
+      plain:
+        repo: this
+        path: patches/hello/001.patch
+      quilt:
+        repo: this
+        path: patches/hello/quilt/

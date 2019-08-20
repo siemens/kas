@@ -1,0 +1,4 @@
+# test comment
+# this is a revert of the other 001 we applied without quilt
+001.patch # first patch
+002.patch
