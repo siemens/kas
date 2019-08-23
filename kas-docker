@@ -52,7 +52,11 @@ trace()
 	eval "$@"
 }
 
-DOCKER_IMAGE=kasproject/kas
+if [ -z "${KAS_IMAGE_VERSION}" ]; then
+	KAS_IMAGE_VERSION="latest"
+fi
+
+DOCKER_IMAGE=kasproject/kas:${KAS_IMAGE_VERSION}
 
 if [ -n "${KAS_WORK_DIR}" ]; then
 	KAS_WORK_DIR=$(readlink -f ${KAS_WORK_DIR})
@@ -64,7 +68,7 @@ fi
 while [ $# -gt 0 ]; do
 	case "$1" in
 	--isar)
-		DOCKER_IMAGE=kasproject/kas-isar
+		DOCKER_IMAGE=kasproject/kas-isar:${KAS_IMAGE_VERSION}
 		if ! LOOP_DEV=$(/sbin/losetup -f 2>/dev/null); then
 			if [ $(id -u) -eq 0 ]; then
 				echo "Error: loop device not available!"
