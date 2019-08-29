@@ -10,7 +10,7 @@ RUN apt-get update && \
             reprepro python3 binfmt-support e2fsprogs \
             multistrap qemu-user-static debootstrap quilt && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN echo "builder ALL=NOPASSWD: ALL" > /etc/sudoers.d/builder-nopasswd && \
     chmod 660 /etc/sudoers.d/builder-nopasswd
