@@ -169,9 +169,3 @@ class Config:
                             for i in
                             self.get_bitbake_targets()
                             if i.startswith('multiconfig')))
-
-    def get_gitlabci_config(self):
-        """
-            Returns the GitlabCI configuration
-        """
-        return self._config.get('gitlabci_config', '')
