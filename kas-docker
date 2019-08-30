@@ -2,7 +2,7 @@
 #
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2018
+# Copyright (c) Siemens AG, 2018-2019
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
@@ -37,12 +37,15 @@ usage()
 	printf "%b" "clean\t\t\tClean build artifacts, keep downloads.\n"
 	printf "%b" "\nOptional arguments:\n"
 	printf "%b" "--isar\t\t\tUse kas-isar container to build Isar image.\n"
-	printf "%b" "--docker-args\t\tAdditional arguments to pass to docker for" \
-		"running the build.\n"
+	printf "%b" "--docker-args\t\tAdditional arguments to pass to docker " \
+		    "for running the\n"
+	printf "%b" "\t\t\tbuild.\n"
 	printf "%b" "-v\t\t\tPrint operations.\n"
-	printf "%b" "--ssh-dir\t\tDirectory containing SSH configurations, " \
-		"avoid $HOME/.ssh unless you fully trust the container.\n"
-	printf "%b" "--no-proxy-from-env\tDo not inherit proxy settings from environment.\n"
+	printf "%b" "--ssh-dir\t\tDirectory containing SSH configurations.\n"
+	printf "%b" "\t\t\tAvoid \$HOME/.ssh unless you fully trust the " \
+		    "container.\n"
+	printf "%b" "--no-proxy-from-env\tDo not inherit proxy settings from " \
+		    "environment.\n"
 	exit 1
 }
 
