@@ -147,7 +147,7 @@ while [ $# -gt 0 ]; do
 		trace docker run ${DOCKER_IMAGE} ${CMD} --help
 		exit 0
 		;;
-	--skip|--target|--task|-c|--command)
+	--skip|--target|--task|-c|--cmd|--command)
 		KAS_OPTIONS="${KAS_OPTIONS} $1 '$2'"
 		shift 2
 		;;

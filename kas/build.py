@@ -62,7 +62,7 @@ class Build:
         bld_psr.add_argument('--target',
                              action='append',
                              help='Select target to build')
-        bld_psr.add_argument('--task',
+        bld_psr.add_argument('-c', '--cmd', '--task',
                              help='Select which task should be executed')
         bld_psr.add_argument('--skip',
                              help='Skip build steps',
