@@ -1,6 +1,6 @@
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2017-2018
+# Copyright (c) Siemens AG, 2017-2019
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,7 @@ from setuptools import setup, find_packages
 from kas import __version__
 
 __license__ = 'MIT'
-__copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
+__copyright__ = 'Copyright (c) Siemens AG, 2017-2019'
 
 HERE = path.abspath(path.dirname(__file__))
 with open(path.join(HERE, 'README.rst')) as f:
@@ -43,8 +43,8 @@ setup(
     description='Setup tool for bitbake based projects',
     long_description=LONG_DESCRIPTION,
 
-    maintainer='Daniel Wagner',
-    maintainer_email='daniel.wagner@siemens.com',
+    maintainer='Jan Kiszka',
+    maintainer_email='jan.kiszka@siemens.com',
 
     url='https://github.com/siemens/kas',
     download_url=('https://github.com/siemens/'
