@@ -31,9 +31,11 @@ fi
 
 mv newchangelog CHANGELOG.md
 sed -i "s,\(__version__ =\).*,\1 \'$NEW_VERSION\'," kas/__version__.py
+sed -i "s,\(	KAS_IMAGE_VERSION=\).*,\1\"$NEW_VERSION\"," kas-docker
 
 git add CHANGELOG.md
 git add kas/__version__.py
+git add kas-docker
 
 git commit -m "Release $NEW_VERSION"
 git tag -s -m "Release $NEW_VERSION" "$NEW_VERSION"
