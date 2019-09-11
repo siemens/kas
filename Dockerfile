@@ -1,6 +1,6 @@
 # This image builds Yocto jobs using the kas tool
 
-FROM debian:buster-slim
+FROM debian:stretch-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
