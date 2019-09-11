@@ -19,7 +19,7 @@ echo "$NEW_VERSION" > newchangelog
 git shortlog "$OLD_VERSION".. >> newchangelog
 cat CHANGELOG.md >> newchangelog
 
-emacs newchangelog --eval "(text-mode)"
+$EDITOR newchangelog
 
 echo -n "All fine, ready to release? [y/N]"
 read a
@@ -48,10 +48,9 @@ python setup.py sdist upload -r pypi
 authors=$(git shortlog -s "$OLD_VERSION".."$NEW_VERSION" | cut -c8- | paste -s -d, - | sed -e 's/,/, /g')
 highlights=$(cat CHANGELOG.md | sed -e "/$OLD_VERSION/,\$d")
 
-prolog=release-email.txt
+prolog=$PWD/release-email.txt
 echo \
-"
-Hi,
+"Hi all,
 
 A new release $NEW_VERSION is available. A big thanks to all contributors:
 $authors
@@ -59,7 +58,7 @@ $authors
 Highlights in $highlights
 
 Thanks,
-Daniel
+Jan
 
 https://github.com/siemens/kas/releases/tag/$NEW_VERSION
 https://hub.docker.com/r/kasproject/kas/
@@ -68,4 +67,4 @@ https://hub.docker.com/r/kasproject/kas/
 
 git shortlog $OLD_VERSION..$NEW_VERSION >> $prolog
 
-neomutt -s "[ANNOUNCE] Release $NEW_VERSION" kas-devel@googlegroups.com < $prolog
+thunderbird -compose "subject=[ANNOUNCE] Release $NEW_VERSION,to=kas-devel@googlegroups.com,message=$prolog"
