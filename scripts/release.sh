@@ -1,16 +1,16 @@
 #!/bin/bash
 
-OLD_VERSION=${1:-}
-NEW_VERSION=${2:-}
+OLD_VERSION=$(git describe --abbrev=0)
+NEW_VERSION=$1
 
 usage() {
-    echo "$0: OLD_VERSION NEW_VERSION"
+    echo "$0: NEW_VERSION"
     echo ""
     echo "example:"
-    echo "  $0 0.15.0 0.16.0"
+    echo "  $0 0.16.0"
 }
 
-if [ -z "$OLD_VERSION" ] || [ -z "$NEW_VERSION" ] ; then
+if [ -z "$NEW_VERSION" ] ; then
     usage
     exit 1
 fi
