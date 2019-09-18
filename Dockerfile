@@ -25,10 +25,7 @@ RUN wget -nv -O /usr/bin/gosu "https://github.com/tianon/gosu/releases/download/
     chmod +x /usr/bin/gosu
 
 RUN wget -nv -O /usr/bin/oe-git-proxy "http://git.yoctoproject.org/cgit/cgit.cgi/poky/plain/scripts/oe-git-proxy" && \
-    chmod +x /usr/bin/oe-git-proxy && \
-    sed -e 's|for H in \${NO_PROXY//,/ }|for H in "${NO_PROXY//,/ }"|' \
-        -e 's|	if match_host \$1 \$H|	if match_host $1 "$H"|' \
-        -i /usr/bin/oe-git-proxy
+    chmod +x /usr/bin/oe-git-proxy
 ENV GIT_PROXY_COMMAND="oe-git-proxy"
 ENV NO_PROXY="*"
 
