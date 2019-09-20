@@ -1,6 +1,6 @@
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2017-2018
+# Copyright (c) Siemens AG, 2017-2019
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -293,10 +293,8 @@ class RepoImpl(Repo):
             return 0
 
         for path in my_patches:
-            cmd = ['patch', '-p', '1', '-i', path]
-            (retc, output) = yield from run_cmd_async(cmd,
-                                                      cwd=self.path,
-                                                      fail=False)
+            cmd = self.apply_patches_file_cmd(path)
+            (retc, output) = yield from run_cmd_async(cmd, cwd=self.path)
             if retc:
                 logging.error('Could not apply patch. Please fix repos and '
                               'patches. (patch path: %s, repo: %s, patch '
@@ -308,25 +306,21 @@ class RepoImpl(Repo):
                              '(patch path: %s, repo: %s, patch entry: %s)',
                              path, self.name, patch['id'])
 
-        cmd = self.add_cmd()
-        (retc, output) = yield from run_cmd_async(cmd,
-                                                  cwd=self.path,
-                                                  fail=False)
-        if retc:
-            logging.error('Could not add patched files. '
-                          'repo: %s, vcs output: %s)',
-                          self.name, output)
-            return 1
+            cmd = self.add_cmd()
+            (retc, output) = yield from run_cmd_async(cmd, cwd=self.path)
+            if retc:
+                logging.error('Could not add patched files. '
+                              'repo: %s, vcs output: %s)',
+                              self.name, output)
+                return 1
 
-        cmd = self.commit_cmd()
-        (retc, output) = yield from run_cmd_async(cmd,
-                                                  cwd=self.path,
-                                                  fail=False)
-        if retc:
-            logging.error('Could not commit patch changes. '
-                          'repo: %s, vcs output: %s)',
-                          self.name, output)
-            return 1
+            cmd = self.commit_cmd()
+            (retc, output) = yield from run_cmd_async(cmd, cwd=self.path)
+            if retc:
+                logging.error('Could not commit patch changes. '
+                              'repo: %s, vcs output: %s)',
+                              self.name, output)
+                return 1
 
         return 0
 
@@ -365,6 +359,9 @@ class GitRepo(RepoImpl):
         return ['git', 'checkout', '-q',
                 '{refspec}'.format(refspec=self.refspec)]
 
+    def apply_patches_file_cmd(self, path):
+        return ['git', 'apply', path]
+
     def set_remote_url_cmd(self):
         return ['git', 'remote', 'set-url', 'origin', self.effective_url]
 
@@ -397,6 +394,9 @@ class MercurialRepo(RepoImpl):
 
     def checkout_cmd(self):
         return ['hg', 'checkout', '{refspec}'.format(refspec=self.refspec)]
+
+    def apply_patches_file_cmd(self, path):
+        return ['hg', 'import', '--no-commit', path]
 
     def set_remote_url_cmd(self):
         raise NotImplementedError()
