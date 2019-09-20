@@ -247,8 +247,13 @@ class RepoImpl(Repo):
         """
             Applies patches to a repository asynchronously.
         """
-        if self.operations_disabled:
+        if self.operations_disabled or not self._patches:
             return 0
+
+        (retc, _) = yield from run_cmd_async(self.prepare_patches_cmd(),
+                                             cwd=self.path)
+        if retc:
+            return retc
 
         my_patches = []
 
@@ -288,9 +293,6 @@ class RepoImpl(Repo):
                               self.name,
                               patch['id'])
                 return 1
-
-        if len(my_patches) == 0:
-            return 0
 
         for path in my_patches:
             cmd = self.apply_patches_file_cmd(path)
@@ -359,6 +361,10 @@ class GitRepo(RepoImpl):
         return ['git', 'checkout', '-q',
                 '{refspec}'.format(refspec=self.refspec)]
 
+    def prepare_patches_cmd(self):
+        return ['git', 'checkout', '-q', '-B',
+                'patched-{refspec}'.format(refspec=self.refspec)]
+
     def apply_patches_file_cmd(self, path):
         return ['git', 'apply', path]
 
@@ -394,6 +400,10 @@ class MercurialRepo(RepoImpl):
 
     def checkout_cmd(self):
         return ['hg', 'checkout', '{refspec}'.format(refspec=self.refspec)]
+
+    def prepare_patches_cmd(self):
+        return ['hg', 'branch', '-f',
+                'patched-{refspec}'.format(refspec=self.refspec)]
 
     def apply_patches_file_cmd(self, path):
         return ['hg', 'import', '--no-commit', path]
