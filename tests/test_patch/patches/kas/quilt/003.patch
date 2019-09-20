@@ -1,0 +1,21 @@
+From b401ea2143d6e214a74f100c1d86b57ee3aaed26 Mon Sep 17 00:00:00 2001
+From: kas <kas@example.com>
+Date: Fri, 20 Sep 2019 10:33:07 +0200
+Subject: [PATCH] test
+
+---
+ tests/test_patch/hello.sh | 2 ++
+ 1 file changed, 2 insertions(+)
+ create mode 100755 tests/test_patch/hello.sh
+
+diff --git a/tests/test_patch/hello.sh b/tests/test_patch/hello.sh
+new file mode 100755
+index 0000000..c100654
+--- /dev/null
++++ b/tests/test_patch/hello.sh
+@@ -0,0 +1,2 @@
++#!/bin/sh
++echo Hello World!
+-- 
+2.21.0
+

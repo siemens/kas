@@ -1,0 +1,15 @@
+# HG changeset patch
+# User kas <kas@example.com>
+# Date 1568977454 -7200
+#      Fri Sep 20 13:04:14 2019 +0200
+# Node ID b8fc0927f880cc0ef6b79ba6ee470f7504d68466
+# Parent  66ff34c19e817cf518ebbd53bef4a992d669e68e
+msg
+
+diff --git a/hello.sh b/hello.sh
+new file mode 100755
+--- /dev/null
++++ b/hello.sh
+@@ -0,0 +1,2 @@
++#!/bin/sh
++echo Hello World!

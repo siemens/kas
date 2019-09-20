@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 import os
+import stat
 import shutil
 from kas import kas
 
@@ -33,3 +34,5 @@ def test_patch(tmpdir):
     shutil.copytree('tests/test_patch', tdir)
     os.chdir(tdir)
     kas.kas(['shell', 'test.yml', '-c', 'true'])
+    for f in ['kas/tests/test_patch/hello.sh', 'hello/hello.sh']:
+        assert os.stat(f)[stat.ST_MODE] & stat.S_IXUSR
