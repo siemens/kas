@@ -15,6 +15,14 @@ repos:
         repo: this
         path: patches/kas/quilt/
 
+  kas-branch:
+    url: https://github.com/siemens/kas.git
+    refspec: master
+    patches:
+      plain:
+        repo: this
+        path: patches/kas-branch/003.patch
+
   hello:
     url: https://www.mercurial-scm.org/repo/hello/
     refspec: 82e55d328c8c
@@ -26,3 +34,12 @@ repos:
       quilt:
         repo: this
         path: patches/hello/quilt/
+
+  hello-branch:
+    url: https://www.mercurial-scm.org/repo/hello/
+    refspec: default
+    type: hg
+    patches:
+      plain:
+        repo: this
+        path: patches/hello-branch/003.patch
