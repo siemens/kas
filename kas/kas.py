@@ -95,8 +95,9 @@ def _atexit_handler():
     """
     loop = asyncio.get_event_loop()
     pending = asyncio.Task.all_tasks()
-    loop.run_until_complete(asyncio.gather(*pending))
-    loop.close()
+    if not loop.is_closed():
+        loop.run_until_complete(asyncio.gather(*pending))
+        loop.close()
 
 
 def kas_get_argparser():
