@@ -41,8 +41,6 @@ git commit -m "Release $NEW_VERSION"
 git tag -s -m "Release $NEW_VERSION" "$NEW_VERSION"
 git push --follow-tags
 
-# http://peterdowns.com/posts/first-time-with-pypi.html
-python setup.py sdist upload -r pypitest
 python setup.py sdist upload -r pypi
 
 authors=$(git shortlog -s "$OLD_VERSION".."$NEW_VERSION" | cut -c8- | paste -s -d, - | sed -e 's/,/, /g')
