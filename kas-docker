@@ -56,7 +56,7 @@ trace()
 }
 
 if [ -z "${KAS_IMAGE_VERSION}" ]; then
-	KAS_IMAGE_VERSION="latest"
+	KAS_IMAGE_VERSION="1.1"
 fi
 
 DOCKER_IMAGE=kasproject/kas:${KAS_IMAGE_VERSION}

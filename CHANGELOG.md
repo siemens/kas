@@ -1,3 +1,15 @@
+1.1
+- Restore mercurial support
+- Add -c and --cmd as aliases for --task
+- Fix repo patching when using a branch name as refspec
+- Update repo remote URL on kas file changes
+- kas-docker: fix SHELL forwarding
+- kas-docker: use released image, rather than "latest"
+- kas-docker: allow to define custom image version
+- kasproject/kas: enable devshell and menuconfig targets
+- kasproject/kas image: add gnupg and quilt
+- kasproject/kas-isar image: fix /var/tmp handling
+
 1.0
 - isar: Take qemu-user-static from buster and adjust binfmt setup
 
