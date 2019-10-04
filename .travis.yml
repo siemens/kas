@@ -21,7 +21,7 @@ install:
   # checkcode dependencies:
   - pip install flake8 pycodestyle doc8 Pygments
   # test dependencies:
-  - pip install pytest
+  - pip install -U pytest
 
 script:
   - scripts/checkcode.sh .
