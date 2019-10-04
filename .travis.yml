@@ -1,19 +1,14 @@
 language: python
+dist: xenial
 
 python:
   - "3.4"
   - "3.5"
   - "3.6"
-
-sudo: required
+  - "3.7"
 
 services:
   - docker
-
-addons:
-  apt:
-    packages:
-      - mercurial
 
 install:
   # install kas to have all kas dependencies:
@@ -22,6 +17,8 @@ install:
   - pip install flake8 pycodestyle doc8 Pygments
   # test dependencies:
   - pip install -U pytest
+  # workaround, needed because kas uses a cleaned-up PATH internally
+  - sudo ln -s /usr/local/bin/hg /usr/bin/
 
 script:
   - scripts/checkcode.sh .
