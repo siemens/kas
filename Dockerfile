@@ -17,7 +17,7 @@ RUN apt-get install --no-install-recommends -y \
                        syslinux tree python3-pip bc python3-yaml \
                        lsb-release python3-setuptools ssh-client \
                        vim less mercurial iproute2 xz-utils gnupg \
-                       tmux libncurses-dev && \
+                       tmux libncurses-dev python3-wheel && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
