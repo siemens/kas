@@ -168,4 +168,5 @@ class Config:
         return ' '.join(set(i.split(':')[1]
                             for i in
                             self.get_bitbake_targets()
-                            if i.startswith('multiconfig')))
+                            if i.startswith('multiconfig')
+                            or i.startswith('mc')))
