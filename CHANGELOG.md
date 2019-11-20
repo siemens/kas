@@ -1,3 +1,9 @@
+2.0
+- Add support for Yocto 3.0 / latest Isar
+- Move docker image to Debian buster
+- Add git-lfs support to docker image
+- Add Yocto testimage dependencies to docker image
+
 1.1
 - Restore mercurial support
 - Add -c and --cmd as aliases for --task
