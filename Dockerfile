@@ -15,14 +15,11 @@ RUN apt-get install --no-install-recommends -y \
         xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev \
         pylint3 xterm \
         python3-setuptools python3-wheel python3-yaml \
-        lsb-release file vim less procps tree tar bzip2 bc tmux libncurses-dev \
+        gosu lsb-release file vim less procps tree tar bzip2 bc tmux libncurses-dev \
         dosfstools mtools parted syslinux \
         git-lfs mercurial iproute2 ssh-client curl rsync gnupg && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-RUN wget -nv -O /usr/bin/gosu "https://github.com/tianon/gosu/releases/download/1.10/gosu-amd64" && \
-    chmod +x /usr/bin/gosu
 
 RUN wget -nv -O /usr/bin/oe-git-proxy "http://git.yoctoproject.org/cgit/cgit.cgi/poky/plain/scripts/oe-git-proxy" && \
     chmod +x /usr/bin/oe-git-proxy
