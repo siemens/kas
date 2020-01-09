@@ -68,9 +68,10 @@ setup(
         'License :: OSI Approved :: MIT License',
 
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
     keywords='OpenEmbedded bitbake development',
 
@@ -88,6 +89,6 @@ setup(
         'jsonschema>=2.5.0',
     ],
 
-    # At least python 3.4 is needed for asyncio:
-    python_requires='>=3.4',
+    # At least python 3.5 is needed by now for PyYAML:
+    python_requires='>=3.5',
 )
