@@ -269,6 +269,11 @@ def ssh_add_key(env, key):
     """
         Adds an ssh key to the ssh-agent
     """
+    # The ssh-agent needs the key to end with a newline, otherwise it
+    # unhelpfully prompts for a password
+    if not key.endswith('\n'):
+        key += '\n'
+
     process = Popen(['ssh-add', '-'], stdin=PIPE, stdout=None,
                     stderr=PIPE, env=env)
     (_, error) = process.communicate(input=str.encode(key))
