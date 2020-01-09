@@ -25,7 +25,6 @@
 
 import re
 import os
-import asyncio
 import logging
 from urllib.parse import urlparse
 from .context import get_context
@@ -154,8 +153,7 @@ class RepoImpl(Repo):
         Provides a generic implementation for a Repo.
     """
 
-    @asyncio.coroutine
-    def fetch_async(self):
+    async def fetch_async(self):
         """
             Starts asynchronous repository fetch.
         """
@@ -168,7 +166,7 @@ class RepoImpl(Repo):
                                 self.qualified_name)
             logging.debug('Looking for repo ref dir in %s', sdir)
 
-            (retc, _) = yield from run_cmd_async(
+            (retc, _) = await run_cmd_async(
                 self.clone_cmd(sdir),
                 cwd=get_context().kas_work_dir)
             if retc == 0:
@@ -178,7 +176,7 @@ class RepoImpl(Repo):
         # Make sure the remote origin is set to the value
         # in the kas file to avoid suprises
         try:
-            (retc, output) = yield from run_cmd_async(
+            (retc, output) = await run_cmd_async(
                 self.set_remote_url_cmd(),
                 cwd=self.path,
                 fail=False,
@@ -196,19 +194,19 @@ class RepoImpl(Repo):
             return 0
 
         # Does refspec exist in the current repository?
-        (retc, output) = yield from run_cmd_async(self.contains_refspec_cmd(),
-                                                  cwd=self.path,
-                                                  fail=False,
-                                                  liveupdate=False)
+        (retc, output) = await run_cmd_async(self.contains_refspec_cmd(),
+                                             cwd=self.path,
+                                             fail=False,
+                                             liveupdate=False)
         if retc == 0:
             logging.info('Repository %s already contains %s as %s',
                          self.name, self.refspec, output.strip())
             return retc
 
         # No it is missing, try to fetch
-        (retc, output) = yield from run_cmd_async(self.fetch_cmd(),
-                                                  cwd=self.path,
-                                                  fail=False)
+        (retc, output) = await run_cmd_async(self.fetch_cmd(),
+                                             cwd=self.path,
+                                             fail=False)
         if retc:
             logging.warning('Could not update repository %s: %s',
                             self.name, output)
@@ -242,16 +240,15 @@ class RepoImpl(Repo):
 
         run_cmd(self.checkout_cmd(), cwd=self.path)
 
-    @asyncio.coroutine
-    def apply_patches_async(self):
+    async def apply_patches_async(self):
         """
             Applies patches to a repository asynchronously.
         """
         if self.operations_disabled or not self._patches:
             return 0
 
-        (retc, _) = yield from run_cmd_async(self.prepare_patches_cmd(),
-                                             cwd=self.path)
+        (retc, _) = await run_cmd_async(self.prepare_patches_cmd(),
+                                        cwd=self.path)
         if retc:
             return retc
 
@@ -296,7 +293,7 @@ class RepoImpl(Repo):
 
         for path in my_patches:
             cmd = self.apply_patches_file_cmd(path)
-            (retc, output) = yield from run_cmd_async(cmd, cwd=self.path)
+            (retc, output) = await run_cmd_async(cmd, cwd=self.path)
             if retc:
                 logging.error('Could not apply patch. Please fix repos and '
                               'patches. (patch path: %s, repo: %s, patch '
@@ -309,7 +306,7 @@ class RepoImpl(Repo):
                              path, self.name, patch['id'])
 
             cmd = self.add_cmd()
-            (retc, output) = yield from run_cmd_async(cmd, cwd=self.path)
+            (retc, output) = await run_cmd_async(cmd, cwd=self.path)
             if retc:
                 logging.error('Could not add patched files. '
                               'repo: %s, vcs output: %s)',
@@ -317,7 +314,7 @@ class RepoImpl(Repo):
                 return 1
 
             cmd = self.commit_cmd()
-            (retc, output) = yield from run_cmd_async(cmd, cwd=self.path)
+            (retc, output) = await run_cmd_async(cmd, cwd=self.path)
             if retc:
                 logging.error('Could not commit patch changes. '
                               'repo: %s, vcs output: %s)',
