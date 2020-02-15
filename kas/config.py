@@ -144,7 +144,7 @@ class Config:
             Returns the machine
         """
         return os.environ.get('KAS_MACHINE',
-                              self._config.get('machine', 'qemu'))
+                              self._config.get('machine', 'qemux86-64'))
 
     def get_distro(self):
         """

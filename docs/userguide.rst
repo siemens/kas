@@ -144,7 +144,7 @@ arguably easier to read, this documentation focuses on the YAML format.
       # is increased on every format change.
       version: x
     # The machine as it is written into the `local.conf` of bitbake.
-    machine: qemu
+    machine: qemux86-64
     # The distro name as it is written into the `local.conf` of bitbake.
     distro: poky
     repos:
@@ -314,7 +314,7 @@ Configuration reference
 * ``machine``: string [optional]
     Contains the value of the ``MACHINE`` variable that is written into the
     ``local.conf``. Can be overwritten by the ``KAS_MACHINE`` environment
-    variable and defaults to ``qemu``.
+    variable and defaults to ``qemux86-64``.
 
 * ``distro``: string [optional]
     Contains the value of the ``DISTRO`` variable that is written into the
