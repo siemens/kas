@@ -186,43 +186,41 @@ KAS_FILES=/repo/$(echo ${KAS_FILES} | sed 's|'${REPO_DIR}'/||g;s|:|:/repo/|g')
 
 trace mkdir -p ${KAS_WORK_DIR}
 
-DOCKER_ARGS="-v ${REPO_DIR}:/repo:ro \
-	     -v ${KAS_WORK_DIR}:/work:rw --workdir=/work \
-	     -e USER_ID=$(id -u) -e GROUP_ID=$(id -g) --rm"
+set --  -v ${REPO_DIR}:/repo:ro \
+	-v ${KAS_WORK_DIR}:/work:rw --workdir=/work \
+	-e USER_ID=$(id -u) -e GROUP_ID=$(id -g) --rm
 
 if [ -n "${SSH_DIR}" ] ; then
 	if [ ! -d "${SSH_DIR}" ]; then
 		echo "Passed SSH_VALUE '${SSH_DIR}' is not a directory"
 		exit 1
 	fi
-	DOCKER_ARGS="${DOCKER_ARGS} -v $(readlink -f ${SSH_DIR}):/etc/skel/.ssh:ro"
+	set -- "$@" -v $(readlink -f ${SSH_DIR}):/etc/skel/.ssh:ro
 fi
 
 if [ -t 1 ]; then
-	DOCKER_ARGS="${DOCKER_ARGS} -t -i"
+	set -- "$@" -t -i
 fi
 
 if [ -n "${DL_DIR}" ]; then
 	trace mkdir -p ${DL_DIR}
-	DOCKER_ARGS="${DOCKER_ARGS} \
+	set -- "$@" \
 		-v $(readlink -f ${DL_DIR}):/downloads:rw \
-		-e DL_DIR=/downloads"
+		-e DL_DIR=/downloads
 fi
 
 if [ -n "${SSTATE_DIR}" ]; then
 	trace mkdir -p ${SSTATE_DIR}
-	DOCKER_ARGS="${DOCKER_ARGS} \
+	set -- "$@" \
 		-v $(readlink -f ${SSTATE_DIR}):/sstate:rw \
-		-e SSTATE_DIR=/sstate"
+		-e SSTATE_DIR=/sstate
 fi
 
 if [ -n "${KAS_REPO_REF_DIR}" ]; then
-	DOCKER_ARGS="${DOCKER_ARGS} \
+	set -- "$@" \
 		-v $(readlink -f ${KAS_REPO_REF_DIR}):/repo-ref:ro \
-		-e KAS_REPO_REF_DIR=${KAS_REPO_REF_DIR}"
+		-e KAS_REPO_REF_DIR=${KAS_REPO_REF_DIR}
 fi
-
-set -- ${DOCKER_ARGS}
 
 for var in TERM KAS_DISTRO KAS_MACHINE KAS_TARGET KAS_TASK \
            KAS_PREMIRRORS; do
