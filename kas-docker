@@ -123,7 +123,7 @@ while [ $# -gt 0 ]; do
 					 ${DOCKER_IMAGE} \
 					 sudo rm -rf ${CLEAN_DIR}
 		else
-			trace rm -rf ${KAS_WORK_DIR}/{CLEAN_DIR}
+			trace rm -rf ${KAS_WORK_DIR}/${CLEAN_DIR}
 		fi
 		exit 0
 		;;
