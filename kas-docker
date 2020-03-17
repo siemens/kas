@@ -192,7 +192,7 @@ set --  -v "${REPO_DIR}":/repo:ro \
 
 if [ -n "${SSH_DIR}" ] ; then
 	if [ ! -d "${SSH_DIR}" ]; then
-		echo "Passed SSH_VALUE '${SSH_DIR}' is not a directory"
+		echo "Passed SSH_DIR '${SSH_DIR}' is not a directory"
 		exit 1
 	fi
 	set -- "$@" -v "$(readlink -f "${SSH_DIR}")":/etc/skel/.ssh:ro
