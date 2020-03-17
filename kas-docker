@@ -51,7 +51,7 @@ usage()
 
 trace()
 {
-	[ -n "${VERBOSE}" ] && echo "+ ""$@"
+	[ -n "${VERBOSE}" ] && echo "+ $*"
 	"$@"
 }
 
