@@ -234,7 +234,7 @@ done
 # propagate only supported SHELL settings
 case "$SHELL" in
 /bin/sh|/bin/bash|/bin/dash)
-	set -- "$@" -e "SHELL='$(eval echo \"\$SHELL\")'"
+	set -- "$@" -e "SHELL=$SHELL"
 	;;
 esac
 
