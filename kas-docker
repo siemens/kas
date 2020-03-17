@@ -52,7 +52,7 @@ usage()
 trace()
 {
 	[ -n "${VERBOSE}" ] && echo "+ ""$@"
-	eval "$@"
+	"$@"
 }
 
 if [ -z "${KAS_IMAGE_VERSION}" ]; then
@@ -62,9 +62,9 @@ fi
 DOCKER_IMAGE=kasproject/kas:${KAS_IMAGE_VERSION}
 
 if [ -n "${KAS_WORK_DIR}" ]; then
-	KAS_WORK_DIR=$(readlink -f ${KAS_WORK_DIR})
+	KAS_WORK_DIR=$(readlink -f "${KAS_WORK_DIR}")
 else
-	KAS_WORK_DIR=$(pwd)
+	KAS_WORK_DIR="$(pwd)"
 fi
 
 # parse kas-docker options
@@ -100,7 +100,7 @@ while [ $# -gt 0 ]; do
 		;;
 	--ssh-dir)
 		[ $# -gt 2 ] || usage
-		SSH_DIR=$2
+		SSH_DIR="$2"
 		shift 2
 		;;
 	--no-proxy-from-env)
@@ -118,12 +118,12 @@ while [ $# -gt 0 ]; do
 		[ $# -eq 1 ] || usage
 		CLEAN_DIR=build/tmp
 		if [ -n "${ISAR_ARGS}" ]; then
-			trace docker run -v ${KAS_WORK_DIR}:/work:rw \
+			trace docker run -v "${KAS_WORK_DIR}":/work:rw \
 					 --workdir=/work --rm ${ISAR_ARGS} \
 					 ${DOCKER_IMAGE} \
 					 sudo rm -rf ${CLEAN_DIR}
 		else
-			trace rm -rf ${KAS_WORK_DIR}/${CLEAN_DIR}
+			trace rm -rf "${KAS_WORK_DIR}/${CLEAN_DIR}"
 		fi
 		exit 0
 		;;
@@ -148,7 +148,7 @@ while [ $# -gt 0 ]; do
 		exit 0
 		;;
 	--skip|--target|--task|-c|--cmd|--command)
-		KAS_OPTIONS="${KAS_OPTIONS} $1 '$2'"
+		KAS_OPTIONS="${KAS_OPTIONS} $1 $2"
 		shift 2
 		;;
 	-*)
@@ -158,15 +158,15 @@ while [ $# -gt 0 ]; do
 	*)
 		KAS_FILES=
 		for FILE in $(IFS=':'; echo $1); do
-			if ! REAL_FILE=$(realpath -qe $FILE); then
+			if ! REAL_FILE="$(realpath -qe "$FILE")"; then
 				echo "Error: configuration file '${FILE}' not found"
 				exit 1
 			fi
 			if [ -z "${KAS_FILES}" ]; then
-				FIRST_KAS_FILE=${REAL_FILE}
-				KAS_FILES=${REAL_FILE}
+				FIRST_KAS_FILE="${REAL_FILE}"
+				KAS_FILES="${REAL_FILE}"
 			else
-				KAS_FILES=${KAS_FILES}:${REAL_FILE}
+				KAS_FILES="${KAS_FILES}:${REAL_FILE}"
 			fi
 		done
 		shift 1
@@ -176,18 +176,18 @@ done
 
 [ -n "${FIRST_KAS_FILE}" ] || usage
 
-KAS_FILE_DIR=$(dirname ${FIRST_KAS_FILE})
+KAS_FILE_DIR="$(dirname "${FIRST_KAS_FILE}")"
 
-REPO_DIR=$(git -C ${KAS_FILE_DIR} rev-parse --show-toplevel 2>/dev/null) \
-	|| REPO_DIR=$(hg --cwd ${KAS_FILE_DIR} root 2>/dev/null) \
+REPO_DIR=$(git -C "${KAS_FILE_DIR}" rev-parse --show-toplevel 2>/dev/null) \
+	|| REPO_DIR=$(hg --cwd "${KAS_FILE_DIR}" root 2>/dev/null) \
 	|| REPO_DIR=${KAS_FILE_DIR}
 
-KAS_FILES=/repo/$(echo ${KAS_FILES} | sed 's|'${REPO_DIR}'/||g;s|:|:/repo/|g')
+KAS_FILES=/repo/"$(echo "${KAS_FILES}" | sed 's|'"${REPO_DIR}"'/||g;s|:|:/repo/|g')"
 
-trace mkdir -p ${KAS_WORK_DIR}
+trace mkdir -p "${KAS_WORK_DIR}"
 
-set --  -v ${REPO_DIR}:/repo:ro \
-	-v ${KAS_WORK_DIR}:/work:rw --workdir=/work \
+set --  -v "${REPO_DIR}":/repo:ro \
+	-v "${KAS_WORK_DIR}":/work:rw --workdir=/work \
 	-e USER_ID=$(id -u) -e GROUP_ID=$(id -g) --rm
 
 if [ -n "${SSH_DIR}" ] ; then
@@ -195,7 +195,7 @@ if [ -n "${SSH_DIR}" ] ; then
 		echo "Passed SSH_VALUE '${SSH_DIR}' is not a directory"
 		exit 1
 	fi
-	set -- "$@" -v $(readlink -f ${SSH_DIR}):/etc/skel/.ssh:ro
+	set -- "$@" -v "$(readlink -f "${SSH_DIR}")":/etc/skel/.ssh:ro
 fi
 
 if [ -t 1 ]; then
@@ -203,29 +203,29 @@ if [ -t 1 ]; then
 fi
 
 if [ -n "${DL_DIR}" ]; then
-	trace mkdir -p ${DL_DIR}
+	trace mkdir -p "${DL_DIR}"
 	set -- "$@" \
-		-v $(readlink -f ${DL_DIR}):/downloads:rw \
+		-v "$(readlink -f "${DL_DIR}")":/downloads:rw \
 		-e DL_DIR=/downloads
 fi
 
 if [ -n "${SSTATE_DIR}" ]; then
-	trace mkdir -p ${SSTATE_DIR}
+	trace mkdir -p "${SSTATE_DIR}"
 	set -- "$@" \
-		-v $(readlink -f ${SSTATE_DIR}):/sstate:rw \
+		-v "$(readlink -f "${SSTATE_DIR}")":/sstate:rw \
 		-e SSTATE_DIR=/sstate
 fi
 
 if [ -n "${KAS_REPO_REF_DIR}" ]; then
 	set -- "$@" \
-		-v $(readlink -f ${KAS_REPO_REF_DIR}):/repo-ref:ro \
-		-e KAS_REPO_REF_DIR=${KAS_REPO_REF_DIR}
+		-v "$(readlink -f "${KAS_REPO_REF_DIR}")":/repo-ref:ro \
+		-e KAS_REPO_REF_DIR="${KAS_REPO_REF_DIR}"
 fi
 
 for var in TERM KAS_DISTRO KAS_MACHINE KAS_TARGET KAS_TASK \
            KAS_PREMIRRORS; do
 	if [ -n "$(eval echo \$${var})" ]; then
-		set -- "$@" -e "${var}='$(eval echo \"\$${var}\")'"
+		set -- "$@" -e "${var}=$(eval echo \"\$${var}\")"
 	fi
 done
 
@@ -239,7 +239,7 @@ esac
 if [ -z "${NO_PROXY_FROM_ENV+x}" ]; then
 	for var in http_proxy https_proxy ftp_proxy no_proxy NO_PROXY; do
 		if [ -n "$(eval echo \$${var})" ]; then
-			set -- "$@" -e "${var}='$(eval echo \$${var})'"
+			set -- "$@" -e "${var}=$(eval echo \$${var})"
 		fi
 	done
 fi
