@@ -271,7 +271,7 @@ class RepoImpl(Repo):
             cmd = []
 
             if os.path.isfile(path):
-                my_patches.append(path)
+                my_patches.append((path, patch['id']))
             elif (os.path.isdir(path)
                   and os.path.isfile(os.path.join(path, 'series'))):
                 with open(os.path.join(path, 'series')) as f:
@@ -280,7 +280,7 @@ class RepoImpl(Repo):
                             continue
                         p = os.path.join(path, line.split(' #')[0].rstrip())
                         if os.path.isfile(p):
-                            my_patches.append(p)
+                            my_patches.append((p, patch['id']))
                         else:
                             raise FileNotFoundError(p)
             else:
@@ -291,19 +291,19 @@ class RepoImpl(Repo):
                               patch['id'])
                 return 1
 
-        for path in my_patches:
+        for (path, patch_id) in my_patches:
             cmd = self.apply_patches_file_cmd(path)
             (retc, output) = await run_cmd_async(cmd, cwd=self.path)
             if retc:
                 logging.error('Could not apply patch. Please fix repos and '
                               'patches. (patch path: %s, repo: %s, patch '
                               'entry: %s, vcs output: %s)',
-                              path, self.name, patch['id'], output)
+                              path, self.name, patch_id, output)
                 return 1
             else:
                 logging.info('Patch applied. '
                              '(patch path: %s, repo: %s, patch entry: %s)',
-                             path, self.name, patch['id'])
+                             path, self.name, patch_id)
 
             cmd = self.add_cmd()
             (retc, output) = await run_cmd_async(cmd, cwd=self.path)
