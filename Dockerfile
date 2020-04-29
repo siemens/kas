@@ -17,7 +17,7 @@ RUN apt-get install --no-install-recommends -y \
         python3-setuptools python3-wheel python3-yaml \
         gosu lsb-release file vim less procps tree tar bzip2 bc tmux libncurses-dev \
         dosfstools mtools parted syslinux \
-        git-lfs mercurial iproute2 ssh-client curl rsync gnupg && \
+        git-lfs mercurial iproute2 ssh-client curl rsync gnupg awscli && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
