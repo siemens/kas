@@ -131,6 +131,16 @@ class SetupHome(Command):
             fds.write('[User]\n'
                       '\temail = kas@example.com\n'
                       '\tname = Kas User\n')
+
+        if (os.environ.get('AWS_CONFIG_FILE', False)
+                and os.environ.get('AWS_SHARED_CREDENTIALS_FILE', False)):
+            os.makedirs(self.tmpdirname + "/.aws")
+
+            shutil.copy(os.environ['AWS_CONFIG_FILE'],
+                        self.tmpdirname + "/.aws/config")
+            shutil.copy(os.environ['AWS_SHARED_CREDENTIALS_FILE'],
+                        self.tmpdirname + "/.aws/credentials")
+
         ctx.environ['HOME'] = self.tmpdirname
 
 

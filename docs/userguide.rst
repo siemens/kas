@@ -109,6 +109,9 @@ Environment variables
 +-----------------------+-----------------------------------------------------+
 | ``TERM``              | The terminal options used in the `shell` plugin.    |
 +-----------------------+-----------------------------------------------------+
+| ``AWS_CONFIG_FILE``   | Path to the awscli configuration and credentials    |
+| ``AWS_SHARED_CREDENTIALS_FILE`` | file that are copied to the kas home dir. |
++-----------------------+-----------------------------------------------------+
 
 Use Cases
 ---------
