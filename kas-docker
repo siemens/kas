@@ -44,6 +44,7 @@ usage()
 	printf "%b" "--ssh-dir\t\tDirectory containing SSH configurations.\n"
 	printf "%b" "\t\t\tAvoid \$HOME/.ssh unless you fully trust the " \
 		    "container.\n"
+	printf "%b" "--aws-dir\t\tDirectory containing AWScli configuration.\n"
 	printf "%b" "--no-proxy-from-env\tDo not inherit proxy settings from " \
 		    "environment.\n"
 	exit 1
@@ -101,6 +102,11 @@ while [ $# -gt 0 ]; do
 	--ssh-dir)
 		[ $# -gt 2 ] || usage
 		SSH_DIR="$2"
+		shift 2
+		;;
+	--aws-dir)
+		[ $# -gt 2 ] || usage
+		AWS_DIR="$2"
 		shift 2
 		;;
 	--no-proxy-from-env)
@@ -196,6 +202,16 @@ if [ -n "${SSH_DIR}" ] ; then
 		exit 1
 	fi
 	set -- "$@" -v "$(readlink -f "${SSH_DIR}")":/etc/skel/.ssh:ro
+fi
+
+if [ -n "${AWS_DIR}" ] ; then
+	if [ ! -d "${AWS_DIR}" ]; then
+		echo "Passed AWS_DIR '${AWS_DIR}' is not a directory"
+		exit 1
+	fi
+	set -- "$@" -v "$(readlink -f "${AWS_DIR}")":/etc/skel/.aws:ro \
+		-e AWS_CONFIG_FILE="${AWS_CONFIG_FILE:-/etc/skel/.aws/config}" \
+		-e AWS_SHARED_CREDENTIALS_FILE="${AWS_SHARED_CREDENTIALS_FILE:-/etc/skel/.aws/credentials}"
 fi
 
 if [ -t 1 ]; then
