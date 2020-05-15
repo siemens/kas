@@ -37,6 +37,9 @@ usage()
 	printf "%b" "clean\t\t\tClean build artifacts, keep downloads.\n"
 	printf "%b" "\nOptional arguments:\n"
 	printf "%b" "--isar\t\t\tUse kas-isar container to build Isar image.\n"
+	printf "%b" "--with-loop-dev		Pass a loop device to the " \
+		    "container. Only required if\n"
+	printf "%b" "\t\t\tloop-mounting is used by recipes.\n"
 	printf "%b" "--docker-args\t\tAdditional arguments to pass to docker " \
 		    "for running the\n"
 	printf "%b" "\t\t\tbuild.\n"
@@ -73,6 +76,10 @@ while [ $# -gt 0 ]; do
 	case "$1" in
 	--isar)
 		DOCKER_IMAGE=kasproject/kas-isar:${KAS_IMAGE_VERSION}
+		ISAR_ARGS="--cap-add=SYS_ADMIN --cap-add=MKNOD --privileged"
+		shift 1
+		;;
+	--with-loop-dev)
 		if ! LOOP_DEV=$(/sbin/losetup -f 2>/dev/null); then
 			if [ $(id -u) -eq 0 ]; then
 				echo "Error: loop device not available!"
@@ -90,8 +97,7 @@ while [ $# -gt 0 ]; do
 				exit 1
 			fi
 		fi
-		ISAR_ARGS="--cap-add=SYS_ADMIN --cap-add=MKNOD --privileged \
-			--device ${LOOP_DEV}"
+		WITH_LOOP_DEV="--device ${LOOP_DEV}"
 		shift 1
 		;;
 	--docker-args)
@@ -267,5 +273,5 @@ if [ -z "${NO_PROXY_FROM_ENV+x}" ]; then
 	done
 fi
 
-trace docker run "$@" ${ISAR_ARGS} ${USER_ARGS} \
+trace docker run "$@" ${ISAR_ARGS} ${WITH_LOOP_DEV} ${USER_ARGS} \
 		 ${DOCKER_IMAGE} ${CMD} ${KAS_OPTIONS} ${KAS_FILES}
