@@ -192,6 +192,13 @@ KAS_FILES=/repo/"$(echo "${KAS_FILES}" | sed 's|'"${REPO_DIR}"'/||g;s|:|:/repo/|
 
 trace mkdir -p "${KAS_WORK_DIR}"
 
+if [ $(id -u) -eq 0 ] && [ "${KAS_ALLOW_ROOT}" != "yes" ] ; then
+	echo "Error: Running as root - may break certain recipes."
+	echo "Better give a regular user docker access. Set" \
+	     "KAS_ALLOW_ROOT=yes to override."
+	exit 1
+fi
+
 set --  -v "${REPO_DIR}":/repo:ro \
 	-v "${KAS_WORK_DIR}":/work:rw --workdir=/work \
 	-e USER_ID=$(id -u) -e GROUP_ID=$(id -g) --rm
