@@ -24,8 +24,10 @@
     environment
 """
 
-import subprocess
+import logging
 import os
+import subprocess
+import sys
 from .libkas import kasplugin
 from .context import create_global_context
 from .config import Config
@@ -133,5 +135,7 @@ class ShellCommand(Command):
         if self.cmd:
             cmd.append('-c')
             cmd.append(self.cmd)
-        subprocess.call(cmd, env=ctx.environ,
-                        cwd=ctx.build_dir)
+        ret = subprocess.call(cmd, env=ctx.environ, cwd=ctx.build_dir)
+        if ret != 0:
+            logging.error('Shell returned non-zero exit status %d', ret)
+            sys.exit(ret)
