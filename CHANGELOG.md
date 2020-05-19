@@ -1,3 +1,6 @@
+2.1.1
+- repos: Silence pycodestyle error (that broke docker image generation)
+
 2.1
 - Add support for S3 fetcher to docker image
 - Lift Python minimal requirements to 3.5
