@@ -59,6 +59,9 @@ class Build:
 
         bld_psr.add_argument('config',
                              help='Config file')
+        bld_psr.add_argument('extra_bitbake_args',
+                             nargs='*',
+                             help='Extra arguments to pass to bitbake')
         bld_psr.add_argument('--target',
                              action='append',
                              help='Select target to build')
@@ -102,7 +105,7 @@ class Build:
         macro.add(WriteBBConfig())
 
         # Build
-        macro.add(BuildCommand())
+        macro.add(BuildCommand(args.extra_bitbake_args))
 
         if 'SSH_PRIVATE_KEY' in os.environ:
             macro.add(CleanupSSHAgent())
@@ -117,8 +120,9 @@ class BuildCommand(Command):
         Implements the bitbake build step.
     """
 
-    def __init__(self):
+    def __init__(self, extra_bitbake_args):
         super().__init__()
+        self.extra_bitbake_args = extra_bitbake_args
 
     def __str__(self):
         return 'build'
@@ -130,7 +134,7 @@ class BuildCommand(Command):
         # Start bitbake build of image
         bitbake = find_program(ctx.environ['PATH'], 'bitbake')
         cmd = ([bitbake, '-k', '-c', ctx.config.get_bitbake_task()]
-               + ctx.config.get_bitbake_targets())
+               + self.extra_bitbake_args + ctx.config.get_bitbake_targets())
         if sys.stdout.isatty():
             logging.info('%s$ %s', ctx.build_dir, ' '.join(cmd))
             ret = subprocess.call(cmd, env=ctx.environ, cwd=ctx.build_dir)
