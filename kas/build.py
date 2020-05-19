@@ -102,7 +102,7 @@ class Build:
         macro.add(WriteBBConfig())
 
         # Build
-        macro.add(BuildCommand(args.task))
+        macro.add(BuildCommand())
 
         if 'SSH_PRIVATE_KEY' in os.environ:
             macro.add(CleanupSSHAgent())
@@ -117,9 +117,8 @@ class BuildCommand(Command):
         Implements the bitbake build step.
     """
 
-    def __init__(self, task):
+    def __init__(self):
         super().__init__()
-        self.task = task
 
     def __str__(self):
         return 'build'
