@@ -133,6 +133,9 @@ class BuildCommand(Command):
                + ctx.config.get_bitbake_targets())
         if sys.stdout.isatty():
             logging.info('%s$ %s', ctx.build_dir, ' '.join(cmd))
-            subprocess.call(cmd, env=ctx.environ, cwd=ctx.build_dir)
+            ret = subprocess.call(cmd, env=ctx.environ, cwd=ctx.build_dir)
+            if ret != 0:
+                logging.error('Command returned non-zero exit status %d', ret)
+                sys.exit(ret)
         else:
             run_cmd(cmd, cwd=ctx.build_dir)
