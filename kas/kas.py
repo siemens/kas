@@ -148,7 +148,7 @@ def kas(argv):
 
     for plugin in getattr(kasplugin, 'plugins', []):
         if plugin().run(args):
-            return
+            return 0
 
     parser.print_help()
 
