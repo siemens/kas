@@ -1,3 +1,13 @@
+2.1
+- Add support for S3 fetcher to docker image
+- Lift Python minimal requirements to 3.5
+- Fix reporting of of repo patch IDs
+- config: use 'qemux86-64' instead of 'qemu' as default for KAS_MACHINE
+- Ensure SSH key ends with newline
+- kas-docker: Make it harder to run as root
+- kas-docker: Make loop device passing optional
+- kas-docker: Various fixes
+
 2.0
 - Add support for Yocto 3.0 / latest Isar
 - Move docker image to Debian buster
