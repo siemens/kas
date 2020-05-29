@@ -263,6 +263,9 @@ case "$SHELL" in
 /bin/sh|/bin/bash|/bin/dash)
 	set -- "$@" -e "SHELL=$SHELL"
 	;;
+*)
+	set -- "$@" -e "SHELL=/bin/bash"
+	;;
 esac
 
 if [ -z "${NO_PROXY_FROM_ENV+x}" ]; then
