@@ -231,9 +231,9 @@ class RepoImpl(Repo):
 
         # Check if current HEAD is what in the config file is defined.
         (_, output) = run_cmd(self.current_rev_cmd(),
-                              cwd=self.path)
+                              cwd=self.path, fail=False)
 
-        if output.strip() == self.refspec:
+        if output and output.strip() == self.refspec:
             logging.info('Repo %s has already been checked out with correct '
                          'refspec. Nothing to do.', self.name)
             return
