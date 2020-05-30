@@ -128,7 +128,7 @@ class Repo:
         if typ == 'hg':
             return MercurialRepo(url, path, refspec, layers, patches,
                                  disable_operations)
-        raise NotImplementedError('Repo typ "%s" not supported.' % typ)
+        raise NotImplementedError('Repo typo "%s" not supported.' % typ)
 
     @staticmethod
     def get_root_path(path, fallback=True):
