@@ -163,6 +163,10 @@ while [ $# -gt 0 ]; do
 		KAS_OPTIONS="${KAS_OPTIONS} $1 $2"
 		shift 2
 		;;
+	--)
+		KAS_EXTRA_BITBAKE_ARGS="$@"
+		shift $#
+		;;
 	-*)
 		KAS_OPTIONS="${KAS_OPTIONS} $1"
 		shift 1
@@ -277,4 +281,5 @@ if [ -z "${NO_PROXY_FROM_ENV+x}" ]; then
 fi
 
 trace docker run "$@" ${ISAR_ARGS} ${WITH_LOOP_DEV} ${USER_ARGS} \
-		 ${DOCKER_IMAGE} ${CMD} ${KAS_OPTIONS} ${KAS_FILES}
+		 ${DOCKER_IMAGE} ${CMD} ${KAS_OPTIONS} ${KAS_FILES} \
+		 ${KAS_EXTRA_BITBAKE_ARGS}
