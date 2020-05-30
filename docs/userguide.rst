@@ -11,10 +11,6 @@ This project depends on
 - jsonschema Python 3 package
 - PyYAML Python 3 package (optional, for yaml file support)
 
-If you need Python 2 support consider sending patches. The most
-obvious place to start is to use the trollius package instead of the
-asyncio.
-
 To install kas into your python site-package repository, run::
 
     $ sudo pip3 install .
