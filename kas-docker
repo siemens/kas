@@ -50,6 +50,9 @@ usage()
 	printf "%b" "--aws-dir\t\tDirectory containing AWScli configuration.\n"
 	printf "%b" "--no-proxy-from-env\tDo not inherit proxy settings from " \
 		    "environment.\n"
+	printf "%b" "\n"
+	printf "%b" "You can force the use of podman over docker using " \
+		    "KAS_DOCKER_ENGINE=podman.\n"
 	exit 1
 }
 
@@ -71,12 +74,43 @@ else
 	KAS_WORK_DIR="$(pwd)"
 fi
 
+if [ -z "${KAS_DOCKER_ENGINE}" ]; then
+	# Try to auto-detect a docker engine
+	if command -v docker >/dev/null; then
+		KAS_DOCKER_ENGINE=docker
+	elif command -v podman >/dev/null; then
+		KAS_DOCKER_ENGINE=podman
+	else
+		echo "$0: no docker engine found, need docker or podman" >&2
+		exit 1
+	fi
+fi
+
+case "${KAS_DOCKER_ENGINE}" in
+docker)
+	DOCKER_COMMAND="docker"
+	;;
+podman)
+	DOCKER_COMMAND="podman"
+	DOCKER_IMAGE="docker://${DOCKER_IMAGE}"
+	;;
+*)
+	echo "$0: unknown docker engine '${KAS_DOCKER_ENGINE}'" >&2
+	exit 1
+	;;
+esac
+
 # parse kas-docker options
 while [ $# -gt 0 ]; do
 	case "$1" in
 	--isar)
-		DOCKER_IMAGE=kasproject/kas-isar:${KAS_IMAGE_VERSION}
+		DOCKER_IMAGE="${DOCKER_IMAGE/kasproject\/kas/kasproject\/kas-isar}"
 		ISAR_ARGS="--cap-add=SYS_ADMIN --cap-add=MKNOD --privileged"
+
+		# sudo is needed for a privileged podman container
+		if [ "${KAS_DOCKER_ENGINE}" = "podman" ]; then
+			DOCKER_COMMAND="sudo ${DOCKER_COMMAND}"
+		fi
 		shift 1
 		;;
 	--with-loop-dev)
@@ -130,7 +164,7 @@ while [ $# -gt 0 ]; do
 		[ $# -eq 1 ] || usage
 		CLEAN_DIR=build/tmp
 		if [ -n "${ISAR_ARGS}" ]; then
-			trace docker run -v "${KAS_WORK_DIR}":/work:rw \
+			trace ${DOCKER_COMMAND} run -v "${KAS_WORK_DIR}":/work:rw \
 					 --workdir=/work --rm ${ISAR_ARGS} \
 					 ${DOCKER_IMAGE} \
 					 sudo rm -rf ${CLEAN_DIR}
@@ -156,7 +190,7 @@ done
 while [ $# -gt 0 ]; do
 	case "$1" in
 	-h|--help)
-		trace docker run ${DOCKER_IMAGE} ${CMD} --help
+		trace ${DOCKER_COMMAND} run ${DOCKER_IMAGE} ${CMD} --help
 		exit 0
 		;;
 	--skip|--target|--task|-c|--cmd|--command)
@@ -280,6 +314,6 @@ if [ -z "${NO_PROXY_FROM_ENV+x}" ]; then
 	done
 fi
 
-trace docker run "$@" ${ISAR_ARGS} ${WITH_LOOP_DEV} ${USER_ARGS} \
+trace ${DOCKER_COMMAND} run "$@" ${ISAR_ARGS} ${WITH_LOOP_DEV} ${USER_ARGS} \
 		 ${DOCKER_IMAGE} ${CMD} ${KAS_OPTIONS} ${KAS_FILES} \
 		 ${KAS_EXTRA_BITBAKE_ARGS}
