@@ -1,0 +1,2 @@
+[flake8]
+select = C,E,F,W
