@@ -39,3 +39,21 @@ def test_patch(tmpdir):
         assert os.stat(f)[stat.ST_MODE] & stat.S_IXUSR
     kas.kas(['shell', 'test.yml', '-c', 'true'])
     os.chdir(prev_dir)
+
+def test_patch_update(tmpdir):
+    """
+        Test that patches are applied correctly after switching refspec from
+        a branch to a commit hash and vice-versa with both git and mercurial
+        repositories.
+    """
+    tdir = str(tmpdir.mkdir('test_patch_update'))
+    shutil.rmtree(tdir, ignore_errors=True)
+    print(os.getcwd())
+    shutil.copytree('tests/test_patch', tdir)
+    prev_dir = os.path.realpath(os.getcwd())
+    os.chdir(tdir)
+    kas.kas(['shell', 'test.yml', '-c', 'true'])
+    kas.kas(['shell', 'test2.yml', '-c', 'true'])
+    for f in ['kas/tests/test_patch/hello.sh', 'hello/hello.sh']:
+        assert os.stat(f)[stat.ST_MODE] & stat.S_IXUSR
+    os.chdir(prev_dir)
