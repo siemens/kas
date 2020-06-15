@@ -32,8 +32,10 @@ def test_patch(tmpdir):
     tdir = str(tmpdir.mkdir('test_patch'))
     shutil.rmtree(tdir, ignore_errors=True)
     shutil.copytree('tests/test_patch', tdir)
+    prev_dir = os.path.realpath(os.getcwd())
     os.chdir(tdir)
     kas.kas(['shell', 'test.yml', '-c', 'true'])
     for f in ['kas/tests/test_patch/hello.sh', 'hello/hello.sh']:
         assert os.stat(f)[stat.ST_MODE] & stat.S_IXUSR
     kas.kas(['shell', 'test.yml', '-c', 'true'])
+    os.chdir(prev_dir)
