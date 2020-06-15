@@ -121,7 +121,8 @@ def kas_get_argparser():
         ext_plugin.load()
 
     for plugin in getattr(kasplugin, 'plugins', []):
-        plugin.get_argparser(subparser)
+        plugin_parser = subparser.add_parser(plugin.name, help=plugin.helpmsg)
+        plugin.setup_parser(plugin_parser)
 
     return parser
 

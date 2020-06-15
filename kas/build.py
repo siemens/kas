@@ -46,30 +46,31 @@ class Build:
         This class implements the build plugin for kas.
     """
 
-    @classmethod
-    def get_argparser(cls, parser):
-        """
-            Returns an a parser for the build plugin
-        """
-        bld_psr = parser.add_parser('build',
-                                    help='Checks out all necessary '
-                                    'repositories and builds using '
-                                    'bitbake as specificed in the '
-                                    'configuration file.')
+    name = 'build'
+    helpmsg = (
+        'Checks out all necessary repositories and builds using bitbake as '
+        'specificed in the configuration file.'
+    )
 
-        bld_psr.add_argument('config',
-                             help='Config file')
-        bld_psr.add_argument('extra_bitbake_args',
-                             nargs='*',
-                             help='Extra arguments to pass to bitbake')
-        bld_psr.add_argument('--target',
-                             action='append',
-                             help='Select target to build')
-        bld_psr.add_argument('-c', '--cmd', '--task', dest='task',
-                             help='Select which task should be executed')
-        bld_psr.add_argument('--skip',
-                             help='Skip build steps',
-                             default=[])
+    @classmethod
+    def setup_parser(cls, parser):
+        """
+            Setup the argument parser for the build plugin
+        """
+
+        parser.add_argument('config',
+                            help='Config file')
+        parser.add_argument('extra_bitbake_args',
+                            nargs='*',
+                            help='Extra arguments to pass to bitbake')
+        parser.add_argument('--target',
+                            action='append',
+                            help='Select target to build')
+        parser.add_argument('-c', '--cmd', '--task', dest='task',
+                            help='Select which task should be executed')
+        parser.add_argument('--skip',
+                            help='Skip build steps',
+                            default=[])
 
     def run(self, args):
         """

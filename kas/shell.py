@@ -47,24 +47,24 @@ class Shell:
         Implements a kas plugin that opens a shell within the kas environment.
     """
 
-    @classmethod
-    def get_argparser(cls, parser):
-        """
-            Returns a parser for the shell plugin
-        """
-        sh_prs = parser.add_parser('shell',
-                                   help='Run a shell in the build '
-                                   'environment.')
+    name = 'shell'
+    helpmsg = 'Run a shell in the build environment.'
 
-        sh_prs.add_argument('config',
+    @classmethod
+    def setup_parser(cls, parser):
+        """
+            Setup the argument parser for the shell plugin
+        """
+
+        parser.add_argument('config',
                             help='Config file')
-        sh_prs.add_argument('--skip',
+        parser.add_argument('--skip',
                             help='Skip build steps',
                             default=[])
-        sh_prs.add_argument('-k', '--keep-config-unchanged',
+        parser.add_argument('-k', '--keep-config-unchanged',
                             help='Skip steps that change the configuration',
                             action='store_true')
-        sh_prs.add_argument('-c', '--command',
+        parser.add_argument('-c', '--command',
                             help='Run command',
                             default='')
 
