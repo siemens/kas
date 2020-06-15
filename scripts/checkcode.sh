@@ -2,6 +2,11 @@
 
 ERROR=0
 
+if [ $# != 1 ]; then
+    echo "Error: Please provide a path as the argument to this script!"
+    exit 1
+fi
+
 echo "Checking with pycodestyle"
 pycodestyle --ignore=W503,W606 $1/*.py $1/*/*.py || ERROR=$(expr $ERROR + 1)
 
