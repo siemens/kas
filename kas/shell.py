@@ -56,11 +56,6 @@ class Shell:
             Setup the argument parser for the shell plugin
         """
 
-        parser.add_argument('config',
-                            help='Config file')
-        parser.add_argument('--skip',
-                            help='Skip build steps',
-                            default=[])
         parser.add_argument('-k', '--keep-config-unchanged',
                             help='Skip steps that change the configuration',
                             action='store_true')

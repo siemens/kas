@@ -58,8 +58,6 @@ class Build:
             Setup the argument parser for the build plugin
         """
 
-        parser.add_argument('config',
-                            help='Config file')
         parser.add_argument('extra_bitbake_args',
                             nargs='*',
                             help='Extra arguments to pass to bitbake')
@@ -68,9 +66,6 @@ class Build:
                             help='Select target to build')
         parser.add_argument('-c', '--cmd', '--task', dest='task',
                             help='Select which task should be executed')
-        parser.add_argument('--skip',
-                            help='Skip build steps',
-                            default=[])
 
     def run(self, args):
         """

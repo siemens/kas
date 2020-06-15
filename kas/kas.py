@@ -100,6 +100,13 @@ def _atexit_handler():
         loop.close()
 
 
+def setup_parser_common_args(parser):
+    parser.add_argument('config',
+                        help='Config file')
+    parser.add_argument('--skip',
+                        help='Skip build steps',
+                        default=[])
+
 def kas_get_argparser():
     """
         Creates an argparser for kas with all plugins.
@@ -122,6 +129,7 @@ def kas_get_argparser():
 
     for plugin in getattr(kasplugin, 'plugins', []):
         plugin_parser = subparser.add_parser(plugin.name, help=plugin.helpmsg)
+        setup_parser_common_args(plugin_parser)
         plugin.setup_parser(plugin_parser)
 
     return parser
