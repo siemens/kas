@@ -229,16 +229,16 @@ class RepoImpl(Repo):
             logging.warning('Repo %s is dirty - no checkout', self.name)
             return
 
-        # Check if current HEAD is what in the config file is defined.
-        (_, output) = run_cmd(self.current_rev_cmd(),
+        (_, output) = run_cmd(self.resolve_branch_cmd(),
                               cwd=self.path, fail=False)
+        if output:
+            desired_ref = output.strip()
+            branch = True
+        else:
+            desired_ref = self.refspec
+            branch = False
 
-        if output and output.strip() == self.refspec:
-            logging.info('Repo %s has already been checked out with correct '
-                         'refspec. Nothing to do.', self.name)
-            return
-
-        run_cmd(self.checkout_cmd(), cwd=self.path)
+        run_cmd(self.checkout_cmd(desired_ref, branch), cwd=self.path)
 
     async def apply_patches_async(self):
         """
@@ -351,12 +351,15 @@ class GitRepo(RepoImpl):
     def is_dirty_cmd(self):
         return ['git', 'status', '-s']
 
-    def current_rev_cmd(self):
-        return ['git', 'rev-parse', '--verify', 'HEAD']
+    def resolve_branch_cmd(self):
+        return ['git', 'rev-parse', '--verify', '-q',
+                'origin/{refspec}'.format(refspec=self.refspec)]
 
-    def checkout_cmd(self):
-        return ['git', 'checkout', '-q',
-                '{refspec}'.format(refspec=self.refspec)]
+    def checkout_cmd(self, desired_ref, branch):
+        cmd = ['git', 'checkout', '-q', desired_ref]
+        if branch:
+            cmd.extend(['-B', self.refspec])
+        return cmd
 
     def prepare_patches_cmd(self):
         return ['git', 'checkout', '-q', '-B',
@@ -392,11 +395,12 @@ class MercurialRepo(RepoImpl):
     def is_dirty_cmd(self):
         return ['hg', 'diff']
 
-    def current_rev_cmd(self):
-        return ['hg', 'identify', '-i', '--debug']
+    def resolve_branch_cmd(self):
+        # We never need to care about creating tracking branches in mercurial
+        return ['false']
 
-    def checkout_cmd(self):
-        return ['hg', 'checkout', '{refspec}'.format(refspec=self.refspec)]
+    def checkout_cmd(self, desired_ref, branch):
+        return ['hg', 'checkout', desired_ref]
 
     def prepare_patches_cmd(self):
         return ['hg', 'branch', '-f',
