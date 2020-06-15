@@ -221,13 +221,14 @@ class RepoImpl(Repo):
         if self.operations_disabled or self.refspec is None:
             return
 
-        # Check if repos is dirty
-        (_, output) = run_cmd(self.is_dirty_cmd(),
-                              cwd=self.path,
-                              fail=False)
-        if output:
-            logging.warning('Repo %s is dirty - no checkout', self.name)
-            return
+        if not get_context().force_checkout:
+            # Check if repos is dirty
+            (_, output) = run_cmd(self.is_dirty_cmd(),
+                                  cwd=self.path,
+                                  fail=False)
+            if output:
+                logging.warning('Repo %s is dirty - no checkout', self.name)
+                return
 
         (_, output) = run_cmd(self.resolve_branch_cmd(),
                               cwd=self.path, fail=False)
@@ -359,6 +360,8 @@ class GitRepo(RepoImpl):
         cmd = ['git', 'checkout', '-q', desired_ref]
         if branch:
             cmd.extend(['-B', self.refspec])
+        if get_context().force_checkout:
+            cmd.append('--force')
         return cmd
 
     def prepare_patches_cmd(self):
@@ -400,7 +403,10 @@ class MercurialRepo(RepoImpl):
         return ['false']
 
     def checkout_cmd(self, desired_ref, branch):
-        return ['hg', 'checkout', desired_ref]
+        cmd = ['hg', 'checkout', desired_ref]
+        if get_context().force_checkout:
+            cmd.append('--clean')
+        return cmd
 
     def prepare_patches_cmd(self):
         return ['hg', 'branch', '-f',

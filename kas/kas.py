@@ -106,6 +106,9 @@ def setup_parser_common_args(parser):
     parser.add_argument('--skip',
                         help='Skip build steps',
                         default=[])
+    parser.add_argument('--force-checkout', action='store_true',
+                        help='Always checkout the desired refspec of each '
+                        'repository, discarding any local changes')
 
 def kas_get_argparser():
     """

@@ -126,3 +126,7 @@ class Context:
             The reference directory for the repo
         """
         return self.__kas_repo_ref_dir
+
+    @property
+    def force_checkout(self):
+        return getattr(self.args, 'force_checkout', None)
