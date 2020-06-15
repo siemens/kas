@@ -71,7 +71,7 @@ class Shell:
         if args.cmd != 'shell':
             return False
 
-        ctx = create_global_context()
+        ctx = create_global_context(args)
         ctx.config = Config(args.config, None, None)
 
         macro = Macro()

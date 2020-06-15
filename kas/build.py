@@ -75,7 +75,7 @@ class Build:
         if args.cmd != 'build':
             return False
 
-        ctx = create_global_context()
+        ctx = create_global_context(args)
         ctx.config = Config(args.config, args.target, args.task)
 
         macro = Macro()

@@ -50,12 +50,12 @@ except ImportError:
 __context__ = None
 
 
-def create_global_context():
+def create_global_context(args):
     """
         Creates global context as singleton.
     """
     global __context__
-    __context__ = Context()
+    __context__ = Context(args)
     return __context__
 
 
@@ -70,12 +70,13 @@ class Context:
     """
         Implements the kas build context.
     """
-    def __init__(self):
+    def __init__(self, args):
         self.__kas_work_dir = os.environ.get('KAS_WORK_DIR', os.getcwd())
         self.__kas_repo_ref_dir = os.environ.get('KAS_REPO_REF_DIR', None)
         self.setup_initial_environ()
         self.keep_config = False
         self.config = None
+        self.args = args
 
     def setup_initial_environ(self):
         """
