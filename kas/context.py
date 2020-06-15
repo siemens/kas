@@ -130,3 +130,7 @@ class Context:
     @property
     def force_checkout(self):
         return getattr(self.args, 'force_checkout', None)
+
+    @property
+    def update(self):
+        return getattr(self.args, 'update', None)

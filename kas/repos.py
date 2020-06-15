@@ -193,17 +193,18 @@ class RepoImpl(Repo):
         if self.refspec is None:
             return 0
 
-        # Does refspec exist in the current repository?
-        (retc, output) = await run_cmd_async(self.contains_refspec_cmd(),
-                                             cwd=self.path,
-                                             fail=False,
-                                             liveupdate=False)
-        if retc == 0:
-            logging.info('Repository %s already contains %s as %s',
-                         self.name, self.refspec, output.strip())
-            return retc
+        if not get_context().update:
+            # Does refspec exist in the current repository?
+            (retc, output) = await run_cmd_async(self.contains_refspec_cmd(),
+                                                 cwd=self.path,
+                                                 fail=False,
+                                                 liveupdate=False)
+            if retc == 0:
+                logging.info('Repository %s already contains %s as %s',
+                             self.name, self.refspec, output.strip())
+                return retc
 
-        # No it is missing, try to fetch
+        # Try to fetch if refspec is missing or if --update argument was passed
         (retc, output) = await run_cmd_async(self.fetch_cmd(),
                                              cwd=self.path,
                                              fail=False)
