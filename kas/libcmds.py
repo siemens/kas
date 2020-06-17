@@ -132,8 +132,8 @@ class SetupHome(Command):
                       '\temail = kas@example.com\n'
                       '\tname = Kas User\n')
 
-        if (os.environ.get('AWS_CONFIG_FILE', False)
-                and os.environ.get('AWS_SHARED_CREDENTIALS_FILE', False)):
+        if os.environ.get('AWS_CONFIG_FILE', False) \
+                and os.environ.get('AWS_SHARED_CREDENTIALS_FILE', False):
             os.makedirs(self.tmpdirname + "/.aws")
 
             shutil.copy(os.environ['AWS_CONFIG_FILE'],

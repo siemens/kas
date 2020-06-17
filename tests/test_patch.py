@@ -40,6 +40,7 @@ def test_patch(tmpdir):
     kas.kas(['shell', 'test.yml', '-c', 'true'])
     os.chdir(prev_dir)
 
+
 def test_patch_update(tmpdir):
     """
         Test that patches are applied correctly after switching refspec from

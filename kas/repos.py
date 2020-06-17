@@ -274,8 +274,8 @@ class RepoImpl(Repo):
 
             if os.path.isfile(path):
                 my_patches.append((path, patch['id']))
-            elif (os.path.isdir(path)
-                  and os.path.isfile(os.path.join(path, 'series'))):
+            elif os.path.isdir(path) \
+                    and os.path.isfile(os.path.join(path, 'series')):
                 with open(os.path.join(path, 'series')) as f:
                     for line in f:
                         if line.startswith('#'):

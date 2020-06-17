@@ -22,7 +22,6 @@
 
 import os
 import shutil
-import subprocess
 from kas import kas
 from kas.libkas import run_cmd
 

@@ -129,8 +129,8 @@ class BuildCommand(Command):
         """
         # Start bitbake build of image
         bitbake = find_program(ctx.environ['PATH'], 'bitbake')
-        cmd = ([bitbake, '-k', '-c', ctx.config.get_bitbake_task()]
-               + self.extra_bitbake_args + ctx.config.get_bitbake_targets())
+        cmd = [bitbake, '-k', '-c', ctx.config.get_bitbake_task()] \
+            + self.extra_bitbake_args + ctx.config.get_bitbake_targets()
         if sys.stdout.isatty():
             logging.info('%s$ %s', ctx.build_dir, ' '.join(cmd))
             ret = subprocess.call(cmd, env=ctx.environ, cwd=ctx.build_dir)
