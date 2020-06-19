@@ -104,7 +104,7 @@ esac
 while [ $# -gt 0 ]; do
 	case "$1" in
 	--isar)
-		DOCKER_IMAGE="${DOCKER_IMAGE/kasproject\/kas/kasproject\/kas-isar}"
+		DOCKER_IMAGE="$(echo "${DOCKER_IMAGE}" | sed 's|kasproject/kas|kasproject/kas-isar|g')"
 		ISAR_ARGS="--cap-add=SYS_ADMIN --cap-add=MKNOD --privileged"
 
 		# sudo is needed for a privileged podman container
