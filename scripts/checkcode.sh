@@ -16,4 +16,7 @@ flake8 $1 || ERROR=$(expr $ERROR + 2)
 echo "Checking with doc8"
 doc8  $1/docs --ignore-path $1/docs/_build || ERROR=$(expr $ERROR + 4)
 
+echo "Checking with shellcheck"
+shellcheck -S warning $1/kas-docker $1/scripts/release.sh $1/scripts/checkcode.sh || ERROR=$(expr $ERROR + 8)
+
 exit $ERROR
