@@ -115,7 +115,7 @@ while [ $# -gt 0 ]; do
 		;;
 	--with-loop-dev)
 		if ! LOOP_DEV=$(/sbin/losetup -f 2>/dev/null); then
-			if [ $(id -u) -eq 0 ]; then
+			if [ "$(id -u)" -eq 0 ]; then
 				echo "Error: loop device not available!"
 				exit 1
 			fi
@@ -198,6 +198,9 @@ while [ $# -gt 0 ]; do
 		shift 2
 		;;
 	--)
+		# Ignore 'Assigning array to string' warning.
+		# This needs to be fixed properly.
+		# shellcheck disable=SC2124
 		KAS_EXTRA_BITBAKE_ARGS="$@"
 		shift $#
 		;;
@@ -236,7 +239,7 @@ KAS_FILES=/repo/"$(echo "${KAS_FILES}" | sed 's|'"${REPO_DIR}"'/||g;s|:|:/repo/|
 
 trace mkdir -p "${KAS_WORK_DIR}"
 
-if [ $(id -u) -eq 0 ] && [ "${KAS_ALLOW_ROOT}" != "yes" ] ; then
+if [ "$(id -u)" -eq 0 ] && [ "${KAS_ALLOW_ROOT}" != "yes" ] ; then
 	echo "Error: Running as root - may break certain recipes."
 	echo "Better give a regular user docker access. Set" \
 	     "KAS_ALLOW_ROOT=yes to override."
@@ -245,7 +248,7 @@ fi
 
 set --  -v "${REPO_DIR}":/repo:ro \
 	-v "${KAS_WORK_DIR}":/work:rw --workdir=/work \
-	-e USER_ID=$(id -u) -e GROUP_ID=$(id -g) --rm
+	-e USER_ID="$(id -u)" -e GROUP_ID="$(id -g)" --rm
 
 if [ -n "${SSH_DIR}" ] ; then
 	if [ ! -d "${SSH_DIR}" ]; then
