@@ -25,10 +25,16 @@ import shutil
 from kas import kas
 from kas.libkas import run_cmd
 
-import pytest  # noqa: F401; flake8 'pytest' imported but unused
+import pytest
 
 
-def test_refspec_switch(tmpdir):
+@pytest.fixture
+def changedir():
+    yield
+    os.chdir(os.path.join(os.path.dirname(__file__), '..'))
+
+
+def test_refspec_switch(changedir, tmpdir):
     """
         Test that the local git clone is correctly updated when switching
         between a commit hash refspec and a branch refspec.
@@ -36,7 +42,6 @@ def test_refspec_switch(tmpdir):
     tdir = str(tmpdir.mkdir('test_refspec_switch'))
     shutil.rmtree(tdir, ignore_errors=True)
     shutil.copytree('tests/test_refspec', tdir)
-    prev_dir = os.path.realpath(os.getcwd())
     os.chdir(tdir)
 
     kas.kas(['shell', 'test.yml', '-c', 'true'])
@@ -66,5 +71,3 @@ def test_refspec_switch(tmpdir):
                            fail=False, liveupdate=False)
     assert rc == 0
     assert output.strip() == '907816a5c4094b59a36aec12226e71c461c05b77'
-
-    os.chdir(prev_dir)
