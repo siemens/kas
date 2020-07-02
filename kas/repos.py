@@ -51,9 +51,7 @@ class Repo:
 
     def __getattr__(self, item):
         if item == 'layers':
-            if not self._layers:
-                return [self.path]
-            return [self.path + '/' + layer for layer in self._layers]
+            return [os.path.join(self.path, layer) for layer in self._layers]
         elif item == 'qualified_name':
             url = urlparse(self.url)
             return ('{url.netloc}{url.path}'
@@ -84,7 +82,7 @@ class Repo:
         """
             Returns a Repo instance depending on params.
         """
-        layers_dict = repo_config.get('layers', {})
+        layers_dict = repo_config.get('layers', {'': None})
         layers = list(filter(lambda x, laydict=layers_dict:
                              str(laydict[x]).lower() not in
                              ['disabled', 'excluded', 'n', 'no', '0', 'false'],
