@@ -25,6 +25,7 @@
 
 import re
 import os
+import sys
 import logging
 from urllib.parse import urlparse
 from .context import get_context
@@ -87,15 +88,23 @@ class Repo:
                              str(laydict[x]).lower() not in
                              ['disabled', 'excluded', 'n', 'no', '0', 'false'],
                              layers_dict))
+        default_patch_repo = repo_defaults.get('patches', {}).get('repo', None)
         patches_dict = repo_config.get('patches', {})
-        patches = list(
-            {
+        patches = []
+        for p in sorted(patches_dict):
+            if not patches_dict[p]:
+                continue
+            this_patch = {
                 'id': p,
-                'repo': patches_dict[p]['repo'],
+                'repo': patches_dict[p].get('repo', default_patch_repo),
                 'path': patches_dict[p]['path'],
             }
-            for p in sorted(patches_dict)
-            if patches_dict[p])
+            if this_patch['repo'] is None:
+                logging.error('No repo specified for patch entry "%s" and no '
+                              'default repo specified.', p)
+                sys.exit(1)
+            patches.append(this_patch)
+
         url = repo_config.get('url', None)
         name = repo_config.get('name', name)
         typ = repo_config.get('type', 'git')

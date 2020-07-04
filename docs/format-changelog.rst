@@ -83,5 +83,6 @@ Added
 ~~~~~
 
 - ``defaults`` key can now be used to set a default value for the repository
-  property ``refspec``. This default value will be used if the appropriate
-  property is not defined for a given repository.
+  property ``refspec`` and the repository patch property ``repo``. These
+  default values will be used if the appropriate properties are not defined
+  for a given repository or patch.

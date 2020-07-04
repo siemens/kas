@@ -83,6 +83,15 @@ CONFIGSCHEMA = {
                         'refspec': {
                             'type': 'string',
                         },
+                        'patches': {
+                            'type': 'object',
+                            'additionalProperties': False,
+                            'properties': {
+                                'repo': {
+                                    'type': 'string',
+                                },
+                            },
+                        },
                     },
                 },
             },
@@ -164,7 +173,7 @@ CONFIGSCHEMA = {
                                         {
                                             'type': 'object',
                                             'additionalProperties': False,
-                                            'required': ['repo', 'path'],
+                                            'required': ['path'],
                                             'properties': {
                                                 'repo': {
                                                     'type': 'string'

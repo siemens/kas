@@ -326,6 +326,16 @@ Configuration reference
         Sets the default ``refspec`` property applied to all repositories that
         do not override this.
 
+    * ``patches``: dict [optional]
+        This key can contain default values for some repository patch
+        properties. If a default value is set for a patch property it may
+        still be overridden by setting the same property to a different value
+        in a given patch.
+
+      * ``repo``: string [optional]
+          Sets the default ``repo`` property applied to all repository
+          patches that do not override this.
+
 * ``machine``: string [optional]
     Contains the value of the ``MACHINE`` variable that is written into the
     ``local.conf``. Can be overwritten by the ``KAS_MACHINE`` environment
