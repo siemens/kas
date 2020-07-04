@@ -75,3 +75,13 @@ Added
 
 - ``patches`` property to ``repos`` to be able to apply additional patches to
   the repo.
+
+Version 9
+---------
+
+Added
+~~~~~
+
+- ``defaults`` key can now be used to set a default value for the repository
+  property ``refspec``. This default value will be used if the appropriate
+  property is not defined for a given repository.

@@ -72,6 +72,21 @@ CONFIGSCHEMA = {
                 },
             },
         },
+        'defaults': {
+            'type': 'object',
+            'additionalProperties': False,
+            'properties': {
+                'repos': {
+                    'type': 'object',
+                    'additionalProperties': False,
+                    'properties': {
+                        'refspec': {
+                            'type': 'string',
+                        },
+                    },
+                },
+            },
+        },
         'machine': {
             'type': 'string',
         },

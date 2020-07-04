@@ -83,12 +83,14 @@ class Config:
             and the `Repo` instances as values.
         """
         repo_config_dict = self._config.get('repos', {})
+        repo_defaults = self._config.get('defaults', {}).get('repos', {})
         repo_dict = {}
         repo_fallback_path = os.path.dirname(self.filenames[0])
         for repo in repo_config_dict:
             repo_config_dict[repo] = repo_config_dict[repo] or {}
             repo_dict[repo] = Repo.factory(repo,
                                            repo_config_dict[repo],
+                                           repo_defaults,
                                            repo_fallback_path)
 
         return repo_dict

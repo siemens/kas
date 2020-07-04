@@ -310,6 +310,22 @@ Configuration reference
       * ``file``: string [required]
           The path to the file relative to the root of the repository.
 
+* ``defaults``: dict [optional]
+    This key can be used to set default values for various properties.
+    This may help you to avoid repeating the same property assignment in
+    multiple places if, for example, you wish to use the same refspec for
+    all repositories.
+
+  * ``repos``: dict [optional]
+      This key can contain default values for some repository properties.
+      If a default value is set for a repository property it may still be
+      overridden by setting the same property to a different value in a given
+      repository.
+
+    * ``refspec``: string [optional]
+        Sets the default ``refspec`` property applied to all repositories that
+        do not override this.
+
 * ``machine``: string [optional]
     Contains the value of the ``MACHINE`` variable that is written into the
     ``local.conf``. Can be overwritten by the ``KAS_MACHINE`` environment

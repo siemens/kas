@@ -78,7 +78,7 @@ class Repo:
                                 self.path, self._layers)
 
     @staticmethod
-    def factory(name, repo_config, repo_fallback_path):
+    def factory(name, repo_config, repo_defaults, repo_fallback_path):
         """
             Returns a Repo instance depending on params.
         """
@@ -99,7 +99,8 @@ class Repo:
         url = repo_config.get('url', None)
         name = repo_config.get('name', name)
         typ = repo_config.get('type', 'git')
-        refspec = repo_config.get('refspec', None)
+        refspec = repo_config.get('refspec',
+                                  repo_defaults.get('refspec', None))
         path = repo_config.get('path', None)
         disable_operations = False
 
