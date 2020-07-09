@@ -116,6 +116,7 @@ while [ $# -gt 0 ]; do
 		podman)
 			# sudo is needed for a privileged podman container
 			DOCKER_COMMAND="sudo ${DOCKER_COMMAND}"
+			ISAR_ARGS="${ISAR_ARGS} --pid=host"
 			;;
 		esac
 
