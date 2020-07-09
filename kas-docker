@@ -106,12 +106,19 @@ while [ $# -gt 0 ]; do
 	case "$1" in
 	--isar)
 		DOCKER_IMAGE="$(echo "${DOCKER_IMAGE}" | sed 's|kasproject/kas|kasproject/kas-isar|g')"
-		ISAR_ARGS="--cap-add=SYS_ADMIN --cap-add=MKNOD --privileged"
+		ISAR_ARGS="--privileged"
 
-		# sudo is needed for a privileged podman container
-		if [ "${KAS_DOCKER_ENGINE}" = "podman" ]; then
+		case "${KAS_DOCKER_ENGINE}" in
+		docker)
+			ISAR_ARGS="${ISAR_ARGS} --cap-add=SYS_ADMIN"
+			ISAR_ARGS="${ISAR_ARGS} --cap-add=MKNOD"
+			;;
+		podman)
+			# sudo is needed for a privileged podman container
 			DOCKER_COMMAND="sudo ${DOCKER_COMMAND}"
-		fi
+			;;
+		esac
+
 		shift 1
 		;;
 	--with-loop-dev)
