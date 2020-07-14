@@ -93,6 +93,7 @@ docker)
 podman)
 	DOCKER_COMMAND="podman"
 	DOCKER_IMAGE="docker://${DOCKER_IMAGE}"
+	ENGINE_ARGS="--userns=keep-id --security-opt label=disable"
 	;;
 *)
 	echo "$0: unknown docker engine '${KAS_DOCKER_ENGINE}'" >&2
@@ -136,7 +137,7 @@ while [ $# -gt 0 ]; do
 		;;
 	--docker-args)
 		[ $# -gt 0 ] || usage
-		USER_ARGS=$2
+		ENGINE_ARGS="${ENGINE_ARGS} $2"
 		shift 2
 		;;
 	--ssh-dir)
@@ -317,6 +318,6 @@ if [ -z "${NO_PROXY_FROM_ENV+x}" ]; then
 	done
 fi
 
-trace ${DOCKER_COMMAND} run "$@" ${ISAR_ARGS} ${WITH_LOOP_DEV} ${USER_ARGS} \
+trace ${DOCKER_COMMAND} run "$@" ${ISAR_ARGS} ${WITH_LOOP_DEV} ${ENGINE_ARGS} \
 		 ${DOCKER_IMAGE} ${CMD} ${KAS_OPTIONS} ${KAS_FILES} \
 		 ${KAS_EXTRA_BITBAKE_ARGS}
