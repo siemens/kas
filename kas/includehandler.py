@@ -58,7 +58,7 @@ def load_config(filename):
         import json
         with open(filename, 'rb') as fds:
             config = json.load(fds)
-    elif ext == '.yml':
+    elif ext in ['.yml', '.yaml']:
         import yaml
         with open(filename, 'rb') as fds:
             config = yaml.safe_load(fds)
