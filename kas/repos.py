@@ -356,7 +356,7 @@ class GitRepo(RepoImpl):
         return ['git', 'cat-file', '-t', self.refspec]
 
     def fetch_cmd(self):
-        return ['git', 'fetch', '--all']
+        return ['git', 'fetch']
 
     def is_dirty_cmd(self):
         return ['git', 'status', '-s']
