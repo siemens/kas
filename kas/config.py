@@ -39,19 +39,16 @@ class Config:
         self._override_target = target
         self._override_task = task
         self._config = {}
-        self.filenames = []
+        self.filenames = [os.path.abspath(configfile)
+                          for configfile in filename.split(':')]
 
-        for configfile in filename.split(':'):
-            configfile = os.path.abspath(configfile)
-            repo_path = Repo.get_root_path(os.path.dirname(configfile),
-                                           fallback=False)
-            if self.filenames == []:
-                common_path = repo_path
-            elif repo_path != common_path:
-                raise IncludeException('All concatenated config files must '
-                                       'belong to the same repository or all '
-                                       'must be outside of versioning control')
-            self.filenames.append(configfile)
+        repo_paths = [Repo.get_root_path(os.path.dirname(configfile),
+                                         fallback=False)
+                      for configfile in self.filenames]
+        if len(set(repo_paths)) > 1:
+            raise IncludeException('All concatenated config files must '
+                                   'belong to the same repository or all '
+                                   'must be outside of versioning control')
 
         self.handler = IncludeHandler(self.filenames)
         self.repo_dict = self._get_repo_dict()
