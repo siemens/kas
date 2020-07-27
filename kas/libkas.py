@@ -30,6 +30,7 @@ import logging
 import tempfile
 import asyncio
 import errno
+import pathlib
 from subprocess import Popen, PIPE
 from .context import get_context
 
@@ -215,23 +216,22 @@ def get_build_environ():
         logging.error('Did not find any init-build-env script')
         sys.exit(1)
 
-    get_bb_env_file = tempfile.mktemp()
-    with open(get_bb_env_file, 'w') as fds:
+    with tempfile.TemporaryDirectory() as temp_dir:
         script = """#!/bin/bash
         set -e
         source %s $1 > /dev/null
         env
         """ % init_script
-        fds.write(script)
-    os.chmod(get_bb_env_file, 0o775)
 
-    env = {}
-    env['PATH'] = '/usr/sbin:/usr/bin:/sbin:/bin'
+        get_bb_env_file = pathlib.Path(temp_dir) / "get_bb_env"
+        get_bb_env_file.write_text(script)
+        get_bb_env_file.chmod(0o775)
 
-    (_, output) = run_cmd([get_bb_env_file, get_context().build_dir],
-                          cwd=init_repo.path, env=env, liveupdate=False)
+        env = {}
+        env['PATH'] = '/usr/sbin:/usr/bin:/sbin:/bin'
 
-    os.remove(get_bb_env_file)
+        (_, output) = run_cmd([str(get_bb_env_file), get_context().build_dir],
+                              cwd=init_repo.path, env=env, liveupdate=False)
 
     env = {}
     for line in output.splitlines():
