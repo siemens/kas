@@ -1,3 +1,14 @@
+2.2
+- kas: allow extra bitbake arguments to be passed
+- kas: add --force-checkout and --update arguments to ease CI usage
+- kas: allow for layer-free repositories
+- kas: fix cloning of repos without default branch
+- kas: enable standard-conforming .yaml file extensions
+- kas-docker: enhance with podman support
+- kas-docker: switch to /bin/bash as SHELL per default
+- config: Allow a default refspec to be specified
+- config: Allow a default repo to be specified for patches
+
 2.1.1
 - repos: Silence pycodestyle error (that broke docker image generation)
 
