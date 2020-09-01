@@ -195,8 +195,10 @@ done
 
 [ -n "${CMD}" ] || usage
 
+KAS_EXTRA_BITBAKE_ARGS=0
+
 # parse kas sub-command (build or shell) options
-while [ $# -gt 0 ]; do
+while [ $# -gt 0 ] && [ $KAS_EXTRA_BITBAKE_ARGS -eq 0 ]; do
 	case "$1" in
 	-h|--help)
 		trace ${DOCKER_COMMAND} run ${DOCKER_IMAGE} ${CMD} --help
@@ -207,11 +209,7 @@ while [ $# -gt 0 ]; do
 		shift 2
 		;;
 	--)
-		# Ignore 'Assigning array to string' warning.
-		# This needs to be fixed properly.
-		# shellcheck disable=SC2124
-		KAS_EXTRA_BITBAKE_ARGS="$@"
-		shift $#
+		KAS_EXTRA_BITBAKE_ARGS=$#
 		;;
 	-*)
 		KAS_OPTIONS="${KAS_OPTIONS} $1"
@@ -255,7 +253,7 @@ if [ "$(id -u)" -eq 0 ] && [ "${KAS_ALLOW_ROOT}" != "yes" ] ; then
 	exit 1
 fi
 
-set --  -v "${REPO_DIR}":/repo:ro \
+set -- "$@" -v "${REPO_DIR}":/repo:ro \
 	-v "${KAS_WORK_DIR}":/work:rw --workdir=/work \
 	-e USER_ID="$(id -u)" -e GROUP_ID="$(id -g)" --rm
 
@@ -326,6 +324,15 @@ if [ -z "${NO_PROXY_FROM_ENV+x}" ]; then
 	done
 fi
 
-trace ${DOCKER_COMMAND} run "$@" ${ISAR_ARGS} ${WITH_LOOP_DEV} ${ENGINE_ARGS} \
-		 ${DOCKER_IMAGE} ${CMD} ${KAS_OPTIONS} ${KAS_FILES} \
-		 ${KAS_EXTRA_BITBAKE_ARGS}
+set -- "$@" ${ISAR_ARGS} ${WITH_LOOP_DEV} ${ENGINE_ARGS} \
+	${DOCKER_IMAGE} ${CMD} ${KAS_OPTIONS} ${KAS_FILES}
+
+# rotate any extra bitbake args from the front to the end of the argument list
+while [ $KAS_EXTRA_BITBAKE_ARGS -gt 0 ]; do
+	arg="$1"
+	shift 1
+	set -- "$@" "$arg"
+	KAS_EXTRA_BITBAKE_ARGS=$((KAS_EXTRA_BITBAKE_ARGS - 1))
+done
+
+trace ${DOCKER_COMMAND} run "$@"
