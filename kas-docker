@@ -66,7 +66,7 @@ if [ -z "${KAS_IMAGE_VERSION}" ]; then
 	KAS_IMAGE_VERSION="2.2"
 fi
 
-DOCKER_IMAGE=kasproject/kas:${KAS_IMAGE_VERSION}
+DOCKER_IMAGE=ghcr.io/siemens/kas/kas:${KAS_IMAGE_VERSION}
 
 if [ -n "${KAS_WORK_DIR}" ]; then
 	KAS_WORK_DIR=$(readlink -f "${KAS_WORK_DIR}")
@@ -105,7 +105,7 @@ esac
 while [ $# -gt 0 ]; do
 	case "$1" in
 	--isar)
-		DOCKER_IMAGE="$(echo "${DOCKER_IMAGE}" | sed 's|kasproject/kas|kasproject/kas-isar|g')"
+		DOCKER_IMAGE="$(echo "${DOCKER_IMAGE}" | sed 's|ghcr.io/siemens/kas/kas|ghcr.io/siemens/kas/kas-isar|g')"
 		ISAR_ARGS="--privileged"
 
 		case "${KAS_DOCKER_ENGINE}" in
