@@ -169,3 +169,9 @@ class Config:
             if target.startswith('multiconfig:') or target.startswith('mc:'):
                 multiconfigs.append(target.split(':')[1])
         return ' '.join(multiconfigs)
+
+    def get_ssh_shortnames(self):
+        """
+            Returns a dictionary of shortnames and their host/keyfile/etc.
+        """
+        return self._config.get('ssh-config', {})

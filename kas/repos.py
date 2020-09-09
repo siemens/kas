@@ -40,11 +40,12 @@ class Repo:
         Represents a repository in the kas configuration.
     """
 
-    def __init__(self, url, path, refspec, layers, patches,
+    def __init__(self, url, path, refspec, ssh_key, layers, patches,
                  disable_operations):
         self.url = url
         self.path = path
         self.refspec = refspec
+        self.ssh_key = ssh_key
         self._layers = layers
         self._patches = patches
         self.name = os.path.basename(self.path)
@@ -110,6 +111,7 @@ class Repo:
         typ = repo_config.get('type', 'git')
         refspec = repo_config.get('refspec',
                                   repo_defaults.get('refspec', None))
+        ssh_key = repo_config.get('ssh-key', None)
         path = repo_config.get('path', None)
         disable_operations = False
 
@@ -129,12 +131,13 @@ class Repo:
                 if not os.path.isabs(path):
                     # Relative pathes are assumed to start from work_dir
                     path = os.path.join(get_context().kas_work_dir, path)
-
+            if ssh_key is not None:
+                ssh_key = os.path.join(get_context().kas_work_dir, ssh_key)
         if typ == 'git':
-            return GitRepo(url, path, refspec, layers, patches,
+            return GitRepo(url, path, refspec, ssh_key, layers, patches,
                            disable_operations)
         if typ == 'hg':
-            return MercurialRepo(url, path, refspec, layers, patches,
+            return MercurialRepo(url, path, refspec, ssh_key, layers, patches,
                                  disable_operations)
         raise NotImplementedError('Repo type "%s" not supported.' % typ)
 
@@ -176,7 +179,8 @@ class RepoImpl(Repo):
 
             (retc, _) = await run_cmd_async(
                 self.clone_cmd(sdir),
-                cwd=get_context().kas_work_dir)
+                cwd=get_context().kas_work_dir,
+                env=self.get_env())
             if retc == 0:
                 logging.info('Repository %s cloned', self.name)
             return retc
@@ -383,6 +387,12 @@ class GitRepo(RepoImpl):
     def set_remote_url_cmd(self):
         return ['git', 'remote', 'set-url', 'origin', self.effective_url]
 
+    def get_env(self):
+        env = dict(get_context().environ)
+        if self.ssh_key:
+            env.update({'GIT_SSH_COMMAND': f'ssh -i {self.ssh_key}'})
+        return env
+
 
 class MercurialRepo(RepoImpl):
     """
@@ -426,3 +436,6 @@ class MercurialRepo(RepoImpl):
 
     def set_remote_url_cmd(self):
         raise NotImplementedError()
+
+    def get_env(self):
+        return get_context().environ

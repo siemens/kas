@@ -132,6 +132,19 @@ class SetupHome(Command):
                       '\temail = kas@example.com\n'
                       '\tname = Kas User\n')
 
+        sshdir = os.path.join(self.tmpdirname, '.ssh')
+        if not os.path.exists(sshdir):
+            os.mkdir(sshdir)
+        with open(os.path.join(sshdir, 'config'), 'w') as f:
+            for shortname, data in ctx.config.get_ssh_shortnames().items():
+                keyfile = os.path.join(os.path.abspath(data["keyfile"]))
+                logging.info(f'Adding SSH keyfile {keyfile} with shortname {shortname}')
+                f.write(f'Host {shortname} {data["hostname"]}\n')
+                f.write(f'    HostName {data["hostname"]}\n')
+                f.write(f'    IdentityFile {keyfile}\n')
+                if data["user"] is not None:
+                    f.write(f'    User {data["user"]}\n')
+
         if os.environ.get('AWS_CONFIG_FILE', False) \
                 and os.environ.get('AWS_SHARED_CREDENTIALS_FILE', False):
             os.makedirs(self.tmpdirname + "/.aws")

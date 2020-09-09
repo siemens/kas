@@ -124,6 +124,25 @@ CONFIGSCHEMA = {
         'task': {
             'type': 'string',
         },
+        'ssh-config': {
+            'type': 'object',
+            'additionalProperties': {
+                'type': 'object',
+                'additionalProperties': False,
+                'required': ['hostname', 'keyfile'],
+                'properties': {
+                    'hostname': {
+                        'type': 'string'
+                    },
+                    'keyfile': {
+                        'type': 'string'
+                    },
+                    'user': {
+                        'type': 'string'
+                    }
+                }
+            }
+        },
         'repos': {
             'type': 'object',
             'additionalProperties': {
@@ -146,6 +165,9 @@ CONFIGSCHEMA = {
                             },
                             'path': {
                                 'type': 'string',
+                            },
+                            'ssh-key': {
+                                'type': 'string'
                             },
                             'layers': {
                                 'type': 'object',
