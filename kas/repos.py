@@ -52,7 +52,8 @@ class Repo:
 
     def __getattr__(self, item):
         if item == 'layers':
-            return [os.path.join(self.path, layer) for layer in self._layers]
+            return [os.path.join(self.path, layer).rstrip(os.sep)
+                    for layer in self._layers]
         elif item == 'qualified_name':
             url = urlparse(self.url)
             return ('{url.netloc}{url.path}'

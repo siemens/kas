@@ -42,7 +42,7 @@ def test_layers_default(dokas):
     match = 0
     with open('build/conf/bblayers.conf', 'r') as f:
         for line in f:
-            if 'test_layers/kas/' in line:
+            if 'test_layers/kas ' in line:
                 match += 1
     assert(match == 1)
 
