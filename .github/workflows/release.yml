@@ -1,0 +1,45 @@
+name: release
+
+on:
+  push:
+    tags:
+      - '*.*'
+
+jobs:
+  deploy_containers:
+    name: Build and deploy container images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v2
+      - name: Get release
+        run: echo ::set-env name=RELEASE_VERSION::${GITHUB_REF#refs/tags/}
+      - name: Login to ghcr.io
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.PACKAGE_DEPLOY_USER }}
+          password: ${{ secrets.PACKAGE_DEPLOY_TOKEN }}
+      - name: Build kas image
+        uses: docker/build-push-action@v2
+        with:
+          tags: |
+            ghcr.io/siemens/kas/kas
+            ghcr.io/siemens/kas/kas:${{ env.RELEASE_VERSION }}
+            ghcr.io/siemens/kas/kas:latest-release
+      - name: Build kas-isar image
+        uses: docker/build-push-action@v2
+        with:
+          file: Dockerfile.isar
+          tags: |
+            ghcr.io/siemens/kas/kas-isar
+            ghcr.io/siemens/kas/kas-isar:${{ env.RELEASE_VERSION }}
+            ghcr.io/siemens/kas/kas-isar:latest-release
+      - name: Push images
+        run: |
+          docker push ghcr.io/siemens/kas/kas
+          docker push ghcr.io/siemens/kas/kas:${{ env.RELEASE_VERSION }}
+          docker push ghcr.io/siemens/kas/kas:latest-release
+          docker push ghcr.io/siemens/kas/kas-isar
+          docker push ghcr.io/siemens/kas/kas-isar:${{ env.RELEASE_VERSION }}
+          docker push ghcr.io/siemens/kas/kas-isar:latest-release

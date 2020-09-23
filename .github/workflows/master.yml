@@ -1,0 +1,38 @@
+name: master
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy_containers:
+    name: Build and deploy container images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Login to ghcr.io
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.PACKAGE_DEPLOY_USER }}
+          password: ${{ secrets.PACKAGE_DEPLOY_TOKEN }}
+      - name: Build kas image
+        uses: docker/build-push-action@v2
+        with:
+          tags: ghcr.io/siemens/kas/kas
+      - name: Build kas-isar image
+        uses: docker/build-push-action@v2
+        with:
+          file: Dockerfile.isar
+          tags: ghcr.io/siemens/kas/kas-isar
+      - name: Push images
+        run: |
+          # The release workflow will push :latest for tagged revisions
+          if ! git describe --exact-match --tags --match '*.*'; then
+              docker push ghcr.io/siemens/kas/kas
+              docker push ghcr.io/siemens/kas/kas-isar
+          fi

@@ -1,0 +1,73 @@
+name: next
+
+on:
+  push:
+    branches:
+      - next
+
+env:
+  SHELLCHECK_VERSION: v0.7.1
+
+jobs:
+  perform_tests:
+    name: Run tests on kas code
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.5, 3.6, 3.7, 3.8]
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+      - name: Install Python dependencies of kas and tests
+        run: |
+          # install kas to have all kas dependencies:
+          pip install .
+          # checkcode dependencies:
+          pip install flake8 pycodestyle doc8 Pygments
+          # test dependencies:
+          pip install -U pytest
+      - name: Install recent shellcheck
+        run: |
+          wget -q https://github.com/koalaman/shellcheck/releases/download/$SHELLCHECK_VERSION/shellcheck-$SHELLCHECK_VERSION.linux.x86_64.tar.xz
+          tar -xJf shellcheck-$SHELLCHECK_VERSION.linux.x86_64.tar.xz
+          sudo cp shellcheck-$SHELLCHECK_VERSION/shellcheck /usr/local/bin/
+      - name: Run tests
+        run: |
+          scripts/checkcode.sh .
+          pytest
+
+  deploy_containers:
+    name: Build and deploy container images
+    needs: perform_tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v2
+      - name: Login to ghcr.io
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.PACKAGE_DEPLOY_USER }}
+          password: ${{ secrets.PACKAGE_DEPLOY_TOKEN }}
+      - name: Build kas image
+        uses: docker/build-push-action@v2
+        with:
+          tags: |
+            ghcr.io/siemens/kas/kas
+            ghcr.io/siemens/kas/kas:next
+      - name: Build kas-isar image
+        uses: docker/build-push-action@v2
+        with:
+          file: Dockerfile.isar
+          tags: |
+            ghcr.io/siemens/kas/kas-isar
+            ghcr.io/siemens/kas/kas-isar:next
+      - name: Push images
+        run: |
+          docker push ghcr.io/siemens/kas/kas:next
+          docker push ghcr.io/siemens/kas/kas-isar:next

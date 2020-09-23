@@ -1,18 +1,18 @@
 Setup tool for bitbake based projects
 =====================================
 
-+------------+------------------+
-|   Branch   |   Build Status   |
-+============+==================+
-| ``master`` | |travis-master|_ |
-+------------+------------------+
-| ``next``   | |travis-next|_   |
-+------------+------------------+
++--------------------+
+|    Build Status    |
++====================+
+| |workflow-master|_ |
++--------------------+
+| |workflow-next|_   |
++--------------------+
 
-.. |travis-master| image:: https://travis-ci.org/siemens/kas.svg?branch=master
-.. _travis-master: https://travis-ci.org/siemens/kas/branches
-.. |travis-next| image:: https://travis-ci.org/siemens/kas.svg?branch=next
-.. _travis-next: https://travis-ci.org/siemens/kas/branches
+.. |workflow-master| image:: https://github.com/siemens/kas/workflows/master/badge.svg
+.. _workflow-master: https://github.com/siemens/kas/actions?query=workflow%3Amaster
+.. |workflow-next| image:: https://github.com/siemens/kas/workflows/next/badge.svg
+.. _workflow-next: https://github.com/siemens/kas/actions?query=workflow%3Anext
 
 This tool provides an easy mechanism to setup bitbake based
 projects.
