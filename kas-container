@@ -40,8 +40,9 @@ usage()
 	printf "%b" "--with-loop-dev		Pass a loop device to the " \
 		    "container. Only required if\n"
 	printf "%b" "\t\t\tloop-mounting is used by recipes.\n"
-	printf "%b" "--docker-args\t\tAdditional arguments to pass to docker " \
-		    "for running the\n"
+	printf "%b" "--runtime-args\t\tAdditional arguments to pass to the " \
+		    "container runtime for running the\n"
+	printf "%b" "--docker-args\t\tSame as --runtime-args (deprecated)\n" \
 	printf "%b" "\t\t\tbuild.\n"
 	printf "%b" "-v\t\t\tPrint operations.\n"
 	printf "%b" "--ssh-dir\t\tDirectory containing SSH configurations.\n"
@@ -52,7 +53,7 @@ usage()
 		    "environment.\n"
 	printf "%b" "\n"
 	printf "%b" "You can force the use of podman over docker using " \
-		    "KAS_DOCKER_ENGINE=podman.\n"
+		    "KAS_CONTAINER_ENGINE=podman.\n"
 	exit 1
 }
 
@@ -66,7 +67,7 @@ if [ -z "${KAS_IMAGE_VERSION}" ]; then
 	KAS_IMAGE_VERSION="2.2"
 fi
 
-DOCKER_IMAGE=ghcr.io/siemens/kas/kas:${KAS_IMAGE_VERSION}
+CONTAINER_IMAGE=ghcr.io/siemens/kas/kas:${KAS_IMAGE_VERSION}
 
 if [ -n "${KAS_WORK_DIR}" ]; then
 	KAS_WORK_DIR=$(readlink -f "${KAS_WORK_DIR}")
@@ -74,48 +75,49 @@ else
 	KAS_WORK_DIR="$(pwd)"
 fi
 
-if [ -z "${KAS_DOCKER_ENGINE}" ]; then
-	# Try to auto-detect a docker engine
+KAS_CONTAINER_ENGINE="${KAS_CONTAINER_ENGINE:-${KAS_DOCKER_ENGINE}}"
+if [ -z "${KAS_CONTAINER_ENGINE}" ]; then
+	# Try to auto-detect a container engine
 	if command -v docker >/dev/null; then
-		KAS_DOCKER_ENGINE=docker
+		KAS_CONTAINER_ENGINE=docker
 	elif command -v podman >/dev/null; then
-		KAS_DOCKER_ENGINE=podman
+		KAS_CONTAINER_ENGINE=podman
 	else
-		echo "$0: no docker engine found, need docker or podman" >&2
+		echo "$0: no container engine found, need docker or podman" >&2
 		exit 1
 	fi
 fi
 
-case "${KAS_DOCKER_ENGINE}" in
+case "${KAS_CONTAINER_ENGINE}" in
 docker)
-	DOCKER_COMMAND="docker"
+	CONTAINER_COMMAND="docker"
 	;;
 podman)
-	DOCKER_COMMAND="podman"
-	DOCKER_IMAGE="docker://${DOCKER_IMAGE}"
-	ENGINE_ARGS="--userns=keep-id --security-opt label=disable"
+	CONTAINER_COMMAND="podman"
+	CONTAINER_IMAGE="docker://${CONTAINER_IMAGE}"
+	RUNTIME_ARGS="--userns=keep-id --security-opt label=disable"
 	;;
 *)
-	echo "$0: unknown docker engine '${KAS_DOCKER_ENGINE}'" >&2
+	echo "$0: unknown container engine '${KAS_CONTAINER_ENGINE}'" >&2
 	exit 1
 	;;
 esac
 
-# parse kas-docker options
+# parse kas-container options
 while [ $# -gt 0 ]; do
 	case "$1" in
 	--isar)
-		DOCKER_IMAGE="$(echo "${DOCKER_IMAGE}" | sed 's|ghcr.io/siemens/kas/kas|ghcr.io/siemens/kas/kas-isar|g')"
+		CONTAINER_IMAGE="$(echo "${CONTAINER_IMAGE}" | sed 's|ghcr.io/siemens/kas/kas|ghcr.io/siemens/kas/kas-isar|g')"
 		ISAR_ARGS="--privileged"
 
-		case "${KAS_DOCKER_ENGINE}" in
+		case "${KAS_CONTAINER_ENGINE}" in
 		docker)
 			ISAR_ARGS="${ISAR_ARGS} --cap-add=SYS_ADMIN"
 			ISAR_ARGS="${ISAR_ARGS} --cap-add=MKNOD"
 			;;
 		podman)
 			# sudo is needed for a privileged podman container
-			DOCKER_COMMAND="sudo ${DOCKER_COMMAND}"
+			CONTAINER_COMMAND="sudo ${CONTAINER_COMMAND}"
 			ISAR_ARGS="${ISAR_ARGS} --pid=host"
 			;;
 		esac
@@ -143,9 +145,9 @@ while [ $# -gt 0 ]; do
 		WITH_LOOP_DEV="--device ${LOOP_DEV}"
 		shift 1
 		;;
-	--docker-args)
+	--runtime-args|--docker-args)
 		[ $# -gt 0 ] || usage
-		ENGINE_ARGS="${ENGINE_ARGS} $2"
+		RUNTIME_ARGS="${RUNTIME_ARGS} $2"
 		shift 2
 		;;
 	--ssh-dir)
@@ -173,9 +175,9 @@ while [ $# -gt 0 ]; do
 		[ $# -eq 1 ] || usage
 		CLEAN_DIR=build/tmp
 		if [ -n "${ISAR_ARGS}" ]; then
-			trace ${DOCKER_COMMAND} run -v "${KAS_WORK_DIR}":/work:rw \
+			trace ${CONTAINER_COMMAND} run -v "${KAS_WORK_DIR}":/work:rw \
 					 --workdir=/work --rm ${ISAR_ARGS} \
-					 ${DOCKER_IMAGE} \
+					 ${CONTAINER_IMAGE} \
 					 sudo rm -rf ${CLEAN_DIR}
 		else
 			trace rm -rf "${KAS_WORK_DIR}/${CLEAN_DIR}"
@@ -201,7 +203,7 @@ KAS_EXTRA_BITBAKE_ARGS=0
 while [ $# -gt 0 ] && [ $KAS_EXTRA_BITBAKE_ARGS -eq 0 ]; do
 	case "$1" in
 	-h|--help)
-		trace ${DOCKER_COMMAND} run ${DOCKER_IMAGE} ${CMD} --help
+		trace ${CONTAINER_COMMAND} run ${CONTAINER_IMAGE} ${CMD} --help
 		exit 0
 		;;
 	--skip|--target|--task|-c|--cmd|--command)
@@ -324,8 +326,8 @@ if [ -z "${NO_PROXY_FROM_ENV+x}" ]; then
 	done
 fi
 
-set -- "$@" ${ISAR_ARGS} ${WITH_LOOP_DEV} ${ENGINE_ARGS} \
-	${DOCKER_IMAGE} ${CMD} ${KAS_OPTIONS} ${KAS_FILES}
+set -- "$@" ${ISAR_ARGS} ${WITH_LOOP_DEV} ${RUNTIME_ARGS} \
+	${CONTAINER_IMAGE} ${CMD} ${KAS_OPTIONS} ${KAS_FILES}
 
 # rotate any extra bitbake args from the front to the end of the argument list
 while [ $KAS_EXTRA_BITBAKE_ARGS -gt 0 ]; do
@@ -335,4 +337,4 @@ while [ $KAS_EXTRA_BITBAKE_ARGS -gt 0 ]; do
 	KAS_EXTRA_BITBAKE_ARGS=$((KAS_EXTRA_BITBAKE_ARGS - 1))
 done
 
-trace ${DOCKER_COMMAND} run "$@"
+trace ${CONTAINER_COMMAND} run "$@"
