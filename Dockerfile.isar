@@ -20,4 +20,4 @@ RUN echo "builder ALL=NOPASSWD: ALL" > /etc/sudoers.d/builder-nopasswd && \
 RUN echo "Defaults env_keep += \"ftp_proxy http_proxy https_proxy no_proxy\"" \
     > /etc/sudoers.d/env_keep && chmod 660 /etc/sudoers.d/env_keep
 
-RUN sed -i 's|#!/bin/bash|\0\n\n/etc/init.d/binfmt-support start|' /kas/docker-entrypoint
+RUN sed -i 's|#!/bin/bash|\0\n\n/etc/init.d/binfmt-support start|' /kas/container-entrypoint

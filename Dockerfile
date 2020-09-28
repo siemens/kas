@@ -29,4 +29,4 @@ ENV NO_PROXY="*"
 COPY . /kas
 RUN pip3 --proxy=$https_proxy install /kas
 
-ENTRYPOINT ["/kas/docker-entrypoint"]
+ENTRYPOINT ["/kas/container-entrypoint"]
