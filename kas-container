@@ -63,11 +63,18 @@ trace()
 	"$@"
 }
 
-if [ -z "${KAS_IMAGE_VERSION}" ]; then
-	KAS_IMAGE_VERSION="2.2"
-fi
+KAS_IMAGE_VERSION_DEFAULT="2.2"
+KAS_CONTAINER_IMAGE_PATH_DEFAULT="ghcr.io/siemens/kas"
+KAS_CONTAINER_IMAGE_NAME_DEFAULT="kas"
+KAS_CONTAINER_IMAGE_PREFIX_DEFAULT=""
 
-KAS_CONTAINER_IMAGE=ghcr.io/siemens/kas/kas:${KAS_IMAGE_VERSION}
+set_container_image_var() {
+	KAS_IMAGE_VERSION="${KAS_IMAGE_VERSION:-${KAS_IMAGE_VERSION_DEFAULT}}"
+	KAS_CONTAINER_IMAGE_NAME="${KAS_CONTAINER_IMAGE_NAME:-${KAS_CONTAINER_IMAGE_NAME_DEFAULT}}"
+	KAS_CONTAINER_IMAGE_PATH="${KAS_CONTAINER_IMAGE_PATH:-${KAS_CONTAINER_IMAGE_PATH_DEFAULT}}"
+	KAS_CONTAINER_IMAGE_PREFIX="${KAS_CONTAINER_IMAGE_PREFIX:-${KAS_CONTAINER_IMAGE_PREFIX_DEFAULT}}"
+	KAS_CONTAINER_IMAGE="${KAS_CONTAINER_IMAGE_PREFIX}${KAS_CONTAINER_IMAGE_PATH}/${KAS_CONTAINER_IMAGE_NAME}:${KAS_IMAGE_VERSION}"
+}
 
 if [ -n "${KAS_WORK_DIR}" ]; then
 	KAS_WORK_DIR=$(readlink -f "${KAS_WORK_DIR}")
@@ -94,7 +101,7 @@ docker)
 	;;
 podman)
 	KAS_CONTAINER_COMMAND="podman"
-	KAS_CONTAINER_IMAGE="docker://${KAS_CONTAINER_IMAGE}"
+	KAS_CONTAINER_IMAGE_PREFIX_DEFAULT="docker://"
 	KAS_RUNTIME_ARGS="--userns=keep-id --security-opt label=disable"
 	;;
 *)
@@ -107,7 +114,7 @@ esac
 while [ $# -gt 0 ]; do
 	case "$1" in
 	--isar)
-		KAS_CONTAINER_IMAGE="$(echo "${KAS_CONTAINER_IMAGE}" | sed 's|ghcr.io/siemens/kas/kas|ghcr.io/siemens/kas/kas-isar|g')"
+		KAS_CONTAINER_IMAGE_NAME_DEFAULT="kas-isar"
 		KAS_ISAR_ARGS="--privileged"
 
 		case "${KAS_CONTAINER_ENGINE}" in
@@ -175,6 +182,7 @@ while [ $# -gt 0 ]; do
 		[ $# -eq 1 ] || usage
 		KAS_CLEAN_DIR=build/tmp
 		if [ -n "${KAS_ISAR_ARGS}" ]; then
+			set_container_image_var
 			trace ${KAS_CONTAINER_COMMAND} run -v "${KAS_WORK_DIR}":/work:rw \
 					 --workdir=/work --rm ${KAS_ISAR_ARGS} \
 					 ${KAS_CONTAINER_IMAGE} \
@@ -198,6 +206,7 @@ done
 [ -n "${KAS_CMD}" ] || usage
 
 KAS_EXTRA_BITBAKE_ARGS=0
+set_container_image_var
 
 # parse kas sub-command (build or shell) options
 while [ $# -gt 0 ] && [ $KAS_EXTRA_BITBAKE_ARGS -eq 0 ]; do
