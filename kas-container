@@ -59,7 +59,7 @@ usage()
 
 trace()
 {
-	[ -n "${VERBOSE}" ] && echo "+ $*"
+	[ -n "${KAS_VERBOSE}" ] && echo "+ $*"
 	"$@"
 }
 
@@ -67,7 +67,7 @@ if [ -z "${KAS_IMAGE_VERSION}" ]; then
 	KAS_IMAGE_VERSION="2.2"
 fi
 
-CONTAINER_IMAGE=ghcr.io/siemens/kas/kas:${KAS_IMAGE_VERSION}
+KAS_CONTAINER_IMAGE=ghcr.io/siemens/kas/kas:${KAS_IMAGE_VERSION}
 
 if [ -n "${KAS_WORK_DIR}" ]; then
 	KAS_WORK_DIR=$(readlink -f "${KAS_WORK_DIR}")
@@ -90,12 +90,12 @@ fi
 
 case "${KAS_CONTAINER_ENGINE}" in
 docker)
-	CONTAINER_COMMAND="docker"
+	KAS_CONTAINER_COMMAND="docker"
 	;;
 podman)
-	CONTAINER_COMMAND="podman"
-	CONTAINER_IMAGE="docker://${CONTAINER_IMAGE}"
-	RUNTIME_ARGS="--userns=keep-id --security-opt label=disable"
+	KAS_CONTAINER_COMMAND="podman"
+	KAS_CONTAINER_IMAGE="docker://${KAS_CONTAINER_IMAGE}"
+	KAS_RUNTIME_ARGS="--userns=keep-id --security-opt label=disable"
 	;;
 *)
 	echo "$0: unknown container engine '${KAS_CONTAINER_ENGINE}'" >&2
@@ -107,25 +107,25 @@ esac
 while [ $# -gt 0 ]; do
 	case "$1" in
 	--isar)
-		CONTAINER_IMAGE="$(echo "${CONTAINER_IMAGE}" | sed 's|ghcr.io/siemens/kas/kas|ghcr.io/siemens/kas/kas-isar|g')"
-		ISAR_ARGS="--privileged"
+		KAS_CONTAINER_IMAGE="$(echo "${KAS_CONTAINER_IMAGE}" | sed 's|ghcr.io/siemens/kas/kas|ghcr.io/siemens/kas/kas-isar|g')"
+		KAS_ISAR_ARGS="--privileged"
 
 		case "${KAS_CONTAINER_ENGINE}" in
 		docker)
-			ISAR_ARGS="${ISAR_ARGS} --cap-add=SYS_ADMIN"
-			ISAR_ARGS="${ISAR_ARGS} --cap-add=MKNOD"
+			KAS_ISAR_ARGS="${KAS_ISAR_ARGS} --cap-add=SYS_ADMIN"
+			KAS_ISAR_ARGS="${KAS_ISAR_ARGS} --cap-add=MKNOD"
 			;;
 		podman)
 			# sudo is needed for a privileged podman container
-			CONTAINER_COMMAND="sudo ${CONTAINER_COMMAND}"
-			ISAR_ARGS="${ISAR_ARGS} --pid=host"
+			KAS_CONTAINER_COMMAND="sudo ${KAS_CONTAINER_COMMAND}"
+			KAS_ISAR_ARGS="${KAS_ISAR_ARGS} --pid=host"
 			;;
 		esac
 
 		shift 1
 		;;
 	--with-loop-dev)
-		if ! LOOP_DEV=$(/sbin/losetup -f 2>/dev/null); then
+		if ! KAS_LOOP_DEV=$(/sbin/losetup -f 2>/dev/null); then
 			if [ "$(id -u)" -eq 0 ]; then
 				echo "Error: loop device not available!"
 				exit 1
@@ -134,7 +134,7 @@ while [ $# -gt 0 ]; do
 			sudo_message="[sudo] enter password to setup loop"
 			sudo_message="$sudo_message devices by calling"
 			sudo_message="$sudo_message '$sudo_command': " 
-			if ! LOOP_DEV=$(sudo -p "$sudo_message" $sudo_command \
+			if ! KAS_LOOP_DEV=$(sudo -p "$sudo_message" $sudo_command \
 				2>/dev/null); then
 				echo "Error: loop device setup unsuccessful!"
 				echo "try calling '$sudo_command' with root" \
@@ -142,30 +142,30 @@ while [ $# -gt 0 ]; do
 				exit 1
 			fi
 		fi
-		WITH_LOOP_DEV="--device ${LOOP_DEV}"
+		KAS_WITH_LOOP_DEV="--device ${KAS_LOOP_DEV}"
 		shift 1
 		;;
 	--runtime-args|--docker-args)
 		[ $# -gt 0 ] || usage
-		RUNTIME_ARGS="${RUNTIME_ARGS} $2"
+		KAS_RUNTIME_ARGS="${KAS_RUNTIME_ARGS} $2"
 		shift 2
 		;;
 	--ssh-dir)
 		[ $# -gt 2 ] || usage
-		SSH_DIR="$2"
+		KAS_SSH_DIR="$2"
 		shift 2
 		;;
 	--aws-dir)
 		[ $# -gt 2 ] || usage
-		AWS_DIR="$2"
+		KAS_AWS_DIR="$2"
 		shift 2
 		;;
 	--no-proxy-from-env)
-		NO_PROXY_FROM_ENV=1
+		KAS_NO_PROXY_FROM_ENV=1
 		shift 1
 		;;
 	-v)
-		VERBOSE=1
+		KAS_VERBOSE=1
 		shift 1
 		;;
 	--*)
@@ -173,19 +173,19 @@ while [ $# -gt 0 ]; do
 		;;
 	clean)
 		[ $# -eq 1 ] || usage
-		CLEAN_DIR=build/tmp
-		if [ -n "${ISAR_ARGS}" ]; then
-			trace ${CONTAINER_COMMAND} run -v "${KAS_WORK_DIR}":/work:rw \
-					 --workdir=/work --rm ${ISAR_ARGS} \
-					 ${CONTAINER_IMAGE} \
-					 sudo rm -rf ${CLEAN_DIR}
+		KAS_CLEAN_DIR=build/tmp
+		if [ -n "${KAS_ISAR_ARGS}" ]; then
+			trace ${KAS_CONTAINER_COMMAND} run -v "${KAS_WORK_DIR}":/work:rw \
+					 --workdir=/work --rm ${KAS_ISAR_ARGS} \
+					 ${KAS_CONTAINER_IMAGE} \
+					 sudo rm -rf ${KAS_CLEAN_DIR}
 		else
-			trace rm -rf "${KAS_WORK_DIR}/${CLEAN_DIR}"
+			trace rm -rf "${KAS_WORK_DIR}/${KAS_CLEAN_DIR}"
 		fi
 		exit 0
 		;;
 	build|shell)
-		CMD=$1
+		KAS_CMD=$1
 		shift 1
 		break
 		;;
@@ -195,7 +195,7 @@ while [ $# -gt 0 ]; do
 	esac
 done
 
-[ -n "${CMD}" ] || usage
+[ -n "${KAS_CMD}" ] || usage
 
 KAS_EXTRA_BITBAKE_ARGS=0
 
@@ -203,7 +203,7 @@ KAS_EXTRA_BITBAKE_ARGS=0
 while [ $# -gt 0 ] && [ $KAS_EXTRA_BITBAKE_ARGS -eq 0 ]; do
 	case "$1" in
 	-h|--help)
-		trace ${CONTAINER_COMMAND} run ${CONTAINER_IMAGE} ${CMD} --help
+		trace ${KAS_CONTAINER_COMMAND} run ${KAS_CONTAINER_IMAGE} ${KAS_CMD} --help
 		exit 0
 		;;
 	--skip|--target|--task|-c|--cmd|--command)
@@ -220,15 +220,15 @@ while [ $# -gt 0 ] && [ $KAS_EXTRA_BITBAKE_ARGS -eq 0 ]; do
 	*)
 		KAS_FILES=
 		for FILE in $(IFS=':'; echo $1); do
-			if ! REAL_FILE="$(realpath -qe "$FILE")"; then
+			if ! KAS_REAL_FILE="$(realpath -qe "$FILE")"; then
 				echo "Error: configuration file '${FILE}' not found"
 				exit 1
 			fi
 			if [ -z "${KAS_FILES}" ]; then
-				FIRST_KAS_FILE="${REAL_FILE}"
-				KAS_FILES="${REAL_FILE}"
+				KAS_FIRST_FILE="${KAS_REAL_FILE}"
+				KAS_FILES="${KAS_REAL_FILE}"
 			else
-				KAS_FILES="${KAS_FILES}:${REAL_FILE}"
+				KAS_FILES="${KAS_FILES}:${KAS_REAL_FILE}"
 			fi
 		done
 		shift 1
@@ -236,15 +236,15 @@ while [ $# -gt 0 ] && [ $KAS_EXTRA_BITBAKE_ARGS -eq 0 ]; do
 	esac
 done
 
-[ -n "${FIRST_KAS_FILE}" ] || usage
+[ -n "${KAS_FIRST_FILE}" ] || usage
 
-KAS_FILE_DIR="$(dirname "${FIRST_KAS_FILE}")"
+KAS_FILE_DIR="$(dirname "${KAS_FIRST_FILE}")"
 
-REPO_DIR=$(git -C "${KAS_FILE_DIR}" rev-parse --show-toplevel 2>/dev/null) \
-	|| REPO_DIR=$(hg --cwd "${KAS_FILE_DIR}" root 2>/dev/null) \
-	|| REPO_DIR=${KAS_FILE_DIR}
+KAS_REPO_DIR=$(git -C "${KAS_FILE_DIR}" rev-parse --show-toplevel 2>/dev/null) \
+	|| KAS_REPO_DIR=$(hg --cwd "${KAS_FILE_DIR}" root 2>/dev/null) \
+	|| KAS_REPO_DIR=${KAS_FILE_DIR}
 
-KAS_FILES=/repo/"$(echo "${KAS_FILES}" | sed 's|'"${REPO_DIR}"'/||g;s|:|:/repo/|g')"
+KAS_FILES=/repo/"$(echo "${KAS_FILES}" | sed 's|'"${KAS_REPO_DIR}"'/||g;s|:|:/repo/|g')"
 
 trace mkdir -p "${KAS_WORK_DIR}"
 
@@ -255,24 +255,24 @@ if [ "$(id -u)" -eq 0 ] && [ "${KAS_ALLOW_ROOT}" != "yes" ] ; then
 	exit 1
 fi
 
-set -- "$@" -v "${REPO_DIR}":/repo:ro \
+set -- "$@" -v "${KAS_REPO_DIR}":/repo:ro \
 	-v "${KAS_WORK_DIR}":/work:rw --workdir=/work \
 	-e USER_ID="$(id -u)" -e GROUP_ID="$(id -g)" --rm
 
-if [ -n "${SSH_DIR}" ] ; then
-	if [ ! -d "${SSH_DIR}" ]; then
-		echo "Passed SSH_DIR '${SSH_DIR}' is not a directory"
+if [ -n "${KAS_SSH_DIR}" ] ; then
+	if [ ! -d "${KAS_SSH_DIR}" ]; then
+		echo "Passed KAS_SSH_DIR '${KAS_SSH_DIR}' is not a directory"
 		exit 1
 	fi
-	set -- "$@" -v "$(readlink -f "${SSH_DIR}")":/etc/skel/.ssh:ro
+	set -- "$@" -v "$(readlink -f "${KAS_SSH_DIR}")":/etc/skel/.ssh:ro
 fi
 
-if [ -n "${AWS_DIR}" ] ; then
-	if [ ! -d "${AWS_DIR}" ]; then
-		echo "Passed AWS_DIR '${AWS_DIR}' is not a directory"
+if [ -n "${KAS_AWS_DIR}" ] ; then
+	if [ ! -d "${KAS_AWS_DIR}" ]; then
+		echo "Passed KAS_AWS_DIR '${KAS_AWS_DIR}' is not a directory"
 		exit 1
 	fi
-	set -- "$@" -v "$(readlink -f "${AWS_DIR}")":/etc/skel/.aws:ro \
+	set -- "$@" -v "$(readlink -f "${KAS_AWS_DIR}")":/etc/skel/.aws:ro \
 		-e AWS_CONFIG_FILE="${AWS_CONFIG_FILE:-/etc/skel/.aws/config}" \
 		-e AWS_SHARED_CREDENTIALS_FILE="${AWS_SHARED_CREDENTIALS_FILE:-/etc/skel/.aws/credentials}"
 fi
@@ -318,7 +318,7 @@ case "$SHELL" in
 	;;
 esac
 
-if [ -z "${NO_PROXY_FROM_ENV+x}" ]; then
+if [ -z "${KAS_NO_PROXY_FROM_ENV+x}" ]; then
 	for var in http_proxy https_proxy ftp_proxy no_proxy NO_PROXY; do
 		if [ -n "$(eval echo \$${var})" ]; then
 			set -- "$@" -e "${var}=$(eval echo \$${var})"
@@ -326,8 +326,8 @@ if [ -z "${NO_PROXY_FROM_ENV+x}" ]; then
 	done
 fi
 
-set -- "$@" ${ISAR_ARGS} ${WITH_LOOP_DEV} ${RUNTIME_ARGS} \
-	${CONTAINER_IMAGE} ${CMD} ${KAS_OPTIONS} ${KAS_FILES}
+set -- "$@" ${KAS_ISAR_ARGS} ${KAS_WITH_LOOP_DEV} ${KAS_RUNTIME_ARGS} \
+    ${KAS_CONTAINER_IMAGE} ${KAS_CMD} ${KAS_OPTIONS} ${KAS_FILES}
 
 # rotate any extra bitbake args from the front to the end of the argument list
 while [ $KAS_EXTRA_BITBAKE_ARGS -gt 0 ]; do
@@ -337,4 +337,4 @@ while [ $KAS_EXTRA_BITBAKE_ARGS -gt 0 ]; do
 	KAS_EXTRA_BITBAKE_ARGS=$((KAS_EXTRA_BITBAKE_ARGS - 1))
 done
 
-trace ${CONTAINER_COMMAND} run "$@"
+trace ${KAS_CONTAINER_COMMAND} run "$@"
