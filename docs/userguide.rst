@@ -22,7 +22,7 @@ Usage
 There are (at least) four options for using kas:
 
 - Install it locally via pip to get the ``kas`` command.
-- Use the container image locally. In this case, download the ``kas-docker``
+- Use the container image locally. In this case, download the ``kas-container``
   script from the kas repository and use it in place of the ``kas`` command.
   The script version corresponds to the kas tool and the kas image version.
 - Use the container image in CI. Specify
