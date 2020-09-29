@@ -140,7 +140,7 @@ while [ $# -gt 0 ]; do
 			sudo_command="/sbin/losetup -f"
 			sudo_message="[sudo] enter password to setup loop"
 			sudo_message="$sudo_message devices by calling"
-			sudo_message="$sudo_message '$sudo_command': " 
+			sudo_message="$sudo_message '$sudo_command': "
 			if ! KAS_LOOP_DEV=$(sudo -p "$sudo_message" $sudo_command \
 				2>/dev/null); then
 				echo "Error: loop device setup unsuccessful!"
