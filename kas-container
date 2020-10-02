@@ -41,9 +41,9 @@ usage()
 		    "container. Only required if\n"
 	printf "%b" "\t\t\tloop-mounting is used by recipes.\n"
 	printf "%b" "--runtime-args\t\tAdditional arguments to pass to the " \
-		    "container runtime for running the\n"
-	printf "%b" "--docker-args\t\tSame as --runtime-args (deprecated)\n" \
-	printf "%b" "\t\t\tbuild.\n"
+			"container runtime\n"
+	printf "%b" "\t\t\tfor running the build.\n"
+	printf "%b" "--docker-args\t\tSame as --runtime-args (deprecated).\n"
 	printf "%b" "-v\t\t\tPrint operations.\n"
 	printf "%b" "--ssh-dir\t\tDirectory containing SSH configurations.\n"
 	printf "%b" "\t\t\tAvoid \$HOME/.ssh unless you fully trust the " \
