@@ -28,6 +28,7 @@ import logging
 import shutil
 import os
 import pprint
+import sys
 from .libkas import (ssh_cleanup_agent, ssh_setup_agent, ssh_no_host_key_check,
                      get_build_environ, repos_fetch, repos_apply_patches)
 from .includehandler import IncludeException
@@ -303,9 +304,12 @@ class SetupReposStep(Command):
 
         ctx.config.repo_dict = ctx.config._get_repo_dict()
 
-        ctx.missing_repos = [ctx.config.repo_dict[repo_name]
-                             for repo_name in ctx.missing_repo_names
-                             if repo_name in ctx.config.repo_dict]
+        ctx.missing_repos = []
+        for repo_name in ctx.missing_repo_names:
+            if repo_name not in ctx.config.repo_dict:
+                logging.error('Include references unknown repo: %s', repo_name)
+                sys.exit(1)
+            ctx.missing_repos.append(ctx.config.repo_dict[repo_name])
 
         repos_fetch(ctx.missing_repos)
 
