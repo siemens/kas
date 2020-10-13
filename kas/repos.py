@@ -183,16 +183,13 @@ class RepoImpl(Repo):
             return retc
 
         # Make sure the remote origin is set to the value
-        # in the kas file to avoid suprises
+        # in the kas file to avoid surprises
         try:
             (retc, output) = await run_cmd_async(
                 self.set_remote_url_cmd(),
                 cwd=self.path,
-                fail=False,
                 liveupdate=False)
             if retc != 0:
-                logging.info('Changing remote URL to %s failed with error: %s',
-                             self.effective_url, output.strip())
                 return retc
         except NotImplementedError:
             logging.warning('Repo implementation does not support changing '
