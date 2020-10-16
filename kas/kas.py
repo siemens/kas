@@ -34,7 +34,6 @@ import logging
 import signal
 import sys
 import os
-import pkg_resources
 
 try:
     import colorlog
@@ -131,8 +130,6 @@ def kas_get_argparser():
                         help='Enable debug logging')
 
     subparser = parser.add_subparsers(help='sub command help', dest='cmd')
-    for ext_plugin in pkg_resources.iter_entry_points('kas.plugins'):
-        ext_plugin.load()
 
     for plugin in getattr(kasplugin, 'plugins', {}).values():
         plugin_parser = subparser.add_parser(plugin.name, help=plugin.helpmsg)
