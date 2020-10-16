@@ -72,9 +72,6 @@ class Build:
             Executes the build command of the kas plugin.
         """
 
-        if args.cmd != 'build':
-            return False
-
         ctx = create_global_context(args)
         ctx.config = Config(args.config, args.target, args.task)
 
@@ -107,8 +104,6 @@ class Build:
             macro.add(CleanupSSHAgent())
 
         macro.run(ctx, args.skip)
-
-        return True
 
 
 class BuildCommand(Command):

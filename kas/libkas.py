@@ -334,5 +334,7 @@ def kasplugin(plugin_class):
         A decorator that registers kas plugins
     """
     if not hasattr(kasplugin, 'plugins'):
-        setattr(kasplugin, 'plugins', [])
-    getattr(kasplugin, 'plugins').append(plugin_class)
+        setattr(kasplugin, 'plugins', {})
+    getattr(kasplugin, 'plugins').update({
+        plugin_class.name: plugin_class
+    })

@@ -134,7 +134,7 @@ def kas_get_argparser():
     for ext_plugin in pkg_resources.iter_entry_points('kas.plugins'):
         ext_plugin.load()
 
-    for plugin in getattr(kasplugin, 'plugins', []):
+    for plugin in getattr(kasplugin, 'plugins', {}).values():
         plugin_parser = subparser.add_parser(plugin.name, help=plugin.helpmsg)
         setup_parser_common_args(plugin_parser)
         plugin.setup_parser(plugin_parser)
@@ -162,11 +162,11 @@ def kas(argv):
         loop.add_signal_handler(sig, interruption)
     atexit.register(_atexit_handler)
 
-    for plugin in getattr(kasplugin, 'plugins', []):
-        if plugin().run(args):
-            return 0
-
-    parser.print_help()
+    if args.cmd:
+        plugin = getattr(kasplugin, 'plugins', {})[args.cmd]
+        plugin().run(args)
+    else:
+        parser.print_help()
 
 
 def main():

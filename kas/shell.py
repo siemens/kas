@@ -68,9 +68,6 @@ class Shell:
             Runs this kas plugin
         """
 
-        if args.cmd != 'shell':
-            return False
-
         ctx = create_global_context(args)
         ctx.config = Config(args.config, None, None)
 
@@ -107,8 +104,6 @@ class Shell:
             macro.add(CleanupSSHAgent())
 
         macro.run(ctx, args.skip)
-
-        return True
 
 
 class ShellCommand(Command):
