@@ -35,13 +35,11 @@ from kas.libcmds import (Macro, Command, SetupDir, CleanupSSHAgent,
                          WriteBBConfig, SetupHome, ReposApplyPatches,
                          Loop, InitSetupRepos, FinishSetupRepos,
                          SetupReposStep)
-from kas.plugins import kasplugin
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
 
 
-@kasplugin
 class Build:
     """
         This class implements the build plugin for kas.
@@ -135,3 +133,6 @@ class BuildCommand(Command):
                 sys.exit(ret)
         else:
             run_cmd(cmd, cwd=ctx.build_dir)
+
+
+__KAS_PLUGINS__ = [Build]

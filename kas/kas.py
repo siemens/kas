@@ -42,15 +42,7 @@ except ImportError:
     HAVE_COLORLOG = False
 
 from . import __version__, __file_version__, __compatible_file_version__
-
-# Import kas plugins
-# Since they are added by decorators, they don't need to be called,
-# just imported.
-from .plugins import kasplugin
-from .plugins import build
-from .plugins import shell
-
-__all__ = ['build', 'shell']
+from . import plugins
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
@@ -131,7 +123,7 @@ def kas_get_argparser():
 
     subparser = parser.add_subparsers(help='sub command help', dest='cmd')
 
-    for plugin in getattr(kasplugin, 'plugins', {}).values():
+    for plugin in plugins.all():
         plugin_parser = subparser.add_parser(plugin.name, help=plugin.helpmsg)
         setup_parser_common_args(plugin_parser)
         plugin.setup_parser(plugin_parser)
@@ -144,6 +136,7 @@ def kas(argv):
         The actual main entry point of kas.
     """
     create_logger()
+    plugins.load()
 
     parser = kas_get_argparser()
     args = parser.parse_args(argv)
@@ -159,9 +152,10 @@ def kas(argv):
         loop.add_signal_handler(sig, interruption)
     atexit.register(_atexit_handler)
 
-    if args.cmd:
-        plugin = getattr(kasplugin, 'plugins', {})[args.cmd]
-        plugin().run(args)
+    plugin_class = plugins.get(args.cmd)
+    if plugin_class:
+        plugin = plugin_class()
+        plugin.run(args)
     else:
         parser.print_help()
 

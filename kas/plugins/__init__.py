@@ -23,13 +23,37 @@
     This module contains and manages kas plugins
 """
 
+PLUGINS = {}
 
-def kasplugin(plugin_class):
+
+def register_plugins(mod):
     """
-        A decorator that registers kas plugins
+        Register all kas plugins found in a module
     """
-    if not hasattr(kasplugin, 'plugins'):
-        setattr(kasplugin, 'plugins', {})
-    getattr(kasplugin, 'plugins').update({
-        plugin_class.name: plugin_class
-    })
+    for plugin in getattr(mod, '__KAS_PLUGINS__', []):
+        PLUGINS[plugin.name] = plugin
+
+
+def load():
+    """
+        Import all kas plugins
+    """
+    from . import build
+    from . import shell
+
+    register_plugins(build)
+    register_plugins(shell)
+
+
+def get(name):
+    """
+        Lookup a kas plugin class by name
+    """
+    return PLUGINS.get(name, None)
+
+
+def all():
+    """
+        Get a list of all loaded kas plugin classes
+    """
+    return PLUGINS.values()

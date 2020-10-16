@@ -35,13 +35,11 @@ from kas.libcmds import (Macro, Command, SetupDir, SetupEnviron,
                          CleanupSSHAgent, SetupSSHAgent,
                          Loop, InitSetupRepos, FinishSetupRepos,
                          SetupReposStep)
-from kas.plugins import kasplugin
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
 
 
-@kasplugin
 class Shell:
     """
         Implements a kas plugin that opens a shell within the kas environment.
@@ -129,3 +127,6 @@ class ShellCommand(Command):
         if ret != 0:
             logging.error('Shell returned non-zero exit status %d', ret)
             sys.exit(ret)
+
+
+__KAS_PLUGINS__ = [Shell]
