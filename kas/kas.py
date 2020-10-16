@@ -47,9 +47,9 @@ from . import __version__, __file_version__, __compatible_file_version__
 # Import kas plugins
 # Since they are added by decorators, they don't need to be called,
 # just imported.
-from .libkas import kasplugin
-from . import build
-from . import shell
+from .plugins import kasplugin
+from .plugins import build
+from .plugins import shell
 
 __all__ = ['build', 'shell']
 

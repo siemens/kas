@@ -28,14 +28,14 @@ import logging
 import os
 import subprocess
 import sys
-from .libkas import kasplugin
-from .context import create_global_context
-from .config import Config
-from .libcmds import (Macro, Command, SetupDir, SetupEnviron,
-                      WriteBBConfig, SetupHome, ReposApplyPatches,
-                      CleanupSSHAgent, SetupSSHAgent,
-                      Loop, InitSetupRepos, FinishSetupRepos,
-                      SetupReposStep)
+from kas.context import create_global_context
+from kas.config import Config
+from kas.libcmds import (Macro, Command, SetupDir, SetupEnviron,
+                         WriteBBConfig, SetupHome, ReposApplyPatches,
+                         CleanupSSHAgent, SetupSSHAgent,
+                         Loop, InitSetupRepos, FinishSetupRepos,
+                         SetupReposStep)
+from kas.plugins import kasplugin
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
