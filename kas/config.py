@@ -164,8 +164,8 @@ class Config:
         """
             Returns the multiconfig array as bitbake string
         """
-        multiconfigs = []
+        multiconfigs = set()
         for target in self.get_bitbake_targets():
             if target.startswith('multiconfig:') or target.startswith('mc:'):
-                multiconfigs.append(target.split(':')[1])
+                multiconfigs.add(target.split(':')[1])
         return ' '.join(multiconfigs)
