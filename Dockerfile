@@ -15,7 +15,7 @@ RUN apt-get install --no-install-recommends -y \
         xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev \
         pylint3 xterm \
         python3-setuptools python3-wheel python3-yaml \
-        gosu lsb-release file vim less procps tree tar bzip2 bc tmux libncurses-dev \
+        gosu lsb-release file vim less procps tree tar bzip2 zstd bc tmux libncurses-dev \
         dosfstools mtools parted syslinux \
         git-lfs mercurial iproute2 ssh-client curl rsync gnupg awscli && \
     apt-get clean && \
