@@ -45,6 +45,14 @@ class LoadConfigException(Exception):
         Class for exceptions that appear while loading a configuration file.
     """
     def __init__(self, message, filename):
+        """
+        Initialize a new message.
+
+        Args:
+            self: (todo): write your description
+            message: (str): write your description
+            filename: (str): write your description
+        """
         super().__init__('{}: {}'.format(message, filename))
 
 
@@ -123,6 +131,13 @@ class IncludeHandler:
     """
 
     def __init__(self, top_files):
+        """
+        Initialize the directory.
+
+        Args:
+            self: (todo): write your description
+            top_files: (str): write your description
+        """
         self.top_files = top_files
 
     def get_config(self, repos=None):

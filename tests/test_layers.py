@@ -29,6 +29,12 @@ import pytest
 
 @pytest.fixture
 def dokas(tmpdir):
+    """
+    Create a temporary directory.
+
+    Args:
+        tmpdir: (str): write your description
+    """
     tdir = str(tmpdir.mkdir('test_layers'))
     shutil.rmtree(tdir, ignore_errors=True)
     shutil.copytree('tests/test_layers', tdir)
@@ -39,6 +45,12 @@ def dokas(tmpdir):
 
 
 def test_layers_default(dokas):
+    """
+    Default test layers.
+
+    Args:
+        dokas: (todo): write your description
+    """
     match = 0
     with open('build/conf/bblayers.conf', 'r') as f:
         for line in f:
@@ -48,6 +60,12 @@ def test_layers_default(dokas):
 
 
 def test_layers_include(dokas):
+    """
+    Test for include layers are included layers.
+
+    Args:
+        dokas: (todo): write your description
+    """
     match = 0
     with open('build/conf/bblayers.conf', 'r') as f:
         for line in f:
@@ -57,6 +75,12 @@ def test_layers_include(dokas):
 
 
 def test_layers_exclude(dokas):
+    """
+    Exclude all layers in a file.
+
+    Args:
+        dokas: (todo): write your description
+    """
     with open('build/conf/bblayers.conf', 'r') as f:
         for line in f:
             assert('test_layers/kas2' not in line)

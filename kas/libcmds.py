@@ -42,6 +42,12 @@ class Macro:
         Contains commands and provides method to run them.
     """
     def __init__(self):
+        """
+        Initialize the commands.
+
+        Args:
+            self: (todo): write your description
+        """
         self.commands = []
 
     def add(self, command):
@@ -81,10 +87,23 @@ class Loop(Command):
         A class that defines a set of commands as a loop.
     """
     def __init__(self, name):
+        """
+        Initializes a new commands.
+
+        Args:
+            self: (todo): write your description
+            name: (str): write your description
+        """
         self.commands = []
         self.name = name
 
     def __str__(self):
+        """
+        Return the string representation of this object.
+
+        Args:
+            self: (todo): write your description
+        """
         return self.name
 
     def add(self, command):
@@ -100,6 +119,12 @@ class Loop(Command):
         loop_name = str(self)
 
         def executor(command):
+            """
+            Execute a command.
+
+            Args:
+                command: (str): write your description
+            """
             command_name = str(command)
             logging.debug('Loop %s: execute %s', loop_name, command_name)
             return command.execute(ctx)
@@ -114,16 +139,41 @@ class SetupHome(Command):
     """
 
     def __init__(self):
+        """
+        Create a temporary directory.
+
+        Args:
+            self: (todo): write your description
+        """
         super().__init__()
         self.tmpdirname = tempfile.mkdtemp()
 
     def __del__(self):
+        """
+        Delete the temporary directory.
+
+        Args:
+            self: (todo): write your description
+        """
         shutil.rmtree(self.tmpdirname)
 
     def __str__(self):
+        """
+        Return a string representation of this object.
+
+        Args:
+            self: (todo): write your description
+        """
         return 'setup_home'
 
     def execute(self, ctx):
+        """
+        Execute the command.
+
+        Args:
+            self: (todo): write your description
+            ctx: (todo): write your description
+        """
         with open(self.tmpdirname + '/.wgetrc', 'w') as fds:
             fds.write('\n')
         with open(self.tmpdirname + '/.netrc', 'w') as fds:
@@ -151,9 +201,22 @@ class SetupDir(Command):
     """
 
     def __str__(self):
+        """
+        Return a string representation of this object.
+
+        Args:
+            self: (todo): write your description
+        """
         return 'setup_dir'
 
     def execute(self, ctx):
+        """
+        Execute the command.
+
+        Args:
+            self: (todo): write your description
+            ctx: (todo): write your description
+        """
         os.chdir(ctx.kas_work_dir)
         if not os.path.exists(ctx.build_dir):
             os.mkdir(ctx.build_dir)
@@ -165,9 +228,22 @@ class SetupSSHAgent(Command):
     """
 
     def __str__(self):
+        """
+        Return a string representation of this object.
+
+        Args:
+            self: (todo): write your description
+        """
         return 'setup_ssh_agent'
 
     def execute(self, ctx):
+        """
+        Set up ssh agent setup.
+
+        Args:
+            self: (todo): write your description
+            ctx: (todo): write your description
+        """
         ssh_setup_agent()
         ssh_no_host_key_check()
 
@@ -178,9 +254,22 @@ class CleanupSSHAgent(Command):
     """
 
     def __str__(self):
+        """
+        Return a string representation of this object.
+
+        Args:
+            self: (todo): write your description
+        """
         return 'cleanup_ssh_agent'
 
     def execute(self, ctx):
+        """
+        Executes the given command.
+
+        Args:
+            self: (todo): write your description
+            ctx: (todo): write your description
+        """
         ssh_cleanup_agent()
 
 
@@ -190,9 +279,22 @@ class SetupEnviron(Command):
     """
 
     def __str__(self):
+        """
+        Return a string representation of this object.
+
+        Args:
+            self: (todo): write your description
+        """
         return 'setup_environ'
 
     def execute(self, ctx):
+        """
+        Execute the command.
+
+        Args:
+            self: (todo): write your description
+            ctx: (todo): write your description
+        """
         ctx.environ.update(get_build_environ())
 
 
@@ -202,10 +304,29 @@ class WriteBBConfig(Command):
     """
 
     def __str__(self):
+        """
+        Return a string representation of this object.
+
+        Args:
+            self: (todo): write your description
+        """
         return 'write_bbconfig'
 
     def execute(self, ctx):
+        """
+        Execute bblayers.
+
+        Args:
+            self: (todo): write your description
+            ctx: (todo): write your description
+        """
         def _write_bblayers_conf(ctx):
+            """
+            Write bblayers config file.
+
+            Args:
+                ctx: (todo): write your description
+            """
             filename = ctx.build_dir + '/conf/bblayers.conf'
             if not os.path.isdir(os.path.dirname(filename)):
                 os.makedirs(os.path.dirname(filename))
@@ -218,6 +339,12 @@ class WriteBBConfig(Command):
                 fds.write('"\n')
 
         def _write_local_conf(ctx):
+            """
+            Write local config.
+
+            Args:
+                ctx: (todo): write your description
+            """
             filename = ctx.build_dir + '/conf/local.conf'
             with open(filename, 'w') as fds:
                 fds.write(ctx.config.get_local_conf_header())
@@ -238,9 +365,22 @@ class ReposFetch(Command):
     """
 
     def __str__(self):
+        """
+        Return a string representation of this object.
+
+        Args:
+            self: (todo): write your description
+        """
         return 'repos_fetch'
 
     def execute(self, ctx):
+        """
+        Execute a command.
+
+        Args:
+            self: (todo): write your description
+            ctx: (todo): write your description
+        """
         repos_fetch(ctx.config.get_repos())
 
 
@@ -250,9 +390,22 @@ class ReposApplyPatches(Command):
     """
 
     def __str__(self):
+        """
+        Return a string representation of this object.
+
+        Args:
+            self: (todo): write your description
+        """
         return 'repos_apply_patches'
 
     def execute(self, ctx):
+        """
+        Execute the given configuration.
+
+        Args:
+            self: (todo): write your description
+            ctx: (todo): write your description
+        """
         repos_apply_patches(ctx.config.get_repos())
 
 
@@ -262,9 +415,22 @@ class ReposCheckout(Command):
     """
 
     def __str__(self):
+        """
+        Return a string representation of this object.
+
+        Args:
+            self: (todo): write your description
+        """
         return 'repos_checkout'
 
     def execute(self, ctx):
+        """
+        Execute a repository.
+
+        Args:
+            self: (todo): write your description
+            ctx: (todo): write your description
+        """
         for repo in ctx.config.get_repos():
             repo.checkout()
 
@@ -275,9 +441,22 @@ class InitSetupRepos(Command):
     """
 
     def __str__(self):
+        """
+        Return a string representation of this object.
+
+        Args:
+            self: (todo): write your description
+        """
         return 'init_setup_repos'
 
     def execute(self, ctx):
+        """
+        Execute the repositories
+
+        Args:
+            self: (todo): write your description
+            ctx: (todo): write your description
+        """
         ctx.missing_repo_names = ctx.config.find_missing_repos()
         ctx.missing_repo_names_old = None
 
@@ -288,6 +467,12 @@ class SetupReposStep(Command):
     """
 
     def __str__(self):
+        """
+        Return a string representation of this object.
+
+        Args:
+            self: (todo): write your description
+        """
         return 'setup_repos_step'
 
     def execute(self, ctx):
@@ -334,6 +519,12 @@ class FinishSetupRepos(Command):
     """
 
     def __str__(self):
+        """
+        Return a string representation of this object.
+
+        Args:
+            self: (todo): write your description
+        """
         return 'finish_setup_repos'
 
     def execute(self, ctx):

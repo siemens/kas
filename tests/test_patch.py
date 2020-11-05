@@ -30,11 +30,23 @@ import pytest
 
 @pytest.fixture
 def changedir():
+    """
+    Context manager changes.
+
+    Args:
+    """
     yield
     os.chdir(os.path.join(os.path.dirname(__file__), '..'))
 
 
 def test_patch(changedir, tmpdir):
+    """
+    Patch a directory.
+
+    Args:
+        changedir: (str): write your description
+        tmpdir: (str): write your description
+    """
     tdir = str(tmpdir.mkdir('test_patch'))
     shutil.rmtree(tdir, ignore_errors=True)
     shutil.copytree('tests/test_patch', tdir)

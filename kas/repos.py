@@ -42,6 +42,18 @@ class Repo:
 
     def __init__(self, url, path, refspec, layers, patches,
                  disable_operations):
+        """
+        Init a new layers.
+
+        Args:
+            self: (todo): write your description
+            url: (str): write your description
+            path: (str): write your description
+            refspec: (todo): write your description
+            layers: (list): write your description
+            patches: (todo): write your description
+            disable_operations: (todo): write your description
+        """
         self.url = url
         self.path = path
         self.refspec = refspec
@@ -51,6 +63,13 @@ class Repo:
         self.operations_disabled = disable_operations
 
     def __getattr__(self, item):
+        """
+        Return the attribute from an item.
+
+        Args:
+            self: (todo): write your description
+            item: (str): write your description
+        """
         if item == 'layers':
             return [os.path.join(self.path, layer).rstrip(os.sep)
                     for layer in self._layers]
@@ -76,6 +95,12 @@ class Repo:
         raise AttributeError
 
     def __str__(self):
+        """
+        Return a string representation of this reference.
+
+        Args:
+            self: (todo): write your description
+        """
         return '%s:%s %s %s' % (self.url, self.refspec,
                                 self.path, self._layers)
 
@@ -338,32 +363,83 @@ class GitRepo(RepoImpl):
     """
 
     def add_cmd(self):
+        """
+        Add cmd to the cmd.
+
+        Args:
+            self: (todo): write your description
+        """
         return ['git', 'add', '-A']
 
     def clone_cmd(self, gitsrcdir):
+        """
+        Clone a clone of the ref.
+
+        Args:
+            self: (todo): write your description
+            gitsrcdir: (str): write your description
+        """
         cmd = ['git', 'clone', '-q', self.effective_url, self.path]
         if get_context().kas_repo_ref_dir and os.path.exists(gitsrcdir):
             cmd.extend(['--reference', gitsrcdir])
         return cmd
 
     def commit_cmd(self):
+        """
+        Commit commit changes.
+
+        Args:
+            self: (todo): write your description
+        """
         return ['git', 'commit', '-a', '--author', 'kas <kas@example.com>',
                 '-m', 'msg']
 
     def contains_refspec_cmd(self):
+        """
+        Return true if the refspecspec contains refspec.
+
+        Args:
+            self: (todo): write your description
+        """
         return ['git', 'cat-file', '-t', self.refspec]
 
     def fetch_cmd(self):
+        """
+        Fet of cmd.
+
+        Args:
+            self: (todo): write your description
+        """
         return ['git', 'fetch']
 
     def is_dirty_cmd(self):
+        """
+        Return true if the command is installed.
+
+        Args:
+            self: (todo): write your description
+        """
         return ['git', 'status', '-s']
 
     def resolve_branch_cmd(self):
+        """
+        Resolve the refspec.
+
+        Args:
+            self: (todo): write your description
+        """
         return ['git', 'rev-parse', '--verify', '-q',
                 'origin/{refspec}'.format(refspec=self.refspec)]
 
     def checkout_cmd(self, desired_ref, branch):
+        """
+        Checkout the given refspec for the given branch.
+
+        Args:
+            self: (todo): write your description
+            desired_ref: (str): write your description
+            branch: (todo): write your description
+        """
         cmd = ['git', 'checkout', '-q', desired_ref]
         if branch:
             cmd.extend(['-B', self.refspec])
@@ -372,13 +448,32 @@ class GitRepo(RepoImpl):
         return cmd
 
     def prepare_patches_cmd(self):
+        """
+        Prepare the refspec for refspecspec.
+
+        Args:
+            self: (todo): write your description
+        """
         return ['git', 'checkout', '-q', '-B',
                 'patched-{refspec}'.format(refspec=self.refspec)]
 
     def apply_patches_file_cmd(self, path):
+        """
+        Apply file paths to a file.
+
+        Args:
+            self: (todo): write your description
+            path: (str): write your description
+        """
         return ['git', 'apply', path]
 
     def set_remote_url_cmd(self):
+        """
+        Sets the remote command.
+
+        Args:
+            self: (todo): write your description
+        """
         return ['git', 'remote', 'set-url', 'origin', self.effective_url]
 
 
@@ -388,39 +483,109 @@ class MercurialRepo(RepoImpl):
     """
 
     def add_cmd(self):
+        """
+        Add command to the command.
+
+        Args:
+            self: (todo): write your description
+        """
         return ['hg', 'add']
 
     def clone_cmd(self, srcdir):
+        """
+        Clone a clone.
+
+        Args:
+            self: (todo): write your description
+            srcdir: (str): write your description
+        """
         return ['hg', 'clone', self.effective_url, self.path]
 
     def commit_cmd(self):
+        """
+        Commit changes.
+
+        Args:
+            self: (todo): write your description
+        """
         return ['hg', 'commit', '--user', 'kas <kas@example.com>', '-m', 'msg']
 
     def contains_refspec_cmd(self):
+        """
+        Return true if the refspecspec contains refspec.
+
+        Args:
+            self: (todo): write your description
+        """
         return ['hg', 'log', '-r', self.refspec]
 
     def fetch_cmd(self):
+        """
+        Fet of cmd.
+
+        Args:
+            self: (todo): write your description
+        """
         return ['hg', 'pull']
 
     def is_dirty_cmd(self):
+        """
+        Return true if the command is installed.
+
+        Args:
+            self: (todo): write your description
+        """
         return ['hg', 'diff']
 
     def resolve_branch_cmd(self):
+        """
+        Resolve a list of branches.
+
+        Args:
+            self: (todo): write your description
+        """
         # We never need to care about creating tracking branches in mercurial
         return ['false']
 
     def checkout_cmd(self, desired_ref, branch):
+        """
+        Checkout the given branch.
+
+        Args:
+            self: (todo): write your description
+            desired_ref: (str): write your description
+            branch: (todo): write your description
+        """
         cmd = ['hg', 'checkout', desired_ref]
         if get_context().force_checkout:
             cmd.append('--clean')
         return cmd
 
     def prepare_patches_cmd(self):
+        """
+        Return list of refspecspec for patches.
+
+        Args:
+            self: (todo): write your description
+        """
         return ['hg', 'branch', '-f',
                 'patched-{refspec}'.format(refspec=self.refspec)]
 
     def apply_patches_file_cmd(self, path):
+        """
+        Apply file pattern to file.
+
+        Args:
+            self: (todo): write your description
+            path: (str): write your description
+        """
         return ['hg', 'import', '--no-commit', path]
 
     def set_remote_url_cmd(self):
+        """
+        Sets the url.
+
+        Args:
+            self: (todo): write your description
+        """
         raise NotImplementedError()

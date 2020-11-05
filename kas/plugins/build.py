@@ -111,10 +111,23 @@ class BuildCommand(Command):
     """
 
     def __init__(self, extra_bitbake_args):
+        """
+        Initialize the bitbake.
+
+        Args:
+            self: (todo): write your description
+            extra_bitbake_args: (dict): write your description
+        """
         super().__init__()
         self.extra_bitbake_args = extra_bitbake_args
 
     def __str__(self):
+        """
+        Return a string representation of this object.
+
+        Args:
+            self: (todo): write your description
+        """
         return 'build'
 
     def execute(self, ctx):

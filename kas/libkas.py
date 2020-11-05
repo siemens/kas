@@ -43,6 +43,13 @@ class LogOutput:
         Handles the log output of executed applications
     """
     def __init__(self, live):
+        """
+        Initialize live live
+
+        Args:
+            self: (todo): write your description
+            live: (todo): write your description
+        """
         self.live = live
         self.stdout = []
         self.stderr = []
@@ -151,6 +158,12 @@ def find_program(paths, name):
 
 
 def _create_task(routine):
+    """
+    Create a task object.
+
+    Args:
+        routine: (str): write your description
+    """
     try:
         creation_func = asyncio.ensure_future
     except AttributeError:

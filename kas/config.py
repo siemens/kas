@@ -36,6 +36,15 @@ class Config:
         Implements the kas configuration based on config files.
     """
     def __init__(self, filename, target, task=None):
+        """
+        Initialize a configuration file.
+
+        Args:
+            self: (todo): write your description
+            filename: (str): write your description
+            target: (todo): write your description
+            task: (str): write your description
+        """
         self._override_target = target
         self._override_task = task
         self._config = {}

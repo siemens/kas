@@ -110,15 +110,35 @@ class ShellCommand(Command):
     """
 
     def __init__(self, cmd):
+        """
+        Initialize the cmd.
+
+        Args:
+            self: (todo): write your description
+            cmd: (int): write your description
+        """
         super().__init__()
         self.cmd = []
         if cmd:
             self.cmd = cmd
 
     def __str__(self):
+        """
+        Return a string representation of this object.
+
+        Args:
+            self: (todo): write your description
+        """
         return 'shell'
 
     def execute(self, ctx):
+        """
+        Execute the command.
+
+        Args:
+            self: (todo): write your description
+            ctx: (todo): write your description
+        """
         cmd = [ctx.environ.get('SHELL', '/bin/sh')]
         if self.cmd:
             cmd.append('-c')

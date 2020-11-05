@@ -71,6 +71,12 @@ class Context:
         Implements the kas build context.
     """
     def __init__(self, args):
+        """
+        Initialize the environment.
+
+        Args:
+            self: (todo): write your description
+        """
         self.__kas_work_dir = os.environ.get('KAS_WORK_DIR', os.getcwd())
         self.__kas_repo_ref_dir = os.environ.get('KAS_REPO_REF_DIR', None)
         self.setup_initial_environ()
@@ -129,8 +135,20 @@ class Context:
 
     @property
     def force_checkout(self):
+        """
+        Force checkout of the arguments.
+
+        Args:
+            self: (todo): write your description
+        """
         return getattr(self.args, 'force_checkout', None)
 
     @property
     def update(self):
+        """
+        Update the configuration parameters.
+
+        Args:
+            self: (todo): write your description
+        """
         return getattr(self.args, 'update', None)

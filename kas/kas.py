@@ -92,6 +92,12 @@ def _atexit_handler():
 
 
 def setup_parser_common_args(parser):
+    """
+    Setup common arguments to the argument parser.
+
+    Args:
+        parser: (todo): write your description
+    """
     parser.add_argument('config',
                         help='Config file')
     parser.add_argument('--skip',

@@ -30,6 +30,11 @@ import pytest
 
 @pytest.fixture
 def changedir():
+    """
+    Context manager changes.
+
+    Args:
+    """
     yield
     os.chdir(os.path.join(os.path.dirname(__file__), '..'))
 

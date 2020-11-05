@@ -33,21 +33,47 @@ from kas import includehandler
 
 @pytest.fixture(autouse=True)
 def fixed_version(monkeypatch):
+    """
+    Set the version.
+
+    Args:
+        monkeypatch: (todo): write your description
+    """
     monkeypatch.setattr(includehandler, '__file_version__', 5)
     monkeypatch.setattr(includehandler, '__compatible_file_version__', 4)
 
 
 class MockFileIO(io.StringIO):
     def close(self):
+        """
+        Close the file.
+
+        Args:
+            self: (todo): write your description
+        """
         self.seek(0)
 
 
 def mock_file(indented_content):
+    """
+    Mock a string into a string.
+
+    Args:
+        indented_content: (todo): write your description
+    """
     return MockFileIO(textwrap.dedent(indented_content))
 
 
 @contextlib.contextmanager
 def patch_open(component, string='', dictionary=None):
+    """
+    Patch a component in a component.
+
+    Args:
+        component: (todo): write your description
+        string: (str): write your description
+        dictionary: (dict): write your description
+    """
     dictionary = dictionary or {}
     old_attr = getattr(component, 'open', None)
     component.open = lambda f, *a, **k: mock_file(dictionary.get(f, string))
@@ -60,18 +86,37 @@ def patch_open(component, string='', dictionary=None):
 
 class TestLoadConfig:
     def test_err_invalid_ext(self):
+        """
+        Check if the config file.
+
+        Args:
+            self: (todo): write your description
+        """
         # Test for invalid file extension:
         exception = includehandler.LoadConfigException
         with pytest.raises(exception):
             includehandler.load_config('x.xyz')
 
     def util_exception_content(self, testvector):
+        """
+        Loads the testvector into the testvector.
+
+        Args:
+            self: (todo): write your description
+            testvector: (todo): write your description
+        """
         for string, exception in testvector:
             with patch_open(includehandler, string=string):
                 with pytest.raises(exception):
                     includehandler.load_config('x.yml')
 
     def test_err_header_missing(self):
+        """
+        The http : attr : meth : attr : test_content.
+
+        Args:
+            self: (todo): write your description
+        """
         exception = includehandler.LoadConfigException
         testvector = [
             ('', exception),
@@ -83,6 +128,12 @@ class TestLoadConfig:
         self.util_exception_content(testvector)
 
     def test_err_header_invalid_type(self):
+        """
+        Sets the error type for the testvector.
+
+        Args:
+            self: (todo): write your description
+        """
         exception = includehandler.LoadConfigException
         testvector = [
             ('header:', exception),
@@ -94,6 +145,12 @@ class TestLoadConfig:
         self.util_exception_content(testvector)
 
     def test_err_version_missing(self):
+        """
+        Test if the test test errors.
+
+        Args:
+            self: (todo): write your description
+        """
         exception = includehandler.LoadConfigException
         testvector = [
             ('header: {}', exception),
@@ -103,6 +160,12 @@ class TestLoadConfig:
         self.util_exception_content(testvector)
 
     def test_err_version_invalid_format(self):
+        """
+        Test if the test errors
+
+        Args:
+            self: (todo): write your description
+        """
         exception = includehandler.LoadConfigException
         testvector = [
             ('header: {version: "0.5"}', exception),
@@ -114,6 +177,12 @@ class TestLoadConfig:
         self.util_exception_content(testvector)
 
     def test_header_valid(self):
+        """
+        Validate testvector header.
+
+        Args:
+            self: (todo): write your description
+        """
         testvector = [
             'header: {version: 4}',
             'header: {version: 5}',
@@ -123,6 +192,13 @@ class TestLoadConfig:
                 includehandler.load_config('x.yml')
 
     def test_compat_version(self, monkeypatch):
+        """
+        Load the version of the given patch.
+
+        Args:
+            self: (todo): write your description
+            monkeypatch: (todo): write your description
+        """
         monkeypatch.setattr(includehandler, '__compatible_file_version__', 1)
         with patch_open(includehandler, string='header: {version: "0.10"}'):
             includehandler.load_config('x.yml')
@@ -135,6 +211,14 @@ header:
 {}'''
 
     def util_include_content(self, testvector, monkeypatch):
+        """
+        Convert test test test for testvector.
+
+        Args:
+            self: (todo): write your description
+            testvector: (todo): write your description
+            monkeypatch: (todo): write your description
+        """
         # disable schema validation for these tests:
         monkeypatch.setattr(includehandler, 'CONFIGSCHEMA', {})
         for test in testvector:
@@ -149,6 +233,13 @@ header:
                 assert test['rmiss'] == missing
 
     def test_valid_includes_none(self, monkeypatch):
+        """
+        Validate testvector.
+
+        Args:
+            self: (todo): write your description
+            monkeypatch: (todo): write your description
+        """
         header = self.__class__.header
         testvector = [
             {
@@ -167,6 +258,13 @@ header:
         self.util_include_content(testvector, monkeypatch)
 
     def test_valid_includes_some(self, monkeypatch):
+        """
+        Test for test test test test test.
+
+        Args:
+            self: (todo): write your description
+            monkeypatch: (todo): write your description
+        """
         header = self.__class__.header
         testvector = [
             # Include one file from the same repo:
@@ -235,6 +333,13 @@ header:
         self.util_include_content(testvector, monkeypatch)
 
     def test_valid_overwriting(self, monkeypatch):
+        """
+        Test for test test testvector.
+
+        Args:
+            self: (todo): write your description
+            monkeypatch: (todo): write your description
+        """
         header = self.__class__.header
         testvector = [
             {
@@ -296,6 +401,13 @@ v3:
         self.util_include_content(testvector, monkeypatch)
 
     def test_valid_merging(self, monkeypatch):
+        """
+        Validate test test test test test test test test test test test test test test test test test test test.
+
+        Args:
+            self: (todo): write your description
+            monkeypatch: (todo): write your description
+        """
         header = self.__class__.header
         testvector = [
             {
@@ -335,6 +447,13 @@ v3:
         self.util_include_content(testvector, monkeypatch)
 
     def test_valid_ordering(self, monkeypatch):
+        """
+        Generate test test ordering.
+
+        Args:
+            self: (todo): write your description
+            monkeypatch: (todo): write your description
+        """
         # disable schema validation for this test:
         monkeypatch.setattr(includehandler, 'CONFIGSCHEMA', {})
         header = self.__class__.header
