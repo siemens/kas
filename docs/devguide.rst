@@ -78,18 +78,6 @@ Class reference documentation
 .. automodule:: kas.libcmds
    :members:
 
-``kas.build`` Module
-....................
-
-.. automodule:: kas.build
-   :members:
-
-``kas.shell`` Module
-....................
-
-.. automodule:: kas.shell
-   :members:
-
 ``kas.config`` Module
 .....................
 
@@ -108,3 +96,8 @@ Class reference documentation
 .. automodule:: kas.includehandler
    :members:
 
+``kas.plugins`` Module
+......................
+
+.. automodule:: kas.plugins
+   :members:
