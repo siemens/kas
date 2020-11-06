@@ -49,7 +49,7 @@ def test_refspec_switch(changedir, tmpdir):
                            fail=False, liveupdate=False)
     assert rc != 0
     assert output.strip() == ''
-    (rc, output) = run_cmd(['git', 'rev-parse', '-q', 'HEAD'], cwd='kas',
+    (rc, output) = run_cmd(['git', 'rev-parse', 'HEAD'], cwd='kas',
                            fail=False, liveupdate=False)
     assert rc == 0
     assert output.strip() == '907816a5c4094b59a36aec12226e71c461c05b77'
@@ -67,7 +67,7 @@ def test_refspec_switch(changedir, tmpdir):
                            fail=False, liveupdate=False)
     assert rc != 0
     assert output.strip() == ''
-    (rc, output) = run_cmd(['git', 'rev-parse', '-q', 'HEAD'], cwd='kas2',
+    (rc, output) = run_cmd(['git', 'rev-parse', 'HEAD'], cwd='kas2',
                            fail=False, liveupdate=False)
     assert rc == 0
     assert output.strip() == '907816a5c4094b59a36aec12226e71c461c05b77'
