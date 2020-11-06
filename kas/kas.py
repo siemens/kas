@@ -109,6 +109,12 @@ def kas_get_argparser():
     """
         Creates an argparser for kas with all plugins.
     """
+
+    # Load plugins here so that the commands and arguments introduced by the
+    # plugins can be seen by sphinx when it calls this function to build the
+    # documentation
+    plugins.load()
+
     parser = argparse.ArgumentParser(description='kas - setup tool for '
                                      'bitbake based project')
 
@@ -136,7 +142,6 @@ def kas(argv):
         The actual main entry point of kas.
     """
     create_logger()
-    plugins.load()
 
     parser = kas_get_argparser()
     args = parser.parse_args(argv)
