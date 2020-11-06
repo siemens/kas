@@ -1,5 +1,5 @@
-Introduction and installation
-=============================
+Introduction
+============
 
 This tool provides an easy mechanism to setup bitbake based
 projects.
