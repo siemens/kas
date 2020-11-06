@@ -8,6 +8,7 @@ Contents:
 
    intro
    userguide
+   command-line
    devguide
    format-changelog
 
