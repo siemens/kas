@@ -20,8 +20,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 """
-    This module contains a kas plugin that opens a shell within the kas
-    environment
+    This plugin implements the ``kas shell`` command.
+
+    When this command is executed, kas will checkout repositories, setup the
+    build environment and then start a shell in the build environment. This
+    can be used to manually run ``bitbake`` with custom command line options
+    or to execute other commands such as ``runqemu``.
+
+    For example, to start a shell in the build environment for the file
+    ``kas-project.yml`` you could run::
+
+        kas shell kas-project.yml
+
+    Or to invoke qemu to test an image which has been built::
+
+        kas shell kas-project.yml -c 'runqemu'
 """
 
 import logging

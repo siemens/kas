@@ -20,7 +20,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 """
-    The build plugin for kas.
+    This plugin implements the ``kas build`` command.
+
+    When this command is executed, kas will checkout repositories, setup the
+    build environment and then invoke bitbake to build the targets selected
+    in the chosen config file.
+
+    For example, to build the configuration described in the file
+    ``kas-project.yml`` you could run::
+
+        kas build kas-project.yml
 """
 
 import logging
@@ -48,7 +57,7 @@ class Build:
     name = 'build'
     helpmsg = (
         'Checks out all necessary repositories and builds using bitbake as '
-        'specificed in the configuration file.'
+        'specified in the configuration file.'
     )
 
     @classmethod

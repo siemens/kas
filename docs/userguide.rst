@@ -65,6 +65,23 @@ Use Cases
     $ kas build kas-project.yml
 
 
+Plugins
+-------
+
+kas sub-commands are implemented by a series of plugins. Each plugin
+typically provides a single command.
+
+``build`` plugin
+~~~~~~~~~~~~~~~~
+
+.. automodule:: kas.plugins.build
+
+``shell`` plugin
+~~~~~~~~~~~~~~~~
+
+.. automodule:: kas.plugins.shell
+
+
 Project Configuration
 ---------------------
 
