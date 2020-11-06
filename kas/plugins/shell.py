@@ -80,7 +80,7 @@ class Shell:
         """
 
         ctx = create_global_context(args)
-        ctx.config = Config(args.config, None, None)
+        ctx.config = Config(args.config)
 
         macro = Macro()
 
