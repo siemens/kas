@@ -21,34 +21,11 @@
 # SOFTWARE.
 
 import os
-import stat
-import shutil
-from kas import kas
+
+import pytest
 
 
-def test_patch(changedir, tmpdir):
-    tdir = str(tmpdir.mkdir('test_patch'))
-    shutil.rmtree(tdir, ignore_errors=True)
-    shutil.copytree('tests/test_patch', tdir)
-    os.chdir(tdir)
-    kas.kas(['shell', 'test.yml', '-c', 'true'])
-    for f in ['kas/tests/test_patch/hello.sh', 'hello/hello.sh']:
-        assert os.stat(f)[stat.ST_MODE] & stat.S_IXUSR
-    kas.kas(['shell', 'test.yml', '-c', 'true'])
-
-
-def test_patch_update(changedir, tmpdir):
-    """
-        Test that patches are applied correctly after switching refspec from
-        a branch to a commit hash and vice-versa with both git and mercurial
-        repositories.
-    """
-    tdir = str(tmpdir.mkdir('test_patch_update'))
-    shutil.rmtree(tdir, ignore_errors=True)
-    print(os.getcwd())
-    shutil.copytree('tests/test_patch', tdir)
-    os.chdir(tdir)
-    kas.kas(['shell', 'test.yml', '-c', 'true'])
-    kas.kas(['shell', 'test2.yml', '-c', 'true'])
-    for f in ['kas/tests/test_patch/hello.sh', 'hello/hello.sh']:
-        assert os.stat(f)[stat.ST_MODE] & stat.S_IXUSR
+@pytest.fixture
+def changedir():
+    yield
+    os.chdir(os.path.join(os.path.dirname(__file__), '..'))

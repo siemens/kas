@@ -25,14 +25,6 @@ import shutil
 from kas import kas
 from kas.libkas import run_cmd
 
-import pytest
-
-
-@pytest.fixture
-def changedir():
-    yield
-    os.chdir(os.path.join(os.path.dirname(__file__), '..'))
-
 
 def test_refspec_switch(changedir, tmpdir):
     """
