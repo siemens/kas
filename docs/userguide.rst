@@ -76,6 +76,11 @@ typically provides a single command.
 
 .. automodule:: kas.plugins.build
 
+``forallrepos`` plugin
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: kas.plugins.forallrepos
+
 ``shell`` plugin
 ~~~~~~~~~~~~~~~~
 

@@ -39,9 +39,11 @@ def load():
         Import all kas plugins
     """
     from . import build
+    from . import forallrepos
     from . import shell
 
     register_plugins(build)
+    register_plugins(forallrepos)
     register_plugins(shell)
 
 
