@@ -109,10 +109,11 @@ async def run_cmd_async(cmd, cwd, env=None, fail=True, liveupdate=True):
             raise ex
         return (errno.EPERM, str(ex))
 
-    await asyncio.wait([
-        _read_stream(process.stdout, logo.log_stdout),
-        _read_stream(process.stderr, logo.log_stderr)
-    ])
+    tasks = [
+        asyncio.ensure_future(_read_stream(process.stdout, logo.log_stdout)),
+        asyncio.ensure_future(_read_stream(process.stderr, logo.log_stderr))
+    ]
+    await asyncio.wait(tasks)
     ret = await process.wait()
 
     if ret and fail:
