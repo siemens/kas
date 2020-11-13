@@ -84,8 +84,16 @@ def _atexit_handler():
     """
         Waits for completion of the event loop
     """
-    loop = asyncio.get_event_loop()
-    pending = asyncio.Task.all_tasks()
+    try:
+        loop = asyncio.get_running_loop()
+        pending = asyncio.all_tasks(loop)
+    except RuntimeError:
+        # no running loop anymore, nothing to do
+        return
+    except AttributeError:
+        # for Python < 3.7
+        loop = asyncio.get_event_loop()
+        pending = asyncio.Task.all_tasks(loop)
     if not loop.is_closed():
         loop.run_until_complete(asyncio.gather(*pending))
         loop.close()
