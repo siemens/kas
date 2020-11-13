@@ -40,9 +40,11 @@ def load():
     """
     from . import build
     from . import forallrepos
+    from . import checkout
     from . import shell
 
     register_plugins(build)
+    register_plugins(checkout)
     register_plugins(forallrepos)
     register_plugins(shell)
 

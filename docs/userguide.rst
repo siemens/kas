@@ -76,6 +76,11 @@ typically provides a single command.
 
 .. automodule:: kas.plugins.build
 
+``checkout`` plugin
+~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: kas.plugins.checkout
+
 ``forallrepos`` plugin
 ~~~~~~~~~~~~~~~~~~~~~~
 
