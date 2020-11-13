@@ -82,11 +82,20 @@ class Shell:
         ctx = create_global_context(args)
         ctx.config = Config(args.config)
 
+        if args.keep_config_unchanged:
+            # Skip the tasks which would change the config of the build
+            # environment
+            args.skip += [
+                'setup_dir',
+                'finish_setup_repos',
+                'repos_apply_patches',
+                'write_bbconfig',
+            ]
+
         macro = Macro()
 
         # Prepare
-        if not args.keep_config_unchanged:
-            macro.add(SetupDir())
+        macro.add(SetupDir())
 
         if 'SSH_PRIVATE_KEY' in os.environ:
             macro.add(SetupSSHAgent())
@@ -97,15 +106,13 @@ class Shell:
         repo_loop.add(SetupReposStep())
 
         macro.add(repo_loop)
-        if not args.keep_config_unchanged:
-            macro.add(FinishSetupRepos())
+        macro.add(FinishSetupRepos())
 
         macro.add(SetupEnviron())
         macro.add(SetupHome())
+        macro.add(ReposApplyPatches())
 
-        if not args.keep_config_unchanged:
-            macro.add(ReposApplyPatches())
-            macro.add(WriteBBConfig())
+        macro.add(WriteBBConfig())
 
         # Shell
         macro.add(ShellCommand(args.command))
