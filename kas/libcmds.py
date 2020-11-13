@@ -339,12 +339,10 @@ class FinishSetupRepos(Command):
     def execute(self, ctx):
         """ TODO refactor protected-access """
         # now fetch everything with complete config and check out layers
-        # except if keep_config is set
-        if not ctx.keep_config:
-            repos_fetch(ctx.config.get_repos())
+        repos_fetch(ctx.config.get_repos())
 
-            for repo in ctx.config.get_repos():
-                repo.checkout()
+        for repo in ctx.config.get_repos():
+            repo.checkout()
 
         logging.debug('Configuration from config file:\n%s',
                       pprint.pformat(ctx.config._config))

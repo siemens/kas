@@ -91,15 +91,14 @@ class Shell:
         if 'SSH_PRIVATE_KEY' in os.environ:
             macro.add(SetupSSHAgent())
 
-        ctx.keep_config = args.keep_config_unchanged
-
         macro.add(InitSetupRepos())
 
         repo_loop = Loop('repo_setup_loop')
         repo_loop.add(SetupReposStep())
 
         macro.add(repo_loop)
-        macro.add(FinishSetupRepos())
+        if not args.keep_config_unchanged:
+            macro.add(FinishSetupRepos())
 
         macro.add(SetupEnviron())
         macro.add(SetupHome())

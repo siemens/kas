@@ -74,7 +74,6 @@ class Context:
         self.__kas_work_dir = os.environ.get('KAS_WORK_DIR', os.getcwd())
         self.__kas_repo_ref_dir = os.environ.get('KAS_REPO_REF_DIR', None)
         self.setup_initial_environ()
-        self.keep_config = False
         self.config = None
         self.args = args
 
