@@ -41,7 +41,37 @@ class Macro:
     """
         Contains commands and provides method to run them.
     """
-    def __init__(self):
+    def __init__(self, use_common_setup=True, use_common_cleanup=True):
+        if use_common_setup:
+            repo_loop = Loop('repo_setup_loop')
+            repo_loop.add(SetupReposStep())
+
+            self.setup_commands = [
+                SetupDir(),
+            ]
+
+            if 'SSH_PRIVATE_KEY' in os.environ:
+                self.setup_commands.append(SetupSSHAgent())
+
+            self.setup_commands += [
+                InitSetupRepos(),
+                repo_loop,
+                FinishSetupRepos(),
+                SetupEnviron(),
+                SetupHome(),
+                ReposApplyPatches(),
+                WriteBBConfig(),
+            ]
+        else:
+            self.setup_commands = []
+
+        if use_common_cleanup and 'SSH_PRIVATE_KEY' in os.environ:
+            self.cleanup_commands = [
+                CleanupSSHAgent(),
+            ]
+        else:
+            self.cleanup_commands = []
+
         self.commands = []
 
     def add(self, command):
@@ -56,7 +86,9 @@ class Macro:
             configuration.
         """
         skip = skip or []
-        for command in self.commands:
+        joined_commands = self.setup_commands + \
+            self.commands + self.cleanup_commands
+        for command in joined_commands:
             command_name = str(command)
             if command_name in skip:
                 continue

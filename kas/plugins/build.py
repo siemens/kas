@@ -33,17 +33,12 @@
 """
 
 import logging
-import os
 import subprocess
 import sys
 from kas.context import create_global_context
 from kas.config import Config
 from kas.libkas import find_program, run_cmd
-from kas.libcmds import (Macro, Command, SetupDir, CleanupSSHAgent,
-                         SetupSSHAgent, SetupEnviron,
-                         WriteBBConfig, SetupHome, ReposApplyPatches,
-                         Loop, InitSetupRepos, FinishSetupRepos,
-                         SetupReposStep)
+from kas.libcmds import Macro, Command
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
@@ -84,33 +79,7 @@ class Build:
         ctx.config = Config(args.config, args.target, args.task)
 
         macro = Macro()
-
-        # Prepare
-        macro.add(SetupDir())
-
-        if 'SSH_PRIVATE_KEY' in os.environ:
-            macro.add(SetupSSHAgent())
-
-        macro.add(InitSetupRepos())
-
-        repo_loop = Loop('repo_setup_loop')
-        repo_loop.add(SetupReposStep())
-
-        macro.add(repo_loop)
-        macro.add(FinishSetupRepos())
-
-        macro.add(SetupEnviron())
-        macro.add(SetupHome())
-        macro.add(ReposApplyPatches())
-
-        macro.add(WriteBBConfig())
-
-        # Build
         macro.add(BuildCommand(args.extra_bitbake_args))
-
-        if 'SSH_PRIVATE_KEY' in os.environ:
-            macro.add(CleanupSSHAgent())
-
         macro.run(ctx, args.skip)
 
 
