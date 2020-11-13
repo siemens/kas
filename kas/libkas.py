@@ -150,23 +150,13 @@ def find_program(paths, name):
     return None
 
 
-def _create_task(routine):
-    try:
-        creation_func = asyncio.ensure_future
-    except AttributeError:
-        # for Python < 3.5, avoiding the keyword 'async' introduced in 3.7
-        creation_func = getattr(asyncio, 'async')
-
-    return creation_func(routine)
-
-
 def repos_fetch(repos):
     """
         Fetches the list of repositories to the kas_work_dir.
     """
     tasks = []
     for repo in repos:
-        tasks.append(_create_task(repo.fetch_async()))
+        tasks.append(asyncio.ensure_future(repo.fetch_async()))
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(asyncio.wait(tasks))
@@ -182,7 +172,7 @@ def repos_apply_patches(repos):
     """
     tasks = []
     for repo in repos:
-        tasks.append(_create_task(repo.apply_patches_async()))
+        tasks.append(asyncio.ensure_future(repo.apply_patches_async()))
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(asyncio.wait(tasks))
