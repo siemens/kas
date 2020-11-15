@@ -1,0 +1,3 @@
+#!/bin/sh
+
+echo "isar" > build-env
