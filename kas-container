@@ -2,7 +2,7 @@
 #
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2018-2019
+# Copyright (c) Siemens AG, 2018-2020
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
@@ -64,6 +64,23 @@ trace()
 	"$@"
 }
 
+enable_isar_mode() {
+	KAS_CONTAINER_IMAGE_NAME_DEFAULT="kas-isar"
+	KAS_ISAR_ARGS="--privileged"
+
+	case "${KAS_CONTAINER_ENGINE}" in
+	docker)
+		KAS_ISAR_ARGS="${KAS_ISAR_ARGS} --cap-add=SYS_ADMIN"
+		KAS_ISAR_ARGS="${KAS_ISAR_ARGS} --cap-add=MKNOD"
+		;;
+	podman)
+		# sudo is needed for a privileged podman container
+		KAS_CONTAINER_COMMAND="sudo ${KAS_CONTAINER_COMMAND}"
+		KAS_ISAR_ARGS="${KAS_ISAR_ARGS} --pid=host"
+		;;
+	esac
+}
+
 KAS_IMAGE_VERSION_DEFAULT="2.2"
 KAS_CONTAINER_IMAGE_PATH_DEFAULT="ghcr.io/siemens/kas"
 KAS_CONTAINER_IMAGE_NAME_DEFAULT="kas"
@@ -112,21 +129,7 @@ esac
 while [ $# -gt 0 ]; do
 	case "$1" in
 	--isar)
-		KAS_CONTAINER_IMAGE_NAME_DEFAULT="kas-isar"
-		KAS_ISAR_ARGS="--privileged"
-
-		case "${KAS_CONTAINER_ENGINE}" in
-		docker)
-			KAS_ISAR_ARGS="${KAS_ISAR_ARGS} --cap-add=SYS_ADMIN"
-			KAS_ISAR_ARGS="${KAS_ISAR_ARGS} --cap-add=MKNOD"
-			;;
-		podman)
-			# sudo is needed for a privileged podman container
-			KAS_CONTAINER_COMMAND="sudo ${KAS_CONTAINER_COMMAND}"
-			KAS_ISAR_ARGS="${KAS_ISAR_ARGS} --pid=host"
-			;;
-		esac
-
+		enable_isar_mode
 		shift 1
 		;;
 	--with-loop-dev)
@@ -205,12 +208,12 @@ done
 [ -n "${KAS_CMD}" ] || usage
 
 KAS_EXTRA_BITBAKE_ARGS=0
-set_container_image_var
 
 # parse kas sub-command (build or shell) options
 while [ $# -gt 0 ] && [ $KAS_EXTRA_BITBAKE_ARGS -eq 0 ]; do
 	case "$1" in
 	-h|--help)
+		set_container_image_var
 		trace ${KAS_CONTAINER_COMMAND} run ${KAS_CONTAINER_IMAGE} ${KAS_CMD} --help
 		exit 0
 		;;
@@ -245,6 +248,13 @@ while [ $# -gt 0 ] && [ $KAS_EXTRA_BITBAKE_ARGS -eq 0 ]; do
 done
 
 [ -n "${KAS_FIRST_FILE}" ] || usage
+
+BUILD_SYSTEM=$(cat ${KAS_FIRST_FILE} 2>/dev/null| grep "^build_system: " | sed 's/build_system:[ ]\+//')
+if [ "${BUILD_SYSTEM}" = "isar" ]; then
+	enable_isar_mode
+fi
+
+set_container_image_var
 
 KAS_FILE_DIR="$(dirname "${KAS_FIRST_FILE}")"
 

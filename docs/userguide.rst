@@ -276,6 +276,15 @@ Configuration reference
       * ``file``: string [required]
           The path to the file relative to the root of the repository.
 
+* ``build_system``: string [optional]
+    Defines the bitbake-based build system. Known build systems are
+    ``openembedded`` (or ``oe``) and ``isar``. If set, this restricts the
+    search of kas for the init script in the configured repositories to
+    ``oe-init-build-env`` or ``isar-init-build-env``, respectively. If
+    ``kas-container`` finds this property in the top-level kas configuration
+    file (includes are not evaluated), it will automatically select the
+    required container image and invocation mode.
+
 * ``defaults``: dict [optional]
     This key can be used to set default values for various properties.
     This may help you to avoid repeating the same property assignment in

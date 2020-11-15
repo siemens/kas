@@ -1,6 +1,6 @@
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2017-2018
+# Copyright (c) Siemens AG, 2017-2020
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -52,6 +52,12 @@ class Config:
 
         self.handler = IncludeHandler(self.filenames)
         self.repo_dict = self._get_repo_dict()
+
+    def get_build_system(self):
+        """
+            Returns the pre-selected build system
+        """
+        return self._config.get('build_system', '')
 
     def find_missing_repos(self):
         """

@@ -86,3 +86,11 @@ Added
   property ``refspec`` and the repository patch property ``repo``. These
   default values will be used if the appropriate properties are not defined
   for a given repository or patch.
+
+Version 10
+----------
+
+Added
+~~~~~
+
+- ``build_system`` property to pre-select OE or Isar.

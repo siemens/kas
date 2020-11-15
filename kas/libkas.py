@@ -1,6 +1,6 @@
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2017-2018
+# Copyright (c) Siemens AG, 2017-2020
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -183,7 +183,7 @@ def repos_apply_patches(repos):
             sys.exit(task.result())
 
 
-def get_build_environ():
+def get_build_environ(build_system):
     """
         Creates the build environment variables.
     """
@@ -191,9 +191,15 @@ def get_build_environ():
     # creates the conf directory
 
     init_repo = None
+    if build_system in ['openembedded', 'oe']:
+        scripts = ['oe-init-build-env']
+    elif build_system == 'isar':
+        scripts = ['isar-init-build-env']
+    else:
+        scripts = ['oe-init-build-env', 'isar-init-build-env']
     permutations = \
         [(repo, script) for repo in get_context().config.get_repos()
-         for script in ['oe-init-build-env', 'isar-init-build-env']]
+         for script in scripts]
     for (repo, script) in permutations:
         if os.path.exists(repo.path + '/' + script):
             if init_repo:

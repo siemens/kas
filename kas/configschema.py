@@ -1,6 +1,6 @@
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2017-2018
+# Copyright (c) Siemens AG, 2017-2020
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the 'Software'), to deal
@@ -71,6 +71,10 @@ CONFIGSCHEMA = {
                     },
                 },
             },
+        },
+        'build_system': {
+            'type': 'string',
+            'enum': ['openembedded', 'oe', 'isar'],
         },
         'defaults': {
             'type': 'object',
