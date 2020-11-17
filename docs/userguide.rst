@@ -81,10 +81,10 @@ typically provides a single command.
 
 .. automodule:: kas.plugins.checkout
 
-``forallrepos`` plugin
-~~~~~~~~~~~~~~~~~~~~~~
+``for-all-repos`` plugin
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: kas.plugins.forallrepos
+.. automodule:: kas.plugins.for_all_repos
 
 ``shell`` plugin
 ~~~~~~~~~~~~~~~~
