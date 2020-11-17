@@ -33,6 +33,24 @@
     could run::
 
         kas for-all-repos kas-project.yml 'git rev-parse HEAD'
+
+    The environment for executing the command in each repository is extended
+    to include the following variables:
+
+      * ``KAS_REPO_NAME``: The name of the current repository determined by
+        either the name property or by the key used for this repo in the config
+        file.
+
+      * ``KAS_REPO_PATH``: The path of the local directory where this
+        repository is checked out, relative to the directory where ``kas`` is
+        executed.
+
+      * ``KAS_REPO_URL``: The URL from which this repository was cloned, or an
+        empty string if no remote URL was given in the config file.
+
+      * ``KAS_REPO_REFSPEC``: The refspec which was checked out for this
+        repository, or an empty string if no refspec was given in the config
+        file.
 """
 
 import logging
@@ -75,9 +93,16 @@ class ForAllReposCommand(Command):
 
     def execute(self, ctx):
         for repo in ctx.config.get_repos():
+            env = {
+                **ctx.environ,
+                'KAS_REPO_NAME': repo.name,
+                'KAS_REPO_PATH': repo.path,
+                'KAS_REPO_URL': repo.url or '',
+                'KAS_REPO_REFSPEC': repo.refspec or '',
+            }
             logging.info('%s$ %s', repo.path, self.command)
             retcode = subprocess.call(self.command, shell=True, cwd=repo.path,
-                                      env=ctx.environ)
+                                      env=env)
             if retcode != 0:
                 logging.error('Command failed with return code %d', retcode)
 
