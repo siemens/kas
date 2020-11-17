@@ -40,14 +40,14 @@ class Repo:
         Represents a repository in the kas configuration.
     """
 
-    def __init__(self, url, path, refspec, layers, patches,
+    def __init__(self, name, url, path, refspec, layers, patches,
                  disable_operations):
+        self.name = name
         self.url = url
         self.path = path
         self.refspec = refspec
         self._layers = layers
         self._patches = patches
-        self.name = os.path.basename(self.path)
         self.operations_disabled = disable_operations
 
     def __getattr__(self, item):
@@ -132,10 +132,10 @@ class Repo:
                     path = os.path.join(get_context().kas_work_dir, path)
 
         if typ == 'git':
-            return GitRepo(url, path, refspec, layers, patches,
+            return GitRepo(name, url, path, refspec, layers, patches,
                            disable_operations)
         if typ == 'hg':
-            return MercurialRepo(url, path, refspec, layers, patches,
+            return MercurialRepo(name, url, path, refspec, layers, patches,
                                  disable_operations)
         raise NotImplementedError('Repo type "%s" not supported.' % typ)
 
