@@ -206,7 +206,7 @@ It's also possible to include configuration files from other repos like this:
 
 The files are addressed relative to the git repository path.
 
-The include mechanism collects and merges the content from top to buttom and
+The include mechanism collects and merges the content from top to bottom and
 depth first. That means that settings in one include file are overwritten
 by settings in a latter include file and entries from the last include file can
 be overwritten by the current file. While merging all the dictionaries are
