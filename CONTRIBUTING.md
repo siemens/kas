@@ -111,6 +111,7 @@ may change in the future if github should improve their email integration.
 Send patches to: kas-devel@googlegroups.com
 
 Archive: https://groups.google.com/d/forum/kas-devel
+
 Subscription:
  - kas-devel+subscribe@googlegroups.com
  - https://groups.google.com/forum/#!forum/kas-devel/join
