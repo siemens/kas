@@ -1,3 +1,15 @@
+2.3
+- kas: add "checkout" and for-all-repos subcommands
+- kas: add python 3.9 compatibility
+- kas: improve documentation
+- config: add build_system property to pre-select OE/Yocto or Isar
+- kas-container: rename from kas-docker
+- kas-container: add support for build_system property (making --isar optional)
+- kas-container: adjust environment variables interface
+- kas-container: switch to github container repository
+- kas-container: add support for Debian bullseye cross building
+- kas-container: add zstd package
+
 2.2
 - kas: allow extra bitbake arguments to be passed
 - kas: add --force-checkout and --update arguments to ease CI usage
