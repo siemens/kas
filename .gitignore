@@ -56,3 +56,5 @@ docs/_build/
 venv/
 ENV/
 
+# release automation
+release-email.txt
