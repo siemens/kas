@@ -1,3 +1,6 @@
+2.3.1
+- Fix release scripting
+
 2.3
 - kas: add "checkout" and for-all-repos subcommands
 - kas: add python 3.9 compatibility
