@@ -31,7 +31,7 @@ fi
 
 mv newchangelog CHANGELOG.md
 sed -i "s,\(__version__ =\).*,\1 \'$NEW_VERSION\'," kas/__version__.py
-sed -i "s,\(	KAS_IMAGE_VERSION_DEFAULT=\).*,\1\"$NEW_VERSION\"," kas-container
+sed -i "s,\(KAS_IMAGE_VERSION_DEFAULT=\).*,\1\"$NEW_VERSION\"," kas-container
 
 git add CHANGELOG.md
 git add kas/__version__.py
