@@ -59,7 +59,8 @@ Thanks,
 Jan
 
 https://github.com/siemens/kas/releases/tag/$NEW_VERSION
-https://hub.docker.com/r/kasproject/kas/
+https://github.com/orgs/siemens/packages/container/package/kas%2Fkas
+https://github.com/orgs/siemens/packages/container/package/kas%2Fkas-isar
 
 "> $prolog
 
