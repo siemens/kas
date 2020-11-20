@@ -1,3 +1,6 @@
+2.3.2
+- Fix release script fix /wrt kas-container image version updates
+
 2.3.1
 - Fix release scripting
 
