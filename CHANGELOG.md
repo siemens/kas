@@ -1,3 +1,6 @@
+2.3.3
+- Fix binfmt setup in kas-isar container image
+
 2.3.2
 - Fix release script fix /wrt kas-container image version updates
 
