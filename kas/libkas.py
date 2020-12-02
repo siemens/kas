@@ -31,6 +31,7 @@ import tempfile
 import asyncio
 import errno
 import pathlib
+import signal
 from subprocess import Popen, PIPE
 from .context import get_context
 
@@ -92,6 +93,13 @@ async def run_cmd_async(cmd, cwd, env=None, fail=True, liveupdate=True):
     logging.info('%s$ %s', cwd, cmdstr)
 
     logo = LogOutput(liveupdate)
+
+    try:
+        orig_fd = signal.set_wakeup_fd(-1, warn_on_full_buffer=False)
+        signal.set_wakeup_fd(orig_fd, warn_on_full_buffer=False)
+    except TypeError:
+        # Python < 3.7 - we tried our best
+        pass
 
     try:
         process = await asyncio.create_subprocess_exec(
