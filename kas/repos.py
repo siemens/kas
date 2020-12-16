@@ -114,26 +114,21 @@ class Repo:
         path = repo_config.get('path', None)
         disable_operations = False
 
-        if url is None:
-            # No version control operation on repository
-            if path is None:
+        if path is None:
+            if url is None:
                 path = Repo.get_root_path(repo_fallback_path)
                 logging.info('Using %s as root for repository %s', path,
                              name)
             else:
-                if not os.path.isabs(path):
-                    # Relative pathes are assumed to start from work_dir
-                    path = os.path.join(get_context().kas_work_dir, path)
+                path = os.path.join(get_context().kas_work_dir, name)
+        elif not os.path.isabs(path):
+            # Relative pathes are assumed to start from work_dir
+            path = os.path.join(get_context().kas_work_dir, path)
 
+        if url is None:
+            # No version control operation on repository
             url = path
             disable_operations = True
-        else:
-            if path is None:
-                path = os.path.join(get_context().kas_work_dir, name)
-            else:
-                if not os.path.isabs(path):
-                    # Relative pathes are assumed to start from work_dir
-                    path = os.path.join(get_context().kas_work_dir, path)
 
         if typ == 'git':
             return GitRepo(name, url, path, refspec, layers, patches,
