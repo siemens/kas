@@ -120,6 +120,10 @@ class Repo:
                 path = Repo.get_root_path(repo_fallback_path)
                 logging.info('Using %s as root for repository %s', path,
                              name)
+            else:
+                if not os.path.isabs(path):
+                    # Relative pathes are assumed to start from work_dir
+                    path = os.path.join(get_context().kas_work_dir, path)
 
             url = path
             disable_operations = True
