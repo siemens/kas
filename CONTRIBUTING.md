@@ -40,7 +40,6 @@ Contribution Checklist
     - send patches inline, do not append them
     - no HTML emails!
     - CC people who you think should look at the patches, e.g.
-      - affected maintainers (see areas of responsibility below)
       - someone who wrote a change that is fixed or reverted by you now
       - who commented on related changes in the recent past
       - who otherwise has expertise and is interested in the topic
