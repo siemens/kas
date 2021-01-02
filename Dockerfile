@@ -23,8 +23,8 @@ RUN apt-get install --no-install-recommends -y \
 
 RUN wget -nv -O /usr/bin/oe-git-proxy "http://git.yoctoproject.org/cgit/cgit.cgi/poky/plain/scripts/oe-git-proxy" && \
     chmod +x /usr/bin/oe-git-proxy
-ENV GIT_PROXY_COMMAND="oe-git-proxy"
-ENV NO_PROXY="*"
+ENV GIT_PROXY_COMMAND="oe-git-proxy" \
+    NO_PROXY="*"
 
 COPY . /kas
 RUN pip3 --proxy=$https_proxy install /kas
