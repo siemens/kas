@@ -57,17 +57,12 @@ jobs:
       - name: Build kas image
         uses: docker/build-push-action@v2
         with:
-          tags: |
-            ghcr.io/siemens/kas/kas
-            ghcr.io/siemens/kas/kas:next
+          push: true
+          tags: ghcr.io/siemens/kas/kas:next
       - name: Build kas-isar image
         uses: docker/build-push-action@v2
         with:
           file: Dockerfile.isar
-          tags: |
-            ghcr.io/siemens/kas/kas-isar
-            ghcr.io/siemens/kas/kas-isar:next
-      - name: Push images
-        run: |
-          docker push ghcr.io/siemens/kas/kas:next
-          docker push ghcr.io/siemens/kas/kas-isar:next
+          build-args: KAS_TAG=next
+          push: true
+          tags: ghcr.io/siemens/kas/kas-isar:next

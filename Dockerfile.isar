@@ -1,6 +1,8 @@
 # This image builds Isar jobs using the kas tool
 
-FROM ghcr.io/siemens/kas/kas:latest
+ARG KAS_TAG=latest
+
+FROM ghcr.io/siemens/kas/kas:$KAS_TAG
 
 ARG DEBIAN_FRONTEND=noninteractive
 

@@ -23,6 +23,7 @@ jobs:
       - name: Build kas image
         uses: docker/build-push-action@v2
         with:
+          push: true
           tags: |
             ghcr.io/siemens/kas/kas
             ghcr.io/siemens/kas/kas:${{ env.RELEASE_VERSION }}
@@ -31,15 +32,8 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           file: Dockerfile.isar
+          push: true
           tags: |
             ghcr.io/siemens/kas/kas-isar
             ghcr.io/siemens/kas/kas-isar:${{ env.RELEASE_VERSION }}
             ghcr.io/siemens/kas/kas-isar:latest-release
-      - name: Push images
-        run: |
-          docker push ghcr.io/siemens/kas/kas
-          docker push ghcr.io/siemens/kas/kas:${{ env.RELEASE_VERSION }}
-          docker push ghcr.io/siemens/kas/kas:latest-release
-          docker push ghcr.io/siemens/kas/kas-isar
-          docker push ghcr.io/siemens/kas/kas-isar:${{ env.RELEASE_VERSION }}
-          docker push ghcr.io/siemens/kas/kas-isar:latest-release
