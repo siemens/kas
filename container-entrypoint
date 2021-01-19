@@ -19,6 +19,8 @@ if [ $USER_ID == 0 ]; then
 	mkdir -p /builder
 
 	GOSU=""
+elif [ $USER_ID == $UID ]; then
+	GOSU=""
 else
 	if ! grep -q "^builder:" /etc/group; then
 		groupadd -o --gid $GROUP_ID builder
