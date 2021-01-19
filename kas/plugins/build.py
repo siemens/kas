@@ -69,6 +69,10 @@ class Build:
                             help='Select target to build')
         parser.add_argument('-c', '--cmd', '--task', dest='task',
                             help='Select which task should be executed')
+        parser.add_argument('--no-continue', dest='bbcontinue',
+                            action='store_false',
+                            help='Do not pass "-k" to bitbake')
+        parser.set_defaults(bbcontinue=False)
 
     def run(self, args):
         """
@@ -101,8 +105,10 @@ class BuildCommand(Command):
         """
         # Start bitbake build of image
         bitbake = find_program(ctx.environ['PATH'], 'bitbake')
-        cmd = [bitbake, '-k', '-c', ctx.config.get_bitbake_task()] \
+        cmd = [bitbake, '-c', ctx.config.get_bitbake_task()] \
             + self.extra_bitbake_args + ctx.config.get_bitbake_targets()
+        if ctx.config.bbcontinue:
+            cmd.insert(1, '-k')
         if sys.stdout.isatty():
             logging.info('%s$ %s', ctx.build_dir, ' '.join(cmd))
             ret = subprocess.call(cmd, env=ctx.environ, cwd=ctx.build_dir)
