@@ -22,7 +22,7 @@ cat CHANGELOG.md >> newchangelog
 $EDITOR newchangelog
 
 echo -n "All fine, ready to release? [y/N]"
-read a
+read -r a
 a=$(echo "$a" | tr '[:upper:]' '[:lower:]')
 if [ "$a" != "y" ]; then
     echo "no not happy, let's stop doing the release"
@@ -44,7 +44,7 @@ git push --follow-tags
 python setup.py sdist upload -r pypi
 
 authors=$(git shortlog -s "$OLD_VERSION".."$NEW_VERSION" | cut -c8- | paste -s -d, - | sed -e 's/,/, /g')
-highlights=$(cat CHANGELOG.md | sed -e "/$OLD_VERSION/,\$d")
+highlights=$(sed -e "/$OLD_VERSION/,\$d" CHANGELOG.md)
 
 prolog=$PWD/release-email.txt
 echo \
@@ -62,8 +62,8 @@ https://github.com/siemens/kas/releases/tag/$NEW_VERSION
 https://github.com/orgs/siemens/packages/container/package/kas%2Fkas
 https://github.com/orgs/siemens/packages/container/package/kas%2Fkas-isar
 
-"> $prolog
+"> "$prolog"
 
-git shortlog $OLD_VERSION..$NEW_VERSION >> $prolog
+git shortlog "$OLD_VERSION..$NEW_VERSION" >> "$prolog"
 
 thunderbird -compose "subject=[ANNOUNCE] Release $NEW_VERSION,to=kas-devel@googlegroups.com,message=$prolog"
