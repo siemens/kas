@@ -68,17 +68,11 @@ enable_isar_mode() {
 	KAS_CONTAINER_IMAGE_NAME_DEFAULT="kas-isar"
 	KAS_ISAR_ARGS="--privileged"
 
-	case "${KAS_CONTAINER_ENGINE}" in
-	docker)
-		KAS_ISAR_ARGS="${KAS_ISAR_ARGS} --cap-add=SYS_ADMIN"
-		KAS_ISAR_ARGS="${KAS_ISAR_ARGS} --cap-add=MKNOD"
-		;;
-	podman)
+	if [ "${KAS_CONTAINER_ENGINE}" = "podman" ]; then
 		# sudo is needed for a privileged podman container
 		KAS_CONTAINER_COMMAND="sudo ${KAS_CONTAINER_COMMAND}"
 		KAS_ISAR_ARGS="${KAS_ISAR_ARGS} --pid=host"
-		;;
-	esac
+	fi
 }
 
 KAS_IMAGE_VERSION_DEFAULT="2.3.3"
