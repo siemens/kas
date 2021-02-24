@@ -85,9 +85,9 @@ setup(
     },
 
     install_requires=[
-        'PyYAML>=3.0',
-        'distro>=1.0.0',
-        'jsonschema>=2.5.0',
+        'PyYAML>=3.0,<6',
+        'distro>=1.0.0,<2',
+        'jsonschema>=2.5.0,<4',
     ],
 
     # At least python 3.5 is needed by now for PyYAML:
