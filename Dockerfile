@@ -31,6 +31,6 @@ ENV GIT_PROXY_COMMAND="oe-git-proxy" \
     NO_PROXY="*"
 
 COPY . /kas
-RUN pip3 --proxy=$https_proxy install /kas
+RUN pip3 --proxy=$https_proxy install --no-deps /kas && kas --help
 
 ENTRYPOINT ["/kas/container-entrypoint"]
