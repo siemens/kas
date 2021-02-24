@@ -15,7 +15,7 @@ RUN apt-get install --no-install-recommends -y \
         build-essential chrpath socat cpio python python3 python3-pip python3-pexpect \
         xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev \
         pylint3 xterm \
-        python3-setuptools python3-wheel python3-yaml \
+        python3-setuptools python3-wheel python3-yaml python3-distro python3-jsonschema \
         gosu lsb-release file vim less procps tree tar bzip2 zstd bc tmux libncurses-dev \
         dosfstools mtools parted \
         git-lfs mercurial iproute2 ssh-client curl rsync gnupg awscli && \
