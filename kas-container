@@ -46,6 +46,7 @@ usage()
 	printf "%b" "--docker-args\t\tSame as --runtime-args (deprecated).\n"
 	printf "%b" "-d\t\t\tPrint debug output.\n"
 	printf "%b" "-v\t\t\tSame as -d (deprecated).\n"
+	printf "%b" "--version\t\tprint program version.\n"
 	printf "%b" "--ssh-dir\t\tDirectory containing SSH configurations.\n"
 	printf "%b" "\t\t\tAvoid \$HOME/.ssh unless you fully trust the " \
 		    "container.\n"
@@ -172,6 +173,10 @@ while [ $# -gt 0 ]; do
 		KAS_VERBOSE=1
 		KAS_OPTIONS_DIRECT="${KAS_OPTIONS_DIRECT} -d"
 		shift 1
+		;;
+	--version)
+		echo "$(basename "$0") $KAS_IMAGE_VERSION_DEFAULT"
+		exit 0
 		;;
 	--*)
 		usage
