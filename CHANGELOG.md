@@ -1,3 +1,15 @@
+2.4
+- kas: Silence "Exception ignored when trying to write to the signal wakeup fd"
+- kas: drop bitbakes "-k" from the default args
+- kas: fix repos path if no url, but path given
+- kas: Set upper version limit for dependencies
+- kas-container: Add support for rootless podman with userns keep-id
+- kas-container: Add support for multi-word --command arguments
+- kas-container: make sure that we pass shellcheck
+- kas-container/kas*: Add support for multi-arch containers
+- kas-container/kas: Pull all Python dependencies from Debian
+- kas-container/kas-isar: Drop grub package
+
 2.3.3
 - Fix binfmt setup in kas-isar container image
 
