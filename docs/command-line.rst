@@ -15,6 +15,8 @@ Environment variables
 +=======================+=====================================================+
 | ``KAS_WORK_DIR``      | The path of the kas work directory, current work    |
 |                       | directory is the default.                           |
+| ``KAS_BUILD_DIR``     | The path build directory, ``${KAS_WORK_DIR}/build`` |
+|                       | is the default.                                     |
 +-----------------------+-----------------------------------------------------+
 | ``KAS_REPO_REF_DIR``  | The path to the repository reference directory.     |
 |                       | Repositories in this directory are used as          |
