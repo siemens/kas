@@ -93,6 +93,12 @@ else
 	KAS_WORK_DIR="$(pwd)"
 fi
 
+if [ -n "${KAS_BUILD_DIR}" ]; then
+	KAS_BUILD_DIR=$(readlink -f "${KAS_BUILD_DIR}")
+else
+	KAS_BUILD_DIR="${KAS_WORK_DIR}/build"
+fi
+
 KAS_CONTAINER_ENGINE="${KAS_CONTAINER_ENGINE:-${KAS_DOCKER_ENGINE}}"
 if [ -z "${KAS_CONTAINER_ENGINE}" ]; then
 	# Try to auto-detect a container engine
@@ -183,17 +189,16 @@ while [ $# -gt 0 ]; do
 		;;
 	clean)
 		[ $# -eq 1 ] || usage
-		KAS_CLEAN_DIR=build/tmp
 		if [ -n "${KAS_ISAR_ARGS}" ]; then
 			set_container_image_var
 			# SC2086: Double quote to prevent globbing and word splitting.
 			# shellcheck disable=2086
-			trace ${KAS_CONTAINER_COMMAND} run -v "${KAS_WORK_DIR}":/work:rw \
-					 --workdir=/work --rm ${KAS_ISAR_ARGS} \
+			trace ${KAS_CONTAINER_COMMAND} run -v "${KAS_BUILD_DIR}":/build:rw \
+					 --workdir=/build --rm ${KAS_ISAR_ARGS} \
 					 ${KAS_CONTAINER_IMAGE} \
-					 sudo rm -rf ${KAS_CLEAN_DIR}
+					 sudo rm -rf tmp
 		else
-			trace rm -rf "${KAS_WORK_DIR}/${KAS_CLEAN_DIR}"
+			trace rm -rf "${KAS_BUILD_DIR}/tmp"
 		fi
 		exit 0
 		;;
@@ -276,6 +281,7 @@ KAS_REPO_DIR=$(git -C "${KAS_FILE_DIR}" rev-parse --show-toplevel 2>/dev/null) \
 KAS_FILES=/repo/"$(echo "${KAS_FILES}" | sed 's|'"${KAS_REPO_DIR}"'/||g;s|:|:/repo/|g')"
 
 trace mkdir -p "${KAS_WORK_DIR}"
+trace mkdir -p "${KAS_BUILD_DIR}"
 
 if [ "$(id -u)" -eq 0 ] && [ "${KAS_ALLOW_ROOT}" != "yes" ] ; then
 	echo "Error: Running as root - may break certain recipes."
@@ -286,6 +292,8 @@ fi
 
 set -- "$@" -v "${KAS_REPO_DIR}":/repo:ro \
 	-v "${KAS_WORK_DIR}":/work:rw --workdir=/work \
+	-v "${KAS_BUILD_DIR}":/build:rw \
+	-e KAS_BUILD_DIR=/build \
 	-e USER_ID="$(id -u)" -e GROUP_ID="$(id -g)" --rm
 
 if [ -n "${KAS_SSH_DIR}" ] ; then

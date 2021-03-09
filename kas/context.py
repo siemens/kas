@@ -72,6 +72,9 @@ class Context:
     """
     def __init__(self, args):
         self.__kas_work_dir = os.environ.get('KAS_WORK_DIR', os.getcwd())
+        self.__kas_build_dir = os.environ.get('KAS_BUILD_DIR',
+                                              os.path.join(self.__kas_work_dir,
+                                                           'build'))
         self.__kas_repo_ref_dir = os.environ.get('KAS_REPO_REF_DIR', None)
         self.setup_initial_environ()
         self.config = None
@@ -110,7 +113,7 @@ class Context:
         """
             The path to the build directory
         """
-        return os.path.join(self.__kas_work_dir, 'build')
+        return self.__kas_build_dir
 
     @property
     def kas_work_dir(self):
