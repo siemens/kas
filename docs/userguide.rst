@@ -202,7 +202,7 @@ It's also possible to include configuration files from other repos like this:
           # If `kas-poky.yml` adds the `meta-yocto-bsp` layer and we
           # do not want it in our bblayers for this project, we can
           # overwrite it by setting:
-          meta-yocto-bsp: exclude
+          meta-yocto-bsp: excluded
 
 The files are addressed relative to the git repository path.
 
