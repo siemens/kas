@@ -28,8 +28,8 @@ There are (at least) four options for using kas:
 - Use the container image in CI. Specify
   ``ghcr.io/siemens/kas/kas[-isar][:<x.y>]`` in your CI script that requests
   a container image as runtime environment. See
-  https://github.com/orgs/siemens/packages/container/kas%2Fkas/31765 and
-  https://github.com/orgs/siemens/packages/container/kas%2Fkas-isar/31794 for
+  https://github.com/orgs/siemens/packages/container/kas%2Fkas/versions and
+  https://github.com/orgs/siemens/packages/container/kas%2Fkas-isar/versions for
   all available images.
 - Use the **run-kas** wrapper from this directory. In this case,
   replace ``kas`` in the examples below with ``path/to/run-kas``.
