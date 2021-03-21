@@ -87,17 +87,8 @@ set_container_image_var() {
 	KAS_CONTAINER_IMAGE="${KAS_CONTAINER_IMAGE_PATH}/${KAS_CONTAINER_IMAGE_NAME}:${KAS_IMAGE_VERSION}"
 }
 
-if [ -n "${KAS_WORK_DIR}" ]; then
-	KAS_WORK_DIR=$(readlink -f "${KAS_WORK_DIR}")
-else
-	KAS_WORK_DIR="$(pwd)"
-fi
-
-if [ -n "${KAS_BUILD_DIR}" ]; then
-	KAS_BUILD_DIR=$(readlink -f "${KAS_BUILD_DIR}")
-else
-	KAS_BUILD_DIR="${KAS_WORK_DIR}/build"
-fi
+KAS_WORK_DIR=$(readlink -f "${KAS_WORK_DIR:-$(pwd)}")
+KAS_BUILD_DIR=$(readlink -f "${KAS_BUILD_DIR:-${KAS_WORK_DIR}/build}")
 
 KAS_CONTAINER_ENGINE="${KAS_CONTAINER_ENGINE:-${KAS_DOCKER_ENGINE}}"
 if [ -z "${KAS_CONTAINER_ENGINE}" ]; then
