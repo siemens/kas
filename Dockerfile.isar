@@ -9,10 +9,13 @@ ARG DEBIAN_FRONTEND=noninteractive
 ENV LC_ALL=en_US.UTF-8
 RUN echo 'deb http://deb.debian.org/debian buster-backports main' > /etc/apt/sources.list.d/buster-backports.list && \
     echo "Package: qemu-user-static\nPin: release n=buster-backports\nPin-Priority: 501\n\nPackage: *\nPin: release n=buster-backports\nPin-Priority: -1" > /etc/apt/preferences.d/qemu-user-static && \
+    echo 'deb http://deb.debian.org/debian bullseye main' > /etc/apt/sources.list.d/bullseye.list && \
+    echo "Package: skopeo golang-github-containers-common golang-github-containers-image\nPin: release n=bullseye\nPin-Priority: 501\n\nPackage: *\nPin: release n=bullseye\nPin-Priority: -1" > /etc/apt/preferences.d/skopeo && \
     apt-get update && \
     apt-get install -y -f --no-install-recommends \
             autoconf automake gdisk libtool bash-completion \
             sudo reprepro python3 binfmt-support e2fsprogs \
+            umoci skopeo \
             multistrap qemu-user-static debootstrap quilt && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
