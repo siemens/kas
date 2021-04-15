@@ -53,6 +53,10 @@ usage()
 	printf "%b" "--aws-dir\t\tDirectory containing AWScli configuration.\n"
 	printf "%b" "--no-proxy-from-env\tDo not inherit proxy settings from " \
 		    "environment.\n"
+	printf "%b" "--repo-ro\t\tMount current repository read-only\n" \
+		    "\t\t\t(default for build command)\n"
+	printf "%b" "--repo-rw\t\tMount current repository writeable\n" \
+		    "\t\t\t(default for shell command)\n"
 	printf "%b" "\n"
 	printf "%b" "You can force the use of podman over docker using " \
 		    "KAS_CONTAINER_ENGINE=podman.\n"
@@ -166,6 +170,14 @@ while [ $# -gt 0 ]; do
 		KAS_NO_PROXY_FROM_ENV=1
 		shift 1
 		;;
+    --repo-ro)
+        KAS_REPO_MOUNT_OPT="ro"
+		shift 1
+		;;
+    --repo-rw)
+        KAS_REPO_MOUNT_OPT="rw"
+		shift 1
+		;;
 	-v | -d)
 		KAS_VERBOSE=1
 		KAS_OPTIONS_DIRECT="${KAS_OPTIONS_DIRECT} -d"
@@ -193,7 +205,14 @@ while [ $# -gt 0 ]; do
 		fi
 		exit 0
 		;;
-	build|shell)
+	shell)
+		KAS_REPO_MOUNT_OPT_DEFAULT="rw"
+		KAS_CMD=$1
+		shift 1
+		break
+		;;
+	build)
+		KAS_REPO_MOUNT_OPT_DEFAULT="ro"
 		KAS_CMD=$1
 		shift 1
 		break
@@ -269,6 +288,8 @@ KAS_REPO_DIR=$(git -C "${KAS_FILE_DIR}" rev-parse --show-toplevel 2>/dev/null) \
 	|| KAS_REPO_DIR=$(hg --cwd "${KAS_FILE_DIR}" root 2>/dev/null) \
 	|| KAS_REPO_DIR=${KAS_FILE_DIR}
 
+KAS_REPO_MOUNT_OPT="${KAS_REPO_MOUNT_OPT:-${KAS_REPO_MOUNT_OPT_DEFAULT}}"
+
 KAS_FILES=/repo/"$(echo "${KAS_FILES}" | sed 's|'"${KAS_REPO_DIR}"'/||g;s|:|:/repo/|g')"
 
 trace mkdir -p "${KAS_WORK_DIR}"
@@ -281,7 +302,7 @@ if [ "$(id -u)" -eq 0 ] && [ "${KAS_ALLOW_ROOT}" != "yes" ] ; then
 	exit 1
 fi
 
-set -- "$@" -v "${KAS_REPO_DIR}":/repo:ro \
+set -- "$@" -v "${KAS_REPO_DIR}":/repo:${KAS_REPO_MOUNT_OPT} \
 	-v "${KAS_WORK_DIR}":/work:rw --workdir=/work \
 	-v "${KAS_BUILD_DIR}":/build:rw \
 	-e KAS_BUILD_DIR=/build \
