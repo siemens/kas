@@ -18,7 +18,7 @@ RUN apt-get install --no-install-recommends -y \
         python3-setuptools python3-wheel python3-yaml python3-distro python3-jsonschema \
         gosu lsb-release file vim less procps tree tar bzip2 zstd bc tmux libncurses-dev \
         dosfstools mtools parted \
-        git-lfs mercurial iproute2 ssh-client curl rsync gnupg awscli && \
+        git-lfs mercurial iproute2 ssh-client curl rsync gnupg awscli sudo && \
     if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
         apt-get install --no-install-recommends -y gcc-multilib syslinux; \
     fi && \
@@ -32,5 +32,11 @@ ENV GIT_PROXY_COMMAND="oe-git-proxy" \
 
 COPY . /kas
 RUN pip3 --proxy=$https_proxy install --no-deps /kas && kas --help
+
+RUN echo "builder ALL=NOPASSWD: ALL" > /etc/sudoers.d/builder-nopasswd && \
+    chmod 660 /etc/sudoers.d/builder-nopasswd
+
+RUN echo "Defaults env_keep += \"ftp_proxy http_proxy https_proxy no_proxy\"" \
+    > /etc/sudoers.d/env_keep && chmod 660 /etc/sudoers.d/env_keep
 
 ENTRYPOINT ["/kas/container-entrypoint"]
