@@ -20,3 +20,10 @@ repos:
     refspec: master
     layers:
       .: excluded
+
+  kas3:
+    url: https://github.com/siemens/kas.git
+    refspec: master
+    layers:
+      .:
+      meta-bar:
