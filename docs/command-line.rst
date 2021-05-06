@@ -68,5 +68,9 @@ Environment variables
 | ``AWS_CONFIG_FILE``   | Path to the awscli configuration and credentials    |
 | |aws_cred|            | file that are copied to the kas home dir.           |
 +-----------------------+-----------------------------------------------------+
+| |git_cred|            | Allows to set the git credential helper in the      |
+|                       | `.gitconfig` of the kas user.                       |
++-----------------------+-----------------------------------------------------+
 
 .. |aws_cred| replace:: ``AWS_SHARED_CREDENTIALS_FILE``
+.. |git_cred| replace:: ``GIT_CREDENTIAL_HELPER``

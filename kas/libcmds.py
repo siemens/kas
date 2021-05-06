@@ -164,6 +164,11 @@ class SetupHome(Command):
             fds.write('[User]\n'
                       '\temail = kas@example.com\n'
                       '\tname = Kas User\n')
+            if os.environ.get('GIT_CREDENTIAL_HELPER', False):
+                fds.write('[credential]\n'
+                          '\thelper = '
+                          + os.environ.get('GIT_CREDENTIAL_HELPER')
+                          + '\n')
 
         if os.environ.get('AWS_CONFIG_FILE', False) \
                 and os.environ.get('AWS_SHARED_CREDENTIALS_FILE', False):
