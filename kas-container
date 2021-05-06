@@ -51,6 +51,8 @@ usage()
 	printf "%b" "\t\t\tAvoid \$HOME/.ssh unless you fully trust the " \
 		    "container.\n"
 	printf "%b" "--aws-dir\t\tDirectory containing AWScli configuration.\n"
+	printf "%b" "--git-credential-store\tFile path to the git credential " \
+		    "store\n"
 	printf "%b" "--no-proxy-from-env\tDo not inherit proxy settings from " \
 		    "environment.\n"
 	printf "%b" "--repo-ro\t\tMount current repository read-only\n" \
@@ -165,6 +167,11 @@ while [ $# -gt 0 ]; do
 	--aws-dir)
 		[ $# -gt 2 ] || usage
 		KAS_AWS_DIR="$2"
+		shift 2
+		;;
+	--git-credential-store)
+		[ $# -gt 2 ] || usage
+		KAS_GIT_CREDENTIAL_STORE="$2"
 		shift 2
 		;;
 	--no-proxy-from-env)
@@ -325,6 +332,23 @@ if [ -n "${KAS_AWS_DIR}" ] ; then
 	set -- "$@" -v "$(readlink -f "${KAS_AWS_DIR}")":/etc/skel/.aws:ro \
 		-e AWS_CONFIG_FILE="${AWS_CONFIG_FILE:-/etc/skel/.aws/config}" \
 		-e AWS_SHARED_CREDENTIALS_FILE="${AWS_SHARED_CREDENTIALS_FILE:-/etc/skel/.aws/credentials}"
+fi
+
+KAS_GIT_CREDENTIAL_HELPER_DEFAULT=""
+
+if [ -n "${KAS_GIT_CREDENTIAL_STORE}" ] ; then
+	if [ ! -f "${KAS_GIT_CREDENTIAL_STORE}" ]; then
+		echo "Passed KAS_GIT_CREDENTIAL_STORE '${KAS_AWS_DIR}' is not a file"
+		exit 1
+	fi
+	KAS_GIT_CREDENTIAL_HELPER_DEFAULT="store --file=/etc/skel/.git-credentials"
+	set -- "$@" -v "$(readlink -f "${KAS_GIT_CREDENTIAL_STORE}")":/etc/skel/.git-credentials:ro
+fi
+
+GIT_CREDENTIAL_HELPER="${GIT_CREDENTIAL_HELPER:-${KAS_GIT_CREDENTIAL_HELPER_DEFAULT}}"
+
+if [ -n "${GIT_CREDENTIAL_HELPER}" ] ; then
+	set -- "$@" -e GIT_CREDENTIAL_HELPER="${GIT_CREDENTIAL_HELPER}"
 fi
 
 if [ -t 1 ]; then
