@@ -372,7 +372,7 @@ fi
 if [ -n "${KAS_REPO_REF_DIR}" ]; then
 	set -- "$@" \
 		-v "$(readlink -f "${KAS_REPO_REF_DIR}")":/repo-ref:ro \
-		-e KAS_REPO_REF_DIR="${KAS_REPO_REF_DIR}"
+		-e KAS_REPO_REF_DIR=/repo-ref
 fi
 
 for var in TERM KAS_DISTRO KAS_MACHINE KAS_TARGET KAS_TASK \
