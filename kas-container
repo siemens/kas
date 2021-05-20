@@ -29,7 +29,8 @@ set -e
 
 usage()
 {
-	printf "%b" "Usage: $0 [OPTIONS] { build | shell } [KASOPTIONS] KASFILE\n"
+	printf "%b" "Usage: $0 [OPTIONS] { build | checkout | shell } [KASOPTIONS] KASFILE\n"
+	printf "%b" "       $0 [OPTIONS] for-all-repos KASFILE COMMAND\n"
 	printf "%b" "       $0 [OPTIONS] clean\n"
 	printf "%b" "\nPositional arguments:\n"
 	printf "%b" "build\t\t\tCheck out repositories and build target.\n"
@@ -219,7 +220,7 @@ while [ $# -gt 0 ]; do
 		shift 1
 		break
 		;;
-	build)
+	build|checkout|for-all-repos)
 		KAS_REPO_MOUNT_OPT_DEFAULT="ro"
 		KAS_CMD=$1
 		shift 1
@@ -277,6 +278,10 @@ while [ $# -gt 0 ] && [ $KAS_EXTRA_BITBAKE_ARGS -eq 0 ]; do
 			fi
 		done
 		shift 1
+		if [ "$KAS_CMD" = "for-all-repos" ]; then
+			KAS_REPO_CMD="$1"
+			shift 1
+		fi
 		;;
 	esac
 done
@@ -410,6 +415,9 @@ fi
 # SC2086: Double quote to prevent globbing and word splitting.
 # shellcheck disable=2086
 set -- "$@" ${KAS_FILES}
+if [ "$KAS_CMD" = "for-all-repos" ]; then
+	set -- "$@" "${KAS_REPO_CMD}"
+fi
 
 # rotate any extra bitbake args from the front to the end of the argument list
 while [ $KAS_EXTRA_BITBAKE_ARGS -gt 0 ]; do
