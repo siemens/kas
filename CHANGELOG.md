@@ -1,3 +1,17 @@
+2.5
+- kas: Apply patches before doing an environment setup
+- kas: repos: strip dot from layer name
+- kas: Introduce KAS_BUILD_DIR environment variable
+- kas: add GIT_CREDENTIAL_HELPER environment variable
+- kas-container: add `--git-credential-store` options
+- kas-container: mount /repo as read-write for shell command
+- kas-container: add an argument to get version information
+- kas-container: Add support for checkout and for-all-repos
+- kas-container: add support to set a custom container images location
+- kas-container: Fix mounting of custom KAS_REPO_REF_DIR
+- kas-container: Add skopeo and umoci to ISAR image
+- kas-container: add sudo to standard kas image
+
 2.4
 - kas: Silence "Exception ignored when trying to write to the signal wakeup fd"
 - kas: drop bitbakes "-k" from the default args
