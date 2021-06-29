@@ -169,7 +169,10 @@ class SetupHome(Command):
                           '\thelper = '
                           + os.environ.get('GIT_CREDENTIAL_HELPER')
                           + '\n')
-
+            if os.environ.get('GIT_TLS_DONT_VERIFY', False):
+                fds.write('[http]\n'
+                          '\tsslVerify = false'
+                          + '\n')
         if os.environ.get('AWS_CONFIG_FILE', False) \
                 and os.environ.get('AWS_SHARED_CREDENTIALS_FILE', False):
             os.makedirs(self.tmpdirname + "/.aws")
