@@ -30,11 +30,13 @@ set -e
 usage()
 {
 	printf "%b" "Usage: $0 [OPTIONS] { build | checkout | shell } [KASOPTIONS] KASFILE\n"
-	printf "%b" "       $0 [OPTIONS] for-all-repos KASFILE COMMAND\n"
+	printf "%b" "       $0 [OPTIONS] for-all-repos [KASOPTIONS] KASFILE COMMAND\n"
 	printf "%b" "       $0 [OPTIONS] clean\n"
 	printf "%b" "\nPositional arguments:\n"
 	printf "%b" "build\t\t\tCheck out repositories and build target.\n"
+	printf "%b" "checkout\t\tCheck out repositories but do not build.\n"
 	printf "%b" "shell\t\t\tRun a shell in the build environment.\n"
+	printf "%b" "for-all-repos\t\tRun specified command in each repository.\n"
 	printf "%b" "clean\t\t\tClean build artifacts, keep downloads.\n"
 	printf "%b" "\nOptional arguments:\n"
 	printf "%b" "--isar\t\t\tUse kas-isar container to build Isar image.\n"
