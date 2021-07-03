@@ -259,7 +259,9 @@ class IncludeHandler:
         for configfile in self.top_files:
             cfgs, reps = _internal_include_handler(configfile)
             configs.extend(cfgs)
-            missing_repos.extend(reps)
+            for repo in reps:
+                if repo not in missing_repos:
+                    missing_repos.append(repo)
 
         config = functools.reduce(_internal_dict_merge,
                                   map(lambda x: x[1], configs))
