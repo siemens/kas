@@ -268,6 +268,15 @@ def get_build_environ(build_system):
     return env
 
 
+def ssh_add_key_file(env, key_path):
+    """
+        Adds an ssh key file to the ssh-agent
+    """
+    with open(key_path) as f:
+        key = f.read()
+        ssh_add_key(env, key)
+
+
 def ssh_add_key(env, key):
     """
         Adds an ssh key to the ssh-agent
@@ -307,20 +316,32 @@ def ssh_setup_agent(envkeys=None):
         Starts the ssh-agent
     """
     env = get_context().environ
-    envkeys = envkeys or ['SSH_PRIVATE_KEY']
+    envkeys = envkeys or ['SSH_PRIVATE_KEY', 'SSH_PRIVATE_KEY_FILE']
     output = os.popen('ssh-agent -s').readlines()
     for line in output:
         matches = re.search(r"(\S+)\=(\S+)\;", line)
         if matches:
             env[matches.group(1)] = matches.group(2)
 
+    found = False
     for envkey in envkeys:
-        key = os.environ.get(envkey)
-        if key:
-            logging.info("adding SSH key")
-            ssh_add_key(env, key)
+        if envkey == 'SSH_PRIVATE_KEY_FILE':
+            key_path = os.environ.get(envkey)
+            if key_path:
+                found = True
+                logging.info("adding SSH key")
+                ssh_add_key_file(env, key_path)
         else:
-            logging.warning('%s is missing', envkey)
+            key = os.environ.get(envkey)
+            if key:
+                found = True
+                logging.info("adding SSH key")
+                ssh_add_key(env, key)
+
+    if found is not True:
+        warning = "None of the following environment keys were set: " + \
+            ", ".join(envkeys)
+        logging.warning(warning)
 
 
 def ssh_no_host_key_check():

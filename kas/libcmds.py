@@ -50,7 +50,8 @@ class Macro:
                 SetupDir(),
             ]
 
-            if 'SSH_PRIVATE_KEY' in os.environ:
+            if ('SSH_PRIVATE_KEY' in os.environ
+                    or 'SSH_PRIVATE_KEY_FILE' in os.environ):
                 self.setup_commands.append(SetupSSHAgent())
 
             self.setup_commands += [
@@ -65,7 +66,9 @@ class Macro:
         else:
             self.setup_commands = []
 
-        if use_common_cleanup and 'SSH_PRIVATE_KEY' in os.environ:
+        if (use_common_cleanup
+                and ('SSH_PRIVATE_KEY' in os.environ
+                     or 'SSH_PRIVATE_KEY_FILE' in os.environ)):
             self.cleanup_commands = [
                 CleanupSSHAgent(),
             ]
