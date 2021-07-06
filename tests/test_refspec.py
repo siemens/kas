@@ -63,3 +63,27 @@ def test_refspec_switch(changedir, tmpdir):
                            fail=False, liveupdate=False)
     assert rc == 0
     assert output.strip() == '907816a5c4094b59a36aec12226e71c461c05b77'
+
+
+def test_refspec_absolute(changedir, tmpdir):
+    """
+        Test that the local git clone works when a absolute refspec
+        is givvn.
+    """
+    tdir = str(tmpdir.mkdir('test_refspec_absolute'))
+    shutil.rmtree(tdir, ignore_errors=True)
+    shutil.copytree('tests/test_refspec', tdir)
+    os.chdir(tdir)
+
+    kas.kas(['shell', 'test3.yml', '-c', 'true'])
+    (rc, output) = run_cmd(['git', 'symbolic-ref', '-q', 'HEAD'],
+                           cwd='kas_abs', fail=False, liveupdate=False)
+    assert rc != 0
+    assert output.strip() == ''
+    (rc, output_kas_abs) = run_cmd(['git', 'rev-parse', 'HEAD'],
+                                   cwd='kas_abs', fail=False, liveupdate=False)
+    assert rc == 0
+    (rc, output_kas_rel) = run_cmd(['git', 'rev-parse', 'HEAD'],
+                                   cwd='kas_rel', fail=False, liveupdate=False)
+    assert rc == 0
+    assert output_kas_abs.strip() == output_kas_rel.strip()

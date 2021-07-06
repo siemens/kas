@@ -179,7 +179,8 @@ class RepoImpl(Repo):
                 cwd=get_context().kas_work_dir)
             if retc == 0:
                 logging.info('Repository %s cloned', self.name)
-            return retc
+            if not self.refspec.startswith('refs/'):
+                return retc
 
         # Make sure the remote origin is set to the value
         # in the kas file to avoid surprises
@@ -336,6 +337,10 @@ class GitRepo(RepoImpl):
         Provides the git functionality for a Repo.
     """
 
+    def remove_ref_prefix(self, refspec):
+        ref_prefix = 'refs/'
+        return refspec[refspec.startswith(ref_prefix) and len(ref_prefix):]
+
     def add_cmd(self):
         return ['git', 'add', '-A']
 
@@ -350,29 +355,38 @@ class GitRepo(RepoImpl):
                 '-m', 'msg']
 
     def contains_refspec_cmd(self):
-        return ['git', 'cat-file', '-t', self.refspec]
+        return ['git', 'cat-file', '-t', self.remove_ref_prefix(self.refspec)]
 
     def fetch_cmd(self):
-        return ['git', 'fetch']
+        cmd = ['git', 'fetch']
+        if self.refspec.startswith('refs/'):
+            cmd.extend(['--quiet', 'origin',
+                        '+' + self.refspec
+                        + ':refs/remotes/origin/'
+                        + self.remove_ref_prefix(self.refspec)])
+
+        return cmd
 
     def is_dirty_cmd(self):
         return ['git', 'status', '-s']
 
     def resolve_branch_cmd(self):
         return ['git', 'rev-parse', '--verify', '-q',
-                'origin/{refspec}'.format(refspec=self.refspec)]
+                'origin/{refspec}'.
+                format(refspec=self.remove_ref_prefix(self.refspec))]
 
     def checkout_cmd(self, desired_ref, branch):
-        cmd = ['git', 'checkout', '-q', desired_ref]
+        cmd = ['git', 'checkout', '-q', self.remove_ref_prefix(desired_ref)]
         if branch:
-            cmd.extend(['-B', self.refspec])
+            cmd.extend(['-B', self.remove_ref_prefix(self.refspec)])
         if get_context().force_checkout:
             cmd.append('--force')
         return cmd
 
     def prepare_patches_cmd(self):
         return ['git', 'checkout', '-q', '-B',
-                'patched-{refspec}'.format(refspec=self.refspec)]
+                'patched-{refspec}'.
+                format(refspec=self.remove_ref_prefix(self.refspec))]
 
     def apply_patches_file_cmd(self, path):
         return ['git', 'apply', path]
