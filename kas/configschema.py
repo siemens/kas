@@ -231,5 +231,21 @@ CONFIGSCHEMA = {
                 },
             },
         },
+        'menu_configuration': {
+            'type': 'object',
+            'additionalProperties': {
+                'oneOf': [
+                    {
+                        'type': 'boolean',
+                    },
+                    {
+                        'type': 'string',
+                    },
+                    {
+                        'type': 'integer',
+                    },
+                ],
+            },
+        },
     },
 }
