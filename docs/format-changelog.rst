@@ -103,3 +103,9 @@ Changed behavior
 
 - String item ``includes`` are now using repo-relative paths. File-relative is
   still supported by issues a deprecation warning.
+
+Added
+~~~~~
+
+- ``menu_configuration`` key stores the selections done via ``kas menu`` in a
+  configuration file. It is only evaluated by that plugin.
