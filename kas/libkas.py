@@ -359,3 +359,17 @@ def ssh_no_host_key_check():
         os.mkdir(home + '/.ssh')
     with open(home + '/.ssh/config', 'w') as fds:
         fds.write('Host *\n\tStrictHostKeyChecking no\n\n')
+
+
+def setup_parser_common_args(parser):
+    parser.add_argument('config',
+                        help='Config file')
+    parser.add_argument('--skip',
+                        help='Skip build steps',
+                        default=[])
+    parser.add_argument('--force-checkout', action='store_true',
+                        help='Always checkout the desired refspec of each '
+                        'repository, discarding any local changes')
+    parser.add_argument('--update', action='store_true',
+                        help='Pull new upstream changes to the desired '
+                        'refspec even if it is already checked out locally')

@@ -59,6 +59,7 @@ import sys
 from kas.context import create_global_context
 from kas.config import Config
 from kas.libcmds import Macro, Command
+from kas.libkas import setup_parser_common_args
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
@@ -72,6 +73,7 @@ class ForAllRepos:
 
     @classmethod
     def setup_parser(cls, parser):
+        setup_parser_common_args(parser)
         parser.add_argument('command',
                             help='Command to be executed as a string.')
 
