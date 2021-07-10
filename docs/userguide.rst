@@ -10,6 +10,8 @@ This project depends on
 - distro Python 3 package
 - jsonschema Python 3 package
 - PyYAML Python 3 package (optional, for yaml file support)
+- kconfiglib Python 3 package (optional, for menu plugin)
+- NEWT Python 3 distro package (optional, for menu plugin)
 
 To install kas into your python site-package repository, run::
 
@@ -64,6 +66,12 @@ Use Cases
     $ git pull
     $ kas build kas-project.yml
 
+3.  Interactive configuration::
+
+    $ cd $PROJECT_DIR/meta-project
+    $ kas menu
+    $ kas build  # optional, if not triggered via kas menu
+
 
 Plugins
 -------
@@ -85,6 +93,11 @@ typically provides a single command.
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: kas.plugins.for_all_repos
+
+``menu`` plugin
+~~~~~~~~~~~~~~~~
+
+.. automodule:: kas.plugins.menu
 
 ``shell`` plugin
 ~~~~~~~~~~~~~~~~
@@ -418,3 +431,9 @@ Configuration reference
   * ``<local-conf-id>``: string [optional]
       A string that is added to the ``local.conf``. It operates in the same way
       as the ``bblayers_conf_header`` entry.
+
+* ``menu_configuration``:: dict [optional]
+    This contains user choices for a Kconfig menu of a project. Each variable
+    corresponds to a Kconfig configuration variable and can be of the types
+    string, boolean or integer. The content of this key is typically
+    maintained by the ``kas menu`` plugin in a ``.config.yaml`` file.

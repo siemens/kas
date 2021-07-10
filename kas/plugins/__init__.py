@@ -42,11 +42,13 @@ def load():
     from . import for_all_repos
     from . import checkout
     from . import shell
+    from . import menu
 
     register_plugins(build)
     register_plugins(checkout)
     register_plugins(for_all_repos)
     register_plugins(shell)
+    register_plugins(menu)
 
 
 def get(name):

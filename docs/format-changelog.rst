@@ -94,3 +94,12 @@ Added
 ~~~~~
 
 - ``build_system`` property to pre-select OE or Isar.
+
+Version 11
+----------
+
+Added
+~~~~~
+
+- ``menu_configuration`` key stores the selections done via ``kas menu`` in a
+  configuration file. It is only evaluated by that plugin.
