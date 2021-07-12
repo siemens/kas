@@ -63,8 +63,8 @@ Environment variables
 | ``SSTATE_DIR``           | the bitbake environment.                         |
 | ``TMPDIR``               |                                                  |
 +--------------------------+--------------------------------------------------+
-| ``http_proxy``           | This overwrites the proxy configuration in the   |
-| ``https_proxy``          | configuration file.                              |
+| ``http_proxy``           | These variables define the proxy configuration   |
+| ``https_proxy``          | bitbake should use.                              |
 | ``ftp_proxy``            |                                                  |
 | ``no_proxy``             |                                                  |
 +--------------------------+--------------------------------------------------+

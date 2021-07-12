@@ -93,6 +93,10 @@ def load_config(filename):
                                           __file_version__, version_value),
                                   filename)
 
+    if config.get('proxy_config'):
+        logging.warning('Obsolete ''proxy_config'' detected. '
+                        'This has no effect and will be rejected soon.')
+
     return config
 
 

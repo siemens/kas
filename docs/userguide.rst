@@ -418,11 +418,3 @@ Configuration reference
   * ``<local-conf-id>``: string [optional]
       A string that is added to the ``local.conf``. It operates in the same way
       as the ``bblayers_conf_header`` entry.
-
-* ``proxy_config``: dict [optional]
-    Defines the proxy configuration bitbake should use. Every entry can be
-    overwritten by the respective environment variables.
-
-  * ``http_proxy``: string [optional]
-  * ``https_proxy``: string [optional]
-  * ``no_proxy``: string [optional]
