@@ -363,7 +363,10 @@ def ssh_no_host_key_check():
 
 def setup_parser_common_args(parser):
     parser.add_argument('config',
-                        help='Config file')
+                        help='Config file, using .config.yaml if none is '
+                        'specified and using the current directory as '
+                        'repository anchor',
+                        nargs='?')
     parser.add_argument('--skip',
                         help='Skip build steps',
                         default=[])
