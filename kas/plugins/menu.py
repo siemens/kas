@@ -75,6 +75,7 @@ from kconfiglib import Kconfig, Symbol, Choice, expr_value, TYPE_TO_STR, \
     MENU, COMMENT, STRING, BOOL, INT, HEX, UNKNOWN
 from kas import __version__, __file_version__
 from kas.context import create_global_context
+from kas.config import CONFIG_YAML_FILE
 from kas.includehandler import load_config as load_config_yaml
 from kas.plugins.build import Build
 
@@ -89,8 +90,6 @@ __license__ = 'MIT'
 __copyright__ = \
     'Copyright (c) 2011-2019, Ulf Magnusson <ulfalizer@gmail.com>\n' \
     'Copyright (c) Siemens AG, 2021'
-
-CONFIG_YAML_FILE = '.config.yaml'
 
 
 def check_sym_is_string(sym):

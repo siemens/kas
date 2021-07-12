@@ -29,8 +29,8 @@ set -e
 
 usage()
 {
-	printf "%b" "Usage: $0 [OPTIONS] { build | checkout | shell } [KASOPTIONS] KASFILE\n"
-	printf "%b" "       $0 [OPTIONS] for-all-repos [KASOPTIONS] KASFILE COMMAND\n"
+	printf "%b" "Usage: $0 [OPTIONS] { build | checkout | shell } [KASOPTIONS] [KASFILE]\n"
+	printf "%b" "       $0 [OPTIONS] for-all-repos [KASOPTIONS] [KASFILE] COMMAND\n"
 	printf "%b" "       $0 [OPTIONS] clean\n"
 	printf "%b" "\nPositional arguments:\n"
 	printf "%b" "build\t\t\tCheck out repositories and build target.\n"
@@ -288,7 +288,15 @@ while [ $# -gt 0 ] && [ $KAS_EXTRA_BITBAKE_ARGS -eq 0 ]; do
 	esac
 done
 
-[ -n "${KAS_FIRST_FILE}" ] || usage
+if [ -n "${KAS_FIRST_FILE}" ]; then
+	KAS_FILE_DIR="$(dirname "${KAS_FIRST_FILE}")"
+	KAS_REPO_DIR=$(git -C "${KAS_FILE_DIR}" rev-parse --show-toplevel 2>/dev/null) \
+		|| KAS_REPO_DIR=$(hg --cwd "${KAS_FILE_DIR}" root 2>/dev/null) \
+		|| KAS_REPO_DIR=${KAS_FILE_DIR}
+else
+	KAS_FIRST_FILE="${KAS_WORK_DIR}/.config.yaml"
+	KAS_REPO_DIR=$(pwd)
+fi
 
 BUILD_SYSTEM=$(grep -e "^build_system: " "${KAS_FIRST_FILE}" 2>/dev/null | sed 's/build_system:[ ]\+//')
 if [ "${BUILD_SYSTEM}" = "isar" ]; then
@@ -296,12 +304,6 @@ if [ "${BUILD_SYSTEM}" = "isar" ]; then
 fi
 
 set_container_image_var
-
-KAS_FILE_DIR="$(dirname "${KAS_FIRST_FILE}")"
-
-KAS_REPO_DIR=$(git -C "${KAS_FILE_DIR}" rev-parse --show-toplevel 2>/dev/null) \
-	|| KAS_REPO_DIR=$(hg --cwd "${KAS_FILE_DIR}" root 2>/dev/null) \
-	|| KAS_REPO_DIR=${KAS_FILE_DIR}
 
 KAS_REPO_MOUNT_OPT="${KAS_REPO_MOUNT_OPT:-${KAS_REPO_MOUNT_OPT_DEFAULT}}"
 
