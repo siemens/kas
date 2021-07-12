@@ -30,6 +30,8 @@ from .includehandler import IncludeHandler, IncludeException
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2021'
 
+CONFIG_YAML_FILE = '.config.yaml'
+
 
 class Config:
     """
@@ -39,18 +41,23 @@ class Config:
         self._override_target = target
         self._override_task = task
         self._config = {}
-        self.filenames = [os.path.abspath(configfile)
-                          for configfile in filename.split(':')]
-        self.top_repo_path = Repo.get_root_path(
-            os.path.dirname(self.filenames[0]))
+        if filename:
+            self.filenames = [os.path.abspath(configfile)
+                              for configfile in filename.split(':')]
+            self.top_repo_path = Repo.get_root_path(
+                os.path.dirname(self.filenames[0]))
 
-        repo_paths = [Repo.get_root_path(os.path.dirname(configfile),
-                                         fallback=False)
-                      for configfile in self.filenames]
-        if len(set(repo_paths)) > 1:
-            raise IncludeException('All concatenated config files must '
-                                   'belong to the same repository or all '
-                                   'must be outside of versioning control')
+            repo_paths = [Repo.get_root_path(os.path.dirname(configfile),
+                                             fallback=False)
+                          for configfile in self.filenames]
+
+            if len(set(repo_paths)) > 1:
+                raise IncludeException('All concatenated config files must '
+                                       'belong to the same repository or all '
+                                       'must be outside of versioning control')
+        else:
+            self.filenames = [os.path.join(ctx.kas_work_dir, CONFIG_YAML_FILE)]
+            self.top_repo_path = os.getcwd()
 
         self.handler = IncludeHandler(self.filenames, self.top_repo_path)
         self.repo_dict = self._get_repo_dict()
