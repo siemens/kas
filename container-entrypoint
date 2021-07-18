@@ -40,7 +40,7 @@ fi
 
 if [ -n "$1" ]; then
 	case "$1" in
-	build|checkout|for-all-repos|shell|-*)
+	build|checkout|for-all-repos|menu|shell|-*)
 		exec $GOSU kas "$@"
 		;;
 	*)

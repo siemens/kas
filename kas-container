@@ -32,12 +32,15 @@ usage()
 	printf "%b" "Usage: $0 [OPTIONS] { build | checkout | shell } [KASOPTIONS] [KASFILE]\n"
 	printf "%b" "       $0 [OPTIONS] for-all-repos [KASOPTIONS] [KASFILE] COMMAND\n"
 	printf "%b" "       $0 [OPTIONS] clean\n"
+	printf "%b" "       $0 [OPTIONS] menu [KCONFIG]\n"
 	printf "%b" "\nPositional arguments:\n"
 	printf "%b" "build\t\t\tCheck out repositories and build target.\n"
 	printf "%b" "checkout\t\tCheck out repositories but do not build.\n"
 	printf "%b" "shell\t\t\tRun a shell in the build environment.\n"
 	printf "%b" "for-all-repos\t\tRun specified command in each repository.\n"
 	printf "%b" "clean\t\t\tClean build artifacts, keep downloads.\n"
+	printf "%b" "menu\t\t\tProvide configuration menu and trigger " \
+		    "configured build.\n"
 	printf "%b" "\nOptional arguments:\n"
 	printf "%b" "--isar\t\t\tUse kas-isar container to build Isar image.\n"
 	printf "%b" "--with-loop-dev		Pass a loop device to the " \
@@ -222,7 +225,7 @@ while [ $# -gt 0 ]; do
 		shift 1
 		break
 		;;
-	build|checkout|for-all-repos)
+	build|checkout|for-all-repos|menu)
 		KAS_REPO_MOUNT_OPT_DEFAULT="ro"
 		KAS_CMD=$1
 		shift 1
@@ -238,7 +241,7 @@ done
 
 KAS_EXTRA_BITBAKE_ARGS=0
 
-# parse kas sub-command (build or shell) options
+# parse kas sub-command options
 while [ $# -gt 0 ] && [ $KAS_EXTRA_BITBAKE_ARGS -eq 0 ]; do
 	case "$1" in
 	-h|--help)
@@ -294,11 +297,27 @@ if [ -n "${KAS_FIRST_FILE}" ]; then
 		|| KAS_REPO_DIR=$(hg --cwd "${KAS_FILE_DIR}" root 2>/dev/null) \
 		|| KAS_REPO_DIR=${KAS_FILE_DIR}
 else
-	KAS_FIRST_FILE="${KAS_WORK_DIR}/.config.yaml"
 	KAS_REPO_DIR=$(pwd)
 fi
 
-BUILD_SYSTEM=$(grep -e "^build_system: " "${KAS_FIRST_FILE}" 2>/dev/null | sed 's/build_system:[ ]\+//')
+if [ "${KAS_CMD}" = "menu" ]; then
+	if [ -z "${KAS_FIRST_FILE}" ]; then
+		KAS_FIRST_FILE="Kconfig"
+	fi
+
+	BUILD_SYSTEM=$(tr '\n' '\f' 2>/dev/null < ${KAS_FIRST_FILE} | \
+		sed -e 's/\(.*\fconfig KAS_BUILD_SYSTEM\f\(.*\)\|.*\)/\2/' \
+		    -e 's/\f\([[:alpha:]].*\|$\)//' \
+		    -e 's/.*default \"\(.*\)\".*/\1/')
+else
+	if [ -z "${KAS_FIRST_FILE}" ]; then
+		KAS_FIRST_FILE="${KAS_WORK_DIR}/.config.yaml"
+	fi
+
+	BUILD_SYSTEM=$(grep -e "^build_system: " "${KAS_FIRST_FILE}" 2>/dev/null | \
+		sed 's/build_system:[ ]\+//')
+fi
+
 if [ "${BUILD_SYSTEM}" = "isar" ]; then
 	enable_isar_mode
 fi
