@@ -181,12 +181,12 @@ while [ $# -gt 0 ]; do
 		KAS_NO_PROXY_FROM_ENV=1
 		shift 1
 		;;
-    --repo-ro)
-        KAS_REPO_MOUNT_OPT="ro"
+	--repo-ro)
+		KAS_REPO_MOUNT_OPT="ro"
 		shift 1
 		;;
-    --repo-rw)
-        KAS_REPO_MOUNT_OPT="rw"
+	--repo-rw)
+		KAS_REPO_MOUNT_OPT="rw"
 		shift 1
 		;;
 	-v | -d)
