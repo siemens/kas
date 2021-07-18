@@ -16,7 +16,7 @@ RUN apt-get install --no-install-recommends -y \
         build-essential chrpath socat cpio python python3 python3-pip python3-pexpect \
         xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev \
         pylint3 xterm \
-        python3-setuptools python3-wheel python3-yaml python3-distro python3-jsonschema \
+        python3-setuptools python3-wheel python3-yaml python3-distro python3-jsonschema python3-newt \
         gosu lsb-release file vim less procps tree tar bzip2 zstd bc tmux libncurses-dev \
         dosfstools mtools parted lz4 \
         git-lfs/buster-backports mercurial iproute2 ssh-client curl rsync gnupg awscli sudo && \
@@ -31,7 +31,8 @@ ENV GIT_PROXY_COMMAND="oe-git-proxy" \
     NO_PROXY="*"
 
 COPY . /kas
-RUN pip3 --proxy=$https_proxy install --no-deps /kas && kas --help
+RUN pip3 --proxy=$https_proxy install --no-deps kconfiglib && \
+    pip3 --proxy=$https_proxy install --no-deps /kas && kas --help
 
 RUN echo "builder ALL=NOPASSWD: ALL" > /etc/sudoers.d/builder-nopasswd && \
     chmod 660 /etc/sudoers.d/builder-nopasswd
