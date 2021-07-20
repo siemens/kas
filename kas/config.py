@@ -26,6 +26,7 @@
 import os
 from .repos import Repo
 from .includehandler import IncludeHandler, IncludeException
+from .context import get_context
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
@@ -88,7 +89,7 @@ class Config:
         repo_config_dict = self._config.get('repos', {})
         repo_defaults = self._config.get('defaults', {}).get('repos', {})
         repo_dict = {}
-        repo_fallback_path = os.path.dirname(self.filenames[0])
+        repo_fallback_path = get_context().kas_work_dir
         for repo in repo_config_dict:
             repo_config_dict[repo] = repo_config_dict[repo] or {}
             repo_dict[repo] = Repo.factory(repo,
