@@ -7,8 +7,7 @@ FROM ghcr.io/siemens/kas/kas:$KAS_TAG
 ARG DEBIAN_FRONTEND=noninteractive
 
 ENV LC_ALL=en_US.UTF-8
-RUN echo 'deb http://deb.debian.org/debian buster-backports main' > /etc/apt/sources.list.d/buster-backports.list && \
-    echo 'deb http://deb.debian.org/debian bullseye main' > /etc/apt/sources.list.d/bullseye.list && \
+RUN echo 'deb http://deb.debian.org/debian bullseye main' > /etc/apt/sources.list.d/bullseye.list && \
     echo "Package: skopeo golang-github-containers-common golang-github-containers-image\nPin: release n=bullseye\nPin-Priority: 501\n\nPackage: *\nPin: release n=bullseye\nPin-Priority: -1" > /etc/apt/preferences.d/skopeo && \
     apt-get update && \
     apt-get install -y -f --no-install-recommends \
