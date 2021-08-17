@@ -18,7 +18,7 @@ RUN apt-get install --no-install-recommends -y \
         pylint3 xterm \
         python3-setuptools python3-wheel python3-yaml python3-distro python3-jsonschema \
         gosu lsb-release file vim less procps tree tar bzip2 zstd bc tmux libncurses-dev \
-        dosfstools mtools parted \
+        dosfstools mtools parted lz4 \
         git-lfs/buster-backports mercurial iproute2 ssh-client curl rsync gnupg awscli sudo && \
     if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
         apt-get install --no-install-recommends -y gcc-multilib syslinux; \
