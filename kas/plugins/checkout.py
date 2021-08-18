@@ -55,7 +55,7 @@ class Checkout:
 
     def run(self, args):
         ctx = create_global_context(args)
-        ctx.config = Config(args.config)
+        ctx.config = Config(ctx, args.config)
 
         macro = Macro()
         macro.run(ctx, args.skip)
