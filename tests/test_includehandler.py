@@ -139,7 +139,7 @@ header:
         monkeypatch.setattr(includehandler, 'CONFIGSCHEMA', {})
         for test in testvector:
             with patch_open(includehandler, dictionary=test['fdict']):
-                ginc = includehandler.IncludeHandler(['x.yml'])
+                ginc = includehandler.IncludeHandler(['x.yml'], '.')
                 config, missing = ginc.get_config(repos=test['rdict'])
 
                 # Remove header, because we dont want to compare it:
@@ -347,7 +347,7 @@ v: {v2: y, v3: y, v5: y}'''),
                 os.path.abspath('z.yml'): header.format('''
 v: {v3: z, v4: z}''')}
         with patch_open(includehandler, dictionary=data):
-            ginc = includehandler.IncludeHandler(['x.yml'])
+            ginc = includehandler.IncludeHandler(['x.yml'], '.')
             config, _ = ginc.get_config()
             keys = list(config['v'].keys())
             index = {keys[i]: i for i in range(len(keys))}

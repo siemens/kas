@@ -1,6 +1,6 @@
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2017-2018
+# Copyright (c) Siemens AG, 2017-2021
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,7 @@ from . import __file_version__, __compatible_file_version__
 from . import CONFIGSCHEMA
 
 __license__ = 'MIT'
-__copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
+__copyright__ = 'Copyright (c) Siemens AG, 2017-2021'
 
 
 class LoadConfigException(Exception):
@@ -126,8 +126,9 @@ class IncludeHandler:
         The includes are read and merged from the deepest level upwards.
     """
 
-    def __init__(self, top_files):
+    def __init__(self, top_files, top_repo_path):
         self.top_files = top_files
+        self.top_repo_path = top_repo_path
 
     def get_config(self, repos=None):
         """
@@ -143,7 +144,7 @@ class IncludeHandler:
 
         repos = repos or {}
 
-        def _internal_include_handler(filename):
+        def _internal_include_handler(filename, repo_path):
             """
             Recursively loads include files and finds missing repos.
 
@@ -185,10 +186,21 @@ class IncludeHandler:
                         includefile = include
                     else:
                         includefile = os.path.abspath(
-                            os.path.join(
-                                os.path.dirname(filename),
-                                include))
-                    (cfg, rep) = _internal_include_handler(includefile)
+                            os.path.join(repo_path, include))
+                        if not os.path.exists(includefile):
+                            alternate = os.path.abspath(
+                                os.path.join(os.path.dirname(filename),
+                                             include))
+                            if os.path.exists(alternate):
+                                logging.warning(
+                                    'Falling back to file-relative addressing '
+                                    'of local include "%s"', include)
+                                logging.warning(
+                                    'Update your layer to repo-relative '
+                                    'addressing to avoid this warning')
+                                includefile = alternate
+                    (cfg, rep) = _internal_include_handler(includefile,
+                                                           repo_path)
                     configs.extend(cfg)
                     missing_repos.extend(rep)
                 elif isinstance(include, Mapping):
@@ -206,11 +218,10 @@ class IncludeHandler:
                             raise IncludeException(
                                 '"file" is not specified: {}'
                                 .format(include))
+                        abs_includedir = os.path.abspath(includedir)
                         (cfg, rep) = _internal_include_handler(
-                            os.path.abspath(
-                                os.path.join(
-                                    includedir,
-                                    includefile)))
+                            os.path.join(abs_includedir, includefile),
+                            abs_includedir)
                         configs.extend(cfg)
                         missing_repos.extend(rep)
                     else:
@@ -261,7 +272,8 @@ class IncludeHandler:
         configs = []
         missing_repos = []
         for configfile in self.top_files:
-            cfgs, reps = _internal_include_handler(configfile)
+            cfgs, reps = _internal_include_handler(configfile,
+                                                   self.top_repo_path)
             configs.extend(cfgs)
             for repo in reps:
                 if repo not in missing_repos:

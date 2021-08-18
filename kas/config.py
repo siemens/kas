@@ -1,6 +1,6 @@
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2017-2020
+# Copyright (c) Siemens AG, 2017-2021
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,7 @@ from .repos import Repo
 from .includehandler import IncludeHandler, IncludeException
 
 __license__ = 'MIT'
-__copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
+__copyright__ = 'Copyright (c) Siemens AG, 2017-2021'
 
 
 class Config:
@@ -41,6 +41,8 @@ class Config:
         self._config = {}
         self.filenames = [os.path.abspath(configfile)
                           for configfile in filename.split(':')]
+        self.top_repo_path = Repo.get_root_path(
+            os.path.dirname(self.filenames[0]))
 
         repo_paths = [Repo.get_root_path(os.path.dirname(configfile),
                                          fallback=False)
@@ -50,7 +52,7 @@ class Config:
                                    'belong to the same repository or all '
                                    'must be outside of versioning control')
 
-        self.handler = IncludeHandler(self.filenames)
+        self.handler = IncludeHandler(self.filenames, self.top_repo_path)
         self.repo_dict = self._get_repo_dict()
 
     def get_build_system(self):
@@ -88,13 +90,12 @@ class Config:
         repo_config_dict = self._config.get('repos', {})
         repo_defaults = self._config.get('defaults', {}).get('repos', {})
         repo_dict = {}
-        repo_fallback_path = os.path.dirname(self.filenames[0])
         for repo in repo_config_dict:
             repo_config_dict[repo] = repo_config_dict[repo] or {}
             repo_dict[repo] = Repo.factory(repo,
                                            repo_config_dict[repo],
                                            repo_defaults,
-                                           repo_fallback_path)
+                                           self.top_repo_path)
 
         return repo_dict
 
