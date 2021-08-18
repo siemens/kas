@@ -318,8 +318,9 @@ if [ "$(id -u)" -eq 0 ] && [ "${KAS_ALLOW_ROOT}" != "yes" ] ; then
 fi
 
 set -- "$@" -v "${KAS_REPO_DIR}":/repo:${KAS_REPO_MOUNT_OPT} \
-	-v "${KAS_WORK_DIR}":/work:rw --workdir=/work \
+	-v "${KAS_WORK_DIR}":/work:rw -e KAS_WORK_DIR=/work \
 	-v "${KAS_BUILD_DIR}":/build:rw \
+	--workdir=/repo \
 	-e KAS_BUILD_DIR=/build \
 	-e USER_ID="$(id -u)" -e GROUP_ID="$(id -g)" --rm
 
