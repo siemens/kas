@@ -79,7 +79,7 @@ class Build:
         """
 
         ctx = create_global_context(args)
-        ctx.config = Config(args.config, args.target, args.task)
+        ctx.config = Config(ctx, args.config, args.target, args.task)
 
         macro = Macro()
         macro.add(BuildCommand(args.extra_bitbake_args))

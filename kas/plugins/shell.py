@@ -77,7 +77,7 @@ class Shell:
         """
 
         ctx = create_global_context(args)
-        ctx.config = Config(args.config)
+        ctx.config = Config(ctx, args.config)
 
         if args.keep_config_unchanged:
             # Skip the tasks which would change the config of the build
