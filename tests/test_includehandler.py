@@ -230,6 +230,24 @@ header:
                 'rmiss': [
                 ]
             },
+            # Include two files from another repo in sub-directories:
+            {
+                'fdict': {
+                    'x.yml': header.format(
+                        '  includes: [{repo: rep, file: dir1/y.yml}]'),
+                    '/rep/dir1/y.yml': header.format(
+                        '  includes: ["dir2/z.yml"]'),
+                    '/rep/dir2/z.yml': header.format('\nv:')
+                },
+                'rdict': {
+                    'rep': '/rep'
+                },
+                'conf': {
+                    'v': None
+                },
+                'rmiss': [
+                ]
+            },
         ]
 
         self.util_include_content(testvector, monkeypatch)
