@@ -163,6 +163,9 @@ def repos_fetch(repos):
     """
         Fetches the list of repositories to the kas_work_dir.
     """
+    if len(repos) == 0:
+        return
+
     tasks = []
     for repo in repos:
         tasks.append(asyncio.ensure_future(repo.fetch_async()))
@@ -179,6 +182,9 @@ def repos_apply_patches(repos):
     """
         Applies the patches to the repositories.
     """
+    if len(repos) == 0:
+        return
+
     tasks = []
     for repo in repos:
         tasks.append(asyncio.ensure_future(repo.apply_patches_async()))
