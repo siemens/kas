@@ -55,6 +55,7 @@
 
 import logging
 import subprocess
+import sys
 from kas.context import create_global_context
 from kas.config import Config
 from kas.libcmds import Macro, Command
@@ -105,6 +106,7 @@ class ForAllReposCommand(Command):
                                       env=env)
             if retcode != 0:
                 logging.error('Command failed with return code %d', retcode)
+                sys.exit(retcode)
 
 
 __KAS_PLUGINS__ = [ForAllRepos]
