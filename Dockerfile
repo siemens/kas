@@ -26,8 +26,7 @@ RUN apt-get install --no-install-recommends -y \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN wget -nv -O /usr/bin/oe-git-proxy "http://git.yoctoproject.org/cgit/cgit.cgi/poky/plain/scripts/oe-git-proxy" && \
-    chmod +x /usr/bin/oe-git-proxy
+COPY contrib/oe-git-proxy /usr/local/bin/
 ENV GIT_PROXY_COMMAND="oe-git-proxy" \
     NO_PROXY="*"
 
