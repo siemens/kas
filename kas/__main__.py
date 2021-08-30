@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-#
 # kas - setup tool for bitbake based projects
 #
 # Copyright (c) Siemens AG, 2017-2018
