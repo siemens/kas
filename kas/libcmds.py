@@ -55,10 +55,10 @@ class Macro:
                 self.setup_commands.append(SetupSSHAgent())
 
             self.setup_commands += [
+                SetupHome(),
                 InitSetupRepos(),
                 repo_loop,
                 FinishSetupRepos(),
-                SetupHome(),
                 ReposApplyPatches(),
                 SetupEnviron(),
                 WriteBBConfig(),
