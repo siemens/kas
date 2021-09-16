@@ -63,7 +63,8 @@ class Build:
 
         parser.add_argument('extra_bitbake_args',
                             nargs='*',
-                            help='Extra arguments to pass to bitbake')
+                            help='Extra arguments to pass to bitbake '
+                                 '(typically requires separation via \'--\')')
         parser.add_argument('--target',
                             action='append',
                             help='Select target to build')
