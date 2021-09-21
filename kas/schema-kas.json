@@ -1,0 +1,238 @@
+{
+    "type": "object",
+    "required": [
+        "header"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "header": {
+            "type": "object",
+            "required": [
+                "version"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "version": {
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "enum": [
+                                "0.10"
+                            ]
+                        },
+                        {
+                            "type": "integer"
+                        }
+                    ]
+                },
+                "includes": {
+                    "type": "array",
+                    "items": {
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "object",
+                                "required": [
+                                    "repo",
+                                    "file"
+                                ],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "repo": {
+                                        "type": "string"
+                                    },
+                                    "file": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        "build_system": {
+            "type": "string",
+            "enum": [
+                "openembedded",
+                "oe",
+                "isar"
+            ]
+        },
+        "defaults": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "repos": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "refspec": {
+                            "type": "string"
+                        },
+                        "patches": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "repo": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "machine": {
+            "type": "string"
+        },
+        "distro": {
+            "type": "string"
+        },
+        "env": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
+        "target": {
+            "oneOf": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            ]
+        },
+        "task": {
+            "type": "string"
+        },
+        "repos": {
+            "type": "object",
+            "additionalProperties": {
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "url": {
+                                "type": "string"
+                            },
+                            "type": {
+                                "type": "string"
+                            },
+                            "refspec": {
+                                "type": "string"
+                            },
+                            "path": {
+                                "type": "string"
+                            },
+                            "layers": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "oneOf": [
+                                        {
+                                            "type": "null"
+                                        },
+                                        {
+                                            "type": "integer"
+                                        },
+                                        {
+                                            "type": "boolean"
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            },
+                            "patches": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "oneOf": [
+                                        {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "required": [
+                                                "path"
+                                            ],
+                                            "properties": {
+                                                "repo": {
+                                                    "type": "string"
+                                                },
+                                                "path": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            }
+        },
+        "bblayers_conf_header": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
+        "local_conf_header": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
+        "proxy_config": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "http_proxy": {
+                    "type": "string"
+                },
+                "https_proxy": {
+                    "type": "string"
+                },
+                "ftp_proxy": {
+                    "type": "string"
+                },
+                "no_proxy": {
+                    "type": "string"
+                }
+            }
+        },
+        "menu_configuration": {
+            "type": "object",
+            "additionalProperties": {
+                "oneOf": [
+                    {
+                        "type": "boolean"
+                    },
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "integer"
+                    }
+                ]
+            }
+        }
+    }
+}
