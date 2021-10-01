@@ -114,14 +114,11 @@ class IncludeHandler:
         key containing a list of includes.
 
         The includes can be specified in two ways: as a string
-        containing the relative path from the current file or as a
-        dictionary. The dictionary should have a 'file' key containing
-        the relative path to the include file and optionally a 'repo'
-        key containing the key of the repository. If the 'repo' key is
-        missing the value of the 'file' key, it is treated the same as if
-        just a string was defined, meaning the path is relative to the
-        current config file. Otherwise it is interpreted relative to
-        the repository path.
+        containing the path, relative to the repository root from the
+        current file, or as a dictionary. The dictionary must have a
+        'file' key containing the path to the include file and a 'repo'
+        key containing the key of the repository. The path is interpreted
+        relative to the repository root path.
 
         The includes are read and merged from the deepest level upwards.
     """
@@ -155,7 +152,6 @@ class IncludeHandler:
             header:
               includes:
                 - include1.yml
-                - file: include2.yml
                 - repo: repo1
                   file: include-repo1.yml
                 - repo: repo2

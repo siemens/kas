@@ -263,7 +263,8 @@ Configuration reference
       from every included file. An item in this list can have one of two types:
 
     * item: string
-        The path to a kas configuration file, relative to the current file.
+        The path to a kas configuration file, relative to the repository root
+        of the current file.
 
     * item: dict
         If files from other repositories should be included, choose this
@@ -274,7 +275,8 @@ Configuration reference
           needs to be defined in the ``repos`` dictionary as ``<repo-id>``.
 
       * ``file``: string [required]
-          The path to the file relative to the root of the repository.
+          The path to the file, relative to the root of the specified
+          repository.
 
 * ``build_system``: string [optional]
     Defines the bitbake-based build system. Known build systems are
