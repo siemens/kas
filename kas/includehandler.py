@@ -201,12 +201,7 @@ class IncludeHandler:
                     missing_repos.extend(rep)
                 elif isinstance(include, Mapping):
                     includerepo = include.get('repo', None)
-                    if includerepo is not None:
-                        includedir = repos.get(includerepo, None)
-                    else:
-                        raise IncludeException(
-                            '"repo" is not specified: {}'
-                            .format(include))
+                    includedir = repos.get(includerepo, None)
                     if includedir is not None:
                         try:
                             includefile = include['file']
