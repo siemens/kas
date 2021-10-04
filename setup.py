@@ -78,6 +78,9 @@ setup(
 
     packages=find_packages(),
 
+    package_data={'kas': ['*.json']},
+    include_package_data=True,
+
     entry_points={
         'console_scripts': [
             'kas=kas.kas:main',
