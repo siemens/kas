@@ -21,7 +21,7 @@ RUN apt-get install --no-install-recommends -y \
         dosfstools mtools parted lz4 \
         git-lfs/buster-backports mercurial iproute2 ssh-client curl rsync gnupg awscli sudo && \
     if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
-        apt-get install --no-install-recommends -y gcc-multilib syslinux; \
+        apt-get install --no-install-recommends -y gcc-multilib g++-multilib syslinux; \
     fi && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
