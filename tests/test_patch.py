@@ -30,11 +30,13 @@ def test_patch(changedir, tmpdir):
     tdir = str(tmpdir.mkdir('test_patch'))
     shutil.rmtree(tdir, ignore_errors=True)
     shutil.copytree('tests/test_patch', tdir)
+    cwd = os.getcwd()
     os.chdir(tdir)
     kas.kas(['shell', 'test.yml', '-c', 'true'])
     for f in ['kas/tests/test_patch/hello.sh', 'hello/hello.sh']:
         assert os.stat(f)[stat.ST_MODE] & stat.S_IXUSR
     kas.kas(['shell', 'test.yml', '-c', 'true'])
+    os.chdir(cwd)
 
 
 def test_patch_update(changedir, tmpdir):
@@ -45,10 +47,11 @@ def test_patch_update(changedir, tmpdir):
     """
     tdir = str(tmpdir.mkdir('test_patch_update'))
     shutil.rmtree(tdir, ignore_errors=True)
-    print(os.getcwd())
     shutil.copytree('tests/test_patch', tdir)
+    cwd = os.getcwd()
     os.chdir(tdir)
     kas.kas(['shell', 'test.yml', '-c', 'true'])
     kas.kas(['shell', 'test2.yml', '-c', 'true'])
     for f in ['kas/tests/test_patch/hello.sh', 'hello/hello.sh']:
         assert os.stat(f)[stat.ST_MODE] & stat.S_IXUSR
+    os.chdir(cwd)
