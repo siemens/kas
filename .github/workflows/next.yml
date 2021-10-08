@@ -8,6 +8,8 @@ on:
 env:
   SHELLCHECK_VERSION: v0.7.1
   SHELLCHECK_SHA256: 64f17152d96d7ec261ad3086ed42d18232fcb65148b44571b564d688269d36c8
+  NEWT_VERSION: 0.52.21
+  NEWT_SHA256: 265eb46b55d7eaeb887fca7a1d51fe115658882dfe148164b6c49fccac5abb31
 
 jobs:
   perform_tests:
@@ -38,10 +40,26 @@ jobs:
           echo "$SHELLCHECK_SHA256 shellcheck-$SHELLCHECK_VERSION.linux.x86_64.tar.xz" | sha256sum -c
           tar -xJf shellcheck-$SHELLCHECK_VERSION.linux.x86_64.tar.xz
           sudo cp shellcheck-$SHELLCHECK_VERSION/shellcheck /usr/local/bin/
+      - name: Install python-newt
+        run: |
+          sudo apt-get update
+          sudo apt-get install libpopt-dev libslang2-dev
+          wget -q https://releases.pagure.org/newt/newt-$NEWT_VERSION.tar.gz
+          echo "$NEWT_SHA256 newt-$NEWT_VERSION.tar.gz" | sha256sum -c
+          tar -C /tmp -xzf newt-$NEWT_VERSION.tar.gz
+          cd /tmp/newt-$NEWT_VERSION
+          autoconf
+          ./configure --with-python=python${{ matrix.python-version }}
+          make -j $(nproc)
+          sudo make install
+          ln -s /usr/local/lib/python${{ matrix.python-version }}/site-packages/_snack.so \
+                $(python3 -c 'import site; print(site.getsitepackages()[0])')/
+          ln -s /usr/local/lib/python${{ matrix.python-version }}/site-packages/snack.py \
+                $(python3 -c 'import site; print(site.getsitepackages()[0])')/
       - name: Run tests
         run: |
           scripts/checkcode.sh .
-          pytest
+          TERM=xterm pytest
 
   deploy_containers:
     name: Build and deploy container images

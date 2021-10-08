@@ -1,0 +1,32 @@
+config KAS_INCLUDE_MAIN
+	string
+	default "test.yaml"
+
+config KAS_BUILD_SYSTEM
+	string
+	default "openembedded"
+
+config BOOL_OPT1
+	bool "ppt1"
+
+config KAS_INCLUDE_OPT1
+	string
+	default "opt1.yaml"
+	depends on BOOL_OPT1
+
+choice
+	prompt "choice"
+	default CHOICE1
+
+config CHOICE1
+	bool "choice1"
+
+config CHOICE2
+	bool "choice2"
+
+endchoice
+
+config KAS_TARGET_CHOICE
+	string
+	default "target1" if CHOICE1
+	default "target2" if CHOICE2

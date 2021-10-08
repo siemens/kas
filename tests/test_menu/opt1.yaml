@@ -1,0 +1,7 @@
+header:
+  version: 11
+
+local_conf_header:
+  opt1: |
+    OPT1 = "1"
+
