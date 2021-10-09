@@ -94,3 +94,12 @@ Added
 ~~~~~
 
 - ``build_system`` property to pre-select OE or Isar.
+
+Version 11
+----------
+
+Changed behavior
+~~~~~~~~~~~~~~~~
+
+- String item ``includes`` are now using repo-relative paths. File-relative is
+  still supported by issues a deprecation warning.
