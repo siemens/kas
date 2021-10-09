@@ -7,6 +7,7 @@ on:
 
 env:
   SHELLCHECK_VERSION: v0.7.1
+  SHELLCHECK_SHA256: 64f17152d96d7ec261ad3086ed42d18232fcb65148b44571b564d688269d36c8
 
 jobs:
   perform_tests:
@@ -34,6 +35,7 @@ jobs:
       - name: Install recent shellcheck
         run: |
           wget -q https://github.com/koalaman/shellcheck/releases/download/$SHELLCHECK_VERSION/shellcheck-$SHELLCHECK_VERSION.linux.x86_64.tar.xz
+          echo "$SHELLCHECK_SHA256 shellcheck-$SHELLCHECK_VERSION.linux.x86_64.tar.xz" | sha256sum -c
           tar -xJf shellcheck-$SHELLCHECK_VERSION.linux.x86_64.tar.xz
           sudo cp shellcheck-$SHELLCHECK_VERSION/shellcheck /usr/local/bin/
       - name: Run tests
