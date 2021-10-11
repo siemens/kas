@@ -256,6 +256,8 @@ class WriteBBConfig(Command):
                     sorted(layer for repo in ctx.config.get_repos()
                            for layer in repo.layers)))
                 fds.write('"\n')
+                fds.write('BBPATH ?= "${TOPDIR}"\n')
+                fds.write('BBFILES ??= ""\n')
 
         def _write_local_conf(ctx):
             filename = ctx.build_dir + '/conf/local.conf'

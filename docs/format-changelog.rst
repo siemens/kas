@@ -103,6 +103,8 @@ Changed behavior
 
 - String item ``includes`` are now using repo-relative paths. File-relative is
   still supported by issues a deprecation warning.
+- bblayers.conf is generated with ``BBPATH`` and ``BBFILES`` preset to common
+  defaults. Those can still be overwritten via ``bblayers_conf_headers``.
 
 Added
 ~~~~~
