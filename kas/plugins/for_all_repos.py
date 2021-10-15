@@ -100,7 +100,7 @@ class ForAllReposCommand(Command):
                 **ctx.environ,
                 'KAS_REPO_NAME': repo.name,
                 'KAS_REPO_PATH': repo.path,
-                'KAS_REPO_URL': repo.url or '',
+                'KAS_REPO_URL': '' if repo.operations_disabled else repo.url,
                 'KAS_REPO_REFSPEC': repo.refspec or '',
             }
             logging.info('%s$ %s', repo.path, self.command)
