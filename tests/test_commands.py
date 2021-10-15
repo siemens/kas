@@ -32,7 +32,7 @@ def test_for_all_repos(changedir, tmpdir):
     shutil.copytree('tests/test_commands', tdir)
     os.chdir(tdir)
     kas.kas(['for-all-repos', 'test.yml',
-             '''if [ "${KAS_REPO_NAME}" != "this" ]; then git rev-parse HEAD \
+             '''if [ -n "${KAS_REPO_URL}" ]; then git rev-parse HEAD \
                      >> %s/ref_${KAS_REPO_NAME}; fi''' % (tdir)])
 
     with open('ref_kas_1.0', 'r') as f:
