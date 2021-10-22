@@ -1,3 +1,20 @@
+2.6
+- kas: Add kconfiglib-based menu plugin
+- kas: Enable kas to checkout repositories using git credentials
+- kas: Enable gerrit/gitlab/github refspecs
+- kas: Write more bblayers.conf boilerplate settings
+- kas: Add environment variable SSH_PRIVATE_KEY_FILE
+- kas: Add support for relative KAS_WORK/BUILD/REPO_REF_DIR paths
+- kas: Move config json schema to standalone json file
+- kas: Avoid duplicate cloning of repos in command line includes
+- kas: for_all_repos: Exit on command failure
+- kas: for_all_repos: Fix KAS_REPO_URL or unversioned repos
+- kas: Declare proxy_config obsolete
+- kas-container: install lz4
+- kas-container: install g++-multilib
+- kas-container: install newer git-lfs
+- kas-container: Enter with /repo as current dir
+
 2.5
 - kas: Apply patches before doing an environment setup
 - kas: repos: strip dot from layer name
