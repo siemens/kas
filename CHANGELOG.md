@@ -1,3 +1,6 @@
+2.6.1
+- kas: fix installation via pip
+
 2.6
 - kas: Add kconfiglib-based menu plugin
 - kas: Enable kas to checkout repositories using git credentials
