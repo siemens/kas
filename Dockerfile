@@ -26,13 +26,13 @@ RUN apt-get install --no-install-recommends -y \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-COPY contrib/oe-git-proxy /usr/local/bin/
-ENV GIT_PROXY_COMMAND="oe-git-proxy" \
-    NO_PROXY="*"
-
 COPY . /kas
 RUN pip3 --proxy=$https_proxy install --no-deps kconfiglib && \
     pip3 --proxy=$https_proxy install --no-deps /kas && kas --help
+
+RUN ln -s /kas/contrib/oe-git-proxy /usr/bin/
+ENV GIT_PROXY_COMMAND="oe-git-proxy" \
+    NO_PROXY="*"
 
 RUN echo "builder ALL=NOPASSWD: ALL" > /etc/sudoers.d/builder-nopasswd && \
     chmod 660 /etc/sudoers.d/builder-nopasswd
