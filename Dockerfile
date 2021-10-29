@@ -27,6 +27,8 @@ RUN apt-get install --no-install-recommends -y \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY . /kas
+RUN chmod -R o-w /kas
+
 RUN pip3 --proxy=$https_proxy install --no-deps kconfiglib && \
     pip3 --proxy=$https_proxy install --no-deps /kas && kas --help
 
