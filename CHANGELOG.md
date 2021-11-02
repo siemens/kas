@@ -1,3 +1,7 @@
+2.6.2
+- kas-container: Restore oe-git-proxy location (/usr/bin)
+- kas-container: Drop world-write permission from /kas folder
+
 2.6.1
 - kas: fix installation via pip
 
@@ -17,6 +21,7 @@
 - kas-container: install g++-multilib
 - kas-container: install newer git-lfs
 - kas-container: Enter with /repo as current dir
+- kas-container: Carry oe-git-proxy locally and relocate to /usr/local/bin
 
 2.5
 - kas: Apply patches before doing an environment setup
