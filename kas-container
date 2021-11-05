@@ -399,6 +399,10 @@ if [ -n "${SSTATE_DIR}" ]; then
 fi
 
 if [ -n "${KAS_REPO_REF_DIR}" ]; then
+	if [ ! -d "${KAS_REPO_REF_DIR}" ]; then
+		echo "Passed KAS_REPO_REF_DIR '${KAS_REPO_REF_DIR}' is not a directory"
+		exit 1
+	fi
 	set -- "$@" \
 		-v "$(readlink -f "${KAS_REPO_REF_DIR}")":/repo-ref:ro \
 		-e KAS_REPO_REF_DIR=/repo-ref
