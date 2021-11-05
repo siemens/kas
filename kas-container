@@ -101,7 +101,10 @@ set_container_image_var() {
 }
 
 KAS_WORK_DIR=$(readlink -f "${KAS_WORK_DIR:-$(pwd)}")
+# KAS_WORK_DIR needs to exist for the subsequent code
+trace mkdir -p "${KAS_WORK_DIR}"
 KAS_BUILD_DIR=$(readlink -f "${KAS_BUILD_DIR:-${KAS_WORK_DIR}/build}")
+trace mkdir -p "${KAS_BUILD_DIR}"
 
 KAS_CONTAINER_ENGINE="${KAS_CONTAINER_ENGINE:-${KAS_DOCKER_ENGINE}}"
 if [ -z "${KAS_CONTAINER_ENGINE}" ]; then
@@ -327,9 +330,6 @@ set_container_image_var
 KAS_REPO_MOUNT_OPT="${KAS_REPO_MOUNT_OPT:-${KAS_REPO_MOUNT_OPT_DEFAULT}}"
 
 KAS_FILES="$(echo "${KAS_FILES}" | sed 's|'"${KAS_REPO_DIR}"'/|/repo/|g')"
-
-trace mkdir -p "${KAS_WORK_DIR}"
-trace mkdir -p "${KAS_BUILD_DIR}"
 
 if [ "$(id -u)" -eq 0 ] && [ "${KAS_ALLOW_ROOT}" != "yes" ] ; then
 	echo "Error: Running as root - may break certain recipes."
