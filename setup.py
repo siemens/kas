@@ -91,6 +91,7 @@ setup(
         'distro>=1.0.0,<2',
         'jsonschema>=2.5.0,<4',
         'kconfiglib>=14.1.0,<15',
+        'wheel',
     ],
 
     # At least python 3.5 is needed by now for PyYAML:
