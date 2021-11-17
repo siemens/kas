@@ -1,12 +1,11 @@
 # This image builds Yocto jobs using the kas tool
 
-FROM debian:buster-slim
+FROM debian:bullseye-slim
 
 ARG TARGETPLATFORM
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN echo 'deb http://deb.debian.org/debian buster-backports main' > /etc/apt/sources.list.d/buster-backports.list && \
-    apt-get update && \
+RUN apt-get update && \
     apt-get install -y locales && \
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 ENV LANG=en_US.utf8
@@ -19,7 +18,7 @@ RUN apt-get install --no-install-recommends -y \
         python3-setuptools python3-wheel python3-yaml python3-distro python3-jsonschema python3-newt \
         gosu lsb-release file vim less procps tree tar bzip2 zstd bc tmux libncurses-dev \
         dosfstools mtools parted lz4 \
-        git-lfs/buster-backports mercurial iproute2 ssh-client curl rsync gnupg awscli sudo && \
+        git-lfs mercurial iproute2 ssh-client curl rsync gnupg awscli sudo && \
     if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
         apt-get install --no-install-recommends -y gcc-multilib g++-multilib syslinux; \
     fi && \
