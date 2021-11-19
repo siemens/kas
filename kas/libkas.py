@@ -357,8 +357,8 @@ def ssh_no_host_key_check():
     home = os.path.expanduser('~')
     if not os.path.exists(home + '/.ssh'):
         os.mkdir(home + '/.ssh')
-    with open(home + '/.ssh/config', 'w') as fds:
-        fds.write('Host *\n\tStrictHostKeyChecking no\n\n')
+    with open(home + '/.ssh/config', 'a') as fds:
+        fds.write('\nHost *\n\tStrictHostKeyChecking no\n\n')
 
 
 def setup_parser_common_args(parser):
