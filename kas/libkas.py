@@ -355,10 +355,21 @@ def ssh_no_host_key_check():
         Disables ssh host key check
     """
     home = os.path.expanduser('~')
-    if not os.path.exists(home + '/.ssh'):
-        os.mkdir(home + '/.ssh')
-    with open(home + '/.ssh/config', 'w') as fds:
-        fds.write('Host *\n\tStrictHostKeyChecking no\n\n')
+    ssh_dir = home + '/.ssh'
+    if not os.path.exists(ssh_dir):
+        os.mkdir(ssh_dir)
+    ssh_config = ssh_dir + "/config"
+    generated_content = 'Host *\n\tStrictHostKeyChecking no\n\n'
+    try:
+        with open(ssh_config, 'x') as fds:
+            fds.write(generated_content)
+    except FileExistsError:
+        with open(ssh_config, 'r') as fds:
+            content = fds.read()
+        if content != generated_content:
+            logging.warning("%s already exists, "
+                            "not touching it to disable StrictHostKeyChecking",
+                            ssh_config)
 
 
 def setup_parser_common_args(parser):
