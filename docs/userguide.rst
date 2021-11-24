@@ -392,6 +392,22 @@ Configuration reference
         Contains the layers from this repository that should be added to the
         ``bblayers.conf``. If this is missing or ``None`` or and empty
         dictionary, the path to the repo itself is added as a layer.
+        Additionally, ``.`` is a valid value if the repo itself should be added
+        as a layer. This allows combinations:
+
+        .. code-block:: yaml
+
+            repos:
+              meta-foo:
+                url: https://github.com/bar/meta-foo.git
+                path: layers/meta-foo
+                refspec: master
+                layers:
+                  .:
+                  contrib:
+
+        This adds both ``layers/meta-foo`` and ``layers/meta-foo/contrib`` from
+        the ``meta-foo`` repository to ``bblayers.conf``.
 
       * ``<layer-path>``: enum [optional]
           Adds the layer with ``<layer-path>`` that is relative to the
