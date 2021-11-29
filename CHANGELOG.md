@@ -1,3 +1,11 @@
+2.6.3
+- kas: Do not overwrite existing .ssh/config
+- kas: Properly describe package build
+- kas-container: create KAS_WORK_DIR if it not exists
+- kas-container: validate KAS_REPO_REF_DIR correctness
+- docs: Fix generation
+- docs: Extended "layers" section in the user guide.
+
 2.6.2
 - kas-container: Restore oe-git-proxy location (/usr/bin)
 - kas-container: Drop world-write permission from /kas folder
