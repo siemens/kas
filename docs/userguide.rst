@@ -159,11 +159,16 @@ which are strings that are added to the head of the respective files
         CONF_VERSION = "1"
         IMAGE_FSTYPES = "tar"
 
-``meta-custom`` in these examples should be a unique name (in project scope)
-for this configuration entries. We assume that your configuration file is part
-of a ``meta-custom`` repository/layer. This way its possible to overwrite or
-append entries in files that include this configuration by naming an entry the
-same (overwriting) or using an unused name (appending).
+``meta-custom`` in these examples should be a unique name for this
+configuration entries.
+
+We recommend that this unique name is the **same** as the name of the
+containing repository/layer to ease cross-project referencing.
+
+In given examples we assume that your configuration file is part of a
+``meta-custom`` repository/layer. This way it is possible to overwrite or
+append entries in files that include this configuration by naming an entry
+the same (overwriting) or using an unused name (appending).
 
 Including in-tree configuration files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -358,7 +363,9 @@ Configuration reference
       Contains the definition of a repository and the layers, that should be
       part of the build. If the value is ``None``, the repository, where the
       current configuration file is located is defined as ``<repo-id>`` and
-      added as a layer to the build.
+      added as a layer to the build. It is recommended that the ``<repo-id>``
+      is related to the containing repository/layer to ease cross-project
+      referencing.
 
     * ``name``: string [optional]
         Defines under which name the repository is stored. If its missing
