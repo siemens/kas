@@ -84,7 +84,6 @@ enable_isar_mode() {
 	if [ "${KAS_CONTAINER_ENGINE}" = "podman" ]; then
 		# sudo is needed for a privileged podman container
 		KAS_CONTAINER_COMMAND="sudo ${KAS_CONTAINER_COMMAND}"
-		KAS_ISAR_ARGS="${KAS_ISAR_ARGS} --pid=host"
 	fi
 }
 
