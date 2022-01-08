@@ -31,14 +31,19 @@ usage()
 {
 	printf "%b" "Usage: $0 [OPTIONS] { build | checkout | shell } [KASOPTIONS] [KASFILE]\n"
 	printf "%b" "       $0 [OPTIONS] for-all-repos [KASOPTIONS] [KASFILE] COMMAND\n"
-	printf "%b" "       $0 [OPTIONS] clean\n"
+	printf "%b" "       $0 [OPTIONS] { clean | cleansstate | cleanall}\n"
 	printf "%b" "       $0 [OPTIONS] menu [KCONFIG]\n"
 	printf "%b" "\nPositional arguments:\n"
 	printf "%b" "build\t\t\tCheck out repositories and build target.\n"
 	printf "%b" "checkout\t\tCheck out repositories but do not build.\n"
 	printf "%b" "shell\t\t\tRun a shell in the build environment.\n"
 	printf "%b" "for-all-repos\t\tRun specified command in each repository.\n"
-	printf "%b" "clean\t\t\tClean build artifacts, keep downloads.\n"
+	printf "%b" "clean\t\t\tClean build artifacts, keep sstate cache and " \
+		    "downloads.\n"
+	printf "%b" "cleanstate\t\tClean build artifacts and sstate cache, " \
+		    "keep downloads.\n"
+	printf "%b" "cleanall\t\tClean build artifacts, sstate cache and " \
+		    "downloads.\n"
 	printf "%b" "menu\t\t\tProvide configuration menu and trigger " \
 		    "configured build.\n"
 	printf "%b" "\nOptional arguments:\n"
@@ -98,6 +103,16 @@ run_clean() {
 				sudo rm -rf tmp
 	else
 		trace rm -rf "${KAS_BUILD_DIR}/tmp"
+	fi
+
+	if [ "$1" != "clean" ]; then
+		SSTATE_DIR=${SSTATE_DIR:-${KAS_BUILD_DIR}/sstate-cache}
+		trace rm -rf "${SSTATE_DIR}"
+
+		if [ "$1" = "cleanall" ]; then
+			DL_DIR=${DL_DIR:-${KAS_BUILD_DIR}/downloads}
+			trace rm -rf "${DL_DIR}"
+		fi
 	fi
 }
 
@@ -220,7 +235,7 @@ while [ $# -gt 0 ]; do
 	--*)
 		usage
 		;;
-	clean)
+	clean|cleansstate|cleanall)
 		[ $# -eq 1 ] || usage
 		run_clean "$1"
 		exit 0
