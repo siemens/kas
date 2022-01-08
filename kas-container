@@ -125,7 +125,7 @@ docker)
 	;;
 podman)
 	KAS_CONTAINER_COMMAND="podman"
-	KAS_RUNTIME_ARGS="--userns=keep-id --security-opt label=disable"
+	KAS_RUNTIME_ARGS="--tmpfs /tmp --userns=keep-id --security-opt label=disable"
 	;;
 *)
 	echo "$0: unknown container engine '${KAS_CONTAINER_ENGINE}'" >&2
