@@ -87,6 +87,20 @@ enable_isar_mode() {
 	fi
 }
 
+run_clean() {
+	if [ -n "${KAS_ISAR_ARGS}" ]; then
+		set_container_image_var
+		# SC2086: Double quote to prevent globbing and word splitting.
+		# shellcheck disable=2086
+		trace ${KAS_CONTAINER_COMMAND} run -v "${KAS_BUILD_DIR}":/build:rw \
+				--workdir=/build --rm ${KAS_ISAR_ARGS} \
+				${KAS_CONTAINER_IMAGE} \
+				sudo rm -rf tmp
+	else
+		trace rm -rf "${KAS_BUILD_DIR}/tmp"
+	fi
+}
+
 KAS_IMAGE_VERSION_DEFAULT="2.6.3"
 KAS_CONTAINER_IMAGE_PATH_DEFAULT="ghcr.io/siemens/kas"
 KAS_CONTAINER_IMAGE_NAME_DEFAULT="kas"
@@ -208,17 +222,7 @@ while [ $# -gt 0 ]; do
 		;;
 	clean)
 		[ $# -eq 1 ] || usage
-		if [ -n "${KAS_ISAR_ARGS}" ]; then
-			set_container_image_var
-			# SC2086: Double quote to prevent globbing and word splitting.
-			# shellcheck disable=2086
-			trace ${KAS_CONTAINER_COMMAND} run -v "${KAS_BUILD_DIR}":/build:rw \
-					 --workdir=/build --rm ${KAS_ISAR_ARGS} \
-					 ${KAS_CONTAINER_IMAGE} \
-					 sudo rm -rf tmp
-		else
-			trace rm -rf "${KAS_BUILD_DIR}/tmp"
-		fi
+		run_clean "$1"
 		exit 0
 		;;
 	shell)
