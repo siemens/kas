@@ -14,20 +14,20 @@ fi
 USER_ID=${USER_ID:-30000}
 GROUP_ID=${GROUP_ID:-30000}
 
-if [ $USER_ID == 0 ]; then
+if [ "$USER_ID" == 0 ]; then
 	# We shall run everything as root
 	mkdir -p /builder
 
 	GOSU=""
-elif [ $USER_ID == $UID ]; then
+elif [ "$USER_ID" == "$UID" ]; then
 	GOSU=""
 else
 	if ! grep -q "^builder:" /etc/group; then
-		groupadd -o --gid $GROUP_ID builder
+		groupadd -o --gid "$GROUP_ID" builder
 	fi
 	if ! id builder >/dev/null 2>&1; then
 		# Create a non-root user that will perform the actual build
-		useradd -o --uid $USER_ID --gid $GROUP_ID --create-home \
+		useradd -o --uid "$USER_ID" --gid "$GROUP_ID" --create-home \
 			--home-dir /builder builder
 	fi
 
@@ -35,18 +35,24 @@ else
 fi
 
 if [ "$PWD" = / ]; then
-	cd /builder
+	cd /builder || exit 1
 fi
 
 if [ -n "$1" ]; then
 	case "$1" in
 	build|checkout|for-all-repos|menu|shell|-*)
+		# SC2086: Double quote to prevent globbing and word splitting.
+		# shellcheck disable=2086
 		exec $GOSU kas "$@"
 		;;
 	*)
+		# SC2086: Double quote to prevent globbing and word splitting.
+		# shellcheck disable=2086
 		exec $GOSU "$@"
 		;;
 	esac
 else
+	# SC2086: Double quote to prevent globbing and word splitting.
+	# shellcheck disable=2086
 	exec $GOSU bash
 fi
