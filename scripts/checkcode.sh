@@ -17,6 +17,6 @@ echo "Checking with doc8"
 doc8  "$1"/docs --ignore-path "$1"/docs/_build || ERROR=$((ERROR + 4))
 
 echo "Checking with shellcheck"
-shellcheck "$1"/kas-container "$1"/scripts/release.sh "$1"/scripts/checkcode.sh || ERROR=$((ERROR + 8))
+shellcheck "$1"/kas-container "$1"/scripts/release.sh "$1"/scripts/checkcode.sh "$1"/container-entrypoint || ERROR=$((ERROR + 8))
 
 exit $ERROR
