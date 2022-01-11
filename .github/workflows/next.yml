@@ -61,8 +61,8 @@ jobs:
           scripts/checkcode.sh .
           TERM=xterm pytest
 
-  deploy_containers:
-    name: Build and deploy container images
+  build_containers:
+    name: Build, test and deploy container images
     needs: perform_tests
     runs-on: ubuntu-latest
     steps:
@@ -81,14 +81,34 @@ jobs:
       - name: Build kas image
         uses: docker/build-push-action@v2
         with:
-          platforms: linux/amd64,linux/arm64
-          push: true
+          load: true
           tags: ghcr.io/siemens/kas/kas:next
+      - name: Test kas image
+        run: |
+          cd image-tests/poky
+          KAS_IMAGE_VERSION=next ../../kas-container build kas.yml
+      - name: Complete build and deploy kas image
+        uses: docker/build-push-action@v2
+        with:
+          platforms: linux/amd64,linux/arm64
+          tags: ghcr.io/siemens/kas/kas:next
+          push: true
       - name: Build kas-isar image
+        uses: docker/build-push-action@v2
+        with:
+          file: Dockerfile.isar
+          load: true
+          build-args: KAS_TAG=next
+          tags: ghcr.io/siemens/kas/kas-isar:next
+      - name: Test kas-isar image
+        run: |
+          cd image-tests/isar
+          KAS_IMAGE_VERSION=next ../../kas-container build kas.yml
+      - name: Complete build and deploy kas-isar image
         uses: docker/build-push-action@v2
         with:
           file: Dockerfile.isar
           platforms: linux/amd64,linux/arm64
           build-args: KAS_TAG=next
-          push: true
           tags: ghcr.io/siemens/kas/kas-isar:next
+          push: true
