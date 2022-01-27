@@ -2,7 +2,7 @@
 #
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2018-2021
+# Copyright (c) Siemens AG, 2018-2022
 #
 # Authors:
 #  Jan Kiszka <jan.kiszka@siemens.com>
@@ -83,6 +83,11 @@ trace()
 }
 
 enable_isar_mode() {
+	if [ -n "${ISAR_MODE}" ]; then
+		return
+	fi
+	ISAR_MODE=1
+
 	KAS_CONTAINER_IMAGE_NAME_DEFAULT="kas-isar"
 	KAS_ISAR_ARGS="--privileged"
 
