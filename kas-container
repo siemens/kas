@@ -91,6 +91,10 @@ enable_isar_mode() {
 	KAS_CONTAINER_IMAGE_NAME_DEFAULT="kas-isar"
 	KAS_ISAR_ARGS="--privileged"
 
+	SCHROOT_OVERLAY_DIR="${KAS_BUILD_DIR}/tmp/schroot-overlay"
+	trace mkdir -p "${SCHROOT_OVERLAY_DIR}"
+	KAS_ISAR_ARGS="${KAS_ISAR_ARGS} -v ${SCHROOT_OVERLAY_DIR}:/var/lib/schroot/union/overlay:rw"
+
 	if [ "${KAS_CONTAINER_ENGINE}" = "podman" ]; then
 		# sudo is needed for a privileged podman container
 		KAS_CONTAINER_COMMAND="sudo ${KAS_CONTAINER_COMMAND}"
