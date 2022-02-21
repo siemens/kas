@@ -111,6 +111,10 @@ class Repo:
         typ = repo_config.get('type', 'git')
         refspec = repo_config.get('refspec',
                                   repo_defaults.get('refspec', None))
+        if refspec is None and url is not None:
+            logging.error('No refspec specified for repository "%s". This is '
+                          'only allowed for local repositories.', name)
+            sys.exit(1)
         path = repo_config.get('path', None)
         disable_operations = False
 

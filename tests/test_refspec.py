@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 import os
+import pytest
 import shutil
 from kas import kas
 from kas.libkas import run_cmd
@@ -68,7 +69,7 @@ def test_refspec_switch(changedir, tmpdir):
 def test_refspec_absolute(changedir, tmpdir):
     """
         Test that the local git clone works when a absolute refspec
-        is givvn.
+        is given.
     """
     tdir = str(tmpdir.mkdir('test_refspec_absolute'))
     shutil.rmtree(tdir, ignore_errors=True)
@@ -87,3 +88,15 @@ def test_refspec_absolute(changedir, tmpdir):
                                    cwd='kas_rel', fail=False, liveupdate=False)
     assert rc == 0
     assert output_kas_abs.strip() == output_kas_rel.strip()
+
+
+def test_url_no_refspec(changedir, tmpdir):
+    """
+        Test that a repository with url but no refspec raises an error.
+    """
+    tdir = str(tmpdir.mkdir('test_url_no_refspec'))
+    shutil.rmtree(tdir, ignore_errors=True)
+    shutil.copytree('tests/test_refspec', tdir)
+    os.chdir(tdir)
+    with pytest.raises(SystemExit):
+        kas.kas(['shell', 'test4.yml', '-c', 'true'])
