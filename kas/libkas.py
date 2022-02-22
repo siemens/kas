@@ -259,7 +259,11 @@ def get_build_environ(build_system):
 
     env.update(conf_env)
 
-    if 'BB_ENV_EXTRAWHITE' in env:
+    if 'BB_ENV_PASSTHROUGH_ADDITIONS' in env:
+        passthrough_additions = env['BB_ENV_PASSTHROUGH_ADDITIONS'] + ' ' + \
+            ' '.join(env_vars)
+        env.update({'BB_ENV_PASSTHROUGH_ADDITIONS': passthrough_additions})
+    elif 'BB_ENV_EXTRAWHITE' in env:
         extra_white = env['BB_ENV_EXTRAWHITE'] + ' ' + ' '.join(env_vars)
         env.update({'BB_ENV_EXTRAWHITE': extra_white})
 
