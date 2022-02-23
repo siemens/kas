@@ -148,6 +148,14 @@ class SetupHome(Command):
         Sets up the home directory of kas.
     """
 
+    # A list of environment variables that SETUP_HOME uses
+    # This should be kept up to date with any code in execute()
+    ENV_VARS = [
+        'GIT_CREDENTIAL_HELPER',
+        'AWS_CONFIG_FILE',
+        'AWS_SHARED_CREDENTIALS_FILE',
+    ]
+
     def __init__(self):
         super().__init__()
         self.tmpdirname = tempfile.mkdtemp()

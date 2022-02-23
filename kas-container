@@ -289,6 +289,10 @@ while [ $# -gt 0 ] && [ $KAS_EXTRA_BITBAKE_ARGS -eq 0 ]; do
 		KAS_BITBAKE_C_OPTION_ARGS="$2"
 		shift 2
 		;;
+	-E|--preserve-env)
+		echo "$1 is not supported with kas-container"
+		exit 1
+		;;
 	--)
 		KAS_EXTRA_BITBAKE_ARGS=$#
 		;;
