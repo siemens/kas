@@ -362,9 +362,9 @@ class GitRepo(RepoImpl):
         return ['git', 'cat-file', '-t', self.remove_ref_prefix(self.refspec)]
 
     def fetch_cmd(self):
-        cmd = ['git', 'fetch']
+        cmd = ['git', 'fetch', '-q']
         if self.refspec.startswith('refs/'):
-            cmd.extend(['--quiet', 'origin',
+            cmd.extend(['origin',
                         '+' + self.refspec
                         + ':refs/remotes/origin/'
                         + self.remove_ref_prefix(self.refspec)])
