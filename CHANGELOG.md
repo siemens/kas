@@ -1,3 +1,19 @@
+3.0
+- kas: git fetch always with quiet flag, suppressing false error messages
+- kas: Add BB_ENV_PASSTHROUGH_ADDITIONS support
+- kas: shell: Add option to keep current environment
+- kas: Raise an error on missing repo refspec
+- kas-container: Base containers on bullseye
+- kas-container: Add pigz package to container to enable parallel compression
+- kas-container: Support for sbuild in kas-isar
+- kas-container: podman: Remove --pid=host
+- kas-container: Start init service inside container
+- kas-container: Add cleansstate and cleanall
+- kas-container: Pass http_proxy et.al through sudo
+- kas-container: Address shellcheck findings in container-entrypoint
+- docs: Add recommendation for repo-id naming
+- docs: Clarify local file include paths
+
 2.6.3
 - kas: Do not overwrite existing .ssh/config
 - kas: Properly describe package build
