@@ -1,3 +1,6 @@
+3.0.2
+- kas-container: Fix the fix for chatty sbuild-adduser in kas-isar
+
 3.0.1
 - kas-container: Silence chatty sbuild-adduser in kas-isar
 
