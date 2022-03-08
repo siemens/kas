@@ -25,7 +25,7 @@
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2020'
 
-__version__ = '3.0'
+__version__ = '3.0.1'
 
 # Please update docs/format-changelog.rst when changing the file version.
 __file_version__ = 11

@@ -1,3 +1,6 @@
+3.0.1
+- kas-container: Silence chatty sbuild-adduser in kas-isar
+
 3.0
 - kas: git fetch always with quiet flag, suppressing false error messages
 - kas: Add BB_ENV_PASSTHROUGH_ADDITIONS support
