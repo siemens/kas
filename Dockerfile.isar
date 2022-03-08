@@ -17,5 +17,5 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN sed -i 's|\tGOSU="gosu builder"|\0\n\tsbuild-adduser builder >/dev/null 2>&1|' /kas/container-entrypoint
+RUN sed -i 's|\tGOSU="gosu builder"|\0\n\tsbuild-adduser builder >/dev/null 2>\&1|' /kas/container-entrypoint
 RUN sed -i 's|#!/bin/bash|\0\n\nupdate-binfmts --enable \&\& [ -f /proc/sys/fs/binfmt_misc/status ]|' /kas/container-entrypoint
