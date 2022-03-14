@@ -78,6 +78,10 @@ class Build:
             Executes the build command of the kas plugin.
         """
 
+        if args.config and args.config.startswith('-'):
+            args.extra_bitbake_args.insert(0, args.config)
+            args.config = None
+
         ctx = create_global_context(args)
         ctx.config = Config(ctx, args.config, args.target, args.task)
 
