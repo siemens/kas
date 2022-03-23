@@ -40,6 +40,8 @@ setup(
     name='kas',
     version=__version__,
 
+    scripts=['kas-container'],
+
     description='Setup tool for bitbake based projects',
     long_description=LONG_DESCRIPTION,
 
