@@ -61,6 +61,7 @@ usage()
 	printf "%b" "--ssh-dir\t\tDirectory containing SSH configurations.\n"
 	printf "%b" "\t\t\tAvoid \$HOME/.ssh unless you fully trust the " \
 		    "container.\n"
+	printf "%b" "--ssh-agent\t\tForward ssh-agent socket to the container.\n"
 	printf "%b" "--aws-dir\t\tDirectory containing AWScli configuration.\n"
 	printf "%b" "--git-credential-store\tFile path to the git credential " \
 		    "store\n"
@@ -209,6 +210,10 @@ while [ $# -gt 0 ]; do
 		[ $# -gt 2 ] || usage
 		KAS_SSH_DIR="$2"
 		shift 2
+		;;
+	--ssh-agent)
+		KAS_SSH_AUTH_SOCK=$(readlink -f "$SSH_AUTH_SOCK")
+		shift 1
 		;;
 	--aws-dir)
 		[ $# -gt 2 ] || usage
@@ -382,6 +387,15 @@ if [ -n "${KAS_SSH_DIR}" ] ; then
 		exit 1
 	fi
 	set -- "$@" -v "$(readlink -f "${KAS_SSH_DIR}")":/etc/skel/.ssh:ro
+fi
+
+if [ -n "${KAS_SSH_AUTH_SOCK}" ]; then
+	if [ ! -S "${KAS_SSH_AUTH_SOCK}" ]; then
+		echo "Passed SSH_AUTH_SOCK '${KAS_SSH_AUTH_SOCK}' is not a socket"
+		exit 1
+	fi
+	set -- "$@" -v "${KAS_SSH_AUTH_SOCK}":/ssh-agent/ssh-auth-sock \
+		-e SSH_AUTH_SOCK=/ssh-agent/ssh-auth-sock
 fi
 
 if [ -n "${KAS_AWS_DIR}" ] ; then
