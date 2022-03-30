@@ -40,7 +40,7 @@ usage()
 	printf "%b" "for-all-repos\t\tRun specified command in each repository.\n"
 	printf "%b" "clean\t\t\tClean build artifacts, keep sstate cache and " \
 		    "downloads.\n"
-	printf "%b" "cleanstate\t\tClean build artifacts and sstate cache, " \
+	printf "%b" "cleansstate\t\tClean build artifacts and sstate cache, " \
 		    "keep downloads.\n"
 	printf "%b" "cleanall\t\tClean build artifacts, sstate cache and " \
 		    "downloads.\n"
