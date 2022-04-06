@@ -125,7 +125,14 @@
                                 "type": "string"
                             },
                             "url": {
-                                "type": "string"
+                                "oneOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
                             },
                             "type": {
                                 "type": "string"
@@ -134,7 +141,14 @@
                                 "type": "string"
                             },
                             "path": {
-                                "type": "string"
+                                "oneOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
                             },
                             "layers": {
                                 "type": "object",

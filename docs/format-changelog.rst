@@ -111,3 +111,13 @@ Added
 
 - ``menu_configuration`` key stores the selections done via ``kas menu`` in a
   configuration file. It is only evaluated by that plugin.
+
+Version 12
+----------
+
+Added
+~~~~~
+
+- For repositories, ``url`` and ``path`` can now be overridden with a
+  null-value to switch between version-controlled repositories and unversioned
+  local folders.
