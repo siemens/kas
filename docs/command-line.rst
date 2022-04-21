@@ -83,6 +83,10 @@ Environment variables
 | |git_cred|               | Allows to set the git credential helper in the   |
 |                          | `.gitconfig` of the kas user.                    |
 +--------------------------+--------------------------------------------------+
+| ``CI_SERVER_HOST``       | Environment variables from gitlab CI, if set     |
+| ``CI_JOB_TOKEN``         | .netrc is configured to allow fetching from      |
+|                          | the gitlab instance.                             |
++--------------------------+--------------------------------------------------+
 
 .. |aws_cred| replace:: ``AWS_SHARED_CREDENTIALS_FILE``
 .. |git_cred| replace:: ``GIT_CREDENTIAL_HELPER``
