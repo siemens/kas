@@ -26,6 +26,8 @@ from kas import kas
 
 import pytest
 
+LAYERBASE = '${TOPDIR}/..'
+
 
 @pytest.fixture
 def dokas(tmpdir):
@@ -42,7 +44,7 @@ def test_layers_default(dokas):
     match = 0
     with open('build/conf/bblayers.conf', 'r') as f:
         for line in f:
-            if 'test_layers/kas ' in line:
+            if '{}/kas '.format(LAYERBASE) in line:
                 match += 1
     assert(match == 1)
 
@@ -51,7 +53,7 @@ def test_layers_include(dokas):
     match = 0
     with open('build/conf/bblayers.conf', 'r') as f:
         for line in f:
-            if 'test_layers/kas1/meta-' in line:
+            if '{}/kas1/meta-'.format(LAYERBASE) in line:
                 match += 1
     assert(match == 2)
 
@@ -59,11 +61,11 @@ def test_layers_include(dokas):
 def test_layers_exclude(dokas):
     with open('build/conf/bblayers.conf', 'r') as f:
         for line in f:
-            assert('test_layers/kas2' not in line)
+            assert('{}/kas2'.format(LAYERBASE) not in line)
 
 
 def test_layers_strip_dot(dokas):
     with open('build/conf/bblayers.conf', 'r') as f:
         lines = f.readlines()
-        assert(any('test_layers/kas3 ' in x for x in lines))
-        assert(any('test_layers/kas3/meta-bar' in x for x in lines))
+        assert(any('{}/kas3 '.format(LAYERBASE) in x for x in lines))
+        assert(any('{}/kas3/meta-bar'.format(LAYERBASE) in x for x in lines))

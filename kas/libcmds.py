@@ -260,6 +260,16 @@ class WriteBBConfig(Command):
         return 'write_bbconfig'
 
     def execute(self, ctx):
+        def _get_layer_path_under_topdir(ctx, layer):
+            """
+                Returns a path relative to ${TOPDIR}.
+                TOPDIR is a BB variable pointing to the build directory.
+                It is not expanded by KAS, hence we avoid
+                absolute paths pointing into the build host.
+            """
+            relpath = os.path.relpath(layer, ctx.build_dir)
+            return '${TOPDIR}/' + relpath
+
         def _write_bblayers_conf(ctx):
             filename = ctx.build_dir + '/conf/bblayers.conf'
             if not os.path.isdir(os.path.dirname(filename)):
@@ -268,7 +278,8 @@ class WriteBBConfig(Command):
                 fds.write(ctx.config.get_bblayers_conf_header())
                 fds.write('BBLAYERS ?= " \\\n    ')
                 fds.write(' \\\n    '.join(
-                    sorted(layer for repo in ctx.config.get_repos()
+                    sorted(_get_layer_path_under_topdir(ctx, layer)
+                           for repo in ctx.config.get_repos()
                            for layer in repo.layers)))
                 fds.write('"\n')
                 fds.write('BBPATH ?= "${TOPDIR}"\n')
