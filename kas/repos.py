@@ -393,7 +393,7 @@ class GitRepo(RepoImpl):
                 format(refspec=self.remove_ref_prefix(self.refspec))]
 
     def apply_patches_file_cmd(self, path):
-        return ['git', 'apply', path]
+        return ['git', 'apply', '--whitespace=nowarn', path]
 
     def set_remote_url_cmd(self):
         return ['git', 'remote', 'set-url', 'origin', self.effective_url]
