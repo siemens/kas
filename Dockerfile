@@ -4,13 +4,11 @@ FROM debian:bullseye-slim
 
 ARG TARGETPLATFORM
 ARG DEBIAN_FRONTEND=noninteractive
-
+ENV LANG=en_US.utf8
 RUN apt-get update && \
     apt-get install -y locales && \
-    localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
-ENV LANG=en_US.utf8
-
-RUN apt-get install --no-install-recommends -y \
+    localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 && \
+    apt-get install --no-install-recommends -y \
         gawk wget git-core diffstat unzip texinfo \
         build-essential chrpath socat cpio python python3 python3-pip python3-pexpect \
         xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev \
