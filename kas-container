@@ -102,6 +102,14 @@ enable_isar_mode() {
 	fi
 }
 
+enable_oe_mode() {
+	if [ "${KAS_CONTAINER_ENGINE}" = "podman" ]; then
+		# The container entry point expects that the current userid
+		# calling "podman run" has a 1:1 mapping
+		KAS_RUNTIME_ARGS="${KAS_RUNTIME_ARGS} --userns=keep-id"
+	fi
+}
+
 run_clean() {
 	if [ -n "${KAS_ISAR_ARGS}" ]; then
 		set_container_image_var
@@ -163,7 +171,7 @@ docker)
 	;;
 podman)
 	KAS_CONTAINER_COMMAND="podman"
-	KAS_RUNTIME_ARGS="--userns=keep-id --security-opt label=disable"
+	KAS_RUNTIME_ARGS="--security-opt label=disable"
 	;;
 *)
 	echo "$0: unknown container engine '${KAS_CONTAINER_ENGINE}'" >&2
@@ -359,6 +367,8 @@ fi
 
 if [ "${BUILD_SYSTEM}" = "isar" ]; then
 	enable_isar_mode
+else
+	enable_oe_mode
 fi
 
 set_container_image_var
