@@ -167,17 +167,12 @@ class SetupHome(Command):
         return 'setup_home'
 
     def execute(self, ctx):
-        with open(self.tmpdirname + '/.wgetrc', 'w') as fds:
-            fds.write('\n')
-        with open(self.tmpdirname + '/.netrc', 'w') as fds:
-            # Configure the gitlab CI authentification token
-            if os.environ.get('CI_SERVER_HOST', False) \
-                    and os.environ.get('CI_JOB_TOKEN', False):
+        if os.environ.get('CI_SERVER_HOST', False) \
+                and os.environ.get('CI_JOB_TOKEN', False):
+            with open(self.tmpdirname + '/.netrc', 'w') as fds:
                 fds.write('machine ' + os.environ['CI_SERVER_HOST'] + '\n'
                           'login gitlab-ci-token\n'
                           'password ' + os.environ['CI_JOB_TOKEN'] + '\n')
-            else:
-                fds.write('\n')
         with open(self.tmpdirname + '/.gitconfig', 'w') as fds:
             fds.write('[User]\n'
                       '\temail = kas@example.com\n'
