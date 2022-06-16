@@ -16,7 +16,7 @@ RUN apt-get update && \
         python3-setuptools python3-wheel python3-yaml python3-distro python3-jsonschema python3-newt \
         gosu lsb-release file vim less procps tree tar bzip2 zstd pigz bc tmux libncurses-dev \
         dosfstools mtools parted lz4 \
-        git-lfs mercurial iproute2 ssh-client curl rsync gnupg awscli sudo && \
+        git-lfs mercurial iproute2 ssh-client telnet curl rsync gnupg awscli sudo && \
     if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
         apt-get install --no-install-recommends -y gcc-multilib g++-multilib syslinux; \
     fi && \
