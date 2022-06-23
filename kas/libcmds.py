@@ -154,6 +154,7 @@ class SetupHome(Command):
         'GIT_CREDENTIAL_HELPER',
         'AWS_CONFIG_FILE',
         'AWS_SHARED_CREDENTIALS_FILE',
+        'NETRC_FILE',
     ]
 
     def __init__(self):
@@ -167,9 +168,13 @@ class SetupHome(Command):
         return 'setup_home'
 
     def execute(self, ctx):
+        if os.environ.get('NETRC_FILE', False):
+            shutil.copy(os.environ['NETRC_FILE'],
+                        self.tmpdirname + "/.netrc")
         if os.environ.get('CI_SERVER_HOST', False) \
                 and os.environ.get('CI_JOB_TOKEN', False):
-            with open(self.tmpdirname + '/.netrc', 'w') as fds:
+            with open(self.tmpdirname + '/.netrc', 'a') as fds:
+                fds.write('\n# appended by kas, you have gitlab CI env\n')
                 fds.write('machine ' + os.environ['CI_SERVER_HOST'] + '\n'
                           'login gitlab-ci-token\n'
                           'password ' + os.environ['CI_JOB_TOKEN'] + '\n')
