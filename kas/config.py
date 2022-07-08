@@ -68,15 +68,26 @@ class Config:
         """
         return self._config.get('build_system', '')
 
-    def find_missing_repos(self):
+    def find_missing_repos(self, repo_paths={}):
         """
             Returns repos that are in config but not on disk
         """
-        repo_paths = {}
         (self._config, missing_repo_names) = \
             self.handler.get_config(repos=repo_paths)
 
         return missing_repo_names
+
+    def get_config(self):
+        """
+            Returns the config dict.
+        """
+        return self._config
+
+    def get_repos_config(self):
+        """
+            Returns the repository configuration
+        """
+        return self._config.get('repos', {})
 
     def get_repos(self):
         """
@@ -88,23 +99,25 @@ class Config:
         self.repo_dict = self._get_repo_dict()
         return list(self.repo_dict.values())
 
+    def get_repo(self, name):
+        """
+            Returns a `Repo` instance for the configuration with the key
+            `name`.
+        """
+        repo_defaults = self._config.get('defaults', {}).get('repos', {})
+        config = self.get_repos_config()[name] or {}
+        return Repo.factory(name,
+                            config,
+                            repo_defaults,
+                            self.top_repo_path)
+
     def _get_repo_dict(self):
         """
             Returns a dictionary containing the repositories with
             their names (as it is defined in the config file) as keys
             and the `Repo` instances as values.
         """
-        repo_config_dict = self._config.get('repos', {})
-        repo_defaults = self._config.get('defaults', {}).get('repos', {})
-        repo_dict = {}
-        for repo in repo_config_dict:
-            repo_config_dict[repo] = repo_config_dict[repo] or {}
-            repo_dict[repo] = Repo.factory(repo,
-                                           repo_config_dict[repo],
-                                           repo_defaults,
-                                           self.top_repo_path)
-
-        return repo_dict
+        return {name: self.get_repo(name) for name in self.get_repos_config()}
 
     def get_bitbake_targets(self):
         """
