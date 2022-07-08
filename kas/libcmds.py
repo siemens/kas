@@ -370,21 +370,20 @@ class SetupReposStep(Command):
         logging.debug('Missing repos for complete config:\n%s',
                       pprint.pformat(ctx.missing_repo_names))
 
-        ctx.config.repo_dict = ctx.config._get_repo_dict()
-
         ctx.missing_repos = []
         for repo_name in ctx.missing_repo_names:
-            if repo_name not in ctx.config.repo_dict:
+            if repo_name not in ctx.config.get_repos_config():
                 logging.error('Include references unknown repo: %s', repo_name)
                 sys.exit(1)
-            ctx.missing_repos.append(ctx.config.repo_dict[repo_name])
+            ctx.missing_repos.append(ctx.config.get_repo(repo_name))
 
         repos_fetch(ctx.missing_repos)
 
         for repo in ctx.missing_repos:
             repo.checkout()
 
-        ctx.config.repo_dict = ctx.config._get_repo_dict()
+        ctx.config.repo_dict.update(
+            {repo.name: repo for repo in ctx.missing_repos})
 
         repo_paths = {r: ctx.config.repo_dict[r].path for r
                       in ctx.config.repo_dict}
