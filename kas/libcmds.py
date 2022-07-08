@@ -359,7 +359,6 @@ class SetupReposStep(Command):
         return 'setup_repos_step'
 
     def execute(self, ctx):
-        """ TODO refactor protected-access """
         if not ctx.missing_repo_names:
             return False
 
@@ -389,8 +388,8 @@ class SetupReposStep(Command):
                       in ctx.config.repo_dict}
         ctx.missing_repo_names_old = ctx.missing_repo_names
 
-        (ctx.config._config, ctx.missing_repo_names) = \
-            ctx.config.handler.get_config(repos=repo_paths)
+        ctx.missing_repo_names = \
+            ctx.config.find_missing_repos(repo_paths)
 
         return ctx.missing_repo_names
 
@@ -404,7 +403,6 @@ class FinishSetupRepos(Command):
         return 'finish_setup_repos'
 
     def execute(self, ctx):
-        """ TODO refactor protected-access """
         # now fetch everything with complete config and check out layers
         repos_fetch(ctx.config.get_repos())
 
@@ -412,4 +410,4 @@ class FinishSetupRepos(Command):
             repo.checkout()
 
         logging.debug('Configuration from config file:\n%s',
-                      pprint.pformat(ctx.config._config))
+                      pprint.pformat(ctx.config.get_config()))
