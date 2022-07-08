@@ -58,3 +58,11 @@ def test_checkout(changedir, tmpdir):
     assert(not glob.glob('build/tmp*'))
     assert(not os.path.exists('build/downloads'))
     assert(not os.path.exists('build/sstate-cache'))
+
+
+def test_repo_includes(changedir, tmpdir):
+    tdir = str(tmpdir.mkdir('test_commands'))
+    shutil.rmtree(tdir, ignore_errors=True)
+    shutil.copytree('tests/test_repo_includes', tdir)
+    os.chdir(tdir)
+    kas.kas(['checkout', 'test.yml'])

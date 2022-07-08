@@ -1,0 +1,10 @@
+header:
+  version: 11
+  includes:
+    - repo: externalrepo
+      file: tests/test_layers/test.yml
+
+repos:
+  externalrepo:
+    url: https://github.com/siemens/kas.git
+    path: externalrepo

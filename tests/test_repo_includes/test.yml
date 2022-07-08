@@ -1,0 +1,14 @@
+header:
+  version: 11
+  includes:
+    - repo: subrepo
+      file: test.yml
+
+repos:
+  this:
+
+  subrepo:
+    path: subrepo
+
+  externalrepo:
+    refspec: master
