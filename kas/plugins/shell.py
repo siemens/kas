@@ -45,6 +45,8 @@ from kas.context import create_global_context
 from kas.config import Config
 from kas.libcmds import Macro, Command, SetupHome
 from kas.libkas import setup_parser_common_args
+from kas.libkas import setup_parser_preserve_env_arg
+from kas.libkas import run_handle_preserve_env_arg
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
@@ -65,15 +67,13 @@ class Shell:
         """
 
         setup_parser_common_args(parser)
+        setup_parser_preserve_env_arg(parser)
         parser.add_argument('-k', '--keep-config-unchanged',
                             help='Skip steps that change the configuration',
                             action='store_true')
         parser.add_argument('-c', '--command',
                             help='Run command',
                             default='')
-        parser.add_argument('-E', '--preserve-env',
-                            help='Keep current user enviornment block',
-                            action='store_true')
 
     def run(self, args):
         """
@@ -83,24 +83,7 @@ class Shell:
         ctx = create_global_context(args)
         ctx.config = Config(ctx, args.config)
 
-        if args.preserve_env:
-            # Warn if there's any settings that setup_home would apply
-            # but are now ignored
-            for var in SetupHome.ENV_VARS:
-                if var in os.environ:
-                    logging.warning('Environment variable "%s" ignored '
-                                    'because user environment is being used',
-                                    var)
-
-            if not os.isatty(sys.stdout.fileno()):
-                logging.error("Error: --preserve-env can only be "
-                              "run from a tty")
-                sys.exit(1)
-
-            ctx.environ = os.environ.copy()
-
-            logging.warning("Preserving the current environment block may "
-                            "have unintended side effects on the build.")
+        run_handle_preserve_env_arg(ctx, os, args, SetupHome)
 
         if args.keep_config_unchanged:
             # Skip the tasks which would change the config of the build

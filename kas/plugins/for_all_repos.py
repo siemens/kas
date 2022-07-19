@@ -54,12 +54,15 @@
 """
 
 import logging
+import os
 import subprocess
 import sys
 from kas.context import create_global_context
 from kas.config import Config
-from kas.libcmds import Macro, Command
+from kas.libcmds import Macro, Command, SetupHome
 from kas.libkas import setup_parser_common_args
+from kas.libkas import setup_parser_preserve_env_arg
+from kas.libkas import run_handle_preserve_env_arg
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
@@ -74,12 +77,15 @@ class ForAllRepos:
     @classmethod
     def setup_parser(cls, parser):
         setup_parser_common_args(parser)
+        setup_parser_preserve_env_arg(parser)
         parser.add_argument('command',
                             help='Command to be executed as a string.')
 
     def run(self, args):
         ctx = create_global_context(args)
         ctx.config = Config(ctx, args.config)
+
+        run_handle_preserve_env_arg(ctx, os, args, SetupHome)
 
         macro = Macro()
         macro.add(ForAllReposCommand(args.command))
