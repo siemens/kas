@@ -57,7 +57,7 @@ class Config:
                                        'must be outside of versioning control')
         else:
             self.filenames = [os.path.join(ctx.kas_work_dir, CONFIG_YAML_FILE)]
-            self.top_repo_path = os.getcwd()
+            self.top_repo_path = Repo.get_root_path(ctx.kas_work_dir)
 
         self.handler = IncludeHandler(self.filenames, self.top_repo_path)
         self.repo_dict = self._get_repo_dict()
