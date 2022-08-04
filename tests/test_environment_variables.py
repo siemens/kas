@@ -12,7 +12,7 @@ def test_build_dir_is_placed_inside_work_dir_by_default(changedir, tmpdir):
 
     kas.kas(['checkout', 'test.yml'])
 
-    assert(os.path.exists(os.path.join(os.getcwd(), 'build', 'conf')))
+    assert os.path.exists(os.path.join(os.getcwd(), 'build', 'conf'))
 
 
 def test_build_dir_can_be_specified_by_environment_variable(changedir, tmpdir):
@@ -27,4 +27,4 @@ def test_build_dir_can_be_specified_by_environment_variable(changedir, tmpdir):
     kas.kas(['checkout', 'test.yml'])
     del os.environ['KAS_BUILD_DIR']
 
-    assert(os.path.exists(os.path.join(build_dir, 'conf')))
+    assert os.path.exists(os.path.join(build_dir, 'conf'))

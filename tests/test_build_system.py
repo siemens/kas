@@ -33,12 +33,12 @@ def test_build_system(changedir, tmpdir):
 
     kas.kas(['shell', 'test-oe.yml', '-c', 'true'])
     with open('build-env', 'r') as f:
-        assert(f.readline().strip() == 'openembedded')
+        assert f.readline().strip() == 'openembedded'
 
     kas.kas(['shell', 'test-isar.yml', '-c', 'true'])
     with open('build-env', 'r') as f:
-        assert(f.readline().strip() == 'isar')
+        assert f.readline().strip() == 'isar'
 
     kas.kas(['shell', 'test-openembedded.yml', '-c', 'true'])
     with open('build-env', 'r') as f:
-        assert(f.readline().strip() == 'openembedded')
+        assert f.readline().strip() == 'openembedded'

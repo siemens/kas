@@ -36,11 +36,11 @@ def test_for_all_repos(changedir, tmpdir):
                      >> %s/ref_${KAS_REPO_NAME}; fi''' % (tdir)])
 
     with open('ref_kas_1.0', 'r') as f:
-        assert(f.readline().strip()
-               == '907816a5c4094b59a36aec12226e71c461c05b77')
+        assert f.readline().strip() \
+            == '907816a5c4094b59a36aec12226e71c461c05b77'
     with open('ref_kas_1.1', 'r') as f:
-        assert(f.readline().strip()
-               == 'e9ca55a239caa1a2098e1d48773a29ea53c6cab2')
+        assert f.readline().strip() \
+            == 'e9ca55a239caa1a2098e1d48773a29ea53c6cab2'
 
 
 def test_checkout(changedir, tmpdir):
@@ -53,11 +53,11 @@ def test_checkout(changedir, tmpdir):
     # Ensure that local.conf and bblayers.conf are populated, check that no
     # build has been executed by ensuring that no tmp, sstate-cache or
     # downloads directories are present.
-    assert(os.path.exists('build/conf/local.conf'))
-    assert(os.path.exists('build/conf/bblayers.conf'))
-    assert(not glob.glob('build/tmp*'))
-    assert(not os.path.exists('build/downloads'))
-    assert(not os.path.exists('build/sstate-cache'))
+    assert os.path.exists('build/conf/local.conf')
+    assert os.path.exists('build/conf/bblayers.conf')
+    assert not glob.glob('build/tmp*')
+    assert not os.path.exists('build/downloads')
+    assert not os.path.exists('build/sstate-cache')
 
 
 def test_repo_includes(changedir, tmpdir):
