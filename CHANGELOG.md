@@ -1,3 +1,20 @@
+3.1
+- kas: Add support for authentication with gitlab CI
+- kas: Add NETRC_FILE to allow passing credentials into kas home
+- kas: for-all-repos: Add option to keep current env
+- kas: Avoid whitespace warnings when applying repo patches
+- kas: Use relative layer dirs to make build relocatable
+- kas: Allow "deleting" url/path of repo in override
+- kas: Fix repo-relative include file handling if no config file is given
+- kas: Fix include errors from repos defined via multiple yaml files
+- kas: Fix handling of -- separator in the absence of a config file
+- kas: Bundle kas-container script
+- kas-container: Add support for podman >= 4.1
+- kas-container: Add '--ssh-agent' option
+- kas-container: Add telnet to image
+- kas-container: Remove obsolete schroot mntpoint
+- kas-container: Reduce the image size a bit
+
 3.0.2
 - kas-container: Fix the fix for chatty sbuild-adduser in kas-isar
 
