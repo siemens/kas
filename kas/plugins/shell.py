@@ -115,6 +115,9 @@ class ShellCommand(Command):
         return 'shell'
 
     def execute(self, ctx):
+        logging.info("To start the default build, run: bitbake -c %s %s",
+                     ctx.config.get_bitbake_task(),
+                     ' '.join(ctx.config.get_bitbake_targets()))
         cmd = [ctx.environ.get('SHELL', '/bin/sh')]
         if self.cmd:
             cmd.append('-c')
