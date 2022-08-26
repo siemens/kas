@@ -14,7 +14,7 @@ RUN apt-get update && \
         xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev \
         pylint3 xterm python3-subunit mesa-common-dev zstd liblz4-tool \
         python3-setuptools python3-wheel python3-yaml python3-distro python3-jsonschema python3-newt \
-        gosu lsb-release file vim less procps tree tar bzip2 zstd pigz bc tmux libncurses-dev \
+        gosu lsb-release file vim less procps tree tar bzip2 zstd pigz tmux libncurses-dev \
         dosfstools mtools parted lz4 \
         git-lfs mercurial iproute2 ssh-client telnet curl rsync gnupg awscli sudo && \
     if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
