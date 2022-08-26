@@ -30,7 +30,7 @@ target: zlib-native
 repos:
   poky:
     url: https://git.yoctoproject.org/poky.git
-    refspec: b53230c08d9f02ecaf35b4f0b70512abbf10ae11
+    refspec: 387ab5f18b17c3af3e9e30dc58584641a70f359f
     layers:
       meta:
       meta-poky:
