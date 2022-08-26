@@ -2,4 +2,4 @@
 .gitignore
 .dockerignore
 Dockerfile
-.travis.yml
+.github
