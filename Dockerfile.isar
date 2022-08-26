@@ -9,11 +9,11 @@ ARG DEBIAN_FRONTEND=noninteractive
 ENV LC_ALL=en_US.UTF-8
 RUN apt-get update && \
     apt-get install -y -f --no-install-recommends \
-            autoconf automake gdisk libtool bash-completion \
-            reprepro python3 binfmt-support e2fsprogs \
+            gdisk bash-completion \
+            reprepro python3 binfmt-support \
             umoci skopeo \
-            git-buildpackage pristine-tar schroot sbuild debhelper \
-            multistrap qemu-user-static debootstrap quilt && \
+            git-buildpackage pristine-tar schroot sbuild \
+            qemu-user-static debootstrap quilt && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
