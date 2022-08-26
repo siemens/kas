@@ -96,9 +96,8 @@ jobs:
       - name: Build kas-isar image
         uses: docker/build-push-action@v2
         with:
-          file: Dockerfile.isar
+          target: kas-isar
           load: true
-          build-args: KAS_TAG=next
           tags: ghcr.io/siemens/kas/kas-isar:next
       - name: Test kas-isar image
         run: |
@@ -107,8 +106,7 @@ jobs:
       - name: Complete build and deploy kas-isar image
         uses: docker/build-push-action@v2
         with:
-          file: Dockerfile.isar
+          target: kas-isar
           platforms: linux/amd64,linux/arm64
-          build-args: KAS_TAG=next
           tags: ghcr.io/siemens/kas/kas-isar:next
           push: true
