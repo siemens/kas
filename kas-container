@@ -161,13 +161,15 @@ if [ -z "${KAS_CONTAINER_ENGINE}" ]; then
 	fi
 fi
 
+KAS_RUNTIME_ARGS="--log-driver=none"
+
 case "${KAS_CONTAINER_ENGINE}" in
 docker)
 	KAS_CONTAINER_COMMAND="docker"
 	;;
 podman)
 	KAS_CONTAINER_COMMAND="podman"
-	KAS_RUNTIME_ARGS="--security-opt label=disable"
+	KAS_RUNTIME_ARGS="${KAS_RUNTIME_ARGS} --security-opt label=disable"
 	;;
 *)
 	echo "$0: unknown container engine '${KAS_CONTAINER_ENGINE}'" >&2
