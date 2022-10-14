@@ -36,6 +36,9 @@ ENTRYPOINT ["/kas/container-entrypoint"]
 
 FROM kas-base as kas-isar
 
+# The install package list are actually taking 1:1 from their documentation,
+# so there some packages that can already installed by other downstream layers.
+# This will not change any image sizes on all the layers in use.
 ENV LC_ALL=en_US.UTF-8
 RUN apt-get update && \
     apt-get install -y -f --no-install-recommends \
@@ -51,6 +54,9 @@ RUN sed -i 's|#!/bin/bash|\0\n\nupdate-binfmts --enable \&\& [ -f /proc/sys/fs/b
 
 FROM kas-base as kas
 
+# The install package list are actually taking 1:1 from their documentation,
+# so there some packages that can already installed by other downstream layers.
+# This will not change any image sizes on all the layers in use.
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
         gawk wget git diffstat unzip texinfo \
