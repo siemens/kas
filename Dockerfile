@@ -20,7 +20,8 @@ COPY . /kas
 RUN chmod -R o-w /kas
 
 RUN pip3 --proxy=$https_proxy install --no-deps kconfiglib && \
-    pip3 --proxy=$https_proxy install --no-deps /kas && kas --version
+    pip3 --proxy=$https_proxy install --no-deps /kas && kas --version && \
+    rm -rf $(pip3 cache dir)
 
 RUN ln -s /kas/contrib/oe-git-proxy /usr/bin/
 ENV GIT_PROXY_COMMAND="oe-git-proxy" \
