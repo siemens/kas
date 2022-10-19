@@ -54,7 +54,6 @@ usage()
 	printf "%b" "--runtime-args\t\tAdditional arguments to pass to the " \
 			"container runtime\n"
 	printf "%b" "\t\t\tfor running the build.\n"
-	printf "%b" "--docker-args\t\tSame as --runtime-args (deprecated).\n"
 	printf "%b" "-d\t\t\tPrint debug output.\n"
 	printf "%b" "-v\t\t\tSame as -d (deprecated).\n"
 	printf "%b" "--version\t\tprint program version.\n"
