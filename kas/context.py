@@ -105,7 +105,8 @@ class Context:
                             'No default locales set.', distro_bases)
 
         for key in ['http_proxy', 'https_proxy', 'ftp_proxy', 'no_proxy',
-                    'SSH_AUTH_SOCK']:
+                    'SSH_AUTH_SOCK',
+                    'BB_NUMBER_THREADS', 'PARALLEL_MAKE']:
             val = os.environ.get(key, None)
             if val:
                 self.environ[key] = val

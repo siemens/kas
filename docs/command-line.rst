@@ -94,6 +94,9 @@ Environment variables
 |                          | that host most tools would probably take that    |
 |                          | first one.                                       |
 +--------------------------+--------------------------------------------------+
+| ``BB_NUMBER_THREADS``    | Environment variables to control the concurrency |
+| ``PARALLEL_MAKE``        |                                                  |
++--------------------------+--------------------------------------------------+
 
 .. |aws_cred| replace:: ``AWS_SHARED_CREDENTIALS_FILE``
 .. |git_cred| replace:: ``GIT_CREDENTIAL_HELPER``
