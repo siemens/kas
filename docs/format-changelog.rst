@@ -121,3 +121,12 @@ Added
 - For repositories, ``url`` and ``path`` can now be overridden with a
   null-value to switch between version-controlled repositories and unversioned
   local folders.
+
+Version 13
+----------
+
+Added
+~~~~~
+
+- Variables used in the ``env`` section can now be assigned 'None' as value. In
+  this case the variables are only exported to the bb env whitelist.

@@ -94,7 +94,7 @@
         "env": {
             "type": "object",
             "additionalProperties": {
-                "type": "string"
+                "type": ["string", "null"]
             }
         },
         "target": {

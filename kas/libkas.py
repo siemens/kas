@@ -275,6 +275,9 @@ def get_build_environ(build_system):
         if env_var in os.environ:
             env[env_var] = os.environ[env_var]
 
+    # filter out 'None' values
+    env = {k: v for (k, v) in env.items() if v is not None}
+
     return env
 
 

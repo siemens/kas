@@ -354,9 +354,14 @@ Configuration reference
     should be specified via the environment variable.
 
 * ``env``: dict [optional]
-    Contains environment variable names with the default values. These
-    variables are made available to bitbake via ``BB_ENV_EXTRAWHITE`` and can
-    be overwritten by the variables of the environment in which kas is started.
+    Contains environment variable names with either default values or None.
+    These variables are made available to bitbake via ``BB_ENV_EXTRAWHITE``
+    and can be overwritten by the variables of the environment in which
+    kas is started.
+    Either a string or nothing (None) can be assigned as value.
+    The former one serves as a default value whereas the latter one will lead
+    to add the variable only to ``BB_ENV_EXTRAWHITE`` and not to the
+    environment where kas is started.
 
 * ``task``: string [optional]
     Contains the task to build by bitbake. Can be overwritten by the
