@@ -397,7 +397,7 @@ def setup_parser_common_args(parser):
 
 def setup_parser_preserve_env_arg(parser):
     parser.add_argument('-E', '--preserve-env',
-                        help='Keep current user enviornment block',
+                        help='Keep current user environment block',
                         action='store_true')
 
 
