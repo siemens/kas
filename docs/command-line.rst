@@ -35,7 +35,7 @@ Environment variables
 | ``KAS_TASK``             |                                                  |
 +--------------------------+--------------------------------------------------+
 | ``KAS_PREMIRRORS``       | Specifies alternatives for repo URLs. Just like  |
-|                          | bitbake ``PREMIRRORS``, this variable consists   |
+| ``DISTRO_APT_PREMIRRORS``| bitbake ``PREMIRRORS``, this variable consists   |
 |                          | of new-line separated entries. Each entry        |
 |                          | defines a regular expression to match a URL and, |
 |                          | space-separated, its replacement. E.g.:          |
