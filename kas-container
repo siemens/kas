@@ -78,7 +78,7 @@ usage()
 
 trace()
 {
-	[ -n "${KAS_VERBOSE}" ] && echo "+ $*"
+	[ -n "${KAS_VERBOSE}" ] && echo "+ $*" >&2
 	"$@"
 }
 
