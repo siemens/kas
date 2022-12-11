@@ -64,7 +64,10 @@ class Dump(Checkout):
     """
 
     name = 'dump'
-    helpmsg = 'Expand and dump the final config.'
+    helpmsg = (
+        'Expand and dump the final config to stdout. When resolving refspecs, '
+        'these are resolved before patches are applied.'
+    )
 
     class KasYamlDumper(yaml.Dumper):
         """
@@ -99,6 +102,9 @@ class Dump(Checkout):
                             type=int,
                             default=4,
                             help='Line indent (# of spaces, default: 4)')
+        parser.add_argument('--resolve-refs',
+                            action='store_true',
+                            help='Replace floating refs with exact SHAs')
 
     def run(self, args):
         args.skip += [
@@ -115,6 +121,12 @@ class Dump(Checkout):
         # includes are already expanded, delete the key
         if 'includes' in config_expanded['header']:
             del config_expanded['header']['includes']
+
+        if args.resolve_refs:
+            repos = ctx.config.get_repos()
+            for r in repos:
+                if r.refspec:
+                    config_expanded['repos'][r.name]['refspec'] = r.revision
 
         if args.format == 'json':
             json.dump(config_expanded, sys.stdout, indent=args.indent)
