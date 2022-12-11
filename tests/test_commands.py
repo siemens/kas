@@ -77,21 +77,33 @@ def test_dump(changedir, tmpdir, capsys):
     os.chdir(tdir)
 
     formats = ['json', 'yaml']
-    resolve = ['', '--resolve-refs']
+    resolve = ['', '--resolve-refs', '--resolve-env']
     # test cross-product of these options (formats x resolve)
     for f, r in ((f, r) for f in formats for r in resolve):
         outfile = 'test_flat.%s' % f
+        if r == '--resolve-env':
+            os.environ['TESTVAR_FOO'] = 'KAS'
+
         kas.kas(('dump --format %s %s test.yml' % (f, r)).split())
+
+        if r == '--resolve-env':
+            del os.environ['TESTVAR_FOO']
+
         with open(outfile, 'w') as f:
             f.write(capsys.readouterr().out)
 
         with open(outfile, 'r') as cf:
             flatconf = json.load(cf) if f == 'json' else yaml.safe_load(cf)
             refspec = flatconf['repos']['kas3']['refspec']
+            envvar = flatconf['env']['TESTVAR_FOO']
             if r == '--resolve-refs':
                 assert refspec != 'master'
             else:
                 assert refspec == 'master'
+            if r == '--resolve-env':
+                assert envvar == 'KAS'
+            else:
+                assert envvar == 'BAR'
 
             assert 'includes' not in flatconf['header']
             # check if kas can read the generated file

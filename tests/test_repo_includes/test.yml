@@ -4,6 +4,9 @@ header:
     - repo: subrepo
       file: test.yml
 
+env:
+  TESTVAR_FOO: "BAR"
+
 repos:
   this:
 
