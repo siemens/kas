@@ -89,6 +89,11 @@ typically provides a single command.
 
 .. automodule:: kas.plugins.checkout
 
+``dump`` plugin
+~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: kas.plugins.dump
+
 ``for-all-repos`` plugin
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
