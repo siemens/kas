@@ -40,7 +40,7 @@ fi
 
 if [ -n "$1" ]; then
 	case "$1" in
-	build|checkout|for-all-repos|menu|shell|-*)
+	build|checkout|dump|for-all-repos|menu|shell|-*)
 		# SC2086: Double quote to prevent globbing and word splitting.
 		# shellcheck disable=2086
 		exec $GOSU kas "$@"
