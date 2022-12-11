@@ -105,6 +105,9 @@ class Dump(Checkout):
         parser.add_argument('--resolve-refs',
                             action='store_true',
                             help='Replace floating refs with exact SHAs')
+        parser.add_argument('--resolve-env',
+                            action='store_true',
+                            help='Set env defaults to captured env value')
 
     def run(self, args):
         args.skip += [
@@ -127,6 +130,9 @@ class Dump(Checkout):
             for r in repos:
                 if r.refspec:
                     config_expanded['repos'][r.name]['refspec'] = r.revision
+
+        if args.resolve_env and 'env' in config_expanded:
+            config_expanded['env'] = ctx.config.get_environment()
 
         if args.format == 'json':
             json.dump(config_expanded, sys.stdout, indent=args.indent)
