@@ -23,6 +23,8 @@
 import glob
 import os
 import shutil
+import json
+import yaml
 from kas import kas
 
 
@@ -66,3 +68,22 @@ def test_repo_includes(changedir, tmpdir):
     shutil.copytree('tests/test_repo_includes', tdir)
     os.chdir(tdir)
     kas.kas(['checkout', 'test.yml'])
+
+
+def test_dump(changedir, tmpdir, capsys):
+    tdir = str(tmpdir.mkdir('test_commands'))
+    shutil.rmtree(tdir, ignore_errors=True)
+    shutil.copytree('tests/test_repo_includes', tdir)
+    os.chdir(tdir)
+
+    formats = ['json', 'yaml']
+    for f in formats:
+        outfile = 'test_flat.%s' % f
+        kas.kas(('dump --format %s test.yml' % f).split())
+        with open(outfile, 'w') as f:
+            f.write(capsys.readouterr().out)
+
+        with open(outfile, 'r') as cf:
+            flatconf = json.load(cf) if f == 'json' else yaml.safe_load(cf)
+            assert flatconf['repos']['kas3']['refspec'] == 'master'
+            assert 'includes' not in flatconf['header']
