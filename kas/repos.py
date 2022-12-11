@@ -72,6 +72,15 @@ class Repo:
                 except ValueError:
                     continue
             return self.url
+        elif item == 'revision':
+            if not self.refspec:
+                return None
+            (_, output) = run_cmd(self.resolve_branch_cmd(),
+                                  cwd=self.path, fail=False)
+            if output:
+                return output.strip()
+            return self.refspec
+
         # Default behaviour
         raise AttributeError
 
