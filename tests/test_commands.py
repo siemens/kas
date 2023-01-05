@@ -22,6 +22,7 @@
 
 import glob
 import os
+import pathlib
 import shutil
 import json
 import yaml
@@ -60,6 +61,19 @@ def test_checkout(changedir, tmpdir):
     assert not glob.glob('build/tmp*')
     assert not os.path.exists('build/downloads')
     assert not os.path.exists('build/sstate-cache')
+
+
+def test_checkout_create_refs(changedir, tmpdir):
+    tpath = pathlib.Path(str(tmpdir.mkdir('test_commands')))
+    repo_cache = pathlib.Path(str(tmpdir.mkdir('repos')))
+    shutil.rmtree(str(tpath), ignore_errors=True)
+    shutil.copytree('tests/test_patch', str(tpath))
+    os.chdir(str(tpath))
+    os.environ['KAS_REPO_REF_DIR'] = str(repo_cache)
+    kas.kas(['checkout', 'test.yml'])
+    del os.environ['KAS_REPO_REF_DIR']
+    assert os.path.exists(str(repo_cache / 'github.com.siemens.kas.git'))
+    assert os.path.exists('kas/.git/objects/info/alternates')
 
 
 def test_repo_includes(changedir, tmpdir):
