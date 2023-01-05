@@ -200,6 +200,9 @@ class RepoImpl(Repo):
                 logging.debug('Created repo ref for %s', self.qualified_name)
                 try:
                     os.rename(tmpdir, sdir)
+                    if sys.version_info < (3, 8):
+                        # recreate dir so cleanup handler can delete it
+                        os.makedirs(tmpdir, exist_ok=True)
                 except OSError:
                     logging.debug('repo %s already cloned by other instance',
                                   self.qualified_name)
