@@ -192,8 +192,6 @@ class RepoImpl(Repo):
                 cwd=get_context().kas_work_dir)
             if retc == 0:
                 logging.info('Repository %s cloned', self.name)
-            if not self.refspec.startswith('refs/'):
-                return retc
 
         # Make sure the remote origin is set to the value
         # in the kas file to avoid surprises
