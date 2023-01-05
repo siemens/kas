@@ -28,6 +28,7 @@ import os
 import sys
 import logging
 from urllib.parse import urlparse
+from tempfile import TemporaryDirectory
 from .context import get_context
 from .libkas import run_cmd_async, run_cmd
 
@@ -178,17 +179,35 @@ class RepoImpl(Repo):
         """
             Starts asynchronous repository fetch.
         """
+
         if self.operations_disabled:
             return 0
 
+        refdir = get_context().kas_repo_ref_dir
+        sdir = os.path.join(refdir, self.qualified_name) if refdir else None
+
+        # fetch to refdir
+        if refdir and not os.path.exists(sdir):
+            os.makedirs(refdir, exist_ok=True)
+            with TemporaryDirectory(prefix=self.qualified_name + '.',
+                                    dir=refdir) as tmpdir:
+                (retc, _) = await run_cmd_async(
+                    self.clone_cmd(tmpdir, createref=True),
+                    cwd=get_context().kas_work_dir)
+                if retc != 0:
+                    return retc
+
+                logging.debug('Created repo ref for %s', self.qualified_name)
+                try:
+                    os.rename(tmpdir, sdir)
+                except OSError:
+                    logging.debug('repo %s already cloned by other instance',
+                                  self.qualified_name)
+
         if not os.path.exists(self.path):
             os.makedirs(os.path.dirname(self.path), exist_ok=True)
-            sdir = os.path.join(get_context().kas_repo_ref_dir or '',
-                                self.qualified_name)
-            logging.debug('Looking for repo ref dir in %s', sdir)
-
             (retc, _) = await run_cmd_async(
-                self.clone_cmd(sdir),
+                self.clone_cmd(sdir, createref=False),
                 cwd=get_context().kas_work_dir)
             if retc == 0:
                 logging.info('Repository %s cloned', self.name)
@@ -355,10 +374,14 @@ class GitRepo(RepoImpl):
     def add_cmd(self):
         return ['git', 'add', '-A']
 
-    def clone_cmd(self, gitsrcdir):
-        cmd = ['git', 'clone', '-q', self.effective_url, self.path]
-        if get_context().kas_repo_ref_dir and os.path.exists(gitsrcdir):
-            cmd.extend(['--reference', gitsrcdir])
+    def clone_cmd(self, srcdir, createref):
+        cmd = ['git', 'clone', '-q']
+        if createref:
+            cmd.extend([self.effective_url, '--bare', srcdir])
+        elif srcdir:
+            cmd.extend([srcdir, '--reference', srcdir, self.path])
+        else:
+            cmd.extend([self.effective_url, self.path])
         return cmd
 
     def commit_cmd(self):
@@ -414,7 +437,10 @@ class MercurialRepo(RepoImpl):
     def add_cmd(self):
         return ['hg', 'add']
 
-    def clone_cmd(self, srcdir):
+    def clone_cmd(self, srcdir, createref):
+        # Mercurial does not support repo references (object caches)
+        if createref:
+            return ['true']
         return ['hg', 'clone', self.effective_url, self.path]
 
     def commit_cmd(self):

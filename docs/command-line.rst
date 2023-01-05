@@ -28,6 +28,11 @@ Environment variables
 |                          | "https://github.com/siemens/meta-iot2000.git"    |
 |                          | resolves to the name                             |
 |                          | "github.com.siemens.meta-iot2000.git".           |
+|                          | Repositories that are not found will be cloned   |
+|                          | below this directory. Multiple instances of kas  |
+|                          | can simultaneously work on the same directory,   |
+|                          | as long as the underlying filesystem is POSIX    |
+|                          | compatible.                                      |
 +--------------------------+--------------------------------------------------+
 | ``KAS_DISTRO``           | This overwrites the respective setting in the    |
 | ``KAS_MACHINE``          | configuration file.                              |
