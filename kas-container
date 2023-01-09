@@ -154,7 +154,20 @@ KAS_CONTAINER_ENGINE="${KAS_CONTAINER_ENGINE:-${KAS_DOCKER_ENGINE}}"
 if [ -z "${KAS_CONTAINER_ENGINE}" ]; then
 	# Try to auto-detect a container engine
 	if command -v docker >/dev/null; then
-		KAS_CONTAINER_ENGINE=docker
+		case $(docker -v 2>/dev/null) in
+		podman*)
+			# The docker command is an alias for podman
+			KAS_CONTAINER_ENGINE=podman
+			;;
+		Docker*)
+			# The docker command is the real docker
+			KAS_CONTAINER_ENGINE=docker
+			;;
+		*)
+			# The docker command is an unknown engine
+			echo "$0: docker command found, but unknown engine detected" >&2
+			exit 1
+		esac
 	elif command -v podman >/dev/null; then
 		KAS_CONTAINER_ENGINE=podman
 	else
