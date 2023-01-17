@@ -16,13 +16,18 @@ able to call it from anywhere.
 Docker image build
 ------------------
 
-Just run::
+For the Yocto/OE build image, just run::
 
-    $ docker build -t <image_name> .
+    $ docker build -t <kas_image_name> .
+
+For the Yocto/OE build image, use::
+
+    $ docker build --target kas-isar -t <kas-isar_image_name> .
 
 When you need a proxy to access the internet, add::
 
-    --build-arg http_proxy=<http_proxy> --build-arg https_proxy=<https_proxy> --build-arg ftp_proxy=<ftp_proxy> --build-arg no_proxy=<no_proxy>
+    --build-arg http_proxy=<http_proxy> --build-arg https_proxy=<https_proxy>
+    --build-arg ftp_proxy=<ftp_proxy> --build-arg no_proxy=<no_proxy>
 
 to the call.
 
