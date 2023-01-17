@@ -1,3 +1,17 @@
+3.2
+- kas: add conditional, default-free environment variables
+- kas: add plugin to dump flattened config and resolve repo refs
+- kas: auto-create repo refs when KAS_REPO_REF_DIR is set
+- kas: print build bitbake command when running shell
+- kas: forward BB_NUMBER_THREADS and PARALLEL_MAKE env vars into build
+- kas-container: Fix engine detection when docker is an alias for podman
+- kas-container: forward DISTRO_APT_PREMIRRORS environment variable
+- kas-container: reduce log chattiness of container runtime
+- kas-container: write debug messages to stderr
+- kas-container: Refresh Yocto build dependency list
+- kas-container: Rework generation of kas images, shrinking kas-isar
+- kas-container: avoid deploying the python pip cache
+
 3.1
 - kas: Add support for authentication with gitlab CI
 - kas: Add NETRC_FILE to allow passing credentials into kas home
