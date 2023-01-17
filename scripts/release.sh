@@ -68,3 +68,6 @@ https://github.com/orgs/siemens/packages/container/package/kas%2Fkas-isar
 git shortlog "$OLD_VERSION..$NEW_VERSION" >> "$prolog"
 
 thunderbird -compose "subject=[ANNOUNCE] Release $NEW_VERSION,to=kas-devel@googlegroups.com,message=$prolog"
+
+echo "Do not forget to update also the docs (https://readthedocs.org/projects/kas/versions/)! Done? [y/Y]"
+read -r
