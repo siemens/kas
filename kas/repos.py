@@ -370,6 +370,15 @@ class GitRepo(RepoImpl):
         Provides the git functionality for a Repo.
     """
 
+    def __init__(self, name, url, path, refspec, layers, patches,
+                 disable_operations):
+        self.tracking = None
+        tracking_delimiter = '@'
+        if refspec and tracking_delimiter in refspec:
+            self.tracking, refspec = refspec.split(tracking_delimiter)
+        super().__init__(name, url, path, refspec, layers, patches,
+                 disable_operations)
+
     def remove_ref_prefix(self, refspec):
         ref_prefix = 'refs/'
         return refspec[refspec.startswith(ref_prefix) and len(ref_prefix):]
@@ -416,6 +425,8 @@ class GitRepo(RepoImpl):
         cmd = ['git', 'checkout', '-q', self.remove_ref_prefix(desired_ref)]
         if branch:
             cmd.extend(['-B', self.remove_ref_prefix(self.refspec)])
+        elif self.tracking:
+            cmd.extend(['-B', self.remove_ref_prefix(self.tracking)])
         if get_context().force_checkout:
             cmd.append('--force')
         return cmd
