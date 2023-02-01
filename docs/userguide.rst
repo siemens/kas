@@ -463,8 +463,9 @@ Configuration reference
       A string that is added to the ``bblayers.conf``. The entry id
       (``<bblayers-conf-id>``) should be unique if lines should be added and
       can be the same from another included file, if this entry should be
-      overwritten. The lines are added to ``bblayers.conf`` in the same order
-      as they are included from the different configuration files.
+      overwritten. The lines are added to ``bblayers.conf`` in alphabetic order
+      of ``<bblayers-conf-id>`` to ensure deterministic generation of config
+      files.
 
 * ``local_conf_header``: dict [optional]
     This contains strings that should be added to the ``local.conf``.
