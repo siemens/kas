@@ -100,3 +100,23 @@ def test_url_no_refspec(changedir, tmpdir):
     os.chdir(tdir)
     with pytest.raises(SystemExit):
         kas.kas(['shell', 'test4.yml', '-c', 'true'])
+
+
+def test_tracking_refspec(changedir, tmpdir):
+    """
+        Test branch with a pinned commit.
+    """
+    tdir = str(tmpdir.mkdir('test_tracking_refspec'))
+    shutil.rmtree(tdir, ignore_errors=True)
+    shutil.copytree('tests/test_refspec', tdir)
+    os.chdir(tdir)
+
+    kas.kas(['shell', 'test5.yml', '-c', 'true'])
+    (rc, output) = run_cmd(['git', 'symbolic-ref', '-q', 'HEAD'], cwd='kas',
+                           fail=False, liveupdate=False)
+    assert rc == 0
+    assert output.strip() == 'refs/heads/master'
+    (rc, output) = run_cmd(['git', 'rev-parse', 'HEAD'], cwd='kas',
+                           fail=False, liveupdate=False)
+    assert rc == 0
+    assert output.strip() == '907816a5c4094b59a36aec12226e71c461c05b77'
