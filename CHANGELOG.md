@@ -1,3 +1,8 @@
+3.2.1
+ - kas-container: Add unzip package to kas-base
+ - docs: Fix description of container image generation
+ - docs: Fix description of bblayers_conf_header and local_conf_header
+
 3.2
 - kas: add conditional, default-free environment variables
 - kas: add plugin to dump flattened config and resolve repo refs
