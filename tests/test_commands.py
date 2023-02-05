@@ -30,13 +30,12 @@ from kas import kas
 
 
 def test_for_all_repos(changedir, tmpdir):
-    tdir = str(tmpdir.mkdir('test_commands'))
-    shutil.rmtree(tdir, ignore_errors=True)
+    tdir = str(tmpdir / 'test_commands')
     shutil.copytree('tests/test_commands', tdir)
     os.chdir(tdir)
     kas.kas(['for-all-repos', 'test.yml',
              '''if [ -n "${KAS_REPO_URL}" ]; then git rev-parse HEAD \
-                     >> %s/ref_${KAS_REPO_NAME}; fi''' % (tdir)])
+                     >> %s/ref_${KAS_REPO_NAME}; fi''' % tdir])
 
     with open('ref_kas_1.0', 'r') as f:
         assert f.readline().strip() \
@@ -47,8 +46,7 @@ def test_for_all_repos(changedir, tmpdir):
 
 
 def test_checkout(changedir, tmpdir):
-    tdir = str(tmpdir.mkdir('test_commands'))
-    shutil.rmtree(tdir, ignore_errors=True)
+    tdir = str(tmpdir / 'test_commands')
     shutil.copytree('tests/test_commands', tdir)
     os.chdir(tdir)
     kas.kas(['checkout', 'test.yml'])
@@ -64,11 +62,10 @@ def test_checkout(changedir, tmpdir):
 
 
 def test_checkout_create_refs(changedir, tmpdir):
-    tpath = pathlib.Path(str(tmpdir.mkdir('test_commands')))
+    tdir = str(tmpdir / 'test_commands')
     repo_cache = pathlib.Path(str(tmpdir.mkdir('repos')))
-    shutil.rmtree(str(tpath), ignore_errors=True)
-    shutil.copytree('tests/test_patch', str(tpath))
-    os.chdir(str(tpath))
+    shutil.copytree('tests/test_patch', tdir)
+    os.chdir(tdir)
     os.environ['KAS_REPO_REF_DIR'] = str(repo_cache)
     kas.kas(['checkout', 'test.yml'])
     del os.environ['KAS_REPO_REF_DIR']
@@ -77,16 +74,14 @@ def test_checkout_create_refs(changedir, tmpdir):
 
 
 def test_repo_includes(changedir, tmpdir):
-    tdir = str(tmpdir.mkdir('test_commands'))
-    shutil.rmtree(tdir, ignore_errors=True)
+    tdir = str(tmpdir / 'test_commands')
     shutil.copytree('tests/test_repo_includes', tdir)
     os.chdir(tdir)
     kas.kas(['checkout', 'test.yml'])
 
 
 def test_dump(changedir, tmpdir, capsys):
-    tdir = str(tmpdir.mkdir('test_commands'))
-    shutil.rmtree(tdir, ignore_errors=True)
+    tdir = str(tmpdir / 'test_commands')
     shutil.copytree('tests/test_repo_includes', tdir)
     os.chdir(tdir)
 
