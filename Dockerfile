@@ -33,6 +33,8 @@ RUN echo "builder ALL=NOPASSWD: ALL" > /etc/sudoers.d/builder-nopasswd && \
 RUN echo "Defaults env_keep += \"ftp_proxy http_proxy https_proxy no_proxy\"" \
     > /etc/sudoers.d/env_keep && chmod 660 /etc/sudoers.d/env_keep
 
+RUN useradd builder --user-group --create-home --home-dir /builder
+
 ENTRYPOINT ["/kas/container-entrypoint"]
 
 FROM kas-base as kas-isar
@@ -49,7 +51,10 @@ RUN apt-get update && \
             umoci skopeo && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    sbuild-adduser builder && \
     sed -i 's|# kas-isar: ||g' /kas/container-entrypoint
+
+USER builder
 
 FROM kas-base as kas
 
@@ -67,3 +72,5 @@ RUN apt-get update && \
     fi && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+USER builder

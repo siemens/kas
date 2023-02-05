@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# kas-isar: update-binfmts --enable && [ -f /proc/sys/fs/binfmt_misc/status ]
+# kas-isar: sudo update-binfmts --enable && [ -f /proc/sys/fs/binfmt_misc/status ]
 
 if mount | grep -q "on / type aufs"; then
     cat <<EOF >&2
@@ -13,29 +13,17 @@ may also need to update the host distribution (e.g. Debian Jessie -> Stretch).
 EOF
 fi
 
-USER_ID=${USER_ID:-30000}
-GROUP_ID=${GROUP_ID:-30000}
-
-if [ "$USER_ID" == 0 ]; then
-	# We shall run everything as root
-	mkdir -p /builder
-
-	GOSU=""
-elif [ "$USER_ID" == "$UID" ]; then
+if [ -z "$USER_ID" ] || [ "$USER_ID" == 0 ]; then
+	# Not a kas-container call, or we shall run everything as root
 	GOSU=""
 else
-	if ! grep -q "^builder:" /etc/group; then
-		groupadd -o --gid "$GROUP_ID" builder
-	fi
-	if ! id builder >/dev/null 2>&1; then
-		# Create a non-root user that will perform the actual build
-		useradd -o --uid "$USER_ID" --gid "$GROUP_ID" --create-home \
-			--home-dir /builder builder
-	fi
+	GROUP_ID=${GROUP_ID:-$(id -g)}
+
+	groupmod -o --gid "$GROUP_ID" builder
+	usermod -o --uid "$USER_ID" --gid "$GROUP_ID" builder >/dev/null
+	chown -R "$USER_ID":"$GROUP_ID" /builder
 
 	GOSU="gosu builder"
-
-	# kas-isar: sbuild-adduser builder >/dev/null 2>&1
 fi
 
 if [ "$PWD" = / ]; then

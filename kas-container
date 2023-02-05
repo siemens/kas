@@ -176,7 +176,7 @@ if [ -z "${KAS_CONTAINER_ENGINE}" ]; then
 	fi
 fi
 
-KAS_RUNTIME_ARGS="--log-driver=none"
+KAS_RUNTIME_ARGS="--log-driver=none --user=root"
 
 case "${KAS_CONTAINER_ENGINE}" in
 docker)
