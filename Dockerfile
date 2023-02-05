@@ -48,10 +48,8 @@ RUN apt-get update && \
             git-buildpackage pristine-tar sbuild schroot \
             umoci skopeo && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-RUN sed -i 's|\tGOSU="gosu builder"|\0\n\tsbuild-adduser builder >/dev/null 2>\&1|' /kas/container-entrypoint
-RUN sed -i 's|#!/bin/bash|\0\n\nupdate-binfmts --enable \&\& [ -f /proc/sys/fs/binfmt_misc/status ]|' /kas/container-entrypoint
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    sed -i 's|# kas-isar: ||g' /kas/container-entrypoint
 
 FROM kas-base as kas
 

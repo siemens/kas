@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# kas-isar: update-binfmts --enable && [ -f /proc/sys/fs/binfmt_misc/status ]
+
 if mount | grep -q "on / type aufs"; then
     cat <<EOF >&2
 WARNING: Generation of wic images will fail!
@@ -32,6 +34,8 @@ else
 	fi
 
 	GOSU="gosu builder"
+
+	# kas-isar: sbuild-adduser builder >/dev/null 2>&1
 fi
 
 if [ "$PWD" = / ]; then
