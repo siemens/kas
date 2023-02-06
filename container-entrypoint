@@ -13,8 +13,15 @@ may also need to update the host distribution (e.g. Debian Jessie -> Stretch).
 EOF
 fi
 
-if [ -z "$USER_ID" ] || [ "$USER_ID" == 0 ]; then
-	# Not a kas-container call, or we shall run everything as root
+if [ -z "$USER_ID" ]; then
+	# Not a kas-container call
+	GOSU=""
+
+	# Work around gitlab-runner not aligning checked out repo ownership
+	# with our builder user
+	sudo git config --system safe.directory "*"
+elif [ "$USER_ID" == 0 ]; then
+	# We shall run everything as root
 	GOSU=""
 else
 	GROUP_ID=${GROUP_ID:-$(id -g)}
