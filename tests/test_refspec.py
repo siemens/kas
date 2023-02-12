@@ -32,8 +32,7 @@ def test_refspec_switch(changedir, tmpdir):
         Test that the local git clone is correctly updated when switching
         between a commit hash refspec and a branch refspec.
     """
-    tdir = str(tmpdir.mkdir('test_refspec_switch'))
-    shutil.rmtree(tdir, ignore_errors=True)
+    tdir = str(tmpdir / 'test_refspec_switch')
     shutil.copytree('tests/test_refspec', tdir)
     os.chdir(tdir)
 
@@ -71,8 +70,7 @@ def test_refspec_absolute(changedir, tmpdir):
         Test that the local git clone works when a absolute refspec
         is given.
     """
-    tdir = str(tmpdir.mkdir('test_refspec_absolute'))
-    shutil.rmtree(tdir, ignore_errors=True)
+    tdir = str(tmpdir / 'test_refspec_absolute')
     shutil.copytree('tests/test_refspec', tdir)
     os.chdir(tdir)
 
@@ -94,8 +92,7 @@ def test_url_no_refspec(changedir, tmpdir):
     """
         Test that a repository with url but no refspec raises an error.
     """
-    tdir = str(tmpdir.mkdir('test_url_no_refspec'))
-    shutil.rmtree(tdir, ignore_errors=True)
+    tdir = str(tmpdir / 'test_url_no_refspec')
     shutil.copytree('tests/test_refspec', tdir)
     os.chdir(tdir)
     with pytest.raises(SystemExit):

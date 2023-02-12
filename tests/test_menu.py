@@ -55,8 +55,7 @@ def check_bitbake_options(expected):
 
 
 def test_menu(monkeypatch, tmpdir):
-    tdir = str(tmpdir.mkdir('test_menu'))
-    shutil.rmtree(tdir, ignore_errors=True)
+    tdir = str(tmpdir / 'test_menu')
     shutil.copytree('tests/test_menu', tdir)
     cwd = os.getcwd()
     os.chdir(tdir)

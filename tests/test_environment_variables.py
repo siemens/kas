@@ -29,8 +29,7 @@ from kas import kas
 
 
 def test_build_dir_is_placed_inside_work_dir_by_default(changedir, tmpdir):
-    conf_dir = str(tmpdir.mkdir('test_env_variables'))
-    shutil.rmtree(conf_dir, ignore_errors=True)
+    conf_dir = str(tmpdir / 'test_env_variables')
     shutil.copytree('tests/test_environment_variables', conf_dir)
 
     os.chdir(conf_dir)
@@ -41,11 +40,9 @@ def test_build_dir_is_placed_inside_work_dir_by_default(changedir, tmpdir):
 
 
 def test_build_dir_can_be_specified_by_environment_variable(changedir, tmpdir):
-    conf_dir = str(tmpdir.mkdir('test_env_variables'))
-    build_dir = str(tmpdir.mkdir('test_build_dir'))
-    shutil.rmtree(conf_dir, ignore_errors=True)
+    conf_dir = str(tmpdir / 'test_env_variables')
+    build_dir = str(tmpdir / 'test_build_dir')
     shutil.copytree('tests/test_environment_variables', conf_dir)
-    shutil.rmtree(build_dir, ignore_errors=True)
     os.chdir(conf_dir)
 
     os.environ['KAS_BUILD_DIR'] = build_dir
@@ -56,12 +53,11 @@ def test_build_dir_can_be_specified_by_environment_variable(changedir, tmpdir):
 
 
 def _test_env_section_export(changedir, tmpdir, bb_env_var, bb_repo):
-    conf_dir = pathlib.Path(str(tmpdir.mkdir('test_env_variables')))
+    conf_dir = pathlib.Path(str(tmpdir / 'test_env_variables'))
     env_out = conf_dir / 'env_out'
     bb_env_out = conf_dir / 'bb_env_out'
     init_build_env = conf_dir / 'oe-init-build-env'
 
-    shutil.rmtree(str(conf_dir), ignore_errors=True)
     shutil.copytree('tests/test_environment_variables', str(conf_dir))
     os.chdir(str(conf_dir))
 

@@ -31,8 +31,7 @@ LAYERBASE = '${TOPDIR}/..'
 
 @pytest.fixture
 def dokas(tmpdir):
-    tdir = str(tmpdir.mkdir('test_layers'))
-    shutil.rmtree(tdir, ignore_errors=True)
+    tdir = str(tmpdir / 'test_layers')
     shutil.copytree('tests/test_layers', tdir)
     os.chdir(tdir)
     kas.kas(['shell', 'test.yml', '-c', 'true'])

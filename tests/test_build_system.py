@@ -26,8 +26,7 @@ from kas import kas
 
 
 def test_build_system(changedir, tmpdir):
-    tdir = str(tmpdir.mkdir('test_build_system'))
-    shutil.rmtree(tdir, ignore_errors=True)
+    tdir = str(tmpdir / 'test_build_system')
     shutil.copytree('tests/test_build_system', tdir)
     os.chdir(tdir)
 

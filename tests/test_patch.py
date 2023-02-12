@@ -27,8 +27,7 @@ from kas import kas
 
 
 def test_patch(changedir, tmpdir):
-    tdir = str(tmpdir.mkdir('test_patch'))
-    shutil.rmtree(tdir, ignore_errors=True)
+    tdir = str(tmpdir / 'test_patch')
     shutil.copytree('tests/test_patch', tdir)
     cwd = os.getcwd()
     os.chdir(tdir)
@@ -45,8 +44,7 @@ def test_patch_update(changedir, tmpdir):
         a branch to a commit hash and vice-versa with both git and mercurial
         repositories.
     """
-    tdir = str(tmpdir.mkdir('test_patch_update'))
-    shutil.rmtree(tdir, ignore_errors=True)
+    tdir = str(tmpdir / 'test_patch_update')
     shutil.copytree('tests/test_patch', tdir)
     cwd = os.getcwd()
     os.chdir(tdir)
