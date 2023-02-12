@@ -31,3 +31,12 @@ Key features provided by the build tool:
 - initiate bitbake build process
 
 See the `kas documentation <https://kas.readthedocs.io>`_ for further details.
+
+SECURITY NOTICE
+---------------
+
+At this stage, kas does not validate the integrity of fetched repositories.
+Make sure to only pull from trusted sources to ensure that the selected
+revisions are the expected ones, specifically when using mirrors. Later
+versions of kas may introduce integrity validation mechanisms such as
+cryptographic checksums to strengthen supply chain security.
