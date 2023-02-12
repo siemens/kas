@@ -97,6 +97,8 @@ enable_isar_mode() {
 	if [ "${KAS_CONTAINER_ENGINE}" = "podman" ]; then
 		# sudo is needed for a privileged podman container
 		KAS_CONTAINER_COMMAND="sudo --preserve-env ${KAS_CONTAINER_COMMAND}"
+		# preserved user PATH may lack sbin needed by privileged podman
+		export PATH="${PATH}:/usr/sbin"
 	fi
 }
 
