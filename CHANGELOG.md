@@ -1,7 +1,14 @@
+3.2.2
+- kas-container: Start as non-root when running without kas-container
+- kas-container: Disable git safe.directory when running without kas-container
+- kas-container: Make sure privileged podman will find sbin tools
+- docs: Leave notice on inherit integrity weaknesses of repo fetches
+- docs: Add a SECURITY.md
+
 3.2.1
- - kas-container: Add unzip package to kas-base
- - docs: Fix description of container image generation
- - docs: Fix description of bblayers_conf_header and local_conf_header
+- kas-container: Add unzip package to kas-base
+- docs: Fix description of container image generation
+- docs: Fix description of bblayers_conf_header and local_conf_header
 
 3.2
 - kas: add conditional, default-free environment variables
