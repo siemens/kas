@@ -27,6 +27,8 @@ import re
 import os
 import sys
 import logging
+from hashlib import sha256
+from stat import S_ISLNK
 from urllib.parse import urlparse
 from tempfile import TemporaryDirectory
 from .context import get_context
@@ -188,6 +190,36 @@ class RepoImpl(Repo):
         Provides a generic implementation for a Repo.
     """
 
+    def _validate_checksum(self):
+        (_, files) = run_cmd(self.list_files_cmd(),
+                             cwd=self.path, liveupdate=False)
+
+        sha = sha256()
+        for file in sorted(files.splitlines()):
+            file_path = self.path + '/' + file
+            stat = os.stat(file_path, follow_symlinks=False)
+            file_header = '{name} {size} {mode:o}\n'.format(
+                name=file, size=stat.st_size, mode=stat.st_mode)
+            sha.update(file_header.encode())
+            if S_ISLNK(stat.st_mode):
+                sha.update(os.readlink(file_path).encode())
+            else:
+                with open(file_path, 'rb') as content:
+                    sha.update(content.read())
+
+        measured_sha265sum = sha.hexdigest()
+
+        if self.sha256sum != measured_sha265sum:
+            logging.error('Checksum mismatch for repository %s, '
+                          'expected %s vs. calculated %s',
+                          self.name,
+                          self.sha256sum,
+                          measured_sha265sum)
+            sys.exit(1)
+
+        logging.info('Checkout checksum of repository %s validated',
+                     self.name)
+
     async def fetch_async(self):
         """
             Starts asynchronous repository fetch.
@@ -293,6 +325,9 @@ class RepoImpl(Repo):
                 branch = True
 
         run_cmd(self.checkout_cmd(desired_ref, branch), cwd=self.path)
+
+        if self.sha256sum:
+            self._validate_checksum()
 
     async def apply_patches_async(self):
         """
@@ -433,6 +468,9 @@ class GitRepo(RepoImpl):
             cmd.append('--force')
         return cmd
 
+    def list_files_cmd(self):
+        return ['git', 'ls-tree', '-r', '--name-only', 'HEAD']
+
     def prepare_patches_cmd(self):
         return ['git', 'checkout', '-q', '-B',
                 'patched-{refspec}'.
@@ -480,6 +518,9 @@ class MercurialRepo(RepoImpl):
         if get_context().force_checkout:
             cmd.append('--clean')
         return cmd
+
+    def list_files_cmd(self):
+        return ['hg', 'manifest']
 
     def prepare_patches_cmd(self):
         return ['hg', 'branch', '-f',
