@@ -130,3 +130,12 @@ Added
 
 - Variables used in the ``env`` section can now be assigned 'None' as value. In
   this case the variables are only exported to the bb env whitelist.
+
+Version 14
+----------
+
+Added
+~~~~~
+
+- The integrity of repositories can now be securely validated via providing a
+  ``sha256sum`` value.
