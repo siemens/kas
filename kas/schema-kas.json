@@ -140,6 +140,9 @@
                             "refspec": {
                                 "type": "string"
                             },
+                            "sha256sum": {
+                                "type": "string"
+                            },
                             "path": {
                                 "oneOf": [
                                     {

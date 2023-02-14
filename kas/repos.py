@@ -41,12 +41,13 @@ class Repo:
         Represents a repository in the kas configuration.
     """
 
-    def __init__(self, name, url, path, refspec, layers, patches,
+    def __init__(self, name, url, path, refspec, sha256sum, layers, patches,
                  disable_operations):
         self.name = name
         self.url = url
         self.path = path
         self.refspec = refspec
+        self.sha256sum = sha256sum
         self._layers = layers
         self._patches = patches
         self.operations_disabled = disable_operations
@@ -154,12 +155,14 @@ class Repo:
             url = path
             disable_operations = True
 
+        sha256sum = repo_config.get('sha256sum', None)
+
         if typ == 'git':
-            return GitRepo(name, url, path, refspec, layers, patches,
-                           disable_operations)
+            return GitRepo(name, url, path, refspec, sha256sum, layers,
+                           patches, disable_operations)
         if typ == 'hg':
-            return MercurialRepo(name, url, path, refspec, layers, patches,
-                                 disable_operations)
+            return MercurialRepo(name, url, path, refspec, sha256sum, layers,
+                                 patches, disable_operations)
         raise NotImplementedError('Repo type "%s" not supported.' % typ)
 
     @staticmethod
