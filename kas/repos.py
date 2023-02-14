@@ -190,35 +190,57 @@ class RepoImpl(Repo):
         Provides a generic implementation for a Repo.
     """
 
-    def _validate_checksum(self):
-        (_, files) = run_cmd(self.list_files_cmd(),
-                             cwd=self.path, liveupdate=False)
+    def _checksum_cache(self):
+        return self.path + '.sha256sum'
 
-        sha = sha256()
-        for file in sorted(files.splitlines()):
-            file_path = self.path + '/' + file
-            stat = os.stat(file_path, follow_symlinks=False)
-            file_header = '{name} {size} {mode:o}\n'.format(
-                name=file, size=stat.st_size, mode=stat.st_mode)
-            sha.update(file_header.encode())
-            if S_ISLNK(stat.st_mode):
-                sha.update(os.readlink(file_path).encode())
-            else:
-                with open(file_path, 'rb') as content:
-                    sha.update(content.read())
+    def _purge_cached_checksum(self):
+        try:
+            os.remove(self._checksum_cache())
+        except FileNotFoundError:
+            pass
 
-        measured_sha265sum = sha.hexdigest()
+    def _validate_checksum(self, desired_ref):
+        try:
+            with open(self._checksum_cache()) as f:
+                (cached_sha256sum, cached_refspec) = f.readline().split()
+        except IOError:
+            cached_sha256sum = None
+            cached_refspec = None
 
-        if self.sha256sum != measured_sha265sum:
-            logging.error('Checksum mismatch for repository %s, '
-                          'expected %s vs. calculated %s',
-                          self.name,
-                          self.sha256sum,
-                          measured_sha265sum)
-            sys.exit(1)
+        if cached_refspec != desired_ref or \
+           cached_sha256sum != self.sha256sum:
+            (_, files) = run_cmd(self.list_files_cmd(),
+                                 cwd=self.path, liveupdate=False)
 
-        logging.info('Checkout checksum of repository %s validated',
-                     self.name)
+            sha = sha256()
+            for file in sorted(files.splitlines()):
+                file_path = self.path + '/' + file
+                stat = os.stat(file_path, follow_symlinks=False)
+                file_header = '{name} {size} {mode:o}\n'.format(
+                    name=file, size=stat.st_size, mode=stat.st_mode)
+                sha.update(file_header.encode())
+                if S_ISLNK(stat.st_mode):
+                    sha.update(os.readlink(file_path).encode())
+                else:
+                    with open(file_path, 'rb') as content:
+                        sha.update(content.read())
+
+            measured_sha265sum = sha.hexdigest()
+
+            if self.sha256sum != measured_sha265sum:
+                self._purge_cached_checksum()
+                logging.error('Checksum mismatch for repository %s, '
+                              'expected %s vs. calculated %s',
+                              self.name,
+                              self.sha256sum,
+                              measured_sha265sum)
+                sys.exit(1)
+
+            logging.info('Checkout checksum of repository %s validated',
+                         self.name)
+
+            with open(self._checksum_cache(), 'w') as f:
+                f.write(measured_sha265sum + '  ' + desired_ref + '\n')
 
     async def fetch_async(self):
         """
@@ -288,6 +310,8 @@ class RepoImpl(Repo):
                              self.name, self.refspec, output.strip())
                 return retc
 
+        self._purge_cached_checksum()
+
         # Try to fetch if refspec is missing or if --update argument was passed
         (retc, output) = await run_cmd_async(self.fetch_cmd(),
                                              cwd=self.path,
@@ -327,7 +351,7 @@ class RepoImpl(Repo):
         run_cmd(self.checkout_cmd(desired_ref, branch), cwd=self.path)
 
         if self.sha256sum:
-            self._validate_checksum()
+            self._validate_checksum(desired_ref)
 
     async def apply_patches_async(self):
         """
