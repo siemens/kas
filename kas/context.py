@@ -111,6 +111,17 @@ class Context:
             if val:
                 self.environ[key] = val
 
+        import shutil
+        dep_cmds = ['git', 'hg']
+        path_for_deps = ':'.join(sorted({
+            os.path.dirname(cmd_path) for cmd_path in (
+                shutil.which(cmd) for cmd in dep_cmds
+            )
+            if cmd_path is not None})
+        )
+        if path_for_deps:
+            self.environ['PATH'] = path_for_deps
+
     @property
     def build_dir(self):
         """
