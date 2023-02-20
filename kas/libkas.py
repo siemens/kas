@@ -228,8 +228,9 @@ def get_build_environ(build_system):
         sys.exit(1)
 
     with tempfile.TemporaryDirectory() as temp_dir:
-        script = """#!/bin/bash
+        script = """#!/usr/bin/env bash
         set -e
+        export PATH
         source %s $1 > /dev/null
         env
         """ % init_script
@@ -238,8 +239,19 @@ def get_build_environ(build_system):
         get_bb_env_file.write_text(script)
         get_bb_env_file.chmod(0o775)
 
+        import shutil
+        dep_cmds = ['bash', 'dirname', 'readlink' ,'python3' ,'sed']
+        path_for_deps = ':'.join(sorted({
+            os.path.dirname(cmd_path) for cmd_path in (
+                shutil.which(cmd) for cmd in dep_cmds
+            )
+            if cmd_path is not None})
+        )
+
         env = {}
-        env['PATH'] = '/usr/sbin:/usr/bin:/sbin:/bin'
+        from itertools import chain
+        env['PATH'] = ':'.join(
+            chain([path_for_deps], ['/usr/sbin:/usr/bin:/sbin:/bin']))
 
         (_, output) = run_cmd([str(get_bb_env_file), get_context().build_dir],
                               cwd=init_repo.path, env=env, liveupdate=False)
