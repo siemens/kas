@@ -25,6 +25,7 @@ import pytest
 import shutil
 import sys
 from kas import kas
+from kas.libkas import run_cmd
 
 
 class OutputRecorder:
@@ -45,6 +46,7 @@ def test_valid_sha256sum(changedir, tmpdir):
     """
     tdir = str(tmpdir / 'test_valid_sha256sum')
     shutil.copytree('tests/test_sha256sum', tdir)
+    kas_dir = os.getcwd()
     os.chdir(tdir)
 
     recorder = OutputRecorder()
@@ -54,6 +56,21 @@ def test_valid_sha256sum(changedir, tmpdir):
     kas.kas(['shell', 'test1.yml', '-c', 'true'])
     assert 'Checkout checksum of repository kas validated' in recorder.buffer
     assert 'Checkout checksum of repository hello validated' in recorder.buffer
+
+    (rc, output) = run_cmd([kas_dir + '/scripts/hash-repo-checkout.sh',
+                            'kas'],
+                           cwd=tdir, fail=False, liveupdate=False)
+    assert rc == 0
+    assert output == \
+        '9faf2470802a7ed311545ed5577726b6b58c691c9d5a5a81c0519769d360026f  ' \
+        '0e61fdddaff2dd3f90aabf6ea14212c58d1cae8a\n'
+    (rc, output) = run_cmd([kas_dir + '/scripts/hash-repo-checkout.sh',
+                            'hello'],
+                           cwd=tdir, fail=False, liveupdate=False)
+    assert rc == 0
+    assert output == \
+        'ec76458d444dce448feb5c8ae79e403a555a98eb09a182211bf97c7fcfadb7cf  ' \
+        '82e55d328c8c\n'
 
     sys.stderr = stderr
 
