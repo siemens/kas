@@ -479,7 +479,7 @@ if [ -n "${KAS_REPO_REF_DIR}" ]; then
 		exit 1
 	fi
 	set -- "$@" \
-		-v "$(readlink -f "${KAS_REPO_REF_DIR}")":/repo-ref:ro \
+		-v "$(readlink -f "${KAS_REPO_REF_DIR}")":/repo-ref:rw \
 		-e KAS_REPO_REF_DIR=/repo-ref
 fi
 
