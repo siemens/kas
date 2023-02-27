@@ -52,8 +52,8 @@ else
 	usermod -o --uid "$USER_ID" --gid "$GROUP_ID" builder >/dev/null
 	chown -R "$USER_ID":"$GROUP_ID" /builder
 	# copy host SSH config into home of builder
-	if [ -d /etc/skel/.ssh ]; then
-		cp -a /etc/skel/.ssh /builder/
+	if [ -d /var/kas/userdata/.ssh ]; then
+		cp -a /var/kas/userdata/.ssh /builder/
 	fi
 
 	GOSU="gosu builder"
