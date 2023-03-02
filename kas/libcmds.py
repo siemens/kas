@@ -152,6 +152,7 @@ class SetupHome(Command):
     # This should be kept up to date with any code in execute()
     ENV_VARS = [
         'GIT_CREDENTIAL_HELPER',
+        'GIT_CREDENTIAL_USEHTTPPATH',
         'AWS_CONFIG_FILE',
         'AWS_SHARED_CREDENTIALS_FILE',
         'NETRC_FILE',
@@ -187,6 +188,10 @@ class SetupHome(Command):
                           '\thelper = '
                           + os.environ.get('GIT_CREDENTIAL_HELPER')
                           + '\n')
+                if os.environ.get('GIT_CREDENTIAL_USEHTTPPATH', False):
+                    fds.write('\tuseHttpPath = '
+                              + os.environ.get('GIT_CREDENTIAL_USEHTTPPATH')
+                              + '\n')
 
         if os.environ.get('AWS_CONFIG_FILE', False) \
                 and os.environ.get('AWS_SHARED_CREDENTIALS_FILE', False):
