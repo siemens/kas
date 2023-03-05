@@ -1,3 +1,8 @@
+3.2.3
+- kas-container: mount KAS_REPO_REF_DIR rw to support auto-creation
+- kas-container: fix --ssh-dir (3.2.2 regression)
+- container: Use original UID/GID when run without kas-container (3.2.2 regression)
+
 3.2.2
 - kas-container: Start as non-root when running without kas-container
 - kas-container: Disable git safe.directory when running without kas-container
