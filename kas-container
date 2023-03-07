@@ -382,7 +382,7 @@ fi
 
 if [ "${BUILD_SYSTEM}" = "isar" ]; then
 	enable_isar_mode
-else
+elif [ -z "${ISAR_MODE}" ]; then
 	enable_oe_mode
 fi
 
