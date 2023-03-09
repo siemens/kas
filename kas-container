@@ -146,10 +146,10 @@ set_container_image_var() {
 	KAS_CONTAINER_IMAGE="${KAS_CONTAINER_IMAGE:-${KAS_CONTAINER_IMAGE_DEFAULT}}"
 }
 
-KAS_WORK_DIR=$(readlink -f "${KAS_WORK_DIR:-$(pwd)}")
+KAS_WORK_DIR=$(readlink -fv "${KAS_WORK_DIR:-$(pwd)}")
 # KAS_WORK_DIR needs to exist for the subsequent code
 trace mkdir -p "${KAS_WORK_DIR}"
-KAS_BUILD_DIR=$(readlink -f "${KAS_BUILD_DIR:-${KAS_WORK_DIR}/build}")
+KAS_BUILD_DIR=$(readlink -fv "${KAS_BUILD_DIR:-${KAS_WORK_DIR}/build}")
 trace mkdir -p "${KAS_BUILD_DIR}"
 
 KAS_CONTAINER_ENGINE="${KAS_CONTAINER_ENGINE:-${KAS_DOCKER_ENGINE}}"
@@ -235,7 +235,7 @@ while [ $# -gt 0 ]; do
 		shift 2
 		;;
 	--ssh-agent)
-		KAS_SSH_AUTH_SOCK=$(readlink -f "$SSH_AUTH_SOCK")
+		KAS_SSH_AUTH_SOCK=$(readlink -fv "$SSH_AUTH_SOCK")
 		shift 1
 		;;
 	--aws-dir)
@@ -411,7 +411,7 @@ if [ -n "${KAS_SSH_DIR}" ] ; then
 		echo "Passed KAS_SSH_DIR '${KAS_SSH_DIR}' is not a directory"
 		exit 1
 	fi
-	set -- "$@" -v "$(readlink -f "${KAS_SSH_DIR}")":/var/kas/userdata/.ssh:ro
+	set -- "$@" -v "$(readlink -fv "${KAS_SSH_DIR}")":/var/kas/userdata/.ssh:ro
 fi
 
 if [ -n "${KAS_SSH_AUTH_SOCK}" ]; then
@@ -428,7 +428,7 @@ if [ -n "${KAS_AWS_DIR}" ] ; then
 		echo "Passed KAS_AWS_DIR '${KAS_AWS_DIR}' is not a directory"
 		exit 1
 	fi
-	set -- "$@" -v "$(readlink -f "${KAS_AWS_DIR}")":/var/kas/userdata/.aws:ro \
+	set -- "$@" -v "$(readlink -fv "${KAS_AWS_DIR}")":/var/kas/userdata/.aws:ro \
 		-e AWS_CONFIG_FILE="${AWS_CONFIG_FILE:-/var/kas/userdata/.aws/config}" \
 		-e AWS_SHARED_CREDENTIALS_FILE="${AWS_SHARED_CREDENTIALS_FILE:-/var/kas/userdata/.aws/credentials}"
 fi
@@ -441,7 +441,7 @@ if [ -n "${KAS_GIT_CREDENTIAL_STORE}" ] ; then
 		exit 1
 	fi
 	KAS_GIT_CREDENTIAL_HELPER_DEFAULT="store --file=/var/kas/userdata/.git-credentials"
-	set -- "$@" -v "$(readlink -f "${KAS_GIT_CREDENTIAL_STORE}")":/var/kas/userdata/.git-credentials:ro
+	set -- "$@" -v "$(readlink -fv "${KAS_GIT_CREDENTIAL_STORE}")":/var/kas/userdata/.git-credentials:ro
 fi
 
 GIT_CREDENTIAL_HELPER="${GIT_CREDENTIAL_HELPER:-${KAS_GIT_CREDENTIAL_HELPER_DEFAULT}}"
@@ -451,7 +451,7 @@ if [ -n "${GIT_CREDENTIAL_HELPER}" ] ; then
 fi
 
 if [ -f "${NETRC_FILE}" ]; then
-	set -- "$@" -v "$(readlink -f "${NETRC_FILE}")":/var/kas/userdata/.netrc:ro \
+	set -- "$@" -v "$(readlink -fv "${NETRC_FILE}")":/var/kas/userdata/.netrc:ro \
 		-e NETRC_FILE="/var/kas/userdata/.netrc"
 fi
 
@@ -462,14 +462,14 @@ fi
 if [ -n "${DL_DIR}" ]; then
 	trace mkdir -p "${DL_DIR}"
 	set -- "$@" \
-		-v "$(readlink -f "${DL_DIR}")":/downloads:rw \
+		-v "$(readlink -fv "${DL_DIR}")":/downloads:rw \
 		-e DL_DIR=/downloads
 fi
 
 if [ -n "${SSTATE_DIR}" ]; then
 	trace mkdir -p "${SSTATE_DIR}"
 	set -- "$@" \
-		-v "$(readlink -f "${SSTATE_DIR}")":/sstate:rw \
+		-v "$(readlink -fv "${SSTATE_DIR}")":/sstate:rw \
 		-e SSTATE_DIR=/sstate
 fi
 
@@ -479,7 +479,7 @@ if [ -n "${KAS_REPO_REF_DIR}" ]; then
 		exit 1
 	fi
 	set -- "$@" \
-		-v "$(readlink -f "${KAS_REPO_REF_DIR}")":/repo-ref:rw \
+		-v "$(readlink -fv "${KAS_REPO_REF_DIR}")":/repo-ref:rw \
 		-e KAS_REPO_REF_DIR=/repo-ref
 fi
 
