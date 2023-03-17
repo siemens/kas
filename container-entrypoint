@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # kas - setup tool for bitbake based projects
 #
@@ -42,7 +42,7 @@ if [ -z "$USER_ID" ]; then
 	# Work around gitlab-runner not aligning checked out repo ownership
 	# with our builder user
 	sudo git config --system safe.directory "*"
-elif [ "$USER_ID" == 0 ]; then
+elif [ "$USER_ID" = 0 ]; then
 	# We shall run everything as root
 	GOSU=""
 else
