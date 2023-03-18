@@ -36,11 +36,11 @@
     - all refspecs are resolved before patches are applied
 
     For example, to get a single config representing the final build config of
-    ``kas-project.yml:target-override.yml`` you could run:
+    ``kas-project.yml:target-override.yml`` you could run::
 
         kas dump kas-project.yml:target-override.yml > kas-project-expanded.yml
 
-    The generated config can be used as input for kas:
+    The generated config can be used as input for kas::
 
         kas build kas-project-expanded.yml
 """
