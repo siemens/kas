@@ -30,7 +30,8 @@ RUN apt-get update && \
     apt-get install -y locales && \
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 && \
     apt-get install --no-install-recommends -y \
-        python3-pip python3-setuptools python3-wheel python3-yaml python3-distro python3-jsonschema python3-newt \
+        python3-pip python3-setuptools python3-wheel python3-yaml python3-distro python3-jsonschema \
+        python3-newt python3-colorlog \
         gosu lsb-release file vim less procps tree tar bzip2 zstd pigz lz4 unzip tmux libncurses-dev \
         git-lfs mercurial iproute2 ssh-client telnet curl rsync gnupg awscli sudo \
         socat bash-completion && \
