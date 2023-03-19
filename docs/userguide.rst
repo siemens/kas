@@ -399,6 +399,11 @@ Configuration reference
         The refspec that should be used. If ``url`` was specified but no
         ``refspec`` the revision you get depends on the defaults of the version
         control system used.
+        You can specify a specific commit ID or a floating branch as
+        ``refspec``. To avoid that a commit ID can be replaced by a branch of
+        the same name in upstream, only use commit IDs with their full length
+        (40 characters for SHA-1, 64 for SHA-256). Note that SHA-1 commit IDs
+        can still be subject to hash collision attacks.
 
     * ``path``: string [optional]
         The path where the repository is stored.
