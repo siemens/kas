@@ -76,10 +76,11 @@ class Repo:
         elif item == 'revision':
             if not self.refspec:
                 return None
-            (_, output) = run_cmd(self.resolve_branch_cmd(),
-                                  cwd=self.path, fail=False)
-            if output:
-                return output.strip()
+            if not self.refspec_is_sha():
+                (_, output) = run_cmd(self.resolve_branch_cmd(),
+                                      cwd=self.path, fail=False)
+                if output:
+                    return output.strip()
             return self.refspec
 
         # Default behaviour
@@ -88,6 +89,15 @@ class Repo:
     def __str__(self):
         return '%s:%s %s %s' % (self.url, self.refspec,
                                 self.path, self._layers)
+
+    def refspec_is_sha(self):
+        try:
+            int(self.refspec, 16)
+        except ValueError:
+            # not a hex string
+            return False
+        # filter out the lengths of SHA-1 (40) and SHA-256 (64)
+        return len(self.refspec) == 40 or len(self.refspec) == 64
 
     @staticmethod
     def factory(name, repo_config, repo_defaults, repo_fallback_path):
@@ -270,14 +280,14 @@ class RepoImpl(Repo):
                 logging.warning('Repo %s is dirty - no checkout', self.name)
                 return
 
-        (_, output) = run_cmd(self.resolve_branch_cmd(),
-                              cwd=self.path, fail=False)
-        if output:
-            desired_ref = output.strip()
-            branch = True
-        else:
-            desired_ref = self.refspec
-            branch = False
+        desired_ref = self.refspec
+        branch = False
+        if not self.refspec_is_sha():
+            (_, output) = run_cmd(self.resolve_branch_cmd(),
+                                  cwd=self.path, fail=False)
+            if output:
+                desired_ref = output.strip()
+                branch = True
 
         run_cmd(self.checkout_cmd(desired_ref, branch), cwd=self.path)
 
