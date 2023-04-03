@@ -1,4 +1,8 @@
 {
+    "$schema": "https://json-schema.org/draft-04/schema",
+    "$id": "https://github.com/siemens/kas/blob/master/kas/schema-kas.json",
+    "title": "kas configuration",
+    "description": "kas, a setup tool for bitbake based projects",
     "type": "object",
     "required": [
         "header"
