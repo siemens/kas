@@ -1,5 +1,7 @@
 # test comment
+  # indent with spaces
+
 # this is a revert of the other 001 we applied without quilt
-001.patch # first patch
+001.patch  # first patch
 002.patch
-003.patch # introduce an executable
+003.patch  # introduce an executable

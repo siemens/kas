@@ -317,7 +317,8 @@ class RepoImpl(Repo):
                     and os.path.isfile(os.path.join(path, 'series')):
                 with open(os.path.join(path, 'series')) as f:
                     for line in f:
-                        if line.startswith('#'):
+                        line = line.lstrip()
+                        if not line or line.startswith('#'):
                             continue
                         p = os.path.join(path, line.split(' #')[0].rstrip())
                         if os.path.isfile(p):
