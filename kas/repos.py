@@ -378,7 +378,7 @@ class GitRepo(RepoImpl):
         return ['git', 'add', '-A']
 
     def clone_cmd(self, srcdir, createref):
-        cmd = ['git', 'clone', '-q']
+        cmd = ['git', 'clone', '--recurse-submodules', '-q']
         if createref:
             cmd.extend([self.effective_url, '--bare', srcdir])
         elif srcdir:
@@ -421,7 +421,7 @@ class GitRepo(RepoImpl):
         return cmd
 
     def prepare_patches_cmd(self):
-        return ['git', 'checkout', '-q', '-B',
+        return ['git', 'checkout', '--recurse-submodules', '-q', '-B',
                 'patched-{refspec}'.
                 format(refspec=self.remove_ref_prefix(self.refspec))]
 
