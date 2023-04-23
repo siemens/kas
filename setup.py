@@ -70,11 +70,12 @@ setup(
         'License :: OSI Approved :: MIT License',
 
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
     ],
     keywords='OpenEmbedded bitbake development',
 
@@ -95,6 +96,6 @@ setup(
         'kconfiglib>=14.1.0,<15',
     ],
 
-    # At least python 3.5 is needed by now for PyYAML:
-    python_requires='>=3.5',
+    # At least python 3.6 is needed by now:
+    python_requires='>=3.6',
 )
