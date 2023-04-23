@@ -89,6 +89,24 @@
                 }
             }
         },
+        "overrides": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "repos": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "refspec" : {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "machine": {
             "type": "string"
         },

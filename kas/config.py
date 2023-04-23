@@ -104,11 +104,14 @@ class Config:
             `name`.
         """
         repo_defaults = self._config.get('defaults', {}).get('repos', {})
+        overrides = self._config.get('overrides', {}) \
+                                .get('repos', {}).get(name, {})
         config = self.get_repos_config()[name] or {}
         return Repo.factory(name,
                             config,
                             repo_defaults,
-                            self.top_repo_path)
+                            self.top_repo_path,
+                            overrides)
 
     def _get_repo_dict(self):
         """

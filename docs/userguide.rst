@@ -455,6 +455,22 @@ Configuration reference
         * ``path``: string [required]
             The path to one patch file or a quilt formatted patchset directory.
 
+* ``overrides``: dict [optional]
+    This object provides a mechanism to override kas configuration items
+    without defining them. By that, only items that already exist are
+    overridden. Note, that all entries below this key are reserved for
+    auto-generation using kas plugins. Do not manually add entries.
+
+  * ``repos``: dict [optional]
+      Mapps to the top-level ``repos`` entry.
+
+    * ``<repo-id>``: dict [optional]
+        Mapps to the ``<repo-id>`` entry.
+
+       * ``refspec``: string [optional]
+           Pinned refspec which overrides the ``refspec`` of the corresponding
+           repo. This refspec must be resolved (i.e. no branch or tag name).
+
 * ``bblayers_conf_header``: dict [optional]
     This contains strings that should be added to the ``bblayers.conf`` before
     any layers are included.

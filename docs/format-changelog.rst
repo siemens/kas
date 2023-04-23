@@ -130,3 +130,11 @@ Added
 
 - Variables used in the ``env`` section can now be assigned 'None' as value. In
   this case the variables are only exported to the bb env whitelist.
+
+Version 14
+----------
+
+Added
+~~~~~
+
+- The ``overrides`` top-level entry can be used to pin floating repo refspecs.

@@ -90,7 +90,8 @@ class Repo:
                                 self.path, self._layers)
 
     @staticmethod
-    def factory(name, repo_config, repo_defaults, repo_fallback_path):
+    def factory(name, repo_config, repo_defaults, repo_fallback_path,
+                repo_overrides={}):
         """
             Returns a Repo instance depending on params.
         """
@@ -119,8 +120,8 @@ class Repo:
         url = repo_config.get('url', None)
         name = repo_config.get('name', name)
         typ = repo_config.get('type', 'git')
-        refspec = repo_config.get('refspec',
-                                  repo_defaults.get('refspec', None))
+        refspec = repo_overrides.get('refspec', repo_config.get('refspec',
+                                     repo_defaults.get('refspec', None)))
         if refspec is None and url is not None:
             logging.error('No refspec specified for repository "%s". This is '
                           'only allowed for local repositories.', name)
