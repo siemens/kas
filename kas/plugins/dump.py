@@ -22,12 +22,16 @@
 """
     This plugin implements the ``kas dump`` command.
 
-    When this command is executed, kas will parse all referenced config
-    files, expand includes and print a flattened yaml version of the
-    configuration to stdout. This config is semantically identical to the
-    input, but does not include any references to other configuration files.
-    The output of this command can be used to further analyse the build
+    When this command is executed in default mode, kas will parse all
+    referenced config files, expand includes and print a flattened yaml version
+    of the configuration to stdout. This config is semantically identical to
+    the input, but does not include any references to other configuration
+    files. The output of this command can be used to further analyse the build
     configuration.
+
+    When running with --lock, a lock-file is created which only contains the
+    exact refspecs of each repository. This file can be used to pin the
+    refspecs of floating branches, while still keeping an easy update path.
 
     Please note:
 
@@ -43,18 +47,60 @@
     The generated config can be used as input for kas::
 
         kas build kas-project-expanded.yml
+
+    Example of the locking mechanism (call again to regenerate lockfile):
+
+        kas dump --lock --inplace --update kas-project.yml
+
+    The generated lockfile will automatically be used to pin the revisions:
+
+        kas build kas-project.yml
+
 """
 
 import logging
 import sys
 import json
 import yaml
+from typing import TypeVar, TextIO
 from collections import OrderedDict
 from kas.context import get_context
 from kas.plugins.checkout import Checkout
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2022'
+
+
+class IoTarget:
+    StrOrTextIO = TypeVar('StrOrTextIO', str, TextIO)
+
+    target: StrOrTextIO
+    managed: bool
+
+    def __init__(self, target, managed):
+        self.target = target
+        self.managed = managed
+
+
+class IoTargetMonitor:
+    """
+    Simple monitor to unify access to file targets that need
+    to be closed (files) and ambient ones (stdout / stderr)
+    """
+
+    def __init__(self, target: IoTarget):
+        self._target = target
+        self._file = None
+
+    def __enter__(self):
+        if self._target.managed:
+            self._file = open(self._target.target, 'w')
+            return self._file
+        return self._target.target
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self._target.managed:
+            self._file.close()
 
 
 class Dump(Checkout):
@@ -94,6 +140,7 @@ class Dump(Checkout):
     @classmethod
     def setup_parser(cls, parser):
         super().setup_parser(parser)
+        lk_or_env = parser.add_mutually_exclusive_group()
         parser.add_argument('--format',
                             choices=['yaml', 'json'],
                             default='yaml',
@@ -105,9 +152,15 @@ class Dump(Checkout):
         parser.add_argument('--resolve-refs',
                             action='store_true',
                             help='Replace floating refs with exact SHAs')
-        parser.add_argument('--resolve-env',
+        lk_or_env.add_argument('--resolve-env',
+                               action='store_true',
+                               help='Set env defaults to captured env value')
+        lk_or_env.add_argument('--lock',
+                               action='store_true',
+                               help='Create lockfile with exact SHAs')
+        parser.add_argument('-i', '--inplace',
                             action='store_true',
-                            help='Set env defaults to captured env value')
+                            help='Update lockfile in-place (reqires --lock)')
 
     def run(self, args):
         args.skip += [
@@ -119,14 +172,32 @@ class Dump(Checkout):
 
         super().run(args)
         ctx = get_context()
-        config_expanded = ctx.config.get_config()
+        schema_v = 14 if args.lock else 7
+        config_expanded = {'header': {'version': schema_v}} if args.lock \
+            else ctx.config.get_config()
+        repos = ctx.config.get_repos()
+        output = IoTarget(target=sys.stdout, managed=False)
+
+        if args.inplace and not args.lock:
+            logging.error('--inplace requires --lock')
+            sys.exit(1)
+
+        if args.lock:
+            args.resolve_refs = True
+            # when locking, only consider repos managed by kas
+            repos = [r for r in repos if not r.operations_disabled]
+            config_expanded['overrides'] = \
+                {'repos': {r.name: {'refspec': r.revision} for r in repos}}
+
+        if args.lock and args.inplace:
+            lockfile = ctx.config.handler.get_lockfile()
+            output = IoTarget(target=lockfile, managed=True)
 
         # includes are already expanded, delete the key
         if 'includes' in config_expanded['header']:
             del config_expanded['header']['includes']
 
-        if args.resolve_refs:
-            repos = ctx.config.get_repos()
+        if args.resolve_refs and not args.lock:
             for r in repos:
                 if r.refspec:
                     config_expanded['repos'][r.name]['refspec'] = r.revision
@@ -134,17 +205,18 @@ class Dump(Checkout):
         if args.resolve_env and 'env' in config_expanded:
             config_expanded['env'] = ctx.config.get_environment()
 
-        if args.format == 'json':
-            json.dump(config_expanded, sys.stdout, indent=args.indent)
-            sys.stdout.write('\n')
-        elif args.format == 'yaml':
-            yaml.dump(
-                config_expanded, sys.stdout,
-                indent=args.indent,
-                Dumper=self.KasYamlDumper)
-        else:
-            logging.error('invalid format %s', args.format)
-            sys.exit(1)
+        with IoTargetMonitor(output) as f:
+            if args.format == 'json':
+                json.dump(config_expanded, f, indent=args.indent)
+                sys.stdout.write('\n')
+            elif args.format == 'yaml':
+                yaml.dump(
+                    config_expanded, f,
+                    indent=args.indent,
+                    Dumper=self.KasYamlDumper)
+            else:
+                logging.error('invalid format %s', args.format)
+                sys.exit(1)
 
 
 __KAS_PLUGINS__ = [Dump]
