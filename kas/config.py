@@ -58,7 +58,11 @@ class Config:
                                    'belong to the same repository or all '
                                    'must be outside of versioning control')
 
-        self.handler = IncludeHandler(self.filenames, self.top_repo_path)
+        update = ctx.args.update if hasattr(ctx.args, 'update') else False
+
+        self.handler = IncludeHandler(self.filenames,
+                                      self.top_repo_path,
+                                      not update)
         self.repo_dict = self._get_repo_dict()
 
     def get_build_system(self):

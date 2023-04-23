@@ -26,6 +26,7 @@
 """
 
 import os
+from pathlib import Path
 from collections import OrderedDict
 from collections.abc import Mapping
 import functools
@@ -121,11 +122,25 @@ class IncludeHandler:
         relative to the repository root path.
 
         The includes are read and merged from the deepest level upwards.
+
+        In case ignore_lock is false, kas checks if a file <file>.lock.<ext>
+        exists next to the first entry in top_files. This file is then appended
+        to the list of top_files.
     """
 
-    def __init__(self, top_files, top_repo_path):
+    def __init__(self, top_files, top_repo_path, use_lock=True):
         self.top_files = top_files
         self.top_repo_path = top_repo_path
+
+        if use_lock:
+            lockfile = self.get_lockfile()
+            if Path(lockfile).exists():
+                logging.debug('includehandler: append lockfile %s', lockfile)
+                self.top_files.append(lockfile)
+
+    def get_lockfile(self):
+        file = Path(self.top_files[0])
+        return file.parent / (file.stem + '.lock' + file.suffix)
 
     def get_config(self, repos=None):
         """
