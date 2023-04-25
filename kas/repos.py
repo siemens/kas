@@ -316,11 +316,21 @@ class RepoImpl(Repo):
             elif os.path.isdir(path) \
                     and os.path.isfile(os.path.join(path, 'series')):
                 with open(os.path.join(path, 'series')) as f:
+                    ln = 0
                     for line in f:
-                        line = line.lstrip()
-                        if not line or line.startswith('#'):
+                        ln += 1
+                        if not line.rstrip('\n') or line.startswith('#'):
                             continue
-                        p = os.path.join(path, line.split(' #')[0].rstrip())
+                        pn = line.split(' #')[0].rstrip()
+                        if not pn:
+                            logging.error('Could not parse patch file name from a \'series\' file. '
+                                          '(file: %s, line: %d, repo: %s, patch entry: %s)',
+                                          os.path.join(path, 'series'),
+                                          ln,
+                                          self.name,
+                                          patch['id'])
+                            return 1
+                        p = os.path.join(path, pn)
                         if os.path.isfile(p):
                             my_patches.append((p, patch['id']))
                         else:
