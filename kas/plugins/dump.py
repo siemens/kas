@@ -208,7 +208,7 @@ class Dump(Checkout):
         with IoTargetMonitor(output) as f:
             if args.format == 'json':
                 json.dump(config_expanded, f, indent=args.indent)
-                sys.stdout.write('\n')
+                f.write('\n')
             elif args.format == 'yaml':
                 yaml.dump(
                     config_expanded, f,
