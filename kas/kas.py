@@ -118,8 +118,15 @@ def kas_get_argparser():
     parser.add_argument('--version', action='version', version=verstr)
 
     parser.add_argument('-d', '--debug',
-                        action='store_true',
-                        help='Enable debug logging')
+                        action='store_const', const='debug', dest='log_level',
+                        help='Enable debug logging (deprecated, use '
+                             '--log-level debug).')
+
+    parser.add_argument('-l', '--log-level',
+                        choices=['debug', 'info', 'warning', 'error',
+                                 'critical'],
+                        default='%s' % (default_log_level),
+                        help='Set log level (default: %s)' % default_log_level)
 
     subparser = parser.add_subparsers(help='sub command help', dest='cmd')
 
@@ -139,8 +146,9 @@ def kas(argv):
     parser = kas_get_argparser()
     args = parser.parse_args(argv)
 
-    if args.debug:
-        logging.getLogger().setLevel(logging.DEBUG)
+    if args.log_level:
+        level_num = logging.getLevelName(args.log_level.upper())
+        logging.getLogger().setLevel(level_num)
 
     logging.info('%s %s started', os.path.basename(sys.argv[0]), __version__)
 
