@@ -283,8 +283,18 @@ while [ $# -gt 0 ]; do
 		shift 1
 		break
 		;;
-	build|checkout|dump|for-all-repos|menu)
+	build|checkout|for-all-repos|menu)
 		KAS_REPO_MOUNT_OPT_DEFAULT="ro"
+		KAS_CMD=$1
+		shift 1
+		break
+		;;
+	dump)
+		if printf '%s\0' "$@" | grep -xqz -- '--inplace\|-i'; then
+			KAS_REPO_MOUNT_OPT_DEFAULT="rw"
+		else
+			KAS_REPO_MOUNT_OPT_DEFAULT="ro"
+		fi
 		KAS_CMD=$1
 		shift 1
 		break
