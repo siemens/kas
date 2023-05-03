@@ -45,13 +45,15 @@ from . import plugins
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
 
+default_log_level = 'info'
+
 
 def create_logger():
     """
         Setup the logging environment
     """
     log = logging.getLogger()  # root logger
-    log.setLevel(logging.INFO)
+    log.setLevel(logging.getLevelName(default_log_level.upper()))
     format_str = '%(asctime)s - %(levelname)-8s - %(message)s'
     date_format = '%Y-%m-%d %H:%M:%S'
     if HAVE_COLORLOG and os.isatty(2):
