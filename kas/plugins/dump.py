@@ -29,9 +29,12 @@
     files. The output of this command can be used to further analyse the build
     configuration.
 
-    When running with --lock, a lock-file is created which only contains the
-    exact refspecs of each repository. This file can be used to pin the
+    When running with ``--lock``, a locking spec is created which only contains
+    the exact refspecs of each repository. This can be used to pin the
     refspecs of floating branches, while still keeping an easy update path.
+    When combining with ``--inplace``, a lockfile is created next to the
+    first file on the kas cmdline. For details on the locking support, see
+    :class:`kas.includehandler.IncludeHandler`.
 
     Please note:
 
@@ -48,14 +51,16 @@
 
         kas build kas-project-expanded.yml
 
-    Example of the locking mechanism (call again to regenerate lockfile):
+    Example of the locking mechanism (call again to regenerate lockfile).
+    The lockfile is created as ``kas-project.lock.yml``::
 
         kas dump --lock --inplace --update kas-project.yml
 
-    The generated lockfile will automatically be used to pin the revisions:
+    The generated lockfile will automatically be used to pin the revisions::
 
         kas build kas-project.yml
 
+    Note, that the lockfiles should be checked-in into the VCS.
 """
 
 import logging

@@ -273,6 +273,44 @@ come from the same repository or have to live outside of any versioning control.
 kas will refuse any other combination in order to avoid complications and
 configuration flaws that can easily emerge from them.
 
+Working with lockfiles
+~~~~~~~~~~~~~~~~~~~~~~
+
+KAS supports the use of lockfiles to pinpoint repositories to exact refspecs
+(e.g. SHA-1 refs for git). A lockfile hereby only overrides the refspecs
+defined in a kas file. When performing the checkout operation (or any other
+operation that performs a checkout), kas checks if a file named
+``<filename>.lock.<ext>`` is found next to the first file stated on the kas
+cmdline. If this is found, kas appends this filename to the kas cmdline and
+performs the requested operation.
+
+The following example shows this mechanism for a file ``kas/kas-isar.yml``
+and its corresponding lockfile ``kas/kas-isar.lock.yml``.
+
+ ``kas/kas-isar.yml``:
+
+.. code-block:: yaml
+
+  # [...]
+  repos:
+    isar:
+      url: https://github.com/ilbers/isar.git
+      refspec: next
+
+``kas/kas-isar.lock.yml``:
+
+.. code-block:: yaml
+
+  header:
+    version: 14
+  overrides:
+    repos:
+      isar:
+        refspec: 0336610df8bb0adce76ef8c5a921c758efed9f45
+
+The ``dump`` plugin provides helpers to simplify the creation and update
+of lockfiles. For details, see the plugins documentation: :mod:`kas.plugins.dump`.
+
 Configuration reference
 ~~~~~~~~~~~~~~~~~~~~~~~
 
