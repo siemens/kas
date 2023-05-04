@@ -98,8 +98,8 @@ def test_dump(changedir, tmpdir, capsys):
         if r == '--resolve-env':
             del os.environ['TESTVAR_FOO']
 
-        with open(outfile, 'w') as f:
-            f.write(capsys.readouterr().out)
+        with open(outfile, 'w') as file:
+            file.write(capsys.readouterr().out)
 
         with open(outfile, 'r') as cf:
             flatconf = json.load(cf) if f == 'json' else yaml.safe_load(cf)
