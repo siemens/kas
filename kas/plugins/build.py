@@ -40,6 +40,7 @@ from kas.config import Config
 from kas.libkas import find_program, run_cmd
 from kas.libcmds import Macro, Command
 from kas.libkas import setup_parser_common_args
+from kas.kasusererror import CommandExecError
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
@@ -114,8 +115,7 @@ class BuildCommand(Command):
             logging.info('%s$ %s', ctx.build_dir, ' '.join(cmd))
             ret = subprocess.call(cmd, env=ctx.environ, cwd=ctx.build_dir)
             if ret != 0:
-                logging.error('Command returned non-zero exit status %d', ret)
-                sys.exit(ret)
+                raise CommandExecError(cmd, ret)
         else:
             run_cmd(cmd, cwd=ctx.build_dir)
 

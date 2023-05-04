@@ -39,7 +39,14 @@ __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
 
 class UnsupportedRepoTypeError(KasUserError, NotImplementedError):
     """
-    Exception for unsupported / not implemented repository types
+    The requested repo type is unsupported / not implemented
+    """
+    pass
+
+
+class RepoRefError(KasUserError):
+    """
+    The requested repo reference is invalid, missing or could not be found
     """
     pass
 
@@ -47,6 +54,13 @@ class UnsupportedRepoTypeError(KasUserError, NotImplementedError):
 class PatchFileNotFound(KasUserError, FileNotFoundError):
     """
     The requested patch file was not found
+    """
+    pass
+
+
+class PatchMappingError(KasUserError):
+    """
+    The requested patch can not be related to a repo
     """
     pass
 
@@ -127,9 +141,10 @@ class Repo:
                 'path': patches_dict[p]['path'],
             }
             if this_patch['repo'] is None:
-                logging.error('No repo specified for patch entry "%s" and no '
-                              'default repo specified.', p)
-                sys.exit(1)
+                raise PatchMappingError(
+                    'No repo specified for patch entry "{}" and no '
+                    'default repo specified.'.format(p))
+
             patches.append(this_patch)
 
         url = repo_config.get('url', None)
@@ -138,9 +153,10 @@ class Repo:
         refspec = repo_overrides.get('refspec', repo_config.get('refspec',
                                      repo_defaults.get('refspec', None)))
         if refspec is None and url is not None:
-            logging.error('No refspec specified for repository "%s". This is '
-                          'only allowed for local repositories.', name)
-            sys.exit(1)
+            raise RepoRefError('No refspec specified for repository "{}". '
+                               'This is only allowed for local repositories.'
+                               .format(name))
+
         path = repo_config.get('path', None)
         disable_operations = False
 

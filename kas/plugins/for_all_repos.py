@@ -56,13 +56,13 @@
 import logging
 import os
 import subprocess
-import sys
 from kas.context import create_global_context
 from kas.config import Config
 from kas.libcmds import Macro, Command, SetupHome
 from kas.libkas import setup_parser_common_args
 from kas.libkas import setup_parser_preserve_env_arg
 from kas.libkas import run_handle_preserve_env_arg
+from kas.kasusererror import CommandExecError
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
@@ -113,8 +113,7 @@ class ForAllReposCommand(Command):
             retcode = subprocess.call(self.command, shell=True, cwd=repo.path,
                                       env=env)
             if retcode != 0:
-                logging.error('Command failed with return code %d', retcode)
-                sys.exit(retcode)
+                raise CommandExecError(self.command, retcode)
 
 
 __KAS_PLUGINS__ = [ForAllRepos]

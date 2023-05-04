@@ -69,7 +69,6 @@
 import logging
 import os
 import pprint
-import sys
 import yaml
 from kconfiglib import Kconfig, Symbol, Choice, expr_value, TYPE_TO_STR, \
     MENU, COMMENT, STRING, BOOL, INT, HEX, UNKNOWN
@@ -78,6 +77,7 @@ from kas.context import create_global_context
 from kas.config import CONFIG_YAML_FILE
 from kas.includehandler import load_config as load_config_yaml
 from kas.plugins.build import Build
+from kas.kasusererror import KasUserError
 
 try:
     from snack import SnackScreen, EntryWindow, ButtonChoiceWindow, \
@@ -92,10 +92,18 @@ __copyright__ = \
     'Copyright (c) Siemens AG, 2021'
 
 
+class VariableTypeError(KasUserError):
+    pass
+
+
+class MissingModuleError(KasUserError):
+    pass
+
+
 def check_sym_is_string(sym):
     if sym.type != STRING:
-        logging.error('Variable %s must be of string type', sym.name)
-        sys.exit(1)
+        raise VariableTypeError('Variable {} must be of string type'
+                                .format(sym.name))
 
 
 def str_representer(dumper, data):
@@ -175,10 +183,9 @@ class Menu:
                 elif sym.type == HEX:
                     menu_configuration[symname] = int(symvalue, 16)
                 else:
-                    logging.error(
-                        'Configuration variable %s uses unsupported type',
-                        symname)
-                    sys.exit(1)
+                    raise VariableTypeError(
+                        'Configuration variable {} uses unsupported type'
+                        .format(symname))
 
             if symname.startswith('KAS_INCLUDE_'):
                 check_sym_is_string(sym)
@@ -241,9 +248,8 @@ class Menu:
 
     def run(self, args):
         if not newt_available:
-            logging.error(
+            raise MissingModuleError(
                 'Menu plugin requires \'python3-newt\' distribution package.')
-            sys.exit(1)
 
         ctx = create_global_context(args)
 

@@ -63,7 +63,6 @@
     Note, that the lockfiles should be checked-in into the VCS.
 """
 
-import logging
 import sys
 import json
 import yaml
@@ -71,9 +70,15 @@ from typing import TypeVar, TextIO
 from collections import OrderedDict
 from kas.context import get_context
 from kas.plugins.checkout import Checkout
+from kas.kasusererror import KasUserError, ArgsCombinationError
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2022'
+
+
+class OutputFormatError(KasUserError):
+    def __init__(self, format):
+        super().__init__('invalid format {}'.format(format))
 
 
 class IoTarget:
@@ -184,8 +189,7 @@ class Dump(Checkout):
         output = IoTarget(target=sys.stdout, managed=False)
 
         if args.inplace and not args.lock:
-            logging.error('--inplace requires --lock')
-            sys.exit(1)
+            raise ArgsCombinationError('--inplace requires --lock')
 
         if args.lock:
             args.resolve_refs = True
@@ -220,8 +224,7 @@ class Dump(Checkout):
                     indent=args.indent,
                     Dumper=self.KasYamlDumper)
             else:
-                logging.error('invalid format %s', args.format)
-                sys.exit(1)
+                raise OutputFormatError(args.format)
 
 
 __KAS_PLUGINS__ = [Dump]

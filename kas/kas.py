@@ -34,7 +34,7 @@ import logging
 import signal
 import sys
 import os
-from .kasusererror import KasUserError
+from .kasusererror import KasUserError, CommandExecError
 
 try:
     import colorlog
@@ -176,6 +176,9 @@ def main():
 
     try:
         kas(sys.argv[1:])
+    except CommandExecError as err:
+        logging.error('%s', err)
+        sys.exit(err.ret_code if err.forward else 2)
     except KasUserError as err:
         logging.error('%s', err)
         sys.exit(2)

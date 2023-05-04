@@ -34,9 +34,34 @@ import pathlib
 import signal
 from subprocess import Popen, PIPE
 from .context import get_context
+from .kasusererror import KasUserError, CommandExecError
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
+
+
+class InitBuildEnvError(KasUserError):
+    """
+    Error related to the OE / ISAR environment setup scripts
+    """
+    pass
+
+
+class EnvNotValidError(KasUserError):
+    """
+    The caller environment is not suited for the requested operation
+    """
+    pass
+
+
+class TaskExecError(KasUserError):
+    """
+    Similar to :class:`kas.kasusererror.CommandExecError` but for kas
+    internal tasks
+    """
+    def __init__(self, command, ret_code):
+        self.ret_code = ret_code
+        super().__init__('{} failed: error code {}'.format(command, ret_code))
 
 
 class LogOutput:
@@ -144,7 +169,7 @@ def run_cmd(cmd, cwd, env=None, fail=True, liveupdate=True):
     (ret, output) = loop.run_until_complete(
         run_cmd_async(cmd, cwd, env, fail, liveupdate))
     if ret and fail:
-        sys.exit(ret)
+        raise CommandExecError(cmd, ret)
     return (ret, output)
 
 
@@ -175,7 +200,7 @@ def repos_fetch(repos):
 
     for task in tasks:
         if task.result():
-            sys.exit(task.result())
+            raise TaskExecError('fetch repos', task.result())
 
 
 def repos_apply_patches(repos):
@@ -194,7 +219,7 @@ def repos_apply_patches(repos):
 
     for task in tasks:
         if task.result():
-            sys.exit(task.result())
+            raise TaskExecError('apply patches', task.result())
 
 
 def get_build_environ(build_system):
@@ -217,15 +242,15 @@ def get_build_environ(build_system):
     for (repo, script) in permutations:
         if os.path.exists(repo.path + '/' + script):
             if init_repo:
-                logging.error('Multiple init scripts found (%s vs. %s). ',
-                              repo.name, init_repo.name)
-                logging.error('Resolve ambiguity by removing one of the repos')
-                sys.exit(1)
+                raise InitBuildEnvError(
+                    'Multiple init scripts found ({} vs. {}). '
+                    'Resolve ambiguity by removing one of the repos'
+                    .format(repo.name, init_repo.name))
+
             init_repo = repo
             init_script = script
     if not init_repo:
-        logging.error('Did not find any init-build-env script')
-        sys.exit(1)
+        raise InitBuildEnvError('Did not find any init-build-env script')
 
     with tempfile.TemporaryDirectory() as temp_dir:
         script = """#!/bin/bash
@@ -412,9 +437,8 @@ def run_handle_preserve_env_arg(ctx, os, args, SetupHome):
                                 var)
 
         if not os.isatty(sys.stdout.fileno()):
-            logging.error("Error: --preserve-env can only be "
-                          "run from a tty")
-            sys.exit(1)
+            raise EnvNotValidError(
+                '--preserve-env can only be run from a tty')
 
         ctx.environ = os.environ.copy()
 

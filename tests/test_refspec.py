@@ -25,6 +25,7 @@ import pytest
 import shutil
 from kas import kas
 from kas.libkas import run_cmd
+from kas.repos import RepoRefError
 
 
 def test_refspec_switch(changedir, tmpdir):
@@ -95,5 +96,5 @@ def test_url_no_refspec(changedir, tmpdir):
     tdir = str(tmpdir / 'test_url_no_refspec')
     shutil.copytree('tests/test_refspec', tdir)
     os.chdir(tdir)
-    with pytest.raises(SystemExit):
+    with pytest.raises(RepoRefError):
         kas.kas(['shell', 'test4.yml', '-c', 'true'])

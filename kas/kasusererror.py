@@ -43,3 +43,28 @@ class KasUserError(Exception):
     User or input error. Derive all user error exceptions from this class.
     """
     pass
+
+
+class CommandExecError(KasUserError):
+    """
+    Failure in execution of a shell command. The `forward_error_code` parameter
+    can be used to request the receiver of the exception to `sys.exit` with
+    that code instead of a generic one. Only use this in special cases, where
+    the return code can actually be related to a single shell command.
+    """
+    def __init__(self, command, ret_code,
+                 forward_ret_code=False):
+        self.ret_code = ret_code
+        self.forward = forward_ret_code
+        message = ["'{}'".format(c) if ' ' in c else c for c in command]
+        super().__init__('Command "{}" failed with error {}'
+                         .format(' '.join(message), ret_code))
+
+
+class ArgsCombinationError(KasUserError):
+    """
+    Invalid combination of CLI arguments provided
+    """
+    def __init__(self, message):
+        super().__init__('Invalid combination of arguments: {}'
+                         .format(message))
