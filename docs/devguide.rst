@@ -101,6 +101,12 @@ Class reference documentation
 .. automodule:: kas.includehandler
    :members:
 
+``kas.kasusererror`` Module
+.............................
+
+.. automodule:: kas.kasusererror
+   :members:
+
 ``kas.plugins`` Module
 ......................
 

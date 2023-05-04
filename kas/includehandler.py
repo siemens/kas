@@ -34,6 +34,7 @@ import logging
 
 from jsonschema.validators import Draft4Validator
 
+from .kasusererror import KasUserError
 from . import __file_version__, __compatible_file_version__
 from . import CONFIGSCHEMA
 
@@ -41,7 +42,7 @@ __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2021'
 
 
-class LoadConfigException(Exception):
+class LoadConfigException(KasUserError):
     """
         Class for exceptions that appear while loading a configuration file.
     """
@@ -101,7 +102,7 @@ def load_config(filename):
     return config
 
 
-class IncludeException(Exception):
+class IncludeException(KasUserError):
     """
         Class for exceptions that appear in the include mechanism.
     """

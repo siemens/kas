@@ -21,7 +21,9 @@
 # SOFTWARE.
 """
     This module is the main entry point for kas, setup tool for bitbake based
-    projects
+    projects. In case of user errors (e.g. invalid configuration, repo fetch
+    failure) KAS exits with error code 2, while exiting with 1 for internal
+    errors. For details on error handling, see :mod:`kas.kasusererror`.
 """
 
 import argparse
@@ -32,6 +34,7 @@ import logging
 import signal
 import sys
 import os
+from .kasusererror import KasUserError
 
 try:
     import colorlog
@@ -173,6 +176,9 @@ def main():
 
     try:
         kas(sys.argv[1:])
+    except KasUserError as err:
+        logging.error('%s', err)
+        sys.exit(2)
     except Exception as err:
         logging.error('%s', err)
         traceback.print_exc()

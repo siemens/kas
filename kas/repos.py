@@ -31,9 +31,24 @@ from urllib.parse import urlparse
 from tempfile import TemporaryDirectory
 from .context import get_context
 from .libkas import run_cmd_async, run_cmd
+from .kasusererror import KasUserError
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
+
+
+class UnsupportedRepoTypeError(KasUserError, NotImplementedError):
+    """
+    Exception for unsupported / not implemented repository types
+    """
+    pass
+
+
+class PatchFileNotFound(KasUserError, FileNotFoundError):
+    """
+    The requested patch file was not found
+    """
+    pass
 
 
 class Repo:
@@ -151,7 +166,7 @@ class Repo:
         if typ == 'hg':
             return MercurialRepo(name, url, path, refspec, layers, patches,
                                  disable_operations)
-        raise NotImplementedError('Repo type "%s" not supported.' % typ)
+        raise UnsupportedRepoTypeError('Repo type "%s" not supported.' % typ)
 
     @staticmethod
     def get_root_path(path, fallback=True):
@@ -324,7 +339,7 @@ class RepoImpl(Repo):
                         if os.path.isfile(p):
                             my_patches.append((p, patch['id']))
                         else:
-                            raise FileNotFoundError(p)
+                            raise PatchFileNotFound(p)
             else:
                 logging.error('Could not find patch. '
                               '(patch path: %s, repo: %s, patch entry: %s)',
