@@ -70,8 +70,8 @@ import logging
 import os
 import pprint
 import yaml
-from kconfiglib import Kconfig, Symbol, Choice, expr_value, TYPE_TO_STR, \
-    MENU, COMMENT, STRING, BOOL, INT, HEX, UNKNOWN
+from kconfiglib import Kconfig, Symbol, Choice, KconfigError, \
+    expr_value, TYPE_TO_STR, MENU, COMMENT, STRING, BOOL, INT, HEX, UNKNOWN
 from kas import __version__, __file_version__
 from kas.context import create_global_context
 from kas.config import CONFIG_YAML_FILE
@@ -97,6 +97,13 @@ class VariableTypeError(KasUserError):
 
 
 class MissingModuleError(KasUserError):
+    pass
+
+
+class KConfigLoadError(KasUserError):
+    """
+    The KConfig file could not be found or is invalid
+    """
     pass
 
 
@@ -253,7 +260,10 @@ class Menu:
 
         ctx = create_global_context(args)
 
-        self.kconf = Kconfig(args.kconfig, warn_to_stderr=False)
+        try:
+            self.kconf = Kconfig(args.kconfig, warn_to_stderr=False)
+        except (KconfigError, FileNotFoundError) as err:
+            raise KConfigLoadError(str(err))
 
         config_filename = os.path.join(ctx.kas_work_dir, CONFIG_YAML_FILE)
 
