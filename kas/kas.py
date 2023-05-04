@@ -172,7 +172,7 @@ def main():
     """
 
     try:
-        sys.exit(kas(sys.argv[1:]))
+        kas(sys.argv[1:])
     except Exception as err:
         logging.error('%s', err)
         traceback.print_exc()
