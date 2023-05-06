@@ -32,6 +32,18 @@ When you need a proxy to access the internet, add::
 to the call.
 
 
+Measure code coverage
+---------------------
+
+To measure the code coverage of the unit tests, the ``pytest-cov`` package is
+required. On Debian systems, this is provided in ``python3-pytest-cov``.
+Once installed, run::
+
+    $ python3 -m pytest --cov --cov-report html
+
+The coverage in HTML format can then be found in `htmlcov`.
+
+
 Community Resources
 -------------------
 
