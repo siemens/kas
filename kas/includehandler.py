@@ -186,7 +186,11 @@ class IncludeHandler:
 
             missing_repos = []
             configs = []
-            current_config = load_config(filename)
+            try:
+                current_config = load_config(filename)
+            except FileNotFoundError:
+                raise LoadConfigException('Configuration file not found',
+                                          filename)
             if not isinstance(current_config, Mapping):
                 raise IncludeException('Configuration file does not contain a '
                                        'dictionary as base type')
