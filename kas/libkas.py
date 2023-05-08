@@ -156,6 +156,7 @@ async def run_cmd_async(cmd, cwd, env=None, fail=True, liveupdate=True):
             for line in logo.stderr:
                 msg += line
         logging.error(msg)
+        raise CommandExecError(cmd, ret)
 
     return (ret, ''.join(logo.stdout))
 
