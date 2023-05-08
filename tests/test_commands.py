@@ -26,7 +26,9 @@ import pathlib
 import shutil
 import json
 import yaml
+import pytest
 from kas import kas
+from kas.kasusererror import CommandExecError
 
 
 def test_for_all_repos(changedir, tmpdir):
@@ -59,6 +61,14 @@ def test_checkout(changedir, tmpdir):
     assert not glob.glob('build/tmp*')
     assert not os.path.exists('build/downloads')
     assert not os.path.exists('build/sstate-cache')
+
+
+def test_invalid_checkout(changedir, tmpdir, capsys):
+    tdir = str(tmpdir / 'test_commands')
+    shutil.copytree('tests/test_commands', tdir)
+    os.chdir(tdir)
+    with pytest.raises(CommandExecError):
+        kas.kas(['checkout', 'test-invalid.yml'])
 
 
 def test_checkout_create_refs(changedir, tmpdir):
