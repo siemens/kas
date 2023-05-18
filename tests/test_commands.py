@@ -28,7 +28,7 @@ import json
 import yaml
 import pytest
 from kas import kas
-from kas.kasusererror import CommandExecError
+from kas.libkas import TaskExecError
 
 
 def test_for_all_repos(changedir, tmpdir):
@@ -67,7 +67,7 @@ def test_invalid_checkout(changedir, tmpdir, capsys):
     tdir = str(tmpdir / 'test_commands')
     shutil.copytree('tests/test_commands', tdir)
     os.chdir(tdir)
-    with pytest.raises(CommandExecError):
+    with pytest.raises(TaskExecError):
         kas.kas(['checkout', 'test-invalid.yml'])
 
 

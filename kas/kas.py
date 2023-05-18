@@ -98,7 +98,14 @@ def _atexit_handler():
         loop = asyncio.get_event_loop()
         pending = asyncio.Task.all_tasks(loop)
     if not loop.is_closed():
-        loop.run_until_complete(asyncio.gather(*pending))
+        # this code path is observed on older python versions (e.g. 3.6).
+        # In case the loop is not yet closed, tasks still might throw
+        # exceptions, but we are not interested in these as they are
+        # likely due to the cancellation. By that, we simply drop them.
+        try:
+            loop.run_until_complete(asyncio.gather(*pending))
+        except KasUserError:
+            pass
         loop.close()
 
 

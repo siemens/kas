@@ -197,11 +197,10 @@ def repos_fetch(repos):
         tasks.append(asyncio.ensure_future(repo.fetch_async()))
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(asyncio.wait(tasks))
-
-    for task in tasks:
-        if task.result():
-            raise TaskExecError('fetch repos', task.result())
+    try:
+        loop.run_until_complete(asyncio.gather(*tasks))
+    except CommandExecError as e:
+        raise TaskExecError('fetch repos', e.ret_code)
 
 
 def repos_apply_patches(repos):
@@ -216,11 +215,10 @@ def repos_apply_patches(repos):
         tasks.append(asyncio.ensure_future(repo.apply_patches_async()))
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(asyncio.wait(tasks))
-
-    for task in tasks:
-        if task.result():
-            raise TaskExecError('apply patches', task.result())
+    try:
+        loop.run_until_complete(asyncio.gather(*tasks))
+    except CommandExecError as e:
+        raise TaskExecError('apply patches', e.ret_code)
 
 
 def get_build_environ(build_system):
