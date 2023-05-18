@@ -226,8 +226,6 @@ class RepoImpl(Repo):
                 (retc, _) = await run_cmd_async(
                     self.clone_cmd(tmpdir, createref=True),
                     cwd=get_context().kas_work_dir)
-                if retc != 0:
-                    return retc
 
                 logging.debug('Created repo ref for %s', self.qualified_name)
                 try:
@@ -244,8 +242,8 @@ class RepoImpl(Repo):
             (retc, _) = await run_cmd_async(
                 self.clone_cmd(sdir, createref=False),
                 cwd=get_context().kas_work_dir)
-            if retc == 0:
-                logging.info('Repository %s cloned', self.name)
+
+            logging.info('Repository %s cloned', self.name)
 
         # Make sure the remote origin is set to the value
         # in the kas file to avoid surprises
@@ -254,8 +252,6 @@ class RepoImpl(Repo):
                 self.set_remote_url_cmd(),
                 cwd=self.path,
                 liveupdate=False)
-            if retc != 0:
-                return retc
         except NotImplementedError:
             logging.warning('Repo implementation does not support changing '
                             'the remote url.')
@@ -322,8 +318,6 @@ class RepoImpl(Repo):
 
         (retc, _) = await run_cmd_async(self.prepare_patches_cmd(),
                                         cwd=self.path)
-        if retc:
-            return retc
 
         my_patches = []
 
