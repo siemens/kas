@@ -23,7 +23,9 @@
 import os
 import stat
 import shutil
+import pytest
 from kas import kas
+from kas.repos import PatchApplyError, PatchFileNotFound, PatchMappingError
 
 
 def test_patch(changedir, tmpdir):
@@ -52,4 +54,24 @@ def test_patch_update(changedir, tmpdir):
     kas.kas(['shell', 'test2.yml', '-c', 'true'])
     for f in ['kas/tests/test_patch/hello.sh', 'hello/hello.sh']:
         assert os.stat(f)[stat.ST_MODE] & stat.S_IXUSR
+    os.chdir(cwd)
+
+
+def test_invalid_patch(changedir, tmpdir):
+    """
+        Test on common errors when applying patches
+    """
+    tdir = str(tmpdir / 'test_patch_invalid')
+    shutil.copytree('tests/test_patch', tdir)
+    cwd = os.getcwd()
+    os.chdir(tdir)
+
+    with pytest.raises(PatchFileNotFound):
+        kas.kas(['shell', 'test-invalid.yml', '-c', 'true'])
+
+    with pytest.raises(PatchMappingError):
+        kas.kas(['shell', 'test-invalid2.yml', '-c', 'true'])
+
+    with pytest.raises(PatchApplyError):
+        kas.kas(['shell', 'test-invalid3.yml', '-c', 'true'])
     os.chdir(cwd)

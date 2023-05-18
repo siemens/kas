@@ -1,0 +1,13 @@
+header:
+  version: 8
+
+repos:
+  this:
+
+  kas:
+    url: https://github.com/ilbers/isar.git
+    refspec: 47aaeedecd0ea6f754da36be1d10717b04eb8275
+    patches:
+      plain:
+        repo: this
+        path: patches/kas/001.patch
