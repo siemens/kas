@@ -65,6 +65,12 @@ class PatchMappingError(KasUserError):
     pass
 
 
+class PatchApplyError(KasUserError):
+    """
+    The provided patch file could not be applied
+    """
+
+
 class Repo:
     """
         Represents a repository in the kas configuration.
@@ -326,13 +332,10 @@ class RepoImpl(Repo):
                                                             None)
 
             if not other_repo:
-                logging.error('Could not find referenced repo. '
-                              '(missing repo: %s, repo: %s, '
-                              'patch entry: %s)',
-                              patch['repo'],
-                              self.name,
-                              patch['id'])
-                return 1
+                raise PatchMappingError(
+                    'Could not find referenced repo. '
+                    '(missing repo: {}, repo: {}, patch entry: {})'
+                    .format(patch['repo'], self.name, patch['id']))
 
             path = os.path.join(other_repo.path, patch['path'])
             cmd = []
@@ -351,42 +354,41 @@ class RepoImpl(Repo):
                         else:
                             raise PatchFileNotFound(p)
             else:
-                logging.error('Could not find patch. '
-                              '(patch path: %s, repo: %s, patch entry: %s)',
-                              path,
-                              self.name,
-                              patch['id'])
-                return 1
+                raise PatchFileNotFound(
+                    'Could not find patch. '
+                    '(patch path: {}, repo: {}, patch entry: {})'
+                    .format(path, self.name, patch['id']))
 
         for (path, patch_id) in my_patches:
             cmd = self.apply_patches_file_cmd(path)
-            (retc, output) = await run_cmd_async(cmd, cwd=self.path)
+            (retc, output) = await run_cmd_async(
+                cmd, cwd=self.path, fail=False)
             if retc:
-                logging.error('Could not apply patch. Please fix repos and '
-                              'patches. (patch path: %s, repo: %s, patch '
-                              'entry: %s, vcs output: %s)',
-                              path, self.name, patch_id, output)
-                return 1
-            else:
-                logging.info('Patch applied. '
-                             '(patch path: %s, repo: %s, patch entry: %s)',
-                             path, self.name, patch_id)
+                raise PatchApplyError(
+                    'Could not apply patch. Please fix repos and '
+                    'patches. (patch path: {}, repo: {}, patch '
+                    'entry: {}, vcs output: {})'
+                    .format(path, self.name, patch_id, output))
+
+            logging.info('Patch applied. '
+                         '(patch path: %s, repo: %s, patch entry: %s)',
+                         path, self.name, patch_id)
 
             cmd = self.add_cmd()
-            (retc, output) = await run_cmd_async(cmd, cwd=self.path)
+            (retc, output) = await run_cmd_async(
+                cmd, cwd=self.path, fail=False)
             if retc:
-                logging.error('Could not add patched files. '
-                              'repo: %s, vcs output: %s)',
-                              self.name, output)
-                return 1
+                raise PatchApplyError(
+                    'Could not add patched files. repo: {}, vcs output: {})'
+                    .format(self.name, output))
 
             cmd = self.commit_cmd()
-            (retc, output) = await run_cmd_async(cmd, cwd=self.path)
+            (retc, output) = await run_cmd_async(
+                cmd, cwd=self.path, fail=False)
             if retc:
-                logging.error('Could not commit patch changes. '
-                              'repo: %s, vcs output: %s)',
-                              self.name, output)
-                return 1
+                raise PatchApplyError(
+                    'Could not commit patch changes. repo: {}, vcs output: {})'
+                    .format(self.name, output))
 
         return 0
 
