@@ -320,13 +320,6 @@ KAS_EXTRA_BITBAKE_ARGS=0
 # parse kas sub-command options
 while [ $# -gt 0 ] && [ $KAS_EXTRA_BITBAKE_ARGS -eq 0 ]; do
 	case "$1" in
-	-h|--help)
-		set_container_image_var
-		# SC2086: Double quote to prevent globbing and word splitting.
-		# shellcheck disable=2086
-		trace ${KAS_CONTAINER_COMMAND} run ${KAS_CONTAINER_IMAGE} ${KAS_CMD} --help
-		exit 0
-		;;
 	--skip|--target|--task)
 		KAS_OPTIONS="${KAS_OPTIONS} $1 $2"
 		shift 2
