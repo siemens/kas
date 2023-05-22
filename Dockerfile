@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-FROM debian:bullseye-slim as kas-base
+FROM debian:bookworm-slim as kas-base
 
 ARG TARGETPLATFORM
 ARG DEBIAN_FRONTEND=noninteractive
@@ -31,7 +31,7 @@ RUN apt-get update && \
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 && \
     apt-get install --no-install-recommends -y \
         python3-pip python3-setuptools python3-wheel python3-yaml python3-distro python3-jsonschema \
-        python3-newt python3-colorlog \
+        python3-newt python3-colorlog python3-kconfiglib \
         gosu lsb-release file vim less procps tree tar bzip2 zstd pigz lz4 unzip tmux libncurses-dev \
         git-lfs mercurial iproute2 ssh-client telnet curl rsync gnupg awscli sudo \
         socat bash-completion && \
@@ -41,8 +41,12 @@ RUN apt-get update && \
 COPY . /kas
 RUN chmod -R o-w /kas
 
-RUN pip3 --proxy=$https_proxy install --no-deps kconfiglib && \
-    pip3 --proxy=$https_proxy install --no-deps /kas && kas --version && \
+RUN pip3 --proxy=$https_proxy install \
+        --no-deps \
+        --no-build-isolation \
+        --break-system-packages \
+        /kas && \
+    kas --version && \
     rm -rf $(pip3 cache dir)
 
 RUN ln -s /kas/contrib/oe-git-proxy /usr/bin/
@@ -91,15 +95,16 @@ USER builder
 
 FROM kas-base as kas
 
-# The install package list are actually taking 1:1 from their documentation,
-# so there some packages that can already installed by other downstream layers.
-# This will not change any image sizes on all the layers in use.
+# The install package list are actually taking 1:1 from their documentation
+# (exception: pylint3 -> pylint),  so there some packages that can already
+# installed by other downstream layers. This will not change any image sizes
+# on all the layers in use.
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
         gawk wget git diffstat unzip texinfo \
         gcc build-essential chrpath socat cpio python3 python3-pip python3-pexpect \
         xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev \
-        pylint3 xterm python3-subunit mesa-common-dev zstd liblz4-tool && \
+        pylint xterm python3-subunit mesa-common-dev zstd liblz4-tool && \
     if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
         apt-get install --no-install-recommends -y gcc-multilib g++-multilib; \
     fi && \
