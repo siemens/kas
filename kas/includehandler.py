@@ -42,6 +42,7 @@ __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2021'
 
 SOURCE_DIR_OVERRIDE_KEY = '_source_dir'
+SOURCE_DIR_HOST_OVERRIDE_KEY = '_source_dir_host'
 
 
 class LoadConfigException(KasUserError):

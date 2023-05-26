@@ -272,6 +272,9 @@
         },
         "_source_dir": {
             "type": "string"
+        },
+        "_source_dir_host": {
+            "type": "string"
         }
     }
 }

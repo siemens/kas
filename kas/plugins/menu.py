@@ -77,7 +77,7 @@ from kas.context import create_global_context
 from kas.config import CONFIG_YAML_FILE
 from kas.repos import Repo
 from kas.includehandler import load_config as load_config_yaml, \
-    SOURCE_DIR_OVERRIDE_KEY
+    SOURCE_DIR_OVERRIDE_KEY, SOURCE_DIR_HOST_OVERRIDE_KEY
 from kas.plugins.build import Build
 from kas.kasusererror import KasUserError
 
@@ -91,7 +91,9 @@ except ImportError:
 __license__ = 'MIT'
 __copyright__ = \
     'Copyright (c) 2011-2019, Ulf Magnusson <ulfalizer@gmail.com>\n' \
-    'Copyright (c) Siemens AG, 2021'
+    'Copyright (c) Siemens AG, 2021-2023'
+
+SOURCE_DIR_HOST_ENV_KEY = '_KAS_REPO_DIR_HOST'
 
 
 class VariableTypeError(KasUserError):
@@ -219,6 +221,10 @@ class Menu:
             'menu_configuration': menu_configuration,
             SOURCE_DIR_OVERRIDE_KEY: top_repo_dir
         }
+
+        if SOURCE_DIR_HOST_ENV_KEY in os.environ:
+            config[SOURCE_DIR_HOST_OVERRIDE_KEY] = \
+                os.environ[SOURCE_DIR_HOST_ENV_KEY]
         if kas_build_system:
             config['build_system'] = kas_build_system
         if len(kas_targets) > 0:
