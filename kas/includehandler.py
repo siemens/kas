@@ -32,7 +32,7 @@ from collections.abc import Mapping
 import functools
 import logging
 
-from jsonschema.validators import Draft4Validator
+from jsonschema.validators import validator_for
 
 from .kasusererror import KasUserError
 from . import __file_version__, __compatible_file_version__
@@ -68,7 +68,8 @@ def load_config(filename):
         raise LoadConfigException('Config file extension not recognized',
                                   filename)
 
-    validator = Draft4Validator(CONFIGSCHEMA)
+    validator_class = validator_for(CONFIGSCHEMA)
+    validator = validator_class(CONFIGSCHEMA)
     validation_error = False
 
     for error in validator.iter_errors(config):
