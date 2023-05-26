@@ -138,3 +138,5 @@ Added
 ~~~~~
 
 - The ``overrides`` top-level entry can be used to pin floating repo refspecs.
+- ``_source_dir`` top-level entry is auto-generated when using the menu plugin
+  and provides the path to the top repo at time of invoking the plugin.

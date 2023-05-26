@@ -46,7 +46,7 @@ class Config:
 
         self.filenames = [os.path.abspath(configfile)
                           for configfile in filename.split(':')]
-        self.top_repo_path = Repo.get_root_path(
+        top_repo_path = Repo.get_root_path(
             os.path.dirname(self.filenames[0]))
 
         repo_paths = [Repo.get_root_path(os.path.dirname(configfile),
@@ -61,7 +61,7 @@ class Config:
         update = ctx.args.update if hasattr(ctx.args, 'update') else False
 
         self.handler = IncludeHandler(self.filenames,
-                                      self.top_repo_path,
+                                      top_repo_path,
                                       not update)
         self.repo_dict = self._get_repo_dict()
 
@@ -111,10 +111,11 @@ class Config:
         overrides = self._config.get('overrides', {}) \
                                 .get('repos', {}).get(name, {})
         config = self.get_repos_config()[name] or {}
+        top_repo_path = self.handler.get_top_repo_path()
         return Repo.factory(name,
                             config,
                             repo_defaults,
-                            self.top_repo_path,
+                            top_repo_path,
                             overrides)
 
     def _get_repo_dict(self):

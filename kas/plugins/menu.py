@@ -75,7 +75,9 @@ from kconfiglib import Kconfig, Symbol, Choice, KconfigError, \
 from kas import __version__, __file_version__
 from kas.context import create_global_context
 from kas.config import CONFIG_YAML_FILE
-from kas.includehandler import load_config as load_config_yaml
+from kas.repos import Repo
+from kas.includehandler import load_config as load_config_yaml, \
+    SOURCE_DIR_OVERRIDE_KEY
 from kas.plugins.build import Build
 from kas.kasusererror import KasUserError
 
@@ -140,7 +142,7 @@ class Menu:
 
     def load_config(self, filename):
         try:
-            self.orig_config = load_config_yaml(filename)
+            self.orig_config, _ = load_config_yaml(filename)
         except FileNotFoundError:
             self.orig_config = {}
             return
@@ -163,7 +165,7 @@ class Menu:
             else:  # string
                 sym.set_value(symvalue)
 
-    def save_config(self, filename):
+    def save_config(self, filename, top_repo_dir):
         kas_includes = []
         kas_targets = []
         kas_build_system = None
@@ -214,7 +216,8 @@ class Menu:
                 'version': __file_version__,
                 'includes': kas_includes
             },
-            'menu_configuration': menu_configuration
+            'menu_configuration': menu_configuration,
+            SOURCE_DIR_OVERRIDE_KEY: top_repo_dir
         }
         if kas_build_system:
             config['build_system'] = kas_build_system
@@ -260,11 +263,13 @@ class Menu:
 
         ctx = create_global_context(args)
 
+        kconfig_file = os.path.abspath(args.kconfig)
         try:
-            self.kconf = Kconfig(args.kconfig, warn_to_stderr=False)
+            self.kconf = Kconfig(kconfig_file, warn_to_stderr=False)
         except (KconfigError, FileNotFoundError) as err:
             raise KConfigLoadError(str(err))
 
+        top_repo_path = Repo.get_root_path(os.path.dirname(kconfig_file))
         config_filename = os.path.join(ctx.kas_work_dir, CONFIG_YAML_FILE)
 
         self.load_config(config_filename)
@@ -276,7 +281,7 @@ class Menu:
         if action == 'exit':
             return
 
-        self.save_config(config_filename)
+        self.save_config(config_filename, top_repo_path)
         self.dump_kconf_warnings()
 
         if action == 'build':
