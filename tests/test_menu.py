@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
 import shutil
 import snack
 import pytest
@@ -79,3 +80,23 @@ def test_menu(monkeypatch, tmpdir):
     kas.kas(['menu'])
     assert file_contains('build/conf/local.conf', 'OPT1 = "1"\n')
     assert check_bitbake_options('-c build target2\n')
+
+
+def test_menu_inc_workdir(monkeypatch, tmpdir):
+    tdir = str(tmpdir / 'test_menu_inc')
+    kas_workdir = str(tmpdir / 'test_menu_inc' / 'out')
+    shutil.copytree('tests/test_menu', tdir)
+    monkeypatch.chdir(tdir)
+    os.mkdir(kas_workdir)
+    os.environ['KAS_WORK_DIR'] = kas_workdir
+    kas.kas(['menu'])
+    del os.environ['KAS_WORK_DIR']
+
+
+def test_menu_implicit_workdir(monkeypatch, tmpdir):
+    tdir = str(tmpdir / 'test_menu_iwd')
+    kas_workdir = str(tmpdir / 'test_menu_iwd_out')
+    shutil.copytree('tests/test_menu', tdir)
+    os.mkdir(kas_workdir)
+    monkeypatch.chdir(kas_workdir)
+    kas.kas(['menu', tdir + '/Kconfig'])
