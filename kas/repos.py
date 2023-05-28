@@ -308,12 +308,12 @@ class RepoImpl(Repo):
                               cwd=self.path, fail=False)
         if output:
             desired_ref = output.strip()
-            branch = True
+            is_branch = True
         else:
             desired_ref = self.refspec
-            branch = False
+            is_branch = False
 
-        run_cmd(self.checkout_cmd(desired_ref, branch), cwd=self.path)
+        run_cmd(self.checkout_cmd(desired_ref, is_branch), cwd=self.path)
 
     async def apply_patches_async(self):
         """
@@ -440,9 +440,9 @@ class GitRepo(RepoImpl):
                 'origin/{refspec}'.
                 format(refspec=self.remove_ref_prefix(self.refspec))]
 
-    def checkout_cmd(self, desired_ref, branch):
+    def checkout_cmd(self, desired_ref, is_branch):
         cmd = ['git', 'checkout', '-q', self.remove_ref_prefix(desired_ref)]
-        if branch:
+        if is_branch:
             cmd.extend(['-B', self.remove_ref_prefix(self.refspec)])
         if get_context().force_checkout:
             cmd.append('--force')
@@ -490,7 +490,7 @@ class MercurialRepo(RepoImpl):
         # We never need to care about creating tracking branches in mercurial
         return ['false']
 
-    def checkout_cmd(self, desired_ref, branch):
+    def checkout_cmd(self, desired_ref, is_branch):
         cmd = ['hg', 'checkout', desired_ref]
         if get_context().force_checkout:
             cmd.append('--clean')
