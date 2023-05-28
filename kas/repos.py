@@ -420,7 +420,10 @@ class GitRepo(RepoImpl):
                 '-m', 'msg']
 
     def contains_refspec_cmd(self):
-        return ['git', 'cat-file', '-t', self.remove_ref_prefix(self.refspec)]
+        refspec = self.refspec
+        if refspec and refspec.startswith('refs/'):
+            refspec = 'remotes/origin/' + self.remove_ref_prefix(refspec)
+        return ['git', 'cat-file', '-t', refspec]
 
     def fetch_cmd(self):
         cmd = ['git', 'fetch', '-q']

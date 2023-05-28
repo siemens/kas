@@ -78,8 +78,8 @@ def test_refspec_absolute(changedir, tmpdir):
     kas.kas(['shell', 'test3.yml', '-c', 'true'])
     (rc, output) = run_cmd(['git', 'symbolic-ref', '-q', 'HEAD'],
                            cwd='kas_abs', fail=False, liveupdate=False)
-    assert rc != 0
-    assert output.strip() == ''
+    assert rc == 0
+    assert output.strip() == 'refs/heads/master'
     (rc, output_kas_abs) = run_cmd(['git', 'rev-parse', 'HEAD'],
                                    cwd='kas_abs', fail=False, liveupdate=False)
     assert rc == 0
