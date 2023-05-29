@@ -492,8 +492,8 @@ class MercurialRepo(RepoImpl):
         return ['hg', 'diff']
 
     def resolve_branch_cmd(self):
-        # We never need to care about creating tracking branches in mercurial
-        return ['false']
+        return ['hg', 'identify', '--id', '-r', self.branch or self.refspec,
+                'default']
 
     def checkout_cmd(self, desired_ref, is_branch):
         cmd = ['hg', 'checkout', desired_ref]
