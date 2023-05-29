@@ -1,5 +1,5 @@
 header:
-  version: 13
+  version: 14
 
 env:
   TESTVAR_DEFAULT_VAL: "BAR"
@@ -13,13 +13,13 @@ repos:
   # Testing new BB_ENV_PASSTHROUGH_ADDITIONS
   bitbake_new:
     url: https://git.openembedded.org/bitbake
-    refspec: 87104b6a167188921da157c7dba45938849fb22a
+    commit: 87104b6a167188921da157c7dba45938849fb22a
     layers:
       .: excluded
 
   # Testing deprecated BB_ENV_WHITELIST
   bitbake_old:
     url: https://git.openembedded.org/bitbake
-    refspec: efaafc9ec2e8c0475e3fb27e877a1c0a5532a0e5
+    commit: efaafc9ec2e8c0475e3fb27e877a1c0a5532a0e5
     layers:
       .: excluded

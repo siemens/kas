@@ -113,7 +113,7 @@ def test_dump(changedir, tmpdir, capsys):
 
         with open(outfile, 'r') as cf:
             flatconf = json.load(cf) if f == 'json' else yaml.safe_load(cf)
-            refspec = flatconf['repos']['kas3']['refspec']
+            refspec = flatconf['repos']['kas3'].get('refspec', None)
             envvar = flatconf['env']['TESTVAR_FOO']
             if r == '--resolve-refs':
                 assert refspec != 'master'
@@ -156,9 +156,9 @@ def test_lockfile(changedir, tmpdir, capsys):
     assert lockspec['overrides']['repos']['externalrepo']['commit'] \
         == expected_commit
 
-    # insert older refspec into lockfile (kas 3.2 tag)
-    test_refspec = 'dc44638cd87c4d0045ea2ca441e682f3525d8b91'
-    lockspec['overrides']['repos']['externalrepo']['commit'] = test_refspec
+    # insert older commit into lockfile (kas 3.2 tag)
+    test_commit = 'dc44638cd87c4d0045ea2ca441e682f3525d8b91'
+    lockspec['overrides']['repos']['externalrepo']['commit'] = test_commit
     with open('test.lock.yml', 'w') as f:
         yaml.safe_dump(lockspec, f)
 
@@ -166,11 +166,11 @@ def test_lockfile(changedir, tmpdir, capsys):
     kas.kas('dump test.yml'.split())
     lockspec = yaml.safe_load(capsys.readouterr().out)
     assert lockspec['overrides']['repos']['externalrepo']['commit'] \
-        == test_refspec
+        == test_commit
 
     # update lockfile, check if repo is pinned to other commit
     kas.kas('dump --lock --inplace --update test.yml'.split())
     with open('test.lock.yml', 'r') as f:
         lockspec = yaml.safe_load(f)
         assert lockspec['overrides']['repos']['externalrepo']['commit'] \
-            != test_refspec
+            != test_commit

@@ -1,13 +1,14 @@
 header:
-  version: 8
+  version: 14
 
 repos:
   this:
 
   kas:
     url: https://github.com/siemens/kas.git
-    refspec: master
+    branch: master
 
   kas2:
     url: https://github.com/siemens/kas.git
+    # keep legacy refspec here for testing purposes
     refspec: 907816a5c4094b59a36aec12226e71c461c05b77

@@ -42,7 +42,7 @@ def test_patch(changedir, tmpdir):
 
 def test_patch_update(changedir, tmpdir):
     """
-        Test that patches are applied correctly after switching refspec from
+        Test that patches are applied correctly after switching a repo from
         a branch to a commit hash and vice-versa with both git and mercurial
         repositories.
     """

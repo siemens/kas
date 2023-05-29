@@ -1,13 +1,13 @@
 header:
-  version: 8
+  version: 14
 
 repos:
   this:
 
   kas_1.0:
     url: https://github.com/siemens/kas.git
-    refspec: 907816a5c4094b59a36aec12226e71c461c05b77
+    commit: 907816a5c4094b59a36aec12226e71c461c05b77
 
   kas_1.1:
     url: https://github.com/siemens/kas.git
-    refspec: e9ca55a239caa1a2098e1d48773a29ea53c6cab2
+    commit: e9ca55a239caa1a2098e1d48773a29ea53c6cab2

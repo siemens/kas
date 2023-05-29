@@ -1,12 +1,12 @@
 header:
-  version: 8
+  version: 14
 
 repos:
   this:
 
   kas:
     url: https://github.com/siemens/kas.git
-    refspec: master
+    branch: master
     patches:
       plain:
         repo: this
@@ -14,7 +14,7 @@ repos:
 
   kas-branch:
     url: https://github.com/siemens/kas.git
-    refspec: 907816a5c4094b59a36aec12226e71c461c05b77
+    commit: 907816a5c4094b59a36aec12226e71c461c05b77
     patches:
       plain:
         repo: this
@@ -25,7 +25,7 @@ repos:
 
   hello:
     url: https://www.mercurial-scm.org/repo/hello/
-    refspec: default
+    branch: default
     type: hg
     patches:
       plain:
@@ -37,7 +37,7 @@ repos:
 
   hello-branch:
     url: https://www.mercurial-scm.org/repo/hello/
-    refspec: 0a04b987be5a
+    commit: 0a04b987be5a
     type: hg
     patches:
       plain:
