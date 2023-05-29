@@ -443,7 +443,9 @@ class GitRepo(RepoImpl):
     def checkout_cmd(self, desired_ref, is_branch):
         cmd = ['git', 'checkout', '-q', self.remove_ref_prefix(desired_ref)]
         if is_branch:
-            cmd.extend(['-B', self.remove_ref_prefix(self.refspec)])
+            branch = self.remove_ref_prefix(self.refspec)
+            branch = branch[branch.startswith('heads/') and len('heads/'):]
+            cmd.extend(['-B', branch])
         if get_context().force_checkout:
             cmd.append('--force')
         return cmd
