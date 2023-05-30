@@ -1,0 +1,10 @@
+header:
+  version: 14
+
+repos:
+  this:
+
+  kas:
+    url: https://github.com/siemens/kas.git
+    refspec: dc44638cd87c4d0045ea2ca441e682f3525d8b91
+    branch: master

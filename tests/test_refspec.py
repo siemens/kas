@@ -25,7 +25,7 @@ import pytest
 import shutil
 from kas import kas
 from kas.libkas import run_cmd
-from kas.repos import RepoRefError
+from kas.repos import RepoRefError, Repo
 
 
 def test_refspec_switch(changedir, tmpdir):
@@ -98,3 +98,30 @@ def test_url_no_refspec(changedir, tmpdir):
     os.chdir(tdir)
     with pytest.raises(RepoRefError):
         kas.kas(['shell', 'test4.yml', '-c', 'true'])
+
+
+def test_commit_refspec_mix(changedir, tmpdir):
+    """
+        Test that mixing legacy refspec with commit/branch raises errors.
+    """
+    tdir = str(tmpdir / 'test_commit_refspec_mix')
+    shutil.copytree('tests/test_refspec', tdir)
+    os.chdir(tdir)
+    with pytest.raises(RepoRefError):
+        kas.kas(['shell', 'test5.yml', '-c', 'true'])
+    with pytest.raises(RepoRefError):
+        kas.kas(['shell', 'test6.yml', '-c', 'true'])
+
+
+def test_refspec_warning(capsys, changedir, tmpdir):
+    """
+        Test that using legacy refspec issues a warning, but only once.
+    """
+    tdir = str(tmpdir / 'test_refspec_warning')
+    shutil.copytree('tests/test_refspec', tdir)
+    os.chdir(tdir)
+    # needs to be reset in case other tests ran before
+    Repo.__legacy_refspec_warned__ = []
+    kas.kas(['shell', 'test2.yml', '-c', 'true'])
+    assert capsys.readouterr().err.count(
+        'Using deprecated refspec for repository "kas2".') == 1
