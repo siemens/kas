@@ -1,6 +1,6 @@
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2017-2022
+# Copyright (c) Siemens AG, 2017-2023
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -30,17 +30,17 @@
     configuration.
 
     When running with ``--lock``, a locking spec is created which only contains
-    the exact refspecs of each repository. This can be used to pin the
-    refspecs of floating branches, while still keeping an easy update path.
-    When combining with ``--inplace``, a lockfile is created next to the
-    first file on the kas cmdline. For details on the locking support, see
+    the exact commit of each repository. This can be used to pin the commit of
+    floating branches, while still keeping an easy update path. When combining
+    with ``--inplace``, a lockfile is created next to the first file on the kas
+    cmdline. For details on the locking support, see
     :class:`kas.includehandler.IncludeHandler`.
 
     Please note:
 
     - the dumped config is semantically identical but not bit-by-bit identical
     - all referenced repositories are checked out to resolve cross-repo configs
-    - all refspecs are resolved before patches are applied
+    - all branches are resolved before patches are applied
 
     For example, to get a single config representing the final build config of
     ``kas-project.yml:target-override.yml`` you could run::
@@ -121,8 +121,8 @@ class Dump(Checkout):
 
     name = 'dump'
     helpmsg = (
-        'Expand and dump the final config to stdout. When resolving refspecs, '
-        'these are resolved before patches are applied.'
+        'Expand and dump the final config to stdout. When resolving branches, '
+        'this is done before patches are applied.'
     )
 
     class KasYamlDumper(yaml.Dumper):
@@ -196,7 +196,7 @@ class Dump(Checkout):
             # when locking, only consider repos managed by kas
             repos = [r for r in repos if not r.operations_disabled]
             config_expanded['overrides'] = \
-                {'repos': {r.name: {'refspec': r.revision} for r in repos}}
+                {'repos': {r.name: {'commit': r.revision} for r in repos}}
 
         if args.lock and args.inplace:
             lockfile = ctx.config.handler.get_lockfile()
@@ -208,7 +208,9 @@ class Dump(Checkout):
 
         if args.resolve_refs and not args.lock:
             for r in repos:
-                if r.refspec:
+                if r.commit or r.branch:
+                    config_expanded['repos'][r.name]['commit'] = r.revision
+                elif r.refspec:
                     config_expanded['repos'][r.name]['refspec'] = r.revision
 
         if args.resolve_env and 'env' in config_expanded:

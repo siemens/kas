@@ -143,6 +143,9 @@ def test_lockfile(changedir, tmpdir, capsys):
     rawspec = yaml.safe_load(capsys.readouterr().out)
     assert rawspec['repos']['externalrepo']['refspec'] == 'master'
 
+    with open('externalrepo/.git/refs/heads/master') as f:
+        expected_commit = f.readline().strip()
+
     # create lockfile
     kas.kas('dump --lock --inplace test.yml'.split())
     assert os.path.exists('test.lock.yml')
@@ -150,24 +153,24 @@ def test_lockfile(changedir, tmpdir, capsys):
     # lockfile is considered during import, expect pinned branches
     kas.kas('dump test.yml'.split())
     lockspec = yaml.safe_load(capsys.readouterr().out)
-    assert lockspec['overrides']['repos']['externalrepo']['refspec'] \
-        != 'master'
+    assert lockspec['overrides']['repos']['externalrepo']['commit'] \
+        == expected_commit
 
     # insert older refspec into lockfile (kas 3.2 tag)
     test_refspec = 'dc44638cd87c4d0045ea2ca441e682f3525d8b91'
-    lockspec['overrides']['repos']['externalrepo']['refspec'] = test_refspec
+    lockspec['overrides']['repos']['externalrepo']['commit'] = test_refspec
     with open('test.lock.yml', 'w') as f:
         yaml.safe_dump(lockspec, f)
 
     # check if repo is moved to specified commit
     kas.kas('dump test.yml'.split())
     lockspec = yaml.safe_load(capsys.readouterr().out)
-    assert lockspec['overrides']['repos']['externalrepo']['refspec'] \
+    assert lockspec['overrides']['repos']['externalrepo']['commit'] \
         == test_refspec
 
     # update lockfile, check if repo is pinned to other commit
     kas.kas('dump --lock --inplace --update test.yml'.split())
     with open('test.lock.yml', 'r') as f:
         lockspec = yaml.safe_load(f)
-        assert lockspec['overrides']['repos']['externalrepo']['refspec'] \
+        assert lockspec['overrides']['repos']['externalrepo']['commit'] \
             != test_refspec

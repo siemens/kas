@@ -177,7 +177,7 @@ class Repo:
                                '"{}". This is only allowed for local '
                                'repositories.'.format(name))
         if refspec is None:
-            commit = repo_overrides.get('refspec', commit)
+            commit = repo_overrides.get('commit', commit)
         else:
             if name not in Repo.__legacy_refspec_warned__:
                 logging.warning('Using deprecated refspec for repository '
@@ -188,7 +188,7 @@ class Repo:
                 raise RepoRefError('Unsupported mixture of legacy refspec '
                                    'and commit/branch for repository "{}"'
                                    .format(name))
-            refspec = repo_overrides.get('refspec', refspec)
+            refspec = repo_overrides.get('commit', refspec)
         path = repo_config.get('path', None)
         disable_operations = False
 
