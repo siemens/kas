@@ -138,7 +138,7 @@ arguably easier to read, this documentation focuses on the YAML format.
       # bblayers.conf:
       poky:
         url: "https://git.yoctoproject.org/git/poky"
-        refspec: 89e6c98d92887913cadf06b2adb97f26cde4849b
+        commit: 89e6c98d92887913cadf06b2adb97f26cde4849b
         layers:
           meta:
           meta-poky:
@@ -218,7 +218,7 @@ It's also possible to include configuration files from other repos like this:
       meta-custom:
       meta-bsp-collection:
         url: "https://www.example.com/git/meta-bsp-collection"
-        refspec: 3f786850e387550fdab836ed7e6dc881de23001b
+        commit: 3f786850e387550fdab836ed7e6dc881de23001b
         layers:
           # Additional to the layers that are added from this repository
           # in the hw1/kas-hw-bsp1.yml, we add here an additional bsp
@@ -226,7 +226,7 @@ It's also possible to include configuration files from other repos like this:
           meta-custom-bsp:
       poky:
         url: "https://git.yoctoproject.org/git/poky"
-        refspec: 89e6c98d92887913cadf06b2adb97f26cde4849b
+        commit: 89e6c98d92887913cadf06b2adb97f26cde4849b
         layers:
           # If `kas-poky.yml` adds the `meta-yocto-bsp` layer and we
           # do not want it in our bblayers for this project, we can
@@ -276,8 +276,8 @@ configuration flaws that can easily emerge from them.
 Working with lockfiles
 ~~~~~~~~~~~~~~~~~~~~~~
 
-KAS supports the use of lockfiles to pinpoint repositories to exact refspecs
-(e.g. SHA-1 refs for git). A lockfile hereby only overrides the refspecs
+KAS supports the use of lockfiles to pinpoint repositories to exact commit ID
+(e.g. SHA-1 refs for git). A lockfile hereby only overrides the commit ID
 defined in a kas file. When performing the checkout operation (or any other
 operation that performs a checkout), kas checks if a file named
 ``<filename>.lock.<ext>`` is found next to the first file stated on the kas
@@ -295,7 +295,7 @@ and its corresponding lockfile ``kas/kas-isar.lock.yml``.
   repos:
     isar:
       url: https://github.com/ilbers/isar.git
-      refspec: next
+      branch: next
 
 ``kas/kas-isar.lock.yml``:
 
@@ -306,7 +306,7 @@ and its corresponding lockfile ``kas/kas-isar.lock.yml``.
   overrides:
     repos:
       isar:
-        refspec: 0336610df8bb0adce76ef8c5a921c758efed9f45
+        commit: 0336610df8bb0adce76ef8c5a921c758efed9f45
 
 The ``dump`` plugin provides helpers to simplify the creation and update
 of lockfiles. For details, see the plugins documentation: :mod:`kas.plugins.dump`.
@@ -357,7 +357,7 @@ Configuration reference
 * ``defaults``: dict [optional]
     This key can be used to set default values for various properties.
     This may help you to avoid repeating the same property assignment in
-    multiple places if, for example, you wish to use the same refspec for
+    multiple places if, for example, you wish to use the same branch for
     all repositories.
 
   * ``repos``: dict [optional]
@@ -366,8 +366,8 @@ Configuration reference
       overridden by setting the same property to a different value in a given
       repository.
 
-    * ``refspec``: string [optional]
-        Sets the default ``refspec`` property applied to all repositories that
+    * ``branch``: string [optional]
+        Sets the default ``branch`` property applied to all repositories that
         do not override this.
 
     * ``patches``: dict [optional]
@@ -433,10 +433,15 @@ Configuration reference
         The type of version control repository. The default value is ``git``
         and ``hg`` is also supported.
 
-    * ``refspec``: string [optional]
-        The refspec that should be used. If ``url`` was specified but no
-        ``refspec`` the revision you get depends on the defaults of the version
-        control system used.
+    * ``commit``: string [optional]
+        The commit ID (branch names, no symbolic refs, no tags) that should be
+        used. If ``url`` was specified but no ``commit`` and no ``branch``, the
+        revision you get depends on the defaults of the version control system
+        used.
+
+    * ``branch``: string [optional]
+        The upstream branch that should be tracked. If no ``commit`` was
+        specified, the head of the upstream is checked out.
 
     * ``path``: string [optional]
         The path where the repository is stored.
@@ -462,7 +467,7 @@ Configuration reference
               meta-foo:
                 url: https://github.com/bar/meta-foo.git
                 path: layers/meta-foo
-                refspec: master
+                branch: master
                 layers:
                   .:
                   contrib:
@@ -505,9 +510,9 @@ Configuration reference
     * ``<repo-id>``: dict [optional]
         Mapps to the ``<repo-id>`` entry.
 
-       * ``refspec``: string [optional]
-           Pinned refspec which overrides the ``refspec`` of the corresponding
-           repo. This refspec must be resolved (i.e. no branch or tag name).
+       * ``commit``: string [optional]
+           Pinned commit ID which overrides the ``commit`` of the corresponding
+           repo.
 
 * ``bblayers_conf_header``: dict [optional]
     This contains strings that should be added to the ``bblayers.conf`` before
