@@ -73,6 +73,9 @@
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
+                        "branch": {
+                            "type": "string"
+                        },
                         "refspec": {
                             "type": "string"
                         },
@@ -157,6 +160,12 @@
                                 ]
                             },
                             "type": {
+                                "type": "string"
+                            },
+                            "commit": {
+                                "type": "string"
+                            },
+                            "branch": {
                                 "type": "string"
                             },
                             "refspec": {
