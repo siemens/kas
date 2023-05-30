@@ -133,6 +133,8 @@ class Repo:
                                 self.commit or self.branch or self.refspec,
                                 self.path, self._layers)
 
+    __legacy_refspec_warned__ = []
+
     @staticmethod
     def factory(name, repo_config, repo_defaults, repo_fallback_path,
                 repo_overrides={}):
@@ -177,6 +179,11 @@ class Repo:
         if refspec is None:
             commit = repo_overrides.get('refspec', commit)
         else:
+            if name not in Repo.__legacy_refspec_warned__:
+                logging.warning('Using deprecated refspec for repository '
+                                '"%s". You should migrate to commit/branch.',
+                                name)
+                Repo.__legacy_refspec_warned__.append(name)
             if commit is not None or branch is not None:
                 raise RepoRefError('Unsupported mixture of legacy refspec '
                                    'and commit/branch for repository "{}"'
