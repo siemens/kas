@@ -456,7 +456,7 @@ Configuration reference
 
     * ``layers``: dict [optional]
         Contains the layers from this repository that should be added to the
-        ``bblayers.conf``. If this is missing or ``None`` or and empty
+        ``bblayers.conf``. If this is missing or ``None`` or an empty
         dictionary, the path to the repo itself is added as a layer.
         Additionally, ``.`` is a valid value if the repo itself should be added
         as a layer. This allows combinations:
