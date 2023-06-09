@@ -72,9 +72,10 @@ FROM kas-base as kas-isar
 ENV LC_ALL=en_US.UTF-8
 RUN apt-get update && \
     apt-get install -y -f --no-install-recommends \
-            binfmt-support debootstrap dosfstools dpkg-dev gettext-base git \
-            mtools parted python3 quilt qemu-user-static reprepro sudo \
-            git-buildpackage pristine-tar sbuild schroot \
+            binfmt-support bzip2 debootstrap dosfstools \
+            dpkg-dev gettext-base git mtools parted python3 python3-distutils \
+            quilt qemu-user-static reprepro sudo unzip git-buildpackage \
+            pristine-tar sbuild schroot zstd \
             umoci skopeo && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
