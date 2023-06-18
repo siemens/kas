@@ -121,7 +121,7 @@ run_clean() {
 				${KAS_CONTAINER_IMAGE} \
 				sudo rm -rf tmp
 	else
-		trace rm -rf "${KAS_BUILD_DIR}/tmp"
+		trace rm -rf "${KAS_BUILD_DIR}"/tmp*
 	fi
 
 	if [ "$1" != "clean" ]; then
