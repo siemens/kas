@@ -99,7 +99,7 @@ def test_dump(changedir, tmpdir, capsys):
     resolve = ['', '--resolve-refs', '--resolve-env']
     # test cross-product of these options (formats x resolve)
     for f, r in ((f, r) for f in formats for r in resolve):
-        outfile = 'test_flat.%s' % f
+        outfile = 'test_flat%s.%s' % (r, f)
         if r == '--resolve-env':
             os.environ['TESTVAR_FOO'] = 'KAS'
 
@@ -113,12 +113,12 @@ def test_dump(changedir, tmpdir, capsys):
 
         with open(outfile, 'r') as cf:
             flatconf = json.load(cf) if f == 'json' else yaml.safe_load(cf)
-            refspec = flatconf['repos']['kas3'].get('refspec', None)
+            commit = flatconf['repos']['kas3'].get('commit', None)
             envvar = flatconf['env']['TESTVAR_FOO']
             if r == '--resolve-refs':
-                assert refspec != 'master'
+                assert commit is not None
             else:
-                assert refspec == 'master'
+                assert commit is None
             if r == '--resolve-env':
                 assert envvar == 'KAS'
             else:
@@ -156,8 +156,8 @@ def test_lockfile(changedir, tmpdir, capsys):
     assert lockspec['overrides']['repos']['externalrepo']['commit'] \
         == expected_commit
 
-    # insert older commit into lockfile (kas 3.2 tag)
-    test_commit = 'dc44638cd87c4d0045ea2ca441e682f3525d8b91'
+    # insert older commit into lockfile (kas post commit/branch introduction)
+    test_commit = '226e92a7f30667326a63fd9812b8cc4a6184e398'
     lockspec['overrides']['repos']['externalrepo']['commit'] = test_commit
     with open('test.lock.yml', 'w') as f:
         yaml.safe_dump(lockspec, f)
