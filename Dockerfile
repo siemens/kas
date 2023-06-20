@@ -81,6 +81,7 @@ RUN apt-get update && \
             quilt qemu-user-static reprepro sudo unzip git-buildpackage \
             pristine-tar sbuild schroot zstd \
             umoci skopeo \
+            python3-botocore \
             debootstrap && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
