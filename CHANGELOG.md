@@ -1,3 +1,16 @@
+3.3
+- kas: Introduce commit and branch as alternative to refspec key
+- kas: Warn if a repo uses legacy refspec
+- kas: add support for lock files via dump plugin
+- kas: track root repo dir config files of menu plugin
+- kas: add support for --log-level argument
+- kas: add GIT_CREDENTIAL_USEHTTPPATH environment variable
+- kas: improve error reporting
+- kas: drop support for Python 3.5
+- kas-container: fix invocations with --isar for some layers
+- kas-container: Purge tmp* on clean
+- kas-container: enable colored logging
+
 3.2.3
 - kas-container: mount KAS_REPO_REF_DIR rw to support auto-creation
 - kas-container: fix --ssh-dir (3.2.2 regression)
