@@ -1,3 +1,7 @@
+4.0
+- kas container: Switch to Debian bookworm
+- kas-container: Make kas-isar ready for mmdebstrap
+
 3.3
 - kas: Introduce commit and branch as alternative to refspec key
 - kas: Warn if a repo uses legacy refspec
