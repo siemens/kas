@@ -128,7 +128,7 @@ class IncludeHandler:
 
         The includes are read and merged from the deepest level upwards.
 
-        In case ``ignore_lock`` is ``false``, kas checks if a file
+        In case ``use_lock`` is ``True``, kas checks if a file
         ``<file>.lock.<ext>`` exists next to the first entry in
         ``top_files``. This filename is then appended to the list of
         ``top_files``.
