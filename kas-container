@@ -236,6 +236,10 @@ while [ $# -gt 0 ]; do
 		shift 2
 		;;
 	--ssh-agent)
+		if [ -z "${SSH_AUTH_SOCK}" ]; then
+			echo "Error: no SSH agent running"
+			exit 1
+		fi
 		KAS_SSH_AUTH_SOCK=$(readlink -fv "$SSH_AUTH_SOCK")
 		shift 1
 		;;
