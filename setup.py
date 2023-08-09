@@ -90,7 +90,7 @@ setup(
     },
 
     install_requires=[
-        'PyYAML>=3.0,<6',
+        'PyYAML>=3.0,<7',
         'distro>=1.0.0,<2',
         'jsonschema>=2.5.0,<4',
         'kconfiglib>=14.1.0,<15',
