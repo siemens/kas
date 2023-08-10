@@ -365,7 +365,7 @@ class Menuconfig():
         if node.item == MENU:
             return "    " + indent * " " + prompt + "  --->"
 
-        if type(node.item) == Choice:
+        if type(node.item) is Choice:
             return "    " + indent * " " + prompt
 
         if node.item == COMMENT:
@@ -398,7 +398,7 @@ class Menuconfig():
                 items.append((string, node))
 
             if (node.list and node.item != MENU
-                    and (type(node.item) == Choice or not node.is_menuconfig)):
+                    and (type(node.item) is Choice or not node.is_menuconfig)):
                 items.extend(Menuconfig.menu_node_strings(node.list,
                                                           indent + 2))
 
@@ -467,7 +467,7 @@ class Menuconfig():
 
             show_submenu = False
 
-            if type(sym) == Symbol:
+            if type(sym) is Symbol:
                 if rc == ' ':
                     if sym.type == BOOL:
                         sym.set_value('n' if sym.tri_value > 0 else 'y')
@@ -497,7 +497,7 @@ class Menuconfig():
                                     width=60,
                                     buttons=['  Ok  '])
                                 self.kconf.warnings = []
-            elif selected_node.is_menuconfig and type(sym) != Choice:
+            elif selected_node.is_menuconfig and type(sym) is not Choice:
                 show_submenu = True
 
             if show_submenu:
