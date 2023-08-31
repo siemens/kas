@@ -58,6 +58,7 @@ class Macro:
                 InitSetupRepos(),
                 repo_loop,
                 FinishSetupRepos(),
+                ReposCheckout(),
                 ReposApplyPatches(),
                 SetupEnviron(),
                 WriteBBConfig(),
@@ -316,19 +317,6 @@ class ReposApplyPatches(Command):
         repos_apply_patches(ctx.config.get_repos())
 
 
-class ReposCheckout(Command):
-    """
-        Ensures that the right revision of each repo is checked out.
-    """
-
-    def __str__(self):
-        return 'repos_checkout'
-
-    def execute(self, ctx):
-        for repo in ctx.config.get_repos():
-            repo.checkout()
-
-
 class InitSetupRepos(Command):
     """
         Prepares setting up repos including the include logic
@@ -395,11 +383,21 @@ class FinishSetupRepos(Command):
         return 'finish_setup_repos'
 
     def execute(self, ctx):
-        # now fetch everything with complete config and check out layers
+        # now fetch everything with complete config
         repos_fetch(ctx.config.get_repos())
-
-        for repo in ctx.config.get_repos():
-            repo.checkout()
 
         logging.debug('Configuration from config file:\n%s',
                       pprint.pformat(ctx.config.get_config()))
+
+
+class ReposCheckout(Command):
+    """
+        Ensures that the right revision of each repo is checked out.
+    """
+
+    def __str__(self):
+        return 'repos_checkout'
+
+    def execute(self, ctx):
+        for repo in ctx.config.get_repos():
+            repo.checkout()
