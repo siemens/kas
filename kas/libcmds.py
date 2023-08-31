@@ -304,18 +304,6 @@ class WriteBBConfig(Command):
         _write_local_conf(ctx)
 
 
-class ReposFetch(Command):
-    """
-        Fetches repositories defined in the configuration
-    """
-
-    def __str__(self):
-        return 'repos_fetch'
-
-    def execute(self, ctx):
-        repos_fetch(ctx.config.get_repos())
-
-
 class ReposApplyPatches(Command):
     """
         Applies the patches defined in the configuration to the repositories.
