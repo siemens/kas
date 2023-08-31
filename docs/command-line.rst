@@ -66,6 +66,7 @@ Environment variables
 +--------------------------+--------------------------------------------------+
 | ``DL_DIR``               | Environment variables that are transferred to    |
 | ``SSTATE_DIR``           | the bitbake environment.                         |
+| ``SSTATE_MIRRORS``       |                                                  |
 | ``TMPDIR``               |                                                  |
 +--------------------------+--------------------------------------------------+
 | ``http_proxy``           | These variables define the proxy configuration   |

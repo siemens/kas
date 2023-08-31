@@ -278,7 +278,7 @@ def get_build_environ(build_system):
 
     conf_env = get_context().config.get_environment()
 
-    env_vars = ['SSTATE_DIR', 'DL_DIR', 'TMPDIR']
+    env_vars = ['SSTATE_DIR', 'SSTATE_MIRRORS', 'DL_DIR', 'TMPDIR']
     env_vars.extend(conf_env)
 
     env.update(conf_env)
