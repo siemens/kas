@@ -32,7 +32,7 @@ usage()
 	printf "%b" "Usage: $0 [OPTIONS] { build | shell } [KASOPTIONS] [KASFILE]\n"
 	printf "%b" "       $0 [OPTIONS] { checkout | dump } [KASOPTIONS] [KASFILE]\n"
 	printf "%b" "       $0 [OPTIONS] for-all-repos [KASOPTIONS] [KASFILE] COMMAND\n"
-	printf "%b" "       $0 [OPTIONS] { clean | cleansstate | cleanall}\n"
+	printf "%b" "       $0 [OPTIONS] { clean | cleansstate | cleanall} [KASFILE]\n"
 	printf "%b" "       $0 [OPTIONS] menu [KCONFIG]\n"
 	printf "%b" "\nPositional arguments:\n"
 	printf "%b" "build\t\t\tCheck out repositories and build target.\n"
@@ -113,7 +113,6 @@ enable_oe_mode() {
 
 run_clean() {
 	if [ -n "${KAS_ISAR_ARGS}" ]; then
-		set_container_image_var
 		# SC2086: Double quote to prevent globbing and word splitting.
 		# shellcheck disable=2086
 		trace ${KAS_CONTAINER_COMMAND} run -v "${KAS_BUILD_DIR}":/build:rw \
@@ -285,9 +284,9 @@ while [ $# -gt 0 ]; do
 		usage
 		;;
 	clean|cleansstate|cleanall)
-		[ $# -eq 1 ] || usage
-		run_clean "$1"
-		exit 0
+		KAS_CMD=$1
+		shift 1
+		break
 		;;
 	shell)
 		KAS_REPO_MOUNT_OPT_DEFAULT="rw"
@@ -419,6 +418,13 @@ elif [ -z "${ISAR_MODE}" ]; then
 fi
 
 set_container_image_var
+
+# short circuit for clean* commands. We just need
+# the build-system information, but no repo mounts, etc...
+if echo "${KAS_CMD}" | grep -qe "^clean"; then
+	run_clean "${KAS_CMD}"
+	exit 0
+fi
 
 KAS_REPO_MOUNT_OPT="${KAS_REPO_MOUNT_OPT:-${KAS_REPO_MOUNT_OPT_DEFAULT}}"
 
