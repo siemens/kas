@@ -510,6 +510,14 @@ if [ -n "${SSTATE_DIR}" ]; then
 		-v "$(readlink -fv "${SSTATE_DIR}")":/sstate:rw \
 		-e SSTATE_DIR=/sstate
 fi
+if [ -n "${SSTATE_MIRRORS}" ]; then
+	if echo "${SSTATE_MIRRORS}" | grep -q "file:///"; then
+		echo "Warning: SSTATE_MIRRORS contains a local path." \
+		     "Make sure to make this path available inside the container." \
+		     >&2
+	fi
+	set -- "$@" -e "SSTATE_MIRRORS=${SSTATE_MIRRORS}"
+fi
 
 if [ -n "${KAS_REPO_REF_DIR}" ]; then
 	if [ ! -d "${KAS_REPO_REF_DIR}" ]; then
