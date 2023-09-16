@@ -406,7 +406,7 @@ class Menuconfig():
 
         return items
 
-    def show_menu(self, title, top_node):
+    def show_menu(self, title, top_node, is_submenu=False):
         selection = 0
 
         while True:
@@ -424,6 +424,8 @@ class Menuconfig():
                 (' Help ', 'help', 'h'),
                 (' Exit ', 'exit', 'ESC')
             ]
+            if is_submenu:
+                buttons[3] = (' Return ', 'return', 'ESC')
             buttonbar = ButtonBar(self.screen, buttons)
             listbox = Listbox(height, scroll=scroll, returnExit=1)
             count = 0
@@ -503,8 +505,9 @@ class Menuconfig():
             if show_submenu:
                 submenu_title, _ = selected_node.prompt
                 action = self.show_menu(submenu_title,
-                                        selected_node.list)
-                if action != 'exit':
+                                        selected_node.list,
+                                        is_submenu=True)
+                if action != 'return':
                     return action
 
     def show(self):
