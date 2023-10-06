@@ -421,12 +421,14 @@ class Menuconfig():
             buttons = [
                 ('Build', 'build', 'B'),
                 ('Save & Exit', 'save', 'S'),
-                (' Exit ', 'exit', 'ESC'),
+                (' Exit ', 'exit', 'E'),
                 (' Help ', 'help', 'h')
             ]
             if is_submenu:
-                buttons[3] = (' Return ', 'return', 'ESC')
+                buttons.insert(0, (' Return ', 'return', 'ESC'))
             buttonbar = ButtonBar(self.screen, buttons)
+            if not is_submenu:
+                buttonbar.hotkeys['ESC'] = 'exit'
             listbox = Listbox(height, scroll=scroll, returnExit=1)
             count = 0
             for string, _ in items:
