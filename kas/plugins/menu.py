@@ -419,7 +419,7 @@ class Menuconfig():
                 scroll = 1
 
             buttons = [
-                ('Save & Build', 'build', 'B'),
+                ('Build', 'build', 'B'),
                 ('Save & Exit', 'save', 'S'),
                 (' Exit ', 'exit', 'ESC'),
                 (' Help ', 'help', 'h')
