@@ -421,8 +421,8 @@ class Menuconfig():
             buttons = [
                 ('Save & Build', 'build', 'B'),
                 ('Save & Exit', 'save', 'S'),
-                (' Help ', 'help', 'h'),
-                (' Exit ', 'exit', 'ESC')
+                (' Exit ', 'exit', 'ESC'),
+                (' Help ', 'help', 'h')
             ]
             if is_submenu:
                 buttons[3] = (' Return ', 'return', 'ESC')
