@@ -535,8 +535,11 @@ class MercurialRepo(RepoImpl):
         return ['hg', 'diff']
 
     def resolve_branch_cmd(self):
-        return ['hg', 'identify', '--id', '-r', self.branch or self.refspec,
-                'default']
+        if self.branch:
+            return ['hg', 'identify', '--id', '-r',
+                    'limit(heads(branch({})))'.format(self.branch)]
+        else:
+            return ['hg', 'identify', '--id', '-r', self.refspec]
 
     def checkout_cmd(self, desired_ref, is_branch):
         cmd = ['hg', 'checkout', desired_ref]
