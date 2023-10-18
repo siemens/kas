@@ -31,9 +31,9 @@
 
     When running with ``--lock``, a locking spec is created which only contains
     the exact commit of each repository. This can be used to pin the commit of
-    floating branches, while still keeping an easy update path. When combining
-    with ``--inplace``, a lockfile is created next to the first file on the kas
-    cmdline. For details on the locking support, see
+    floating branches and tags, while still keeping an easy update path. When
+    combining with ``--inplace``, a lockfile is created next to the first file
+    on the kas cmdline. For details on the locking support, see
     :class:`kas.includehandler.IncludeHandler`.
 
     Please note:
@@ -208,7 +208,7 @@ class Dump(Checkout):
 
         if args.resolve_refs and not args.lock:
             for r in repos:
-                if r.commit or r.branch:
+                if r.commit or r.branch or r.tag:
                     config_expanded['repos'][r.name]['commit'] = r.revision
                 elif r.refspec:
                     config_expanded['repos'][r.name]['refspec'] = r.revision

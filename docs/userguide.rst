@@ -443,6 +443,10 @@ Configuration reference
       The upstream branch that should be tracked. If no ``commit`` was
       specified, the head of the upstream is checked out.
 
+    ``tag``: string [optional]
+      The tag that should be checked out. If a ``commit`` was specified, kas
+      checks that the tag points to this commit.
+
     ``path``: string [optional]
       The path where the repository is stored.
       If the ``url`` and ``path`` is missing, the repository where the

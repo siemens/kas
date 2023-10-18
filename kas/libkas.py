@@ -412,8 +412,8 @@ def setup_parser_common_args(parser):
                         help='Skip build steps',
                         default=[])
     parser.add_argument('--force-checkout', action='store_true',
-                        help='Always checkout the desired commit/branch of '
-                        'each repository, discarding any local changes')
+                        help='Always checkout the desired commit/branch/tag '
+                        'of each repository, discarding any local changes')
     parser.add_argument('--update', action='store_true',
                         help='Pull new upstream changes to the desired '
                         'branch even if it is already checked out locally')

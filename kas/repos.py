@@ -76,12 +76,13 @@ class Repo:
         Represents a repository in the kas configuration.
     """
 
-    def __init__(self, name, url, path, commit, branch, refspec, layers,
+    def __init__(self, name, url, path, commit, tag, branch, refspec, layers,
                  patches, disable_operations):
         self.name = name
         self.url = url
         self.path = path
         self.commit = commit
+        self.tag = tag
         self.branch = branch
         self.refspec = refspec
         self._layers = layers
@@ -113,6 +114,8 @@ class Repo:
         elif item == 'revision':
             if self.commit:
                 return self.commit
+            if self.tag:
+                return self.tag
             branch = self.branch or self.refspec
             if not branch:
                 return None
@@ -126,14 +129,17 @@ class Repo:
         raise AttributeError
 
     def __str__(self):
-        if self.commit and self.branch:
-            return '%s:%s(%s) %s %s' % (self.url, self.commit, self.branch,
+        if self.commit and (self.tag or self.branch):
+            return '%s:%s(%s) %s %s' % (self.url, self.commit,
+                                        self.tag or self.branch,
                                         self.path, self._layers)
         return '%s:%s %s %s' % (self.url,
-                                self.commit or self.branch or self.refspec,
+                                self.commit or self.tag or self.branch
+                                or self.refspec,
                                 self.path, self._layers)
 
     __legacy_refspec_warned__ = []
+    __no_commit_tag_warned__ = []
 
     @staticmethod
     def factory(name, repo_config, repo_defaults, repo_fallback_path,
@@ -168,27 +174,33 @@ class Repo:
         name = repo_config.get('name', name)
         typ = repo_config.get('type', 'git')
         commit = repo_config.get('commit', None)
+        tag = repo_config.get('tag', None)
         branch = repo_config.get('branch', repo_defaults.get('branch', None))
         refspec = repo_config.get('refspec',
                                   repo_defaults.get('refspec', None))
-        if commit is None and branch is None and refspec is None \
-                and url is not None:
-            raise RepoRefError('No commit or branch specified for repository '
-                               '"{}". This is only allowed for local '
-                               'repositories.'.format(name))
+        if commit is None and tag is None and branch is None \
+                and refspec is None and url is not None:
+            raise RepoRefError('No commit, tag or branch specified for '
+                               'repository "{}". This is only allowed for '
+                               'local repositories.'.format(name))
         if refspec is None:
             commit = repo_overrides.get('commit', commit)
         else:
             if name not in Repo.__legacy_refspec_warned__:
-                logging.warning('Using deprecated refspec for repository '
-                                '"%s". You should migrate to commit/branch.',
+                logging.warning('Using deprecated refspec for repository "%s".'
+                                ' You should migrate to commit/tag/branch.',
                                 name)
                 Repo.__legacy_refspec_warned__.append(name)
-            if commit is not None or branch is not None:
+            if commit is not None or tag is not None or branch is not None:
                 raise RepoRefError('Unsupported mixture of legacy refspec '
-                                   'and commit/branch for repository "{}"'
+                                   'and commit/tag/branch for repository "{}"'
                                    .format(name))
             refspec = repo_overrides.get('commit', refspec)
+        if tag and not commit:
+            if name not in Repo.__no_commit_tag_warned__:
+                logging.warning('Using tag without commit for repository '
+                                '"%s" is unsafe as tags are mutable.', name)
+                Repo.__no_commit_tag_warned__.append(name)
         path = repo_config.get('path', None)
         disable_operations = False
 
@@ -209,10 +221,10 @@ class Repo:
             disable_operations = True
 
         if typ == 'git':
-            return GitRepo(name, url, path, commit, branch, refspec, layers,
-                           patches, disable_operations)
+            return GitRepo(name, url, path, commit, tag, branch, refspec,
+                           layers, patches, disable_operations)
         if typ == 'hg':
-            return MercurialRepo(name, url, path, commit, branch, refspec,
+            return MercurialRepo(name, url, path, commit, tag, branch, refspec,
                                  layers, patches, disable_operations)
         raise UnsupportedRepoTypeError('Repo type "%s" not supported.' % typ)
 
@@ -289,12 +301,12 @@ class RepoImpl(Repo):
                             'the remote url.')
 
         # take what came out of clone and stick to that forever
-        if self.commit is None and self.branch is None \
+        if self.commit is None and self.tag is None and self.branch is None \
            and self.refspec is None:
             return 0
 
         if not get_context().update:
-            # Do commit/branch/refspec exist in the current repository?
+            # Do commit/tag/branch/refspec exist in the current repository?
             (retc, output) = await run_cmd_async(self.contains_refspec_cmd(),
                                                  cwd=self.path,
                                                  fail=False,
@@ -302,11 +314,12 @@ class RepoImpl(Repo):
             if retc == 0:
                 logging.info('Repository %s already contains %s as %s',
                              self.name,
-                             self.commit or self.branch or self.refspec,
+                             self.commit or self.tag or self.branch
+                             or self.refspec,
                              output.strip())
                 return retc
 
-        # Try to fetch if commit/branch/refspec is missing or if --update
+        # Try to fetch if commit/tag/branch/refspec is missing or if --update
         # argument was passed
         (retc, output) = await run_cmd_async(self.fetch_cmd(),
                                              cwd=self.path,
@@ -323,8 +336,8 @@ class RepoImpl(Repo):
             Checks out the correct revision of the repo.
         """
         if self.operations_disabled \
-            or (self.commit is None and self.branch is None
-                and self.refspec is None):
+            or (self.commit is None and self.tag is None
+                and self.branch is None and self.refspec is None):
             return
 
         if not get_context().force_checkout:
@@ -336,8 +349,26 @@ class RepoImpl(Repo):
                 logging.warning('Repo %s is dirty - no checkout', self.name)
                 return
 
+        if self.tag:
+            (retc, output) = run_cmd(self.resolve_tag_cmd(),
+                                     cwd=self.path,
+                                     fail=False)
+            if retc:
+                raise RepoRefError(
+                    'Tag "{}" cannot be found in repository {}'
+                    .format(self.tag, self.name))
+
+            if self.commit and output.strip() != self.commit:
+                # Ensure provided commit and tag match
+                raise RepoRefError('Provided tag "{}" does not match provided '
+                                   'commit "{}" in repository "{}", aborting!'
+                                   .format(self.tag, self.commit, self.name))
+
         if self.commit:
             desired_ref = self.commit
+            is_branch = False
+        elif self.tag:
+            desired_ref = self.tag
             is_branch = False
         else:
             (_, output) = run_cmd(self.resolve_branch_cmd(),
@@ -438,9 +469,9 @@ class GitRepo(RepoImpl):
         Provides the git functionality for a Repo.
     """
 
-    def remove_ref_prefix(self, branch):
+    def remove_ref_prefix(self, ref):
         ref_prefix = 'refs/'
-        return branch[branch.startswith(ref_prefix) and len(ref_prefix):]
+        return ref[ref.startswith(ref_prefix) and len(ref_prefix):]
 
     def add_cmd(self):
         return ['git', 'add', '-A']
@@ -463,10 +494,13 @@ class GitRepo(RepoImpl):
         branch = self.branch or self.refspec
         if branch and branch.startswith('refs/'):
             branch = 'remotes/origin/' + self.remove_ref_prefix(branch)
-        return ['git', 'cat-file', '-t', self.commit or branch]
+        return ['git', 'cat-file', '-t', self.commit or self.tag or branch]
 
     def fetch_cmd(self):
         cmd = ['git', 'fetch', '-q']
+        if self.tag:
+            cmd.append('--tags')
+
         branch = self.branch or self.refspec
         if branch and branch.startswith('refs/'):
             cmd.extend(['origin',
@@ -485,6 +519,10 @@ class GitRepo(RepoImpl):
                 format(branch=self.remove_ref_prefix(
                     self.branch or self.refspec))]
 
+    def resolve_tag_cmd(self):
+        return ['git', 'rev-list', '-n', '1',
+                self.remove_ref_prefix(self.tag)]
+
     def checkout_cmd(self, desired_ref, is_branch):
         cmd = ['git', 'checkout', '-q', self.remove_ref_prefix(desired_ref)]
         if is_branch:
@@ -496,10 +534,10 @@ class GitRepo(RepoImpl):
         return cmd
 
     def prepare_patches_cmd(self):
-        branch = self.branch or self.refspec
+        ref = self.tag or self.branch or self.refspec
         return ['git', 'checkout', '-q', '-B',
                 'patched-{refspec}'.
-                format(refspec=self.commit or self.remove_ref_prefix(branch))]
+                format(refspec=self.commit or self.remove_ref_prefix(ref))]
 
     def apply_patches_file_cmd(self, path):
         return ['git', 'apply', '--whitespace=nowarn', path]
@@ -526,7 +564,8 @@ class MercurialRepo(RepoImpl):
         return ['hg', 'commit', '--user', 'kas <kas@example.com>', '-m', 'msg']
 
     def contains_refspec_cmd(self):
-        return ['hg', 'log', '-r', self.commit or self.branch or self.refspec]
+        return ['hg', 'log', '-r', self.commit or self.tag or self.branch
+                or self.refspec]
 
     def fetch_cmd(self):
         return ['hg', 'pull']
@@ -541,6 +580,10 @@ class MercurialRepo(RepoImpl):
         else:
             return ['hg', 'identify', '--id', '-r', self.refspec]
 
+    def resolve_tag_cmd(self):
+        return ['hg', 'identify', '--id', '-r',
+                'tag({})'.format(self.tag or self.refspec)]
+
     def checkout_cmd(self, desired_ref, is_branch):
         cmd = ['hg', 'checkout', desired_ref]
         if get_context().force_checkout:
@@ -548,7 +591,7 @@ class MercurialRepo(RepoImpl):
         return cmd
 
     def prepare_patches_cmd(self):
-        refspec = self.commit or self.branch or self.refspec
+        refspec = self.commit or self.tag or self.branch or self.refspec
         return ['hg', 'branch', '-f',
                 'patched-{refspec}'.format(refspec=refspec)]
 

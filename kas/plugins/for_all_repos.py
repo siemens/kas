@@ -56,6 +56,9 @@
         repository, or an empty string if no branch was given in the config
         file.
 
+      * ``KAS_REPO_TAG``: The tag which was checked out for this repository,
+        or an empty string if no tag was given in the config file.
+
       * ``KAS_REPO_REFSPEC``: The refspec which was checked out for this
         repository, or an empty string if no refspec was given in the config
         file. This variable is obsolete and will be removed when support for
@@ -119,6 +122,7 @@ class ForAllReposCommand(Command):
                 'KAS_REPO_URL': '' if repo.operations_disabled else repo.url,
                 'KAS_REPO_COMMIT': repo.commit or '',
                 'KAS_REPO_BRANCH': repo.branch or '',
+                'KAS_REPO_TAG': repo.tag or '',
                 'KAS_REPO_REFSPEC': repo.refspec or '',
             }
             logging.info('%s$ %s', repo.path, self.command)
