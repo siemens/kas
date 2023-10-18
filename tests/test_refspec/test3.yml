@@ -11,3 +11,7 @@ repos:
   kas_rel:
     url: https://github.com/siemens/kas.git
     branch: master
+
+  kas_tag_abs:
+    url: https://github.com/siemens/kas.git
+    tag: refs/tags/3.0.1

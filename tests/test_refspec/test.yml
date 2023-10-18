@@ -11,3 +11,12 @@ repos:
   kas2:
     url: https://github.com/siemens/kas.git
     branch: master
+
+  kas3:
+    url: https://github.com/siemens/kas.git
+    tag: 3.0.1
+    commit: 229310958b17dc2b505b789c1cc1d0e2fddccc44
+
+  kas4:
+    url: https://github.com/siemens/kas.git
+    branch: master
