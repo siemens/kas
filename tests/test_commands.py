@@ -28,6 +28,7 @@ import json
 import yaml
 import pytest
 from kas import kas
+from kas.libkas import run_cmd
 from kas.libkas import TaskExecError
 
 
@@ -81,6 +82,19 @@ def test_checkout_create_refs(changedir, tmpdir):
     del os.environ['KAS_REPO_REF_DIR']
     assert os.path.exists(str(repo_cache / 'github.com.siemens.kas.git'))
     assert os.path.exists('kas/.git/objects/info/alternates')
+
+
+def test_checkout_shallow(changedir, tmpdir):
+    tdir = str(tmpdir / 'test_commands')
+    shutil.copytree('tests/test_commands', tdir)
+    os.chdir(tdir)
+    os.environ['KAS_GIT_SHALLOW'] = '1'
+    kas.kas(['checkout', 'test-shallow.yml'])
+    del os.environ['KAS_GIT_SHALLOW']
+    (rc, output) = run_cmd(['git', 'rev-list', '--count', 'HEAD'], cwd='kas',
+                           fail=False, liveupdate=False)
+    assert rc == 0
+    assert output.strip() == '1'
 
 
 def test_repo_includes(changedir, tmpdir):

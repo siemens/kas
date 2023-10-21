@@ -478,6 +478,11 @@ class GitRepo(RepoImpl):
 
     def clone_cmd(self, srcdir, createref):
         cmd = ['git', 'clone', '-q']
+
+        depth = os.environ.get('KAS_GIT_SHALLOW')
+        if depth:
+            cmd.extend(['--depth', depth])
+
         if createref:
             cmd.extend([self.effective_url, '--bare', srcdir])
         elif srcdir:
@@ -498,6 +503,11 @@ class GitRepo(RepoImpl):
 
     def fetch_cmd(self):
         cmd = ['git', 'fetch', '-q']
+
+        depth = os.environ.get('KAS_GIT_SHALLOW')
+        if depth:
+            cmd.extend(['--depth', depth])
+
         if self.tag:
             cmd.append('--tags')
 
