@@ -170,7 +170,7 @@ class Dump(Checkout):
                                help='Create lockfile with exact SHAs')
         parser.add_argument('-i', '--inplace',
                             action='store_true',
-                            help='Update lockfile in-place (reqires --lock)')
+                            help='Update lockfile in-place (requires --lock)')
 
     def run(self, args):
         args.skip += [
