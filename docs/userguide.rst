@@ -280,9 +280,10 @@ KAS supports the use of lockfiles to pinpoint repositories to exact commit ID
 (e.g. SHA-1 refs for git). A lockfile hereby only overrides the commit ID
 defined in a kas file. When performing the checkout operation (or any other
 operation that performs a checkout), kas checks if a file named
-``<filename>.lock.<ext>`` is found next to the first file stated on the kas
-cmdline. If this is found, kas appends this filename to the kas cmdline and
-performs the requested operation.
+``<filename>.lock.<ext>`` is found next to the currently processed kas file.
+If this is found, kas loads this file right after processing the current one.
+Note, that this applies to both files on the kas cmdline, as well as included
+files.
 
 The following example shows this mechanism for a file ``kas/kas-isar.yml``
 and its corresponding lockfile ``kas/kas-isar.lock.yml``.
