@@ -56,6 +56,11 @@ else
 		cp -a /var/kas/userdata/.ssh /builder/
 	fi
 
+	# copy host AWS config into home of builder
+	if [ -d /var/kas/userdata/.aws ]; then
+		cp -a /var/kas/userdata/.aws /builder/
+	fi
+
 	GOSU="gosu builder"
 fi
 
