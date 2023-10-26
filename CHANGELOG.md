@@ -1,3 +1,17 @@
+4.1
+- kas: Add "tag" property to repo, to replace usage of refspec
+- kas: generalize revision locking to all included files
+- kas: allow for --skip repos_checkout
+- kas: forward SSTATE_MIRRORS environment variable
+- kas: Allow PyYAML 6, fixing dependency conflicts
+- kas: Add Python 3.12 support
+- kas: Update jsonschema upper version limit
+- kas: menu plugin: Reorder help and exit buttons
+- kas: menu plugin: Add separate return button for submenus
+- kas: Fix Mercurial's branch resolution
+- kas-container: detect build system on clean commands
+- kas-container: report error if ssh-agent is requested but not running
+
 4.0
 - kas container: Switch to Debian bookworm
 - kas-container: Make kas-isar ready for mmdebstrap
