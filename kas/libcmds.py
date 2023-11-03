@@ -294,12 +294,10 @@ class WriteBBConfig(Command):
             filename = ctx.build_dir + '/conf/local.conf'
             with open(filename, 'w') as fds:
                 fds.write(ctx.config.get_local_conf_header())
-                fds.write('MACHINE ??= "{}"\n'.format(
-                    ctx.config.get_machine()))
-                fds.write('DISTRO ??= "{}"\n'.format(
-                    ctx.config.get_distro()))
-                fds.write('BBMULTICONFIG ?= "{}"\n'.format(
-                    ctx.config.get_multiconfig()))
+                fds.write(f'MACHINE ??= "{ctx.config.get_machine()}"\n')
+                fds.write(f'DISTRO ??= "{ctx.config.get_distro()}"\n')
+                fds.write('BBMULTICONFIG ?= '
+                          f'"{ctx.config.get_multiconfig()}"\n')
 
         _write_bblayers_conf(ctx)
         _write_local_conf(ctx)
@@ -352,8 +350,8 @@ class SetupReposStep(Command):
         ctx.missing_repos = []
         for repo_name in ctx.missing_repo_names:
             if repo_name not in ctx.config.get_repos_config():
-                raise IncludeException('Include references unknown repo: {}'
-                                       .format(repo_name))
+                raise IncludeException(
+                    f'Include references unknown repo: {repo_name}')
             ctx.missing_repos.append(ctx.config.get_repo(repo_name))
 
         repos_fetch(ctx.missing_repos)

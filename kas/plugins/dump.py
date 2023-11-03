@@ -78,7 +78,7 @@ __copyright__ = 'Copyright (c) Siemens AG, 2022'
 
 class OutputFormatError(KasUserError):
     def __init__(self, format):
-        super().__init__('invalid format {}'.format(format))
+        super().__init__(f'invalid format {format}')
 
 
 class IoTarget:

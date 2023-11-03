@@ -122,9 +122,9 @@ def kas_get_argparser():
     parser = argparse.ArgumentParser(description='kas - setup tool for '
                                      'bitbake based project')
 
-    verstr = '%(prog)s {} (configuration format version {}, ' \
-        'earliest compatible version {})'.format(__version__, __file_version__,
-                                                 __compatible_file_version__)
+    verstr = f'%(prog)s {__version__} ' \
+             f'(configuration format version {__file_version__}, ' \
+             f'earliest compatible version {__compatible_file_version__})'
     parser.add_argument('--version', action='version', version=verstr)
 
     parser.add_argument('-d', '--debug',
@@ -135,8 +135,8 @@ def kas_get_argparser():
     parser.add_argument('-l', '--log-level',
                         choices=['debug', 'info', 'warning', 'error',
                                  'critical'],
-                        default='%s' % (default_log_level),
-                        help='Set log level (default: %s)' % default_log_level)
+                        default=f'{default_log_level}',
+                        help=f'Set log level (default: {default_log_level})')
 
     subparser = parser.add_subparsers(help='sub command help', dest='cmd')
 

@@ -50,7 +50,7 @@ setup(
 
     url='https://github.com/siemens/kas',
     download_url=('https://github.com/siemens/'
-                  'kas/archive/{version}.tar.gz'.format(version=__version__)),
+                  'kas/archive/{__version__}.tar.gz'),
 
     license='MIT',
 

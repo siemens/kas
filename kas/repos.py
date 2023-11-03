@@ -97,8 +97,7 @@ class Repo:
     @property
     def qualified_name(self):
         url = urlparse(self.url)
-        return ('{url.netloc}{url.path}'
-                .format(url=url)
+        return (f'{url.netloc}{url.path}'
                 .replace('@', '.')
                 .replace(':', '.')
                 .replace('/', '.')
@@ -133,13 +132,12 @@ class Repo:
 
     def __str__(self):
         if self.commit and (self.tag or self.branch):
-            return '%s:%s(%s) %s %s' % (self.url, self.commit,
-                                        self.tag or self.branch,
-                                        self.path, self._layers)
-        return '%s:%s %s %s' % (self.url,
-                                self.commit or self.tag or self.branch
-                                or self.refspec,
-                                self.path, self._layers)
+            refspec = f'{self.commit}({self.tag or self.branch})'
+        else:
+            refspec = self.commit or self.tag or self.branch or self.refspec
+
+        return f'{self.url}:{refspec} ' \
+               f'{self.path} {self._layers}'
 
     __legacy_refspec_warned__ = []
     __no_commit_tag_warned__ = []
@@ -168,8 +166,8 @@ class Repo:
             }
             if this_patch['repo'] is None:
                 raise PatchMappingError(
-                    'No repo specified for patch entry "{}" and no '
-                    'default repo specified.'.format(p))
+                    f'No repo specified for patch entry "{p}" and no '
+                    'default repo specified.')
 
             patches.append(this_patch)
 
@@ -184,8 +182,8 @@ class Repo:
         if commit is None and tag is None and branch is None \
                 and refspec is None and url is not None:
             raise RepoRefError('No commit, tag or branch specified for '
-                               'repository "{}". This is only allowed for '
-                               'local repositories.'.format(name))
+                               f'repository "{name}". This is only allowed '
+                               'for local repositories.')
         if refspec is None:
             commit = repo_overrides.get('commit', commit)
         else:
@@ -195,9 +193,8 @@ class Repo:
                                 name)
                 Repo.__legacy_refspec_warned__.append(name)
             if commit is not None or tag is not None or branch is not None:
-                raise RepoRefError('Unsupported mixture of legacy refspec '
-                                   'and commit/tag/branch for repository "{}"'
-                                   .format(name))
+                raise RepoRefError('Unsupported mixture of legacy refspec and '
+                                   'commit/tag/branch for repository "{name}"')
             refspec = repo_overrides.get('commit', refspec)
         if tag and not commit:
             if name not in Repo.__no_commit_tag_warned__:
@@ -210,8 +207,7 @@ class Repo:
         if path is None:
             if url is None:
                 path = Repo.get_root_path(repo_fallback_path)
-                logging.info('Using %s as root for repository %s', path,
-                             name)
+                logging.info('Using %s as root for repository %s', path, name)
             else:
                 path = os.path.join(get_context().kas_work_dir, name)
         elif not os.path.isabs(path):
@@ -229,7 +225,7 @@ class Repo:
         if typ == 'hg':
             return MercurialRepo(name, url, path, commit, tag, branch, refspec,
                                  layers, patches, disable_operations)
-        raise UnsupportedRepoTypeError('Repo type "%s" not supported.' % typ)
+        raise UnsupportedRepoTypeError(f'Repo type "{typ}" not supported.')
 
     @staticmethod
     def get_root_path(path, fallback=True):
@@ -357,15 +353,14 @@ class RepoImpl(Repo):
                                      cwd=self.path,
                                      fail=False)
             if retc:
-                raise RepoRefError(
-                    'Tag "{}" cannot be found in repository {}'
-                    .format(self.tag, self.name))
+                raise RepoRefError(f'Tag "{self.tag}" cannot be found '
+                                   f'in repository {self.name}')
 
             if self.commit and output.strip() != self.commit:
                 # Ensure provided commit and tag match
-                raise RepoRefError('Provided tag "{}" does not match provided '
-                                   'commit "{}" in repository "{}", aborting!'
-                                   .format(self.tag, self.commit, self.name))
+                raise RepoRefError(f'Provided tag "{self.tag}" does not match '
+                                   f'provided commit "{self.commit}" in '
+                                   f'repository "{self.name}", aborting!')
 
         if self.commit:
             desired_ref = self.commit
@@ -380,9 +375,8 @@ class RepoImpl(Repo):
                 desired_ref = output.strip()
                 is_branch = True
             elif self.branch:
-                raise RepoRefError(
-                    'Branch "{}" cannot be found in repository {}'
-                    .format(self.branch, self.name))
+                raise RepoRefError(f'Branch "{self.branch}" cannot be found '
+                                   f'in repository {self.name}')
             else:
                 desired_ref = self.refspec
                 is_branch = False
@@ -406,10 +400,10 @@ class RepoImpl(Repo):
                                                             None)
 
             if not other_repo:
-                raise PatchMappingError(
-                    'Could not find referenced repo. '
-                    '(missing repo: {}, repo: {}, patch entry: {})'
-                    .format(patch['repo'], self.name, patch['id']))
+                raise PatchMappingError('Could not find referenced repo. '
+                                        f'(missing repo: {patch["repo"]}, '
+                                        f'repo: {self.name}, '
+                                        f'patch entry: {patch["id"]})')
 
             path = os.path.join(other_repo.path, patch['path'])
             cmd = []
@@ -430,8 +424,8 @@ class RepoImpl(Repo):
             else:
                 raise PatchFileNotFound(
                     'Could not find patch. '
-                    '(patch path: {}, repo: {}, patch entry: {})'
-                    .format(path, self.name, patch['id']))
+                    f'(patch path: {path}, repo: {self.name}, patch '
+                    f'entry: {patch["id"]})')
 
         for (path, patch_id) in my_patches:
             cmd = self.apply_patches_file_cmd(path)
@@ -439,10 +433,9 @@ class RepoImpl(Repo):
                 cmd, cwd=self.path, fail=False)
             if retc:
                 raise PatchApplyError(
-                    'Could not apply patch. Please fix repos and '
-                    'patches. (patch path: {}, repo: {}, patch '
-                    'entry: {}, vcs output: {})'
-                    .format(path, self.name, patch_id, output))
+                    'Could not apply patch. Please fix repos and patches. '
+                    f'(patch path: {path}, repo: {self.name}, patch '
+                    f'entry: {patch_id}, vcs output: {output})')
 
             logging.info('Patch applied. '
                          '(patch path: %s, repo: %s, patch entry: %s)',
@@ -452,17 +445,15 @@ class RepoImpl(Repo):
             (retc, output) = await run_cmd_async(
                 cmd, cwd=self.path, fail=False)
             if retc:
-                raise PatchApplyError(
-                    'Could not add patched files. repo: {}, vcs output: {})'
-                    .format(self.name, output))
+                raise PatchApplyError('Could not add patched files. repo: '
+                                      f'{self.name}, vcs output: {output})')
 
             cmd = self.commit_cmd()
             (retc, output) = await run_cmd_async(
                 cmd, cwd=self.path, fail=False)
             if retc:
-                raise PatchApplyError(
-                    'Could not commit patch changes. repo: {}, vcs output: {})'
-                    .format(self.name, output))
+                raise PatchApplyError('Could not commit patch changes. repo: '
+                                      f'{self.name}, vcs output: {output})')
 
         return 0
 
@@ -506,10 +497,8 @@ class GitRepo(RepoImpl):
 
         branch = self.branch or self.refspec
         if branch and branch.startswith('refs/'):
-            cmd.extend(['origin',
-                        '+' + branch
-                        + ':refs/remotes/origin/'
-                        + self.remove_ref_prefix(branch)])
+            branch = self.remove_ref_prefix(branch)
+            cmd.extend(['origin', f'+{branch}:refs/remotes/origin/{branch}'])
 
         return cmd
 
@@ -517,14 +506,11 @@ class GitRepo(RepoImpl):
         return ['git', 'status', '-s']
 
     def resolve_branch_cmd(self):
-        return ['git', 'rev-parse', '--verify', '-q',
-                'origin/{branch}'.
-                format(branch=self.remove_ref_prefix(
-                    self.branch or self.refspec))]
+        refspec = self.remove_ref_prefix(self.branch or self.refspec)
+        return ['git', 'rev-parse', '--verify', '-q', f'origin/{refspec}']
 
     def resolve_tag_cmd(self):
-        return ['git', 'rev-list', '-n', '1',
-                self.remove_ref_prefix(self.tag)]
+        return ['git', 'rev-list', '-n', '1', self.remove_ref_prefix(self.tag)]
 
     def checkout_cmd(self, desired_ref, is_branch):
         cmd = ['git', 'checkout', '-q', self.remove_ref_prefix(desired_ref)]
@@ -537,10 +523,9 @@ class GitRepo(RepoImpl):
         return cmd
 
     def prepare_patches_cmd(self):
-        ref = self.tag or self.branch or self.refspec
-        return ['git', 'checkout', '-q', '-B',
-                'patched-{refspec}'.
-                format(refspec=self.commit or self.remove_ref_prefix(ref))]
+        refspec = self.commit \
+            or self.remove_ref_prefix(self.tag or self.branch or self.refspec)
+        return ['git', 'checkout', '-q', '-B', f'patched-{refspec}']
 
     def apply_patches_file_cmd(self, path):
         return ['git', 'apply', '--whitespace=nowarn', path]
@@ -579,13 +564,13 @@ class MercurialRepo(RepoImpl):
     def resolve_branch_cmd(self):
         if self.branch:
             return ['hg', 'identify', '--id', '-r',
-                    'limit(heads(branch({})))'.format(self.branch)]
+                    f'limit(heads(branch({self.branch})))']
         else:
             return ['hg', 'identify', '--id', '-r', self.refspec]
 
     def resolve_tag_cmd(self):
-        return ['hg', 'identify', '--id', '-r',
-                'tag({})'.format(self.tag or self.refspec)]
+        refspec = self.tag or self.refspec
+        return ['hg', 'identify', '--id', '-r', f'tag({refspec})']
 
     def checkout_cmd(self, desired_ref, is_branch):
         cmd = ['hg', 'checkout', desired_ref]
@@ -595,8 +580,7 @@ class MercurialRepo(RepoImpl):
 
     def prepare_patches_cmd(self):
         refspec = self.commit or self.tag or self.branch or self.refspec
-        return ['hg', 'branch', '-f',
-                'patched-{refspec}'.format(refspec=refspec)]
+        return ['hg', 'branch', '-f', f'patched-{refspec}']
 
     def apply_patches_file_cmd(self, path):
         return ['hg', 'import', '--no-commit', path]

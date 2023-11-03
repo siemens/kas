@@ -61,7 +61,7 @@ class TaskExecError(KasUserError):
     """
     def __init__(self, command, ret_code):
         self.ret_code = ret_code
-        super().__init__('{} failed: error code {}'.format(command, ret_code))
+        super().__init__(f'{command} failed: error code {ret_code}')
 
 
 class LogOutput:
@@ -150,7 +150,7 @@ async def run_cmd_async(cmd, cwd, env=None, fail=True, liveupdate=True):
     ret = await process.wait()
 
     if ret and fail:
-        msg = 'Command "{cwd}$ {cmd}" failed'.format(cwd=cwd, cmd=cmdstr)
+        msg = f'Command "{cwd}$ {cmdstr}" failed'
         if logo.stderr:
             msg += '\n--- Error summary ---\n'
             for line in logo.stderr:
@@ -242,9 +242,9 @@ def get_build_environ(build_system):
         if os.path.exists(repo.path + '/' + script):
             if init_repo:
                 raise InitBuildEnvError(
-                    'Multiple init scripts found ({} vs. {}). '
-                    'Resolve ambiguity by removing one of the repos'
-                    .format(repo.name, init_repo.name))
+                    'Multiple init scripts found '
+                    f'({repo.name} vs. {init_repo.name}). '
+                    'Resolve ambiguity by removing one of the repos')
 
             init_repo = repo
             init_script = script
@@ -252,11 +252,11 @@ def get_build_environ(build_system):
         raise InitBuildEnvError('Did not find any init-build-env script')
 
     with tempfile.TemporaryDirectory() as temp_dir:
-        script = """#!/bin/bash
+        script = f"""#!/bin/bash
         set -e
-        source %s $1 > /dev/null
+        source {init_script} $1 > /dev/null
         env
-        """ % init_script
+        """
 
         get_bb_env_file = pathlib.Path(temp_dir) / "get_bb_env"
         get_bb_env_file.write_text(script)

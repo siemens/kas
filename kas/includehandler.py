@@ -50,7 +50,7 @@ class LoadConfigException(KasUserError):
         Class for exceptions that appear while loading a configuration file.
     """
     def __init__(self, message, filename):
-        super().__init__('{}: {}'.format(message, filename))
+        super().__init__(f'{message}: {filename}')
 
 
 def load_config(filename):
@@ -94,9 +94,9 @@ def load_config(filename):
     if version_value < __compatible_file_version__ or \
        version_value > __file_version__:
         raise LoadConfigException('This version of kas is compatible with '
-                                  'version {} to {}, file has version {}'
-                                  .format(__compatible_file_version__,
-                                          __file_version__, version_value),
+                                  f'version {__compatible_file_version__} '
+                                  f'to {__file_version__}, '
+                                  f'file has version {version_value}',
                                   filename)
 
     if config.get('proxy_config'):
@@ -243,8 +243,7 @@ class IncludeHandler:
                             includefile = include['file']
                         except KeyError:
                             raise IncludeException(
-                                '"file" is not specified: {}'
-                                .format(include))
+                                f'"file" is not specified: {include}')
                         abs_includedir = os.path.abspath(includedir)
                         (cfg, rep) = _internal_include_handler(
                             os.path.join(abs_includedir, includefile),

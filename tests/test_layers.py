@@ -43,7 +43,7 @@ def test_layers_default(dokas):
     match = 0
     with open('build/conf/bblayers.conf', 'r') as f:
         for line in f:
-            if '{}/kas '.format(LAYERBASE) in line:
+            if f'{LAYERBASE}/kas ' in line:
                 match += 1
     assert match == 1
 
@@ -52,7 +52,7 @@ def test_layers_include(dokas):
     match = 0
     with open('build/conf/bblayers.conf', 'r') as f:
         for line in f:
-            if '{}/kas1/meta-'.format(LAYERBASE) in line:
+            if f'{LAYERBASE}/kas1/meta-' in line:
                 match += 1
     assert match == 2
 
@@ -60,11 +60,11 @@ def test_layers_include(dokas):
 def test_layers_exclude(dokas):
     with open('build/conf/bblayers.conf', 'r') as f:
         for line in f:
-            assert '{}/kas2'.format(LAYERBASE) not in line
+            assert f'{LAYERBASE}/kas2' not in line
 
 
 def test_layers_strip_dot(dokas):
     with open('build/conf/bblayers.conf', 'r') as f:
         lines = f.readlines()
-        assert any('{}/kas3 '.format(LAYERBASE) in x for x in lines)
-        assert any('{}/kas3/meta-bar'.format(LAYERBASE) in x for x in lines)
+        assert any(f'{LAYERBASE}/kas3 ' in x for x in lines)
+        assert any(f'{LAYERBASE}/kas3/meta-bar' in x for x in lines)

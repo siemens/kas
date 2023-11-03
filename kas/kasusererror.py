@@ -56,9 +56,8 @@ class CommandExecError(KasUserError):
                  forward_ret_code=False):
         self.ret_code = ret_code
         self.forward = forward_ret_code
-        message = ["'{}'".format(c) if ' ' in c else c for c in command]
-        super().__init__('Command "{}" failed with error {}'
-                         .format(' '.join(message), ret_code))
+        message = ' '.join([f"'{c}'" if ' ' in c else c for c in command])
+        super().__init__(f'Command "{message}" failed with error {ret_code}')
 
 
 class ArgsCombinationError(KasUserError):
@@ -66,5 +65,4 @@ class ArgsCombinationError(KasUserError):
     Invalid combination of CLI arguments provided
     """
     def __init__(self, message):
-        super().__init__('Invalid combination of arguments: {}'
-                         .format(message))
+        super().__init__(f'Invalid combination of arguments: {message}')

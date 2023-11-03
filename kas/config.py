@@ -157,7 +157,7 @@ class Config:
         """
         header = ''
         for key, value in sorted(self._config.get(header_name, {}).items()):
-            header += '# {}\n{}\n'.format(key, value)
+            header += f'# {key}\n{value}\n'
         return header
 
     def get_bblayers_conf_header(self):
