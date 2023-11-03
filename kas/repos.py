@@ -120,15 +120,19 @@ class Repo:
         if self.commit:
             return self.commit
         if self.tag:
+            (_, output) = run_cmd(self.resolve_tag_cmd(),
+                                  cwd=self.path, fail=False)
+            if output:
+                return output.strip()
             return self.tag
         branch = self.branch or self.refspec
-        if not branch:
-            return None
-        (_, output) = run_cmd(self.resolve_branch_cmd(),
-                              cwd=self.path, fail=False)
-        if output:
-            return output.strip()
-        return branch
+        if branch:
+            (_, output) = run_cmd(self.resolve_branch_cmd(),
+                                  cwd=self.path, fail=False)
+            if output:
+                return output.strip()
+            return branch
+        return None
 
     def __str__(self):
         if self.commit and (self.tag or self.branch):
