@@ -89,44 +89,47 @@ class Repo:
         self._patches = patches
         self.operations_disabled = disable_operations
 
-    def __getattr__(self, item):
-        if item == 'layers':
-            return [os.path.join(self.path, layer).rstrip(os.sep + '.')
-                    for layer in self._layers]
-        elif item == 'qualified_name':
-            url = urlparse(self.url)
-            return ('{url.netloc}{url.path}'
-                    .format(url=url)
-                    .replace('@', '.')
-                    .replace(':', '.')
-                    .replace('/', '.')
-                    .replace('*', '.'))
-        elif item == 'effective_url':
-            mirrors = os.environ.get('KAS_PREMIRRORS', '')
-            for mirror in mirrors.split('\n'):
-                try:
-                    expr, subst = mirror.split()
-                    if re.match(expr, self.url):
-                        return re.sub(expr, subst, self.url)
-                except ValueError:
-                    continue
-            return self.url
-        elif item == 'revision':
-            if self.commit:
-                return self.commit
-            if self.tag:
-                return self.tag
-            branch = self.branch or self.refspec
-            if not branch:
-                return None
-            (_, output) = run_cmd(self.resolve_branch_cmd(),
-                                  cwd=self.path, fail=False)
-            if output:
-                return output.strip()
-            return branch
+    @property
+    def layers(self):
+        return [os.path.join(self.path, layer).rstrip(os.sep + '.')
+                for layer in self._layers]
 
-        # Default behaviour
-        raise AttributeError
+    @property
+    def qualified_name(self):
+        url = urlparse(self.url)
+        return ('{url.netloc}{url.path}'
+                .format(url=url)
+                .replace('@', '.')
+                .replace(':', '.')
+                .replace('/', '.')
+                .replace('*', '.'))
+
+    @property
+    def effective_url(self):
+        mirrors = os.environ.get('KAS_PREMIRRORS', '')
+        for mirror in mirrors.split('\n'):
+            try:
+                expr, subst = mirror.split()
+                if re.match(expr, self.url):
+                    return re.sub(expr, subst, self.url)
+            except ValueError:
+                continue
+        return self.url
+
+    @property
+    def revision(self):
+        if self.commit:
+            return self.commit
+        if self.tag:
+            return self.tag
+        branch = self.branch or self.refspec
+        if not branch:
+            return None
+        (_, output) = run_cmd(self.resolve_branch_cmd(),
+                              cwd=self.path, fail=False)
+        if output:
+            return output.strip()
+        return branch
 
     def __str__(self):
         if self.commit and (self.tag or self.branch):
