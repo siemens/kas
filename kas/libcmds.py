@@ -153,6 +153,7 @@ class SetupHome(Command):
     ENV_VARS = [
         'GIT_CREDENTIAL_HELPER',
         'GIT_CREDENTIAL_USEHTTPPATH',
+        'KAS_CONTAINER_IMAGE',
         'AWS_CONFIG_FILE',
         'AWS_SHARED_CREDENTIALS_FILE',
         'NETRC_FILE',
@@ -169,6 +170,9 @@ class SetupHome(Command):
         return 'setup_home'
 
     def execute(self, ctx):
+        if os.environ.get('KAS_CONTAINER_IMAGE', False):
+            return
+
         if os.environ.get('NETRC_FILE', False):
             shutil.copy(os.environ['NETRC_FILE'],
                         self.tmpdirname + "/.netrc")

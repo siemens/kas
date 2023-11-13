@@ -263,7 +263,7 @@ def get_build_environ(build_system):
         get_bb_env_file.chmod(0o775)
 
         env = {}
-        env['PATH'] = '/usr/sbin:/usr/bin:/sbin:/bin'
+        env['PATH'] = '/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin'
 
         (_, output) = run_cmd([str(get_bb_env_file), get_context().build_dir],
                               cwd=init_repo.path, env=env, liveupdate=False)

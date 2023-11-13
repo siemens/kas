@@ -442,6 +442,7 @@ set -- "$@" -v "${KAS_REPO_DIR}":/repo:${KAS_REPO_MOUNT_OPT} \
 	-v "${KAS_BUILD_DIR}":/build:rw \
 	--workdir=/repo \
 	-e KAS_BUILD_DIR=/build \
+	-e KAS_CONTAINER_IMAGE=${KAS_CONTAINER_IMAGE} \
 	-e USER_ID="$(id -u)" -e GROUP_ID="$(id -g)" --rm --init
 
 if [ -n "${KAS_SSH_DIR}" ] ; then
