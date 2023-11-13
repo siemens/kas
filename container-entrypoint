@@ -61,6 +61,11 @@ else
 		cp -a /var/kas/userdata/.aws /builder/
 	fi
 
+	# copy host git-credentials into home of builder
+	if [ -f /var/kas/userdata/.git-credentials ]; then
+		cp /var/kas/userdata/.git-credentials /builder/
+	fi
+
 	GOSU="gosu builder"
 fi
 
