@@ -469,6 +469,15 @@ if [ -n "${KAS_AWS_DIR}" ] ; then
 		-e AWS_CONFIG_FILE="${AWS_CONFIG_FILE:-/var/kas/userdata/.aws/config}" \
 		-e AWS_SHARED_CREDENTIALS_FILE="${AWS_SHARED_CREDENTIALS_FILE:-/var/kas/userdata/.aws/credentials}"
 fi
+if [ -n "${AWS_WEB_IDENTITY_TOKEN_FILE}" ] ; then
+	if [ ! -f "${AWS_WEB_IDENTITY_TOKEN_FILE}" ]; then
+		echo "Passed AWS_WEB_IDENTITY_TOKEN_FILE '${AWS_WEB_IDENTITY_TOKEN_FILE}' is not a directory"
+		exit 1
+	fi
+	set -- "$@" -v "$(readlink -fv "${AWS_WEB_IDENTITY_TOKEN_FILE}")":/var/kas/userdata/.aws/web_identity_token:ro \
+		-e AWS_WEB_IDENTITY_TOKEN_FILE="${AWS_CONFIG_FILE:-/var/kas/userdata/.aws/web_identity_token}" \
+		-e AWS_ROLE_ARN="${AWS_ROLE_ARN}"
+fi
 
 KAS_GIT_CREDENTIAL_HELPER_DEFAULT=""
 
