@@ -168,6 +168,17 @@ class SetupHome(Command):
     def __str__(self):
         return 'setup_home'
 
+    def _setup_aws_creds(self):
+        aws_dir = self.tmpdirname + "/.aws"
+        conf_file = aws_dir + "/config"
+        shared_creds_file = aws_dir + "/credentials"
+        os.makedirs(aws_dir)
+        if os.environ.get('AWS_CONFIG_FILE') \
+                and os.environ.get('AWS_SHARED_CREDENTIALS_FILE'):
+            shutil.copy(os.environ['AWS_CONFIG_FILE'], conf_file)
+            shutil.copy(os.environ['AWS_SHARED_CREDENTIALS_FILE'],
+                        shared_creds_file)
+
     def execute(self, ctx):
         if os.environ.get('NETRC_FILE', False):
             shutil.copy(os.environ['NETRC_FILE'],
@@ -193,14 +204,7 @@ class SetupHome(Command):
                               + os.environ.get('GIT_CREDENTIAL_USEHTTPPATH')
                               + '\n')
 
-        if os.environ.get('AWS_CONFIG_FILE', False) \
-                and os.environ.get('AWS_SHARED_CREDENTIALS_FILE', False):
-            os.makedirs(self.tmpdirname + "/.aws")
-
-            shutil.copy(os.environ['AWS_CONFIG_FILE'],
-                        self.tmpdirname + "/.aws/config")
-            shutil.copy(os.environ['AWS_SHARED_CREDENTIALS_FILE'],
-                        self.tmpdirname + "/.aws/credentials")
+        self._setup_aws_creds()
 
         ctx.environ['HOME'] = self.tmpdirname
 
