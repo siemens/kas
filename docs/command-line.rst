@@ -84,7 +84,7 @@ Environment variables
 | ``TERM``                 | The terminal options used in the `shell` plugin. |
 +--------------------------+--------------------------------------------------+
 | ``AWS_CONFIG_FILE``      | Path to the awscli configuration and credentials |
-| |aws_cred|               | file that are copied to the kas home dir.        |
+| |aws_cred|               | files that are copied to the kas home dir.       |
 +--------------------------+--------------------------------------------------+
 | |git_cred|               | Allows to set and configure the git credential   |
 |                          | helper in the `.gitconfig` of the kas user.      |
@@ -104,5 +104,7 @@ Environment variables
 | ``PARALLEL_MAKE``        |                                                  |
 +--------------------------+--------------------------------------------------+
 
-.. |aws_cred| replace:: ``AWS_SHARED_CREDENTIALS_FILE``
+.. |aws_cred| replace:: ``AWS_ROLE_ARN``
+                        ``AWS_SHARED_CREDENTIALS_FILE``
+                        ``AWS_WEB_IDENTITY_TOKEN_FILE``
 .. |git_cred| replace:: ``GIT_CREDENTIAL_HELPER`` ``GIT_CREDENTIAL_USEHTTPPATH``

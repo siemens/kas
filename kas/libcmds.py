@@ -28,6 +28,7 @@ import logging
 import shutil
 import os
 import pprint
+import configparser
 from .libkas import (ssh_cleanup_agent, ssh_setup_agent, ssh_no_host_key_check,
                      get_build_environ, repos_fetch, repos_apply_patches)
 from .includehandler import IncludeException
@@ -40,6 +41,7 @@ class Macro:
     """
         Contains commands and provides method to run them.
     """
+
     def __init__(self, use_common_setup=True, use_common_cleanup=True):
         if use_common_setup:
             repo_loop = Loop('repo_setup_loop')
@@ -115,6 +117,7 @@ class Loop(Command):
     """
         A class that defines a set of commands as a loop.
     """
+
     def __init__(self, name):
         self.commands = []
         self.name = name
@@ -154,7 +157,9 @@ class SetupHome(Command):
         'GIT_CREDENTIAL_HELPER',
         'GIT_CREDENTIAL_USEHTTPPATH',
         'AWS_CONFIG_FILE',
+        'AWS_ROLE_ARN',
         'AWS_SHARED_CREDENTIALS_FILE',
+        'AWS_WEB_IDENTITY_TOKEN_FILE',
         'NETRC_FILE',
     ]
 
@@ -178,6 +183,22 @@ class SetupHome(Command):
             shutil.copy(os.environ['AWS_CONFIG_FILE'], conf_file)
             shutil.copy(os.environ['AWS_SHARED_CREDENTIALS_FILE'],
                         shared_creds_file)
+
+        # OAuth 2.0 workflow credentials
+        if os.environ.get('AWS_WEB_IDENTITY_TOKEN_FILE') \
+                and os.environ.get('AWS_ROLE_ARN'):
+            webid_token_file = aws_dir + '/web_identity_token'
+            config = configparser.ConfigParser()
+            if os.path.exists(conf_file):
+                config.read(conf_file)
+            if 'default' not in config:
+                config['default'] = {}
+            config['default']['role_arn'] = os.environ.get('AWS_ROLE_ARN')
+            config['default']['web_identity_token_file'] = webid_token_file
+            with open(aws_dir + '/config', 'w') as fds:
+                config.write(fds)
+            shutil.copy(os.environ['AWS_WEB_IDENTITY_TOKEN_FILE'],
+                        webid_token_file)
 
     def execute(self, ctx):
         if os.environ.get('NETRC_FILE', False):
