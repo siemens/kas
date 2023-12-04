@@ -29,11 +29,12 @@ set -e
 
 usage()
 {
-	printf "%b" "Usage: $0 [OPTIONS] { build | shell } [KASOPTIONS] [KASFILE]\n"
-	printf "%b" "       $0 [OPTIONS] { checkout | dump } [KASOPTIONS] [KASFILE]\n"
-	printf "%b" "       $0 [OPTIONS] for-all-repos [KASOPTIONS] [KASFILE] COMMAND\n"
-	printf "%b" "       $0 [OPTIONS] { clean | cleansstate | cleanall} [KASFILE]\n"
-	printf "%b" "       $0 [OPTIONS] menu [KCONFIG]\n"
+	SELF="${KAS_CONTAINER_SELF_NAME}"
+	printf "%b" "Usage: ${SELF} [OPTIONS] { build | shell } [KASOPTIONS] [KASFILE]\n"
+	printf "%b" "       ${SELF} [OPTIONS] { checkout | dump } [KASOPTIONS] [KASFILE]\n"
+	printf "%b" "       ${SELF} [OPTIONS] for-all-repos [KASOPTIONS] [KASFILE] COMMAND\n"
+	printf "%b" "       ${SELF} [OPTIONS] { clean | cleansstate | cleanall} [KASFILE]\n"
+	printf "%b" "       ${SELF} [OPTIONS] menu [KCONFIG]\n"
 	printf "%b" "\nPositional arguments:\n"
 	printf "%b" "build\t\t\tCheck out repositories and build target.\n"
 	printf "%b" "checkout\t\tCheck out repositories but do not build.\n"
@@ -78,6 +79,15 @@ usage()
 	printf "%b" "You can force the use of podman over docker using " \
 		    "KAS_CONTAINER_ENGINE=podman.\n"
 	exit 1
+}
+
+fatal_error(){
+	echo "${KAS_CONTAINER_SELF_NAME}: Error: $*" >&2
+	exit 1
+}
+
+warning(){
+	echo "${KAS_CONTAINER_SELF_NAME}: Warning: $*" >&2
 }
 
 trace()
@@ -137,6 +147,7 @@ run_clean() {
 KAS_IMAGE_VERSION_DEFAULT="4.1"
 KAS_CONTAINER_IMAGE_PATH_DEFAULT="ghcr.io/siemens/kas"
 KAS_CONTAINER_IMAGE_NAME_DEFAULT="kas"
+KAS_CONTAINER_SELF_NAME="$(basename "$0")"
 
 set_container_image_var() {
 	KAS_IMAGE_VERSION="${KAS_IMAGE_VERSION:-${KAS_IMAGE_VERSION_DEFAULT}}"
@@ -167,14 +178,12 @@ if [ -z "${KAS_CONTAINER_ENGINE}" ]; then
 			;;
 		*)
 			# The docker command is an unknown engine
-			echo "$0: docker command found, but unknown engine detected" >&2
-			exit 1
+			fatal_error "docker command found, but unknown engine detected"
 		esac
 	elif command -v podman >/dev/null; then
 		KAS_CONTAINER_ENGINE=podman
 	else
-		echo "$0: no container engine found, need docker or podman" >&2
-		exit 1
+		fatal_error "no container engine found, need docker or podman"
 	fi
 fi
 
@@ -189,8 +198,7 @@ podman)
 	KAS_RUNTIME_ARGS="${KAS_RUNTIME_ARGS} --security-opt label=disable"
 	;;
 *)
-	echo "$0: unknown container engine '${KAS_CONTAINER_ENGINE}'" >&2
-	exit 1
+	fatal_error "unknown container engine '${KAS_CONTAINER_ENGINE}'"
 	;;
 esac
 
@@ -204,8 +212,7 @@ while [ $# -gt 0 ]; do
 	--with-loop-dev)
 		if ! KAS_LOOP_DEV=$(/sbin/losetup -f 2>/dev/null); then
 			if [ "$(id -u)" -eq 0 ]; then
-				echo "Error: loop device not available!"
-				exit 1
+				fatal_error "loop device not available!"
 			fi
 			sudo_command="/sbin/losetup -f"
 			sudo_message="[sudo] enter password to setup loop"
@@ -215,10 +222,9 @@ while [ $# -gt 0 ]; do
 			# shellcheck disable=2086
 			if ! KAS_LOOP_DEV=$(sudo -p "$sudo_message" $sudo_command \
 				2>/dev/null); then
-				echo "Error: loop device setup unsuccessful!"
-				echo "try calling '$sudo_command' with root" \
-					"permissions manually."
-				exit 1
+				fatal_error "loop device setup unsuccessful!" \
+				            "try calling '$sudo_command' with root" \
+				            "permissions manually."
 			fi
 		fi
 		KAS_WITH_LOOP_DEV="--device ${KAS_LOOP_DEV}"
@@ -236,8 +242,7 @@ while [ $# -gt 0 ]; do
 		;;
 	--ssh-agent)
 		if [ -z "${SSH_AUTH_SOCK}" ]; then
-			echo "Error: no SSH agent running"
-			exit 1
+			fatal_error "no SSH agent running"
 		fi
 		KAS_SSH_AUTH_SOCK=$(readlink -fv "$SSH_AUTH_SOCK")
 		shift 1
@@ -277,7 +282,7 @@ while [ $# -gt 0 ]; do
 		shift 2
 		;;
 	--version)
-		echo "$(basename "$0") $KAS_IMAGE_VERSION_DEFAULT"
+		echo "${KAS_CONTAINER_SELF_NAME} $KAS_IMAGE_VERSION_DEFAULT"
 		exit 0
 		;;
 	--*)
@@ -332,8 +337,7 @@ while [ $# -gt 0 ] && [ $KAS_EXTRA_BITBAKE_ARGS -eq 0 ]; do
 		shift 2
 		;;
 	-E|--preserve-env)
-		echo "$1 is not supported with kas-container"
-		exit 1
+		fatal_error "$1 is not supported with ${KAS_CONTAINER_SELF_NAME}"
 		;;
 	--)
 		KAS_EXTRA_BITBAKE_ARGS=$#
@@ -348,8 +352,7 @@ while [ $# -gt 0 ] && [ $KAS_EXTRA_BITBAKE_ARGS -eq 0 ]; do
 		# shellcheck disable=2086
 		for FILE in $(IFS=':'; echo $1); do
 			if ! KAS_REAL_FILE="$(realpath -qe "$FILE")"; then
-				echo "Error: configuration file '${FILE}' not found"
-				exit 1
+				fatal_error "configuration file '${FILE}' not found"
 			fi
 			if [ -z "${KAS_FILES}" ]; then
 				KAS_FIRST_FILE="${KAS_REAL_FILE}"
@@ -431,10 +434,9 @@ KAS_REPO_MOUNT_OPT="${KAS_REPO_MOUNT_OPT:-${KAS_REPO_MOUNT_OPT_DEFAULT}}"
 KAS_FILES="$(echo "${KAS_FILES}" | sed 's|'"${KAS_REPO_DIR}"'/|/repo/|g')"
 
 if [ "$(id -u)" -eq 0 ] && [ "${KAS_ALLOW_ROOT}" != "yes" ] ; then
-	echo "Error: Running as root - may break certain recipes."
-	echo "Better give a regular user docker access. Set" \
-	     "KAS_ALLOW_ROOT=yes to override."
-	exit 1
+	fatal_error "Running as root - may break certain recipes." \
+	            "Better give a regular user docker access. Set" \
+	            "KAS_ALLOW_ROOT=yes to override."
 fi
 
 set -- "$@" -v "${KAS_REPO_DIR}":/repo:${KAS_REPO_MOUNT_OPT} \
@@ -446,16 +448,14 @@ set -- "$@" -v "${KAS_REPO_DIR}":/repo:${KAS_REPO_MOUNT_OPT} \
 
 if [ -n "${KAS_SSH_DIR}" ] ; then
 	if [ ! -d "${KAS_SSH_DIR}" ]; then
-		echo "Passed KAS_SSH_DIR '${KAS_SSH_DIR}' is not a directory"
-		exit 1
+		fatal_error "passed KAS_SSH_DIR '${KAS_SSH_DIR}' is not a directory"
 	fi
 	set -- "$@" -v "$(readlink -fv "${KAS_SSH_DIR}")":/var/kas/userdata/.ssh:ro
 fi
 
 if [ -n "${KAS_SSH_AUTH_SOCK}" ]; then
 	if [ ! -S "${KAS_SSH_AUTH_SOCK}" ]; then
-		echo "Passed SSH_AUTH_SOCK '${KAS_SSH_AUTH_SOCK}' is not a socket"
-		exit 1
+		fatal_error "passed SSH_AUTH_SOCK '${KAS_SSH_AUTH_SOCK}' is not a socket"
 	fi
 	set -- "$@" -v "${KAS_SSH_AUTH_SOCK}":/ssh-agent/ssh-auth-sock \
 		-e SSH_AUTH_SOCK=/ssh-agent/ssh-auth-sock
@@ -463,8 +463,7 @@ fi
 
 if [ -n "${KAS_AWS_DIR}" ] ; then
 	if [ ! -d "${KAS_AWS_DIR}" ]; then
-		echo "Passed KAS_AWS_DIR '${KAS_AWS_DIR}' is not a directory"
-		exit 1
+		fatal_error "passed KAS_AWS_DIR '${KAS_AWS_DIR}' is not a directory"
 	fi
 	set -- "$@" -v "$(readlink -fv "${KAS_AWS_DIR}")":/var/kas/userdata/.aws:ro \
 		-e AWS_CONFIG_FILE="${AWS_CONFIG_FILE:-/var/kas/userdata/.aws/config}" \
@@ -475,8 +474,7 @@ KAS_GIT_CREDENTIAL_HELPER_DEFAULT=""
 
 if [ -n "${KAS_GIT_CREDENTIAL_STORE}" ] ; then
 	if [ ! -f "${KAS_GIT_CREDENTIAL_STORE}" ]; then
-		echo "Passed KAS_GIT_CREDENTIAL_STORE '${KAS_GIT_CREDENTIAL_STORE}' is not a file"
-		exit 1
+		fatal_error "passed KAS_GIT_CREDENTIAL_STORE '${KAS_GIT_CREDENTIAL_STORE}' is not a file"
 	fi
 	KAS_GIT_CREDENTIAL_HELPER_DEFAULT="store --file=/var/kas/userdata/.git-credentials"
 	set -- "$@" -v "$(readlink -fv "${KAS_GIT_CREDENTIAL_STORE}")":/var/kas/userdata/.git-credentials:ro
@@ -512,17 +510,15 @@ if [ -n "${SSTATE_DIR}" ]; then
 fi
 if [ -n "${SSTATE_MIRRORS}" ]; then
 	if echo "${SSTATE_MIRRORS}" | grep -q "file:///"; then
-		echo "Warning: SSTATE_MIRRORS contains a local path." \
-		     "Make sure to make this path available inside the container." \
-		     >&2
+		warning "SSTATE_MIRRORS contains a local path." \
+		        "Make sure to make this path available inside the container."
 	fi
 	set -- "$@" -e "SSTATE_MIRRORS=${SSTATE_MIRRORS}"
 fi
 
 if [ -n "${KAS_REPO_REF_DIR}" ]; then
 	if [ ! -d "${KAS_REPO_REF_DIR}" ]; then
-		echo "Passed KAS_REPO_REF_DIR '${KAS_REPO_REF_DIR}' is not a directory"
-		exit 1
+		fatal_error "Passed KAS_REPO_REF_DIR '${KAS_REPO_REF_DIR}' is not a directory"
 	fi
 	set -- "$@" \
 		-v "$(readlink -fv "${KAS_REPO_REF_DIR}")":/repo-ref:rw \
