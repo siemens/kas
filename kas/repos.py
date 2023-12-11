@@ -177,7 +177,7 @@ class Repo:
 
         url = repo_config.get('url', None)
         name = repo_config.get('name', name)
-        typ = repo_config.get('type', 'git')
+        repo_type = repo_config.get('type', 'git')
         commit = repo_config.get('commit', None)
         tag = repo_config.get('tag', None)
         branch = repo_config.get('branch', repo_defaults.get('branch', None))
@@ -223,13 +223,14 @@ class Repo:
             url = path
             disable_operations = True
 
-        if typ == 'git':
+        if repo_type == 'git':
             return GitRepo(name, url, path, commit, tag, branch, refspec,
                            layers, patches, disable_operations)
-        if typ == 'hg':
+        if repo_type == 'hg':
             return MercurialRepo(name, url, path, commit, tag, branch, refspec,
                                  layers, patches, disable_operations)
-        raise UnsupportedRepoTypeError(f'Repo type "{typ}" not supported.')
+        raise UnsupportedRepoTypeError(f'Repo type "{repo_type}" '
+                                       'not supported.')
 
     @staticmethod
     def get_root_path(path, fallback=True):
