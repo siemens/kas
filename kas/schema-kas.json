@@ -76,6 +76,9 @@
                         "branch": {
                             "type": "string"
                         },
+                        "tag": {
+                            "type": "string"
+                        },
                         "refspec": {
                             "type": "string"
                         },

@@ -153,4 +153,13 @@ Added
 ~~~~~
 
 - The key ``tag`` is introduced as a complement to ``commit`` and ``branch``
-  in ``repos`` and ``default``.
+  in ``repos``.
+
+Version 16
+----------
+
+Fixed
+~~~~~
+
+- The key ``tag`` introduced in v15 was not supported in ``defaults``.
+  It's now added.

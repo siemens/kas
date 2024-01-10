@@ -371,6 +371,10 @@ Configuration reference
       Sets the default ``branch`` property applied to all repositories that
       do not override this.
 
+    ``tag``: string [optional]
+      Sets the default ``tag`` property applied to all repositories that
+      do not override this.
+
     ``patches``: dict [optional]
       This key can contain default values for some repository patch
       properties. If a default value is set for a patch property it may

@@ -179,7 +179,7 @@ class Repo:
         name = repo_config.get('name', name)
         repo_type = repo_config.get('type', 'git')
         commit = repo_config.get('commit', None)
-        tag = repo_config.get('tag', None)
+        tag = repo_config.get('tag', repo_defaults.get('tag', None))
         branch = repo_config.get('branch', repo_defaults.get('branch', None))
         refspec = repo_config.get('refspec',
                                   repo_defaults.get('refspec', None))
