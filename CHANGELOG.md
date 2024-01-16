@@ -1,3 +1,10 @@
+4.2
+- kas: Fix lock files when references repos by tags
+- kas: add forgotten `tag` key to repos `defaults`
+- kas: add support for OAuth2 worflow
+- kas-container: add python3-websockets
+- kas-container: unify error handling
+
 4.1
 - kas: Add "tag" property to repo, to replace usage of refspec
 - kas: generalize revision locking to all included files
