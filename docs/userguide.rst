@@ -402,14 +402,15 @@ Configuration reference
   should be specified via the environment variable.
 
 ``env``: dict [optional]
-  Contains environment variable names with either default values or None.
+  Contains environment variable names with either default values or ``null``.
   These variables are made available to bitbake via ``BB_ENV_EXTRAWHITE``
   and can be overwritten by the variables of the environment in which
   kas is started.
-  Either a string or nothing (None) can be assigned as value.
+  Either a string or nothing (``null``) can be assigned as value.
   The former one serves as a default value whereas the latter one will lead
   to add the variable only to ``BB_ENV_EXTRAWHITE`` and not to the
-  environment where kas is started.
+  environment where kas is started. Please note, that ``null`` needs to be
+  assigned as the nulltype (e.g. ``MYVAR: null``), not as 'null'.
 
 ``task``: string [optional]
   Contains the task to build by bitbake. Can be overwritten by the

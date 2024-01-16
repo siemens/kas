@@ -128,7 +128,7 @@ Version 13
 Added
 ~~~~~
 
-- Variables used in the ``env`` section can now be assigned 'None' as value. In
+- Variables used in the ``env`` section can now be assigned *null* as value. In
   this case the variables are only exported to the bb env whitelist.
 
 Version 14
