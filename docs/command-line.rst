@@ -46,6 +46,12 @@ Environment variables
 |                          | space-separated, its replacement. E.g.:          |
 |                          | "http://.*\.someurl\.io/ http://localmirror.net/"|
 +--------------------------+--------------------------------------------------+
+| ``KAS_GIT_SHALLOW``      | Perform shallow git clone/fetch using --depth=N  |
+|                          | specified by this variable. This is useful in    |
+|                          | case CI always starts with empty work directory  |
+|                          | and this directory is always discarded after the |
+|                          | CI run.                                          |
++--------------------------+--------------------------------------------------+
 | ``SSH_PRIVATE_KEY``      | Variable containing the private key that should  |
 |                          | be added to an internal ssh-agent. This key      |
 |                          | cannot be password protected. This setting is    |
