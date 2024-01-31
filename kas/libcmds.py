@@ -375,8 +375,8 @@ class SetupReposStep(Command):
         ctx.missing_repos = []
         for repo_name in ctx.missing_repo_names:
             if repo_name not in ctx.config.get_repos_config():
-                raise IncludeException(
-                    f'Include references unknown repo: {repo_name}')
+                # we don't have this repo yet (e.g. due to transitive incl.)
+                continue
             ctx.missing_repos.append(ctx.config.get_repo(repo_name))
 
         repos_fetch(ctx.missing_repos)
