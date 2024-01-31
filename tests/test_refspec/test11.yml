@@ -1,0 +1,10 @@
+header:
+  version: 15
+
+repos:
+  this:
+
+  kas:
+    url: https://github.com/siemens/kas.git
+    tag: 3.0.1
+    branch: master

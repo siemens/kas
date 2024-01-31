@@ -216,3 +216,14 @@ def test_refspec_warning(capsys, changedir, tmpdir):
     kas.kas(['shell', 'test2.yml', '-c', 'true'])
     assert capsys.readouterr().err.count(
         'Using deprecated refspec for repository "kas2".') == 1
+
+
+def test_branch_and_tag(changedir, tmpdir):
+    """
+        Test if error is raised when branch and tag are set.
+    """
+    tdir = str(tmpdir / 'test_branch_and_tag')
+    shutil.copytree('tests/test_refspec', tdir)
+    os.chdir(tdir)
+    with pytest.raises(RepoRefError):
+        kas.kas(['checkout', 'test11.yml'])

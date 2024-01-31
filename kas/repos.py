@@ -353,6 +353,11 @@ class RepoImpl(Repo):
                 logging.warning('Repo %s is dirty - no checkout', self.name)
                 return
 
+        if self.tag and self.branch:
+            raise RepoRefError(
+                f'Both tag "{self.tag}" and branch "{self.branch}" '
+                f'cannot be specified for repository "{self.name}"')
+
         if self.tag:
             (retc, output) = run_cmd(self.resolve_tag_cmd(),
                                      cwd=self.path,
