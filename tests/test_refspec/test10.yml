@@ -1,0 +1,10 @@
+header:
+  version: 15
+
+repos:
+  this:
+
+  bitbake:
+    url: https://repo.mercurial-scm.org/evolve/
+    branch: stable
+    commit: '6634:991cbf0f66f2'

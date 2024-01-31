@@ -366,25 +366,33 @@ class RepoImpl(Repo):
                 raise RepoRefError(f'Provided tag "{self.tag}" does not match '
                                    f'provided commit "{self.commit}" in '
                                    f'repository "{self.name}", aborting!')
+            desired_ref = output.strip()
+            is_branch = False
+        elif self.branch:
+            (retc, output) = run_cmd(self.resolve_branch_cmd(),
+                                     cwd=self.path,
+                                     fail=False)
+            if retc:
+                raise RepoRefError(
+                    f'Branch "{self.branch}" cannot be found '
+                    f'in repository {self.name}')
+            if self.commit:
+                (_, output) = run_cmd(self.branch_contains_ref(),
+                                      cwd=self.path,
+                                      fail=False)
+                if not output.strip():
+                    raise RepoRefError(
+                        f'Branch "{self.branch}" does not contain '
+                        f'commit "{self.commit}"')
 
-        if self.commit:
+            desired_ref = self.commit or output.strip()
+            is_branch = True
+        elif self.commit:
             desired_ref = self.commit
             is_branch = False
-        elif self.tag:
-            desired_ref = self.tag
-            is_branch = False
         else:
-            (_, output) = run_cmd(self.resolve_branch_cmd(),
-                                  cwd=self.path, fail=False)
-            if output:
-                desired_ref = output.strip()
-                is_branch = True
-            elif self.branch:
-                raise RepoRefError(f'Branch "{self.branch}" cannot be found '
-                                   f'in repository {self.name}')
-            else:
-                desired_ref = self.refspec
-                is_branch = False
+            desired_ref = self.refspec
+            is_branch = False
 
         run_cmd(self.checkout_cmd(desired_ref, is_branch), cwd=self.path)
 
@@ -517,6 +525,10 @@ class GitRepo(RepoImpl):
     def resolve_tag_cmd(self):
         return ['git', 'rev-list', '-n', '1', self.remove_ref_prefix(self.tag)]
 
+    def branch_contains_ref(self):
+        return ['git', 'branch', f'origin/{self.branch}',
+                '-r', '--contains', self.commit]
+
     def checkout_cmd(self, desired_ref, is_branch):
         cmd = ['git', 'checkout', '-q', self.remove_ref_prefix(desired_ref)]
         if is_branch:
@@ -576,6 +588,9 @@ class MercurialRepo(RepoImpl):
     def resolve_tag_cmd(self):
         refspec = self.tag or self.refspec
         return ['hg', 'identify', '--id', '-r', f'tag({refspec})']
+
+    def branch_contains_ref(self):
+        return ['hg', 'log', '-r', self.commit, '-b', self.branch]
 
     def checkout_cmd(self, desired_ref, is_branch):
         cmd = ['hg', 'checkout', desired_ref]

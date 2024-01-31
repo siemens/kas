@@ -1,0 +1,10 @@
+header:
+  version: 15
+
+repos:
+  this:
+
+  bitbake:
+    url: https://github.com/openembedded/bitbake.git
+    branch: '2.2'
+    commit: 191e6eb2bceb467c97e315301f1f64722cf0e976
