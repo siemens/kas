@@ -1,0 +1,7 @@
+header:
+  version: 14
+
+repos:
+  bar:
+    url: <<overridden by test>>
+    branch: kas

@@ -1,0 +1,13 @@
+header:
+  version: 14
+  includes:
+    - repo: foo
+      file: foo.yml
+    - repo: bar
+      file: bar.yml
+
+repos:
+  this:
+  foo:
+    url: <<overridden by test>>
+    branch: kas
