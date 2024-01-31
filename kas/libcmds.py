@@ -367,7 +367,8 @@ class SetupReposStep(Command):
 
         if ctx.missing_repo_names == ctx.missing_repo_names_old:
             raise IncludeException('Could not fetch all repos needed by '
-                                   'includes.')
+                                   'includes. Missing repos: {}'
+                                   .format(', '.join(ctx.missing_repo_names)))
 
         logging.debug('Missing repos for complete config:\n%s',
                       pprint.pformat(ctx.missing_repo_names))
