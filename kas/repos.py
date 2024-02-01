@@ -461,14 +461,14 @@ class RepoImpl(Repo):
 
             cmd = self.add_cmd()
             (retc, output) = await run_cmd_async(
-                cmd, cwd=self.path, fail=False)
+                cmd, cwd=self.path, fail=False, liveupdate=False)
             if retc:
                 raise PatchApplyError('Could not add patched files. repo: '
                                       f'{self.name}, vcs output: {output})')
 
             cmd = self.commit_cmd()
             (retc, output) = await run_cmd_async(
-                cmd, cwd=self.path, fail=False)
+                cmd, cwd=self.path, fail=False, liveupdate=False)
             if retc:
                 raise PatchApplyError('Could not commit patch changes. repo: '
                                       f'{self.name}, vcs output: {output})')
