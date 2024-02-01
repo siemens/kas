@@ -405,8 +405,8 @@ def ssh_no_host_key_check():
 
 def setup_parser_common_args(parser):
     parser.add_argument('config',
-                        help='Config file, using .config.yaml in KAS_WORK_DIR '
-                        'if none is specified',
+                        help='Config file(s), separated by colon. Using '
+                        '.config.yaml in KAS_WORK_DIR if none is specified.',
                         nargs='?')
     parser.add_argument('--skip',
                         help='Skip build steps',
