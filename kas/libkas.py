@@ -115,7 +115,7 @@ async def run_cmd_async(cmd, cwd, env=None, fail=True, liveupdate=True):
 
     env = env or get_context().environ
     cmdstr = ' '.join(cmd)
-    logging.info('%s$ %s', cwd, cmdstr)
+    logging.debug('%s$ %s', cwd, cmdstr)
 
     logo = LogOutput(liveupdate)
 
