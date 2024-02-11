@@ -20,9 +20,9 @@ jobs:
         python-version: ["3.6", "3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
     steps:
       - name: Check out repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -67,19 +67,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Login to ghcr.io
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ secrets.PACKAGE_DEPLOY_USER }}
           password: ${{ secrets.PACKAGE_DEPLOY_TOKEN }}
       - name: Build kas image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           load: true
           tags: ghcr.io/siemens/kas/kas:next
@@ -88,13 +88,13 @@ jobs:
           cd image-tests/poky
           KAS_IMAGE_VERSION=next ../../kas-container build kas.yml
       - name: Complete build and deploy kas image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           platforms: linux/amd64,linux/arm64
           tags: ghcr.io/siemens/kas/kas:next
           push: true
       - name: Build kas-isar image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           target: kas-isar
           load: true
@@ -104,7 +104,7 @@ jobs:
           cd image-tests/isar
           KAS_IMAGE_VERSION=next ../../kas-container build kas.yml
       - name: Complete build and deploy kas-isar image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           target: kas-isar
           platforms: linux/amd64,linux/arm64
