@@ -151,6 +151,7 @@ class Repo:
                 repo_overrides={}):
         """
             Returns a Repo instance depending on params.
+            This factory function is referential transparent.
         """
         layers_dict = repo_config.get('layers', {'': None})
         layers = list(filter(lambda x, laydict=layers_dict:

@@ -24,6 +24,7 @@
 """
 
 import os
+import json
 from .repos import Repo
 from .includehandler import IncludeHandler, IncludeException
 
@@ -64,6 +65,7 @@ class Config:
                                       top_repo_path,
                                       not update)
         self.repo_dict = self._get_repo_dict()
+        self.repo_cfg_hashes = {}
 
     def get_build_system(self):
         """
@@ -112,11 +114,25 @@ class Config:
                                 .get('repos', {}).get(name, {})
         config = self.get_repos_config()[name] or {}
         top_repo_path = self.handler.get_top_repo_path()
-        return Repo.factory(name,
-                            config,
-                            repo_defaults,
-                            top_repo_path,
-                            overrides)
+
+        # Check if we have this repo with an identical config already.
+        # As this function is called across various places and with different
+        # configurations (e.g. due to updates from transitive includes),
+        # we cache the results.
+        args = (name, config, repo_defaults, top_repo_path, overrides)
+        return self._get_or_create_repo(args)
+
+    def _get_or_create_repo(self, args):
+        """
+            Get a repo from the cache and insert it if not existing.
+            Creating repos is expensive due to external commands being called.
+        """
+        encoded = json.dumps(args, sort_keys=True).encode()
+        if encoded in self.repo_cfg_hashes:
+            return self.repo_cfg_hashes[encoded]
+        repo = Repo.factory(*args)
+        self.repo_cfg_hashes[encoded] = repo
+        return repo
 
     def _get_repo_dict(self):
         """
