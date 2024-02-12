@@ -334,17 +334,17 @@ def ssh_cleanup_agent():
     """
         Removes the identities and stops the ssh-agent instance
     """
-    env = get_context().environ
+    ctx = get_context()
     # remove the identities
-    process = Popen(['ssh-add', '-D'], env=env)
-    process.wait()
-    if process.returncode != 0:
+    (ret, _) = run_cmd(['ssh-add', '-D'], cwd=ctx.kas_work_dir,
+                       env=ctx.environ, fail=False, liveupdate=False)
+    if ret != 0:
         logging.error('failed to delete SSH identities')
 
     # stop the ssh-agent
-    process = Popen(['ssh-agent', '-k'], env=env)
-    process.wait()
-    if process.returncode != 0:
+    (ret, _) = run_cmd(['ssh-agent', '-k'], cwd=ctx.kas_work_dir,
+                       env=ctx.environ, fail=False, liveupdate=False)
+    if ret != 0:
         logging.error('failed to stop SSH agent')
 
 
