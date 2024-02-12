@@ -163,7 +163,8 @@
                                 ]
                             },
                             "type": {
-                                "type": "string"
+                                "type": "string",
+                                "enum": ["git", "hg"]
                             },
                             "commit": {
                                 "type": "string"
