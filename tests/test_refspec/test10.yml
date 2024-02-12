@@ -4,7 +4,8 @@ header:
 repos:
   this:
 
-  bitbake:
+  evolve:
     url: https://repo.mercurial-scm.org/evolve/
+    type: hg
     branch: stable
     commit: '6634:991cbf0f66f2'
