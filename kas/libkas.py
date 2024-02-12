@@ -352,9 +352,11 @@ def ssh_setup_agent(envkeys=None):
     """
         Starts the ssh-agent
     """
-    env = get_context().environ
+    ctx = get_context()
+    env = ctx.environ
     envkeys = envkeys or ['SSH_PRIVATE_KEY', 'SSH_PRIVATE_KEY_FILE']
-    output = os.popen('ssh-agent -s').readlines()
+    (_, output) = run_cmd(['ssh-agent', '-s'], env=env,
+                          cwd=ctx.kas_work_dir, liveupdate=False)
     for line in output:
         matches = re.search(r"(\S+)\=(\S+)\;", line)
         if matches:
