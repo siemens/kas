@@ -88,9 +88,8 @@ def test_menu_inc_workdir(monkeykas, tmpdir):
     shutil.copytree('tests/test_menu', tdir)
     monkeykas.chdir(tdir)
     os.mkdir(kas_workdir)
-    os.environ['KAS_WORK_DIR'] = kas_workdir
+    monkeykas.setenv('KAS_WORK_DIR', kas_workdir)
     kas.kas(['menu'])
-    del os.environ['KAS_WORK_DIR']
 
 
 def test_menu_implicit_workdir(monkeykas, tmpdir):

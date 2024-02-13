@@ -45,9 +45,8 @@ def test_build_dir_can_be_specified_by_environment_variable(monkeykas, tmpdir):
     shutil.copytree('tests/test_environment_variables', conf_dir)
     monkeykas.chdir(conf_dir)
 
-    os.environ['KAS_BUILD_DIR'] = build_dir
+    monkeykas.setenv('KAS_BUILD_DIR', build_dir)
     kas.kas(['checkout', 'test.yml'])
-    del os.environ['KAS_BUILD_DIR']
 
     assert os.path.exists(os.path.join(build_dir, 'conf'))
 

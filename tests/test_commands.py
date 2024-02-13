@@ -76,9 +76,8 @@ def test_checkout_create_refs(monkeykas, tmpdir):
     repo_cache = pathlib.Path(str(tmpdir.mkdir('repos')))
     shutil.copytree('tests/test_patch', tdir)
     monkeykas.chdir(tdir)
-    os.environ['KAS_REPO_REF_DIR'] = str(repo_cache)
+    monkeykas.setenv('KAS_REPO_REF_DIR', str(repo_cache))
     kas.kas(['checkout', 'test.yml'])
-    del os.environ['KAS_REPO_REF_DIR']
     assert os.path.exists(str(repo_cache / 'github.com.siemens.kas.git'))
     assert os.path.exists('kas/.git/objects/info/alternates')
 
@@ -100,13 +99,11 @@ def test_dump(monkeykas, tmpdir, capsys):
     # test cross-product of these options (formats x resolve)
     for f, r in ((f, r) for f in formats for r in resolve):
         outfile = 'test_flat%s.%s' % (r, f)
-        if r == '--resolve-env':
-            os.environ['TESTVAR_FOO'] = 'KAS'
 
-        kas.kas(('dump --format %s %s test.yml' % (f, r)).split())
-
-        if r == '--resolve-env':
-            del os.environ['TESTVAR_FOO']
+        with monkeykas.context() as mp:
+            if r == '--resolve-env':
+                mp.setenv('TESTVAR_FOO', 'KAS')
+            kas.kas(('dump --format %s %s test.yml' % (f, r)).split())
 
         with open(outfile, 'w') as file:
             file.write(capsys.readouterr().out)

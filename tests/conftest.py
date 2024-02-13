@@ -22,7 +22,20 @@
 
 import pytest
 
+ENVVARS_KAS = [
+    'KAS_WORK_DIR',
+    'KAS_BUILD_DIR',
+    'KAS_REPO_REF_DIR',
+    'KAS_DISTRO',
+    'KAS_MACHINE',
+    'KAS_TARGET',
+    'KAS_TASK',
+    'KAS_PREMIRRORS'
+]
+
 
 @pytest.fixture
 def monkeykas(monkeypatch):
+    for var in ENVVARS_KAS:
+        monkeypatch.delenv(var, raising=False)
     yield monkeypatch
