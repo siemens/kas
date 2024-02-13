@@ -28,19 +28,17 @@ from kas import kas
 from kas.repos import PatchApplyError, PatchFileNotFound, PatchMappingError
 
 
-def test_patch(changedir, tmpdir):
+def test_patch(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_patch')
     shutil.copytree('tests/test_patch', tdir)
-    cwd = os.getcwd()
-    os.chdir(tdir)
+    monkeykas.chdir(tdir)
     kas.kas(['shell', 'test.yml', '-c', 'true'])
     for f in ['kas/tests/test_patch/hello.sh', 'hello/hello.sh']:
         assert os.stat(f)[stat.ST_MODE] & stat.S_IXUSR
     kas.kas(['shell', 'test.yml', '-c', 'true'])
-    os.chdir(cwd)
 
 
-def test_patch_update(changedir, tmpdir):
+def test_patch_update(monkeykas, tmpdir):
     """
         Test that patches are applied correctly after switching a repo from
         a branch to a commit hash and vice-versa with both git and mercurial
@@ -49,7 +47,7 @@ def test_patch_update(changedir, tmpdir):
     tdir = str(tmpdir / 'test_patch_update')
     shutil.copytree('tests/test_patch', tdir)
     cwd = os.getcwd()
-    os.chdir(tdir)
+    monkeykas.chdir(tdir)
     kas.kas(['shell', 'test.yml', '-c', 'true'])
     kas.kas(['shell', 'test2.yml', '-c', 'true'])
     for f in ['kas/tests/test_patch/hello.sh', 'hello/hello.sh']:
@@ -57,14 +55,13 @@ def test_patch_update(changedir, tmpdir):
     os.chdir(cwd)
 
 
-def test_invalid_patch(changedir, tmpdir):
+def test_invalid_patch(monkeykas, tmpdir):
     """
         Test on common errors when applying patches
     """
     tdir = str(tmpdir / 'test_patch_invalid')
     shutil.copytree('tests/test_patch', tdir)
-    cwd = os.getcwd()
-    os.chdir(tdir)
+    monkeykas.chdir(tdir)
 
     with pytest.raises(PatchFileNotFound):
         kas.kas(['shell', 'test-invalid.yml', '-c', 'true'])
@@ -74,4 +71,3 @@ def test_invalid_patch(changedir, tmpdir):
 
     with pytest.raises(PatchApplyError):
         kas.kas(['shell', 'test-invalid3.yml', '-c', 'true'])
-    os.chdir(cwd)

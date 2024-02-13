@@ -28,22 +28,22 @@ import re
 from kas import kas
 
 
-def test_build_dir_is_placed_inside_work_dir_by_default(changedir, tmpdir):
+def test_build_dir_is_placed_inside_work_dir_by_default(monkeykas, tmpdir):
     conf_dir = str(tmpdir / 'test_env_variables')
     shutil.copytree('tests/test_environment_variables', conf_dir)
 
-    os.chdir(conf_dir)
+    monkeykas.chdir(conf_dir)
 
     kas.kas(['checkout', 'test.yml'])
 
     assert os.path.exists(os.path.join(os.getcwd(), 'build', 'conf'))
 
 
-def test_build_dir_can_be_specified_by_environment_variable(changedir, tmpdir):
+def test_build_dir_can_be_specified_by_environment_variable(monkeykas, tmpdir):
     conf_dir = str(tmpdir / 'test_env_variables')
     build_dir = str(tmpdir / 'test_build_dir')
     shutil.copytree('tests/test_environment_variables', conf_dir)
-    os.chdir(conf_dir)
+    monkeykas.chdir(conf_dir)
 
     os.environ['KAS_BUILD_DIR'] = build_dir
     kas.kas(['checkout', 'test.yml'])
@@ -52,14 +52,14 @@ def test_build_dir_can_be_specified_by_environment_variable(changedir, tmpdir):
     assert os.path.exists(os.path.join(build_dir, 'conf'))
 
 
-def _test_env_section_export(changedir, tmpdir, bb_env_var, bb_repo):
+def _test_env_section_export(monkeykas, tmpdir, bb_env_var, bb_repo):
     conf_dir = pathlib.Path(str(tmpdir / 'test_env_variables'))
     env_out = conf_dir / 'env_out'
     bb_env_out = conf_dir / 'bb_env_out'
     init_build_env = conf_dir / 'oe-init-build-env'
 
     shutil.copytree('tests/test_environment_variables', str(conf_dir))
-    os.chdir(str(conf_dir))
+    monkeykas.chdir(conf_dir)
 
     # Overwrite oe-init-build-env script
     # BB_ENV_* filter variables are only exported by
@@ -112,11 +112,11 @@ def _test_env_section_export(changedir, tmpdir, bb_env_var, bb_repo):
 
 
 # BB_ENV_EXTRAWHITE is deprecated but may still be used
-def test_env_section_export_bb_extra_white(changedir, tmpdir):
-    _test_env_section_export(changedir, tmpdir, 'BB_ENV_EXTRAWHITE',
+def test_env_section_export_bb_extra_white(monkeykas, tmpdir):
+    _test_env_section_export(monkeykas, tmpdir, 'BB_ENV_EXTRAWHITE',
                              'bitbake_old')
 
 
-def test_env_section_export_bb_env_passthrough_additions(changedir, tmpdir):
-    _test_env_section_export(changedir, tmpdir, 'BB_ENV_PASSTHROUGH_ADDITIONS',
+def test_env_section_export_bb_env_passthrough_additions(monkeykas, tmpdir):
+    _test_env_section_export(monkeykas, tmpdir, 'BB_ENV_PASSTHROUGH_ADDITIONS',
                              'bitbake_new')

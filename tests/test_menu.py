@@ -28,7 +28,7 @@ from kas import kas
 
 
 @pytest.fixture(autouse=True)
-def patch_kas(monkeypatch):
+def patch_kas(monkeykas):
     INPUTS = iter([' ', None, ' ', None])
     ACTIONS = iter([None, 'build', None, 'build'])
     SELECTIONS = iter([0, 3])
@@ -42,9 +42,9 @@ def patch_kas(monkeypatch):
     def mock_current(unused1):
         return next(SELECTIONS)
 
-    monkeypatch.setattr(snack.GridFormHelp, 'runOnce', mock_runOnce)
-    monkeypatch.setattr(snack.ButtonBar, 'buttonPressed', mock_buttonPressed)
-    monkeypatch.setattr(snack.Listbox, 'current', mock_current)
+    monkeykas.setattr(snack.GridFormHelp, 'runOnce', mock_runOnce)
+    monkeykas.setattr(snack.ButtonBar, 'buttonPressed', mock_buttonPressed)
+    monkeykas.setattr(snack.Listbox, 'current', mock_current)
 
 
 def file_contains(filename, expected):
@@ -60,10 +60,10 @@ def check_bitbake_options(expected):
         return file.readline() == expected
 
 
-def test_menu(monkeypatch, tmpdir):
+def test_menu(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_menu')
     shutil.copytree('tests/test_menu', tdir)
-    monkeypatch.chdir(tdir)
+    monkeykas.chdir(tdir)
 
     # select opt1 & build
     kas.kas(['menu'])
@@ -82,21 +82,21 @@ def test_menu(monkeypatch, tmpdir):
     assert check_bitbake_options('-c build target2\n')
 
 
-def test_menu_inc_workdir(monkeypatch, tmpdir):
+def test_menu_inc_workdir(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_menu_inc')
     kas_workdir = str(tmpdir / 'test_menu_inc' / 'out')
     shutil.copytree('tests/test_menu', tdir)
-    monkeypatch.chdir(tdir)
+    monkeykas.chdir(tdir)
     os.mkdir(kas_workdir)
     os.environ['KAS_WORK_DIR'] = kas_workdir
     kas.kas(['menu'])
     del os.environ['KAS_WORK_DIR']
 
 
-def test_menu_implicit_workdir(monkeypatch, tmpdir):
+def test_menu_implicit_workdir(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_menu_iwd')
     kas_workdir = str(tmpdir / 'test_menu_iwd_out')
     shutil.copytree('tests/test_menu', tdir)
     os.mkdir(kas_workdir)
-    monkeypatch.chdir(kas_workdir)
+    monkeykas.chdir(kas_workdir)
     kas.kas(['menu', tdir + '/Kconfig'])

@@ -20,7 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
 import pytest
 import shutil
 from kas import kas
@@ -28,14 +27,14 @@ from kas.libkas import run_cmd
 from kas.repos import RepoRefError, Repo
 
 
-def test_refspec_switch(changedir, tmpdir):
+def test_refspec_switch(monkeykas, tmpdir):
     """
         Test that the local git clone is correctly updated when switching
         between a commit hash refspec and a branch refspec.
     """
     tdir = str(tmpdir / 'test_refspec_switch')
     shutil.copytree('tests/test_refspec', tdir)
-    os.chdir(tdir)
+    monkeykas.chdir(tdir)
 
     kas.kas(['shell', 'test.yml', '-c', 'true'])
     (rc, output) = run_cmd(['git', 'symbolic-ref', '-q', 'HEAD'], cwd='kas',
@@ -78,14 +77,14 @@ def test_refspec_switch(changedir, tmpdir):
     assert output.strip() == '2.6.3'
 
 
-def test_refspec_absolute(changedir, tmpdir):
+def test_refspec_absolute(monkeykas, tmpdir):
     """
         Test that the local git clone works when a absolute refspec
         is given.
     """
     tdir = str(tmpdir / 'test_refspec_absolute')
     shutil.copytree('tests/test_refspec', tdir)
-    os.chdir(tdir)
+    monkeykas.chdir(tdir)
 
     kas.kas(['shell', 'test3.yml', '-c', 'true'])
     (rc, output) = run_cmd(['git', 'symbolic-ref', '-q', 'HEAD'],
@@ -105,24 +104,24 @@ def test_refspec_absolute(changedir, tmpdir):
     assert output.strip() == '3.0.1'
 
 
-def test_url_no_refspec(changedir, tmpdir):
+def test_url_no_refspec(monkeykas, tmpdir):
     """
         Test that a repository with url but no refspec raises an error.
     """
     tdir = str(tmpdir / 'test_url_no_refspec')
     shutil.copytree('tests/test_refspec', tdir)
-    os.chdir(tdir)
+    monkeykas.chdir(tdir)
     with pytest.raises(RepoRefError):
         kas.kas(['shell', 'test4.yml', '-c', 'true'])
 
 
-def test_commit_refspec_mix(changedir, tmpdir):
+def test_commit_refspec_mix(monkeykas, tmpdir):
     """
         Test that mixing legacy refspec with commit/branch raises errors.
     """
     tdir = str(tmpdir / 'test_commit_refspec_mix')
     shutil.copytree('tests/test_refspec', tdir)
-    os.chdir(tdir)
+    monkeykas.chdir(tdir)
     with pytest.raises(RepoRefError):
         kas.kas(['shell', 'test5.yml', '-c', 'true'])
     with pytest.raises(RepoRefError):
@@ -131,24 +130,24 @@ def test_commit_refspec_mix(changedir, tmpdir):
         kas.kas(['shell', 'test7.yml', '-c', 'true'])
 
 
-def test_tag_commit_do_not_match(changedir, tmpdir):
+def test_tag_commit_do_not_match(monkeykas, tmpdir):
     """
         Test that giving tag and commit that do not match raises an error.
     """
     tdir = str(tmpdir / 'test_tag_commit_do_not_match')
     shutil.copytree('tests/test_refspec', tdir)
-    os.chdir(tdir)
+    monkeykas.chdir(tdir)
     with pytest.raises(RepoRefError):
         kas.kas(['shell', 'test8.yml', '-c', 'true'])
 
 
-def test_unsafe_tag_warning(capsys, changedir, tmpdir):
+def test_unsafe_tag_warning(capsys, monkeykas, tmpdir):
     """
         Test that using tag without commit issues a warning, but only once.
     """
     tdir = str(tmpdir / 'test_unsafe_tag_warning')
     shutil.copytree('tests/test_refspec', tdir)
-    os.chdir(tdir)
+    monkeykas.chdir(tdir)
     # needs to be reset in case other tests ran before
     Repo.__no_commit_tag_warned__ = []
     kas.kas(['shell', 'test2.yml', '-c', 'true'])
@@ -157,13 +156,13 @@ def test_unsafe_tag_warning(capsys, changedir, tmpdir):
         'are mutable.') == 1
 
 
-def test_tag_branch_same_name(capsys, changedir, tmpdir):
+def test_tag_branch_same_name(capsys, monkeykas, tmpdir):
     """
         Test that kas uses the tag if a branch has the same name as the tag.
     """
     tdir = str(tmpdir / 'test_tag_branch_same_name')
     shutil.copytree('tests/test_refspec', tdir)
-    os.chdir(tdir)
+    monkeykas.chdir(tdir)
 
     # Checkout the repositories
     kas.kas(['shell', 'test.yml', '-c', 'true'])
@@ -204,13 +203,13 @@ def test_tag_branch_same_name(capsys, changedir, tmpdir):
     assert output.strip() == output2.strip()
 
 
-def test_refspec_warning(capsys, changedir, tmpdir):
+def test_refspec_warning(capsys, monkeykas, tmpdir):
     """
         Test that using legacy refspec issues a warning, but only once.
     """
     tdir = str(tmpdir / 'test_refspec_warning')
     shutil.copytree('tests/test_refspec', tdir)
-    os.chdir(tdir)
+    monkeykas.chdir(tdir)
     # needs to be reset in case other tests ran before
     Repo.__legacy_refspec_warned__ = []
     kas.kas(['shell', 'test2.yml', '-c', 'true'])
@@ -218,13 +217,13 @@ def test_refspec_warning(capsys, changedir, tmpdir):
         'Using deprecated refspec for repository "kas2".') == 1
 
 
-def test_branch_and_tag(changedir, tmpdir):
+def test_branch_and_tag(monkeykas, tmpdir):
     """
         Test if error is raised when branch and tag are set.
     """
     tdir = str(tmpdir / 'test_branch_and_tag')
     shutil.copytree('tests/test_refspec', tdir)
-    os.chdir(tdir)
+    monkeykas.chdir(tdir)
     with pytest.raises(RepoRefError):
         kas.kas(['checkout', 'test10.yml'])
 

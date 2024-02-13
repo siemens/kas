@@ -31,10 +31,10 @@ from kas import kas
 from kas.libkas import TaskExecError
 
 
-def test_for_all_repos(changedir, tmpdir):
+def test_for_all_repos(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_commands')
     shutil.copytree('tests/test_commands', tdir)
-    os.chdir(tdir)
+    monkeykas.chdir(tdir)
     kas.kas(['for-all-repos', 'test.yml',
              '''if [ -n "${KAS_REPO_URL}" ]; then git rev-parse HEAD \
                      >> %s/ref_${KAS_REPO_NAME}; fi''' % tdir])
@@ -47,10 +47,10 @@ def test_for_all_repos(changedir, tmpdir):
             == 'e9ca55a239caa1a2098e1d48773a29ea53c6cab2'
 
 
-def test_checkout(changedir, tmpdir):
+def test_checkout(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_commands')
     shutil.copytree('tests/test_commands', tdir)
-    os.chdir(tdir)
+    monkeykas.chdir(tdir)
     kas.kas(['checkout', 'test.yml'])
 
     # Ensure that local.conf and bblayers.conf are populated, check that no
@@ -63,19 +63,19 @@ def test_checkout(changedir, tmpdir):
     assert not os.path.exists('build/sstate-cache')
 
 
-def test_invalid_checkout(changedir, tmpdir, capsys):
+def test_invalid_checkout(monkeykas, tmpdir, capsys):
     tdir = str(tmpdir / 'test_commands')
     shutil.copytree('tests/test_commands', tdir)
-    os.chdir(tdir)
+    monkeykas.chdir(tdir)
     with pytest.raises(TaskExecError):
         kas.kas(['checkout', 'test-invalid.yml'])
 
 
-def test_checkout_create_refs(changedir, tmpdir):
+def test_checkout_create_refs(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_commands')
     repo_cache = pathlib.Path(str(tmpdir.mkdir('repos')))
     shutil.copytree('tests/test_patch', tdir)
-    os.chdir(tdir)
+    monkeykas.chdir(tdir)
     os.environ['KAS_REPO_REF_DIR'] = str(repo_cache)
     kas.kas(['checkout', 'test.yml'])
     del os.environ['KAS_REPO_REF_DIR']
@@ -83,17 +83,17 @@ def test_checkout_create_refs(changedir, tmpdir):
     assert os.path.exists('kas/.git/objects/info/alternates')
 
 
-def test_repo_includes(changedir, tmpdir):
+def test_repo_includes(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_commands')
     shutil.copytree('tests/test_repo_includes', tdir)
-    os.chdir(tdir)
+    monkeykas.chdir(tdir)
     kas.kas(['checkout', 'test.yml'])
 
 
-def test_dump(changedir, tmpdir, capsys):
+def test_dump(monkeykas, tmpdir, capsys):
     tdir = str(tmpdir / 'test_commands')
     shutil.copytree('tests/test_repo_includes', tdir)
-    os.chdir(tdir)
+    monkeykas.chdir(tdir)
 
     formats = ['json', 'yaml']
     resolve = ['', '--resolve-refs', '--resolve-env']
@@ -132,11 +132,11 @@ def test_dump(changedir, tmpdir, capsys):
                 assert os.path.exists('build/conf/local.conf')
 
 
-def test_lockfile(changedir, tmpdir, capsys):
+def test_lockfile(monkeykas, tmpdir, capsys):
     tdir = str(tmpdir.mkdir('test_commands'))
     shutil.rmtree(tdir, ignore_errors=True)
     shutil.copytree('tests/test_repo_includes', tdir)
-    os.chdir(tdir)
+    monkeykas.chdir(tdir)
 
     # no lockfile yet, branches are floating
     kas.kas('dump test.yml'.split())

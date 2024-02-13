@@ -20,7 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
 import shutil
 from kas import kas
 
@@ -30,13 +29,11 @@ LAYERBASE = '${TOPDIR}/..'
 
 
 @pytest.fixture
-def dokas(tmpdir):
+def dokas(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_layers')
     shutil.copytree('tests/test_layers', tdir)
-    os.chdir(tdir)
+    monkeykas.chdir(tdir)
     kas.kas(['shell', 'test.yml', '-c', 'true'])
-    yield
-    os.chdir(os.path.join(os.path.dirname(__file__), '..'))
 
 
 def test_layers_default(dokas):

@@ -20,15 +20,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
 import shutil
 from kas import kas
 
 
-def test_build_system(changedir, tmpdir):
+def test_build_system(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_build_system')
     shutil.copytree('tests/test_build_system', tdir)
-    os.chdir(tdir)
+    monkeykas.chdir(tdir)
 
     kas.kas(['shell', 'test-oe.yml', '-c', 'true'])
     with open('build-env', 'r') as f:

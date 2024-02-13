@@ -28,7 +28,7 @@ import yaml
 from kas import kas
 
 
-def test_transitive_includes(changedir, tmpdir, capsys):
+def test_transitive_includes(monkeykas, tmpdir, capsys):
     """
     Check if a reference to a repo that itself is specified in a
     remote repo is correctly resolved.
