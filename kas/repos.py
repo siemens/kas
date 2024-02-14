@@ -287,12 +287,11 @@ class RepoImpl(Repo):
                                   self.qualified_name)
 
         if not os.path.exists(self.path):
+            logging.info('Cloning repository %s', self.name)
             os.makedirs(os.path.dirname(self.path), exist_ok=True)
             (retc, _) = await run_cmd_async(
                 self.clone_cmd(sdir, createref=False),
                 cwd=get_context().kas_work_dir)
-
-            logging.info('Repository %s cloned', self.name)
 
         # Make sure the remote origin is set to the value
         # in the kas file to avoid surprises
@@ -399,6 +398,7 @@ class RepoImpl(Repo):
             is_branch = False
 
         run_cmd(self.checkout_cmd(desired_ref, is_branch), cwd=self.path)
+        logging.info(f'Repository {self.name} checked out to {desired_ref}')
 
     async def apply_patches_async(self):
         """
