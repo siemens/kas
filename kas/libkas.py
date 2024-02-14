@@ -108,7 +108,7 @@ async def _read_stream(stream, callback):
             break
 
 
-async def run_cmd_async(cmd, cwd, env=None, fail=True, liveupdate=True):
+async def run_cmd_async(cmd, cwd, env=None, fail=True, liveupdate=False):
     """
         Run a command asynchronously.
     """
@@ -161,7 +161,7 @@ async def run_cmd_async(cmd, cwd, env=None, fail=True, liveupdate=True):
     return (ret, ''.join(logo.stdout))
 
 
-def run_cmd(cmd, cwd, env=None, fail=True, liveupdate=True):
+def run_cmd(cmd, cwd, env=None, fail=True, liveupdate=False):
     """
         Runs a command synchronously.
     """
@@ -266,7 +266,7 @@ def get_build_environ(build_system):
         env['PATH'] = '/usr/sbin:/usr/bin:/sbin:/bin'
 
         (_, output) = run_cmd([str(get_bb_env_file), get_context().build_dir],
-                              cwd=init_repo.path, env=env, liveupdate=False)
+                              cwd=init_repo.path, env=env)
 
     env = {}
     for line in output.splitlines():
@@ -337,13 +337,13 @@ def ssh_cleanup_agent():
     ctx = get_context()
     # remove the identities
     (ret, _) = run_cmd(['ssh-add', '-D'], cwd=ctx.kas_work_dir,
-                       env=ctx.environ, fail=False, liveupdate=False)
+                       env=ctx.environ, fail=False)
     if ret != 0:
         logging.error('failed to delete SSH identities')
 
     # stop the ssh-agent
     (ret, _) = run_cmd(['ssh-agent', '-k'], cwd=ctx.kas_work_dir,
-                       env=ctx.environ, fail=False, liveupdate=False)
+                       env=ctx.environ, fail=False)
     if ret != 0:
         logging.error('failed to stop SSH agent')
 
@@ -356,7 +356,7 @@ def ssh_setup_agent(envkeys=None):
     env = ctx.environ
     envkeys = envkeys or ['SSH_PRIVATE_KEY', 'SSH_PRIVATE_KEY_FILE']
     (_, output) = run_cmd(['ssh-agent', '-s'], env=env,
-                          cwd=ctx.kas_work_dir, liveupdate=False)
+                          cwd=ctx.kas_work_dir)
     for line in output:
         matches = re.search(r"(\S+)\=(\S+)\;", line)
         if matches:

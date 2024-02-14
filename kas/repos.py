@@ -239,12 +239,12 @@ class Repo:
             Checks if path is under version control and returns its root path.
         """
         (ret, output) = run_cmd(['git', 'rev-parse', '--show-toplevel'],
-                                cwd=path, fail=False, liveupdate=False)
+                                cwd=path, fail=False)
         if ret == 0:
             return output.strip()
 
         (ret, output) = run_cmd(['hg', 'root'],
-                                cwd=path, fail=False, liveupdate=False)
+                                cwd=path, fail=False)
         if ret == 0:
             return output.strip()
 
@@ -299,8 +299,7 @@ class RepoImpl(Repo):
         try:
             (retc, output) = await run_cmd_async(
                 self.set_remote_url_cmd(),
-                cwd=self.path,
-                liveupdate=False)
+                cwd=self.path)
         except NotImplementedError:
             logging.warning('Repo implementation does not support changing '
                             'the remote url.')
@@ -314,8 +313,7 @@ class RepoImpl(Repo):
             # Do commit/tag/branch/refspec exist in the current repository?
             (retc, output) = await run_cmd_async(self.contains_refspec_cmd(),
                                                  cwd=self.path,
-                                                 fail=False,
-                                                 liveupdate=False)
+                                                 fail=False)
             if retc == 0:
                 logging.info('Repository %s already contains %s as %s',
                              self.name,
@@ -462,14 +460,14 @@ class RepoImpl(Repo):
 
             cmd = self.add_cmd()
             (retc, output) = await run_cmd_async(
-                cmd, cwd=self.path, fail=False, liveupdate=False)
+                cmd, cwd=self.path, fail=False)
             if retc:
                 raise PatchApplyError('Could not add patched files. repo: '
                                       f'{self.name}, vcs output: {output})')
 
             cmd = self.commit_cmd()
             (retc, output) = await run_cmd_async(
-                cmd, cwd=self.path, fail=False, liveupdate=False)
+                cmd, cwd=self.path, fail=False)
             if retc:
                 raise PatchApplyError('Could not commit patch changes. repo: '
                                       f'{self.name}, vcs output: {output})')

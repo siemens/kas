@@ -117,7 +117,7 @@ class BuildCommand(Command):
             if ret != 0:
                 raise CommandExecError(cmd, ret)
         else:
-            run_cmd(cmd, cwd=ctx.build_dir)
+            run_cmd(cmd, cwd=ctx.build_dir, liveupdate=True)
 
 
 __KAS_PLUGINS__ = [Build]
