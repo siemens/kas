@@ -9,7 +9,7 @@ This project depends on
 - Python 3
 - distro Python 3 package
 - jsonschema Python 3 package
-- PyYAML Python 3 package (optional, for yaml file support)
+- PyYAML Python 3 package
 - kconfiglib Python 3 package (optional, for menu plugin)
 - NEWT Python 3 distro package (optional, for menu plugin)
 

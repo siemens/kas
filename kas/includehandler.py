@@ -31,6 +31,8 @@ from collections import OrderedDict
 from collections.abc import Mapping
 import functools
 import logging
+import json
+import yaml
 
 from jsonschema.validators import validator_for
 
@@ -60,11 +62,9 @@ def load_config(filename):
     (_, ext) = os.path.splitext(filename)
     config = None
     if ext == '.json':
-        import json
         with open(filename, 'rb') as fds:
             config = json.load(fds)
     elif ext in ['.yml', '.yaml']:
-        import yaml
         with open(filename, 'rb') as fds:
             config = yaml.safe_load(fds)
     else:
