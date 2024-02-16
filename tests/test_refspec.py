@@ -38,41 +38,41 @@ def test_refspec_switch(monkeykas, tmpdir):
 
     kas.kas(['shell', 'test.yml', '-c', 'true'])
     (rc, output) = run_cmd(['git', 'symbolic-ref', '-q', 'HEAD'], cwd='kas',
-                           fail=False, liveupdate=False)
+                           fail=False)
     assert rc != 0
     assert output.strip() == ''
     (rc, output) = run_cmd(['git', 'rev-parse', 'HEAD'], cwd='kas',
-                           fail=False, liveupdate=False)
+                           fail=False)
     assert rc == 0
     assert output.strip() == '907816a5c4094b59a36aec12226e71c461c05b77'
     (rc, output) = run_cmd(['git', 'symbolic-ref', '-q', 'HEAD'], cwd='kas2',
-                           fail=False, liveupdate=False)
+                           fail=False)
     assert rc == 0
     assert output.strip() == 'refs/heads/master'
     (rc, output) = run_cmd(['git', 'tag', '--points-at', 'HEAD'], cwd='kas3',
-                           fail=False, liveupdate=False)
+                           fail=False)
     assert rc == 0
     assert output.strip() == '3.0.1'
 
     kas.kas(['shell', 'test2.yml', '-c', 'true'])
     (rc, output) = run_cmd(['git', 'symbolic-ref', '-q', 'HEAD'], cwd='kas',
-                           fail=False, liveupdate=False)
+                           fail=False)
     assert rc == 0
     assert output.strip() == 'refs/heads/master'
     (rc, output) = run_cmd(['git', 'symbolic-ref', '-q', 'HEAD'], cwd='kas2',
-                           fail=False, liveupdate=False)
+                           fail=False)
     assert rc != 0
     assert output.strip() == ''
     (rc, output) = run_cmd(['git', 'rev-parse', 'HEAD'], cwd='kas2',
-                           fail=False, liveupdate=False)
+                           fail=False)
     assert rc == 0
     assert output.strip() == '907816a5c4094b59a36aec12226e71c461c05b77'
     (rc, output) = run_cmd(['git', 'symbolic-ref', '-q', 'HEAD'], cwd='kas3',
-                           fail=False, liveupdate=False)
+                           fail=False)
     assert rc == 0
     assert output.strip() == 'refs/heads/master'
     (rc, output) = run_cmd(['git', 'tag', '--points-at', 'HEAD'], cwd='kas4',
-                           fail=False, liveupdate=False)
+                           fail=False)
     assert rc == 0
     assert output.strip() == '2.6.3'
 
@@ -88,18 +88,18 @@ def test_refspec_absolute(monkeykas, tmpdir):
 
     kas.kas(['shell', 'test3.yml', '-c', 'true'])
     (rc, output) = run_cmd(['git', 'symbolic-ref', '-q', 'HEAD'],
-                           cwd='kas_abs', fail=False, liveupdate=False)
+                           cwd='kas_abs', fail=False)
     assert rc == 0
     assert output.strip() == 'refs/heads/master'
     (rc, output_kas_abs) = run_cmd(['git', 'rev-parse', 'HEAD'],
-                                   cwd='kas_abs', fail=False, liveupdate=False)
+                                   cwd='kas_abs', fail=False)
     assert rc == 0
     (rc, output_kas_rel) = run_cmd(['git', 'rev-parse', 'HEAD'],
-                                   cwd='kas_rel', fail=False, liveupdate=False)
+                                   cwd='kas_rel', fail=False)
     assert rc == 0
     assert output_kas_abs.strip() == output_kas_rel.strip()
     (rc, output) = run_cmd(['git', 'tag', '--points-at', 'HEAD'],
-                           cwd='kas_tag_abs', fail=False, liveupdate=False)
+                           cwd='kas_tag_abs', fail=False)
     assert rc == 0
     assert output.strip() == '3.0.1'
 
@@ -170,18 +170,18 @@ def test_tag_branch_same_name(capsys, monkeykas, tmpdir):
     # In kas3: create a branch named "3.0.1" on master HEAD
     # A tag named "3.0.1" already exists on an old commit from 2022
     (rc, output) = run_cmd(['git', 'switch', 'master'], cwd='kas3',
-                           fail=False, liveupdate=False)
+                           fail=False)
     assert rc == 0
     (rc, output) = run_cmd(['git', 'branch', '3.0.1'], cwd='kas3',
-                           fail=False, liveupdate=False)
+                           fail=False)
     assert rc == 0
 
     # In kas4: create a tag named "master" on existing 2.6.3 tag
     (rc, output) = run_cmd(['git', 'checkout', '2.6.3'], cwd='kas4',
-                           fail=False, liveupdate=False)
+                           fail=False)
     assert rc == 0
     (rc, output) = run_cmd(['git', 'tag', 'master'], cwd='kas4',
-                           fail=False, liveupdate=False)
+                           fail=False)
     assert rc == 0
 
     # Checkout the repositories again
@@ -189,16 +189,16 @@ def test_tag_branch_same_name(capsys, monkeykas, tmpdir):
 
     # Check the commit hashes
     (rc, output) = run_cmd(['git', 'rev-parse', 'HEAD'], cwd='kas3',
-                           fail=False, liveupdate=False)
+                           fail=False)
     assert rc == 0
     assert output.strip() == '229310958b17dc2b505b789c1cc1d0e2fddccc44'
 
     (rc, output) = run_cmd(['git', 'rev-parse', 'HEAD'], cwd='kas4',
-                           fail=False, liveupdate=False)
+                           fail=False)
     assert rc == 0
 
     (rc, output2) = run_cmd(['git', 'rev-parse', 'refs/heads/master'],
-                            cwd='kas4', fail=False, liveupdate=False)
+                            cwd='kas4', fail=False)
     assert rc == 0
     assert output.strip() == output2.strip()
 
