@@ -84,9 +84,9 @@ from kas.kasusererror import KasUserError
 try:
     from snack import SnackScreen, EntryWindow, ButtonChoiceWindow, \
         ButtonBar, Listbox, GridFormHelp
-    newt_available = True
+    HAVE_NEWT = True
 except ImportError:
-    newt_available = False  # will be reported in run()
+    HAVE_NEWT = False  # will be reported in run()
 
 __license__ = 'MIT'
 __copyright__ = \
@@ -262,7 +262,7 @@ class Menu:
             self.kconf.warnings = []
 
     def run(self, args):
-        if not newt_available:
+        if not HAVE_NEWT:
             raise MissingModuleError(
                 'Menu plugin requires \'python3-newt\' distribution package.')
 
