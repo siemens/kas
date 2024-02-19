@@ -500,6 +500,11 @@ if [ -f "${NETRC_FILE}" ]; then
 		-e NETRC_FILE="/var/kas/userdata/.netrc"
 fi
 
+if [ -f "${GITCONFIG_FILE}" ]; then
+	set -- "$@" -v "$(readlink -fv "${GITCONFIG_FILE}")":/var/kas/userdata/.gitconfig:ro \
+		-e GITCONFIG_FILE="/var/kas/userdata/.gitconfig"
+fi
+
 if [ -t 1 ]; then
 	set -- "$@" -t -i
 fi
