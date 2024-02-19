@@ -275,6 +275,11 @@ class SetupSSHAgent(Command):
         return 'setup_ssh_agent'
 
     def execute(self, ctx):
+        ssh_tools = ['ssh', 'ssh-add', 'ssh-agent']
+        for tool in ssh_tools:
+            if shutil.which(tool) is None:
+                raise RuntimeError('SSH setup requested but could '
+                                   f'not find "{tool}" in PATH')
         ssh_setup_agent()
         ssh_no_host_key_check()
 
