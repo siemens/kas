@@ -33,6 +33,7 @@ from git.config import GitConfigParser
 from .libkas import (ssh_cleanup_agent, ssh_setup_agent, ssh_no_host_key_check,
                      get_build_environ, repos_fetch, repos_apply_patches)
 from .includehandler import IncludeException
+from .kasusererror import ArgsCombinationError
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
@@ -54,6 +55,10 @@ class Macro:
 
             if ('SSH_PRIVATE_KEY' in os.environ
                     or 'SSH_PRIVATE_KEY_FILE' in os.environ):
+                if 'SSH_AUTH_SOCK' in os.environ:
+                    raise ArgsCombinationError(
+                        'Internal SSH agent (e.g. for "SSH_PRIVATE_KEY") can '
+                        'only be started if no external one is passed.')
                 self.setup_commands.append(SetupSSHAgent())
 
             self.setup_commands += [
