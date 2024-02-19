@@ -157,6 +157,7 @@ class SetupHome(Command):
     ENV_VARS = [
         'GIT_CREDENTIAL_HELPER',
         'GIT_CREDENTIAL_USEHTTPPATH',
+        'GITCONFIG_FILE',
         'AWS_CONFIG_FILE',
         'AWS_ROLE_ARN',
         'AWS_SHARED_CREDENTIALS_FILE',
@@ -202,7 +203,11 @@ class SetupHome(Command):
                         webid_token_file)
 
     def _setup_gitconfig(self):
+        gitconfig_host = os.environ.get('GITCONFIG_FILE', False)
         gitconfig_kas = self.tmpdirname + '/.gitconfig'
+        if gitconfig_host and os.path.exists(gitconfig_host):
+            shutil.copy(gitconfig_host, gitconfig_kas)
+
         with GitConfigParser(gitconfig_kas, read_only=False) as config:
             # overwrite user as kas operates git
             config['user'] = {

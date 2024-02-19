@@ -89,6 +89,9 @@ Environment variables
 | |git_cred|               | Allows to set and configure the git credential   |
 |                          | helper in the `.gitconfig` of the kas user.      |
 +--------------------------+--------------------------------------------------+
+| ``GITCONFIG_FILE``       | Path to a `.gitconfig` file which will be        |
+|                          | copied to the kas home dir as `.gitconfig`.      |
++--------------------------+--------------------------------------------------+
 | ``NETRC_FILE``           | Path to a .netrc file which will be copied to    |
 |                          | the kas home dir as .netrc.                      |
 +--------------------------+--------------------------------------------------+
