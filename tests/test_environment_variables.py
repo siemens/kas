@@ -25,7 +25,9 @@ import os
 import shutil
 import pathlib
 import re
+import pytest
 from kas import kas
+from kas.kasusererror import ArgsCombinationError
 
 
 def test_build_dir_is_placed_inside_work_dir_by_default(monkeykas, tmpdir):
@@ -49,6 +51,36 @@ def test_build_dir_can_be_specified_by_environment_variable(monkeykas, tmpdir):
     kas.kas(['checkout', 'test.yml'])
 
     assert os.path.exists(os.path.join(build_dir, 'conf'))
+
+
+def test_ssh_agent_setup(monkeykas, tmpdir):
+    conf_dir = str(tmpdir / 'test_ssh_agent_setup')
+    shutil.copytree('tests/test_environment_variables', conf_dir)
+    monkeykas.chdir(conf_dir)
+
+    SSH_AUTH_SOCK = '/tmp/ssh-KLTafE/agent.64708'
+
+    with monkeykas.context() as mp:
+        envfile = tmpdir / 'env'
+        mp.setenv('SSH_AUTH_SOCK', SSH_AUTH_SOCK)
+        kas.kas(['shell', '-c', f'env > {envfile}', 'test.yml'])
+        env = _get_env_from_file(envfile)
+        assert env['SSH_AUTH_SOCK'] == SSH_AUTH_SOCK
+
+    with monkeykas.context() as mp:
+        mp.setenv('SSH_AUTH_SOCK', SSH_AUTH_SOCK)
+        mp.setenv('SSH_PRIVATE_KEY', 'id_rsa')
+        with pytest.raises(ArgsCombinationError):
+            kas.kas(['checkout', 'test.yml'])
+
+
+def _get_env_from_file(filename):
+    env = {}
+    with filename.open() as f:
+        for line in f.readlines():
+            key, val = line.split("=", 1)
+            env[key] = val.strip()
+    return env
 
 
 def _test_env_section_export(monkeykas, tmpdir, bb_env_var, bb_repo):
@@ -79,11 +111,7 @@ def _test_env_section_export(monkeykas, tmpdir, bb_env_var, bb_repo):
     kas.kas(['shell', '-c', 'bitbake -e > %s' % bb_env_out, 'test_env.yml'])
 
     # Check kas environment
-    test_env = {}
-    with env_out.open() as f:
-        for line in f.readlines():
-            key, val = line.split("=", 1)
-            test_env[key] = val.strip()
+    test_env = _get_env_from_file(env_out)
 
     # Variables with 'None' assigned should not be added to environment
     try:

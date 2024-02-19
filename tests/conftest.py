@@ -30,7 +30,8 @@ ENVVARS_KAS = [
     'KAS_MACHINE',
     'KAS_TARGET',
     'KAS_TASK',
-    'KAS_PREMIRRORS'
+    'KAS_PREMIRRORS',
+    'SSH_AUTH_SOCK',
 ]
 
 
