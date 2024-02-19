@@ -29,6 +29,7 @@ import shutil
 import os
 import pprint
 import configparser
+from git.config import GitConfigParser
 from .libkas import (ssh_cleanup_agent, ssh_setup_agent, ssh_no_host_key_check,
                      get_build_environ, repos_fetch, repos_apply_patches)
 from .includehandler import IncludeException
@@ -200,6 +201,23 @@ class SetupHome(Command):
             shutil.copy(os.environ['AWS_WEB_IDENTITY_TOKEN_FILE'],
                         webid_token_file)
 
+    def _setup_gitconfig(self):
+        gitconfig_kas = self.tmpdirname + '/.gitconfig'
+        with GitConfigParser(gitconfig_kas, read_only=False) as config:
+            # overwrite user as kas operates git
+            config['user'] = {
+                'email': 'kas@example.com',
+                'name': 'Kas User'
+            }
+            if os.environ.get('GIT_CREDENTIAL_HELPER', False):
+                config['credential'] = {
+                    'helper': os.environ.get('GIT_CREDENTIAL_HELPER')
+                }
+                if os.environ.get('GIT_CREDENTIAL_USEHTTPPATH', False):
+                    config['credential']['useHttpPath'] = \
+                        os.environ.get('GIT_CREDENTIAL_USEHTTPPATH')
+            config.write()
+
     def execute(self, ctx):
         if os.environ.get('NETRC_FILE', False):
             shutil.copy(os.environ['NETRC_FILE'],
@@ -211,20 +229,8 @@ class SetupHome(Command):
                 fds.write('machine ' + os.environ['CI_SERVER_HOST'] + '\n'
                           'login gitlab-ci-token\n'
                           'password ' + os.environ['CI_JOB_TOKEN'] + '\n')
-        with open(self.tmpdirname + '/.gitconfig', 'w') as fds:
-            fds.write('[User]\n'
-                      '\temail = kas@example.com\n'
-                      '\tname = Kas User\n')
-            if os.environ.get('GIT_CREDENTIAL_HELPER', False):
-                fds.write('[credential]\n'
-                          '\thelper = '
-                          + os.environ.get('GIT_CREDENTIAL_HELPER')
-                          + '\n')
-                if os.environ.get('GIT_CREDENTIAL_USEHTTPPATH', False):
-                    fds.write('\tuseHttpPath = '
-                              + os.environ.get('GIT_CREDENTIAL_USEHTTPPATH')
-                              + '\n')
 
+        self._setup_gitconfig()
         self._setup_aws_creds()
 
         ctx.environ['HOME'] = self.tmpdirname

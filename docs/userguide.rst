@@ -10,6 +10,7 @@ This project depends on
 - distro Python 3 package
 - jsonschema Python 3 package
 - PyYAML Python 3 package
+- GitPython Python 3 package
 - kconfiglib Python 3 package (optional, for menu plugin)
 - NEWT Python 3 distro package (optional, for menu plugin)
 

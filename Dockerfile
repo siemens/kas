@@ -34,7 +34,7 @@ RUN apt-get update && \
         python3-newt python3-colorlog python3-kconfiglib python3-websockets \
         gosu lsb-release file vim less procps tree tar bzip2 zstd pigz lz4 unzip tmux libncurses-dev \
         git-lfs mercurial iproute2 ssh-client telnet curl rsync gnupg awscli sudo \
-        socat bash-completion && \
+        socat bash-completion python3-git && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
