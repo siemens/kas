@@ -27,6 +27,7 @@ import re
 import os
 import sys
 import logging
+import shutil
 from urllib.parse import urlparse
 from tempfile import TemporaryDirectory
 from .context import get_context
@@ -228,6 +229,9 @@ class Repo:
             return GitRepo(name, url, path, commit, tag, branch, refspec,
                            layers, patches, disable_operations)
         if repo_type == 'hg':
+            if not shutil.which('hg'):
+                raise UnsupportedRepoTypeError(
+                    'hg is required for Mercurial repositories')
             return MercurialRepo(name, url, path, commit, tag, branch, refspec,
                                  layers, patches, disable_operations)
         raise UnsupportedRepoTypeError(f'Repo type "{repo_type}" '
