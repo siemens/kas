@@ -103,6 +103,10 @@ Environment variables
 |                          | that host most tools would probably take that    |
 |                          | first one.                                       |
 +--------------------------+--------------------------------------------------+
+| ``GITHUB_ACTIONS``       | Environment variables from github actions. If    |
+|                          | set to `true`, `.gitconfig` is automatically     |
+|                          | imported. For details, see ``GITCONFIG_FILE``.   |
++--------------------------+--------------------------------------------------+
 | ``BB_NUMBER_THREADS``    | Environment variables to control the concurrency |
 | ``PARALLEL_MAKE``        |                                                  |
 +--------------------------+--------------------------------------------------+

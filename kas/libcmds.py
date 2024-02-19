@@ -205,6 +205,12 @@ class SetupHome(Command):
     def _setup_gitconfig(self):
         gitconfig_host = os.environ.get('GITCONFIG_FILE', False)
         gitconfig_kas = self.tmpdirname + '/.gitconfig'
+
+        # when running in the github ci, always try to read the gitconfig
+        if not gitconfig_host and \
+           os.environ.get('GITHUB_ACTIONS', False) == 'true':
+            gitconfig_host = os.path.expanduser('~/.gitconfig')
+
         if gitconfig_host and os.path.exists(gitconfig_host):
             shutil.copy(gitconfig_host, gitconfig_kas)
 
