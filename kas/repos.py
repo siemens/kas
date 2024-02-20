@@ -192,6 +192,9 @@ class Repo:
                                'for local repositories.')
         if refspec is None:
             commit = repo_overrides.get('commit', commit)
+            if commit and get_context().update:
+                logging.warning(f'Update of {name} requested, but repo is '
+                                'pinned to a fixed commit. Not updating.')
         else:
             if name not in Repo.__legacy_refspec_warned__:
                 logging.warning('Using deprecated refspec for repository "%s".'
