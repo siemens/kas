@@ -7,6 +7,8 @@ Command line usage
     :prog: kas
 
 
+.. _env-vars-label:
+
 Environment variables
 ---------------------
 
@@ -115,3 +117,6 @@ Environment variables
                         ``AWS_SHARED_CREDENTIALS_FILE``
                         ``AWS_WEB_IDENTITY_TOKEN_FILE``
 .. |git_cred| replace:: ``GIT_CREDENTIAL_HELPER`` ``GIT_CREDENTIAL_USEHTTPPATH``
+
+For details about the access of remote resources, see
+:ref:`checkout-creds-label`.
