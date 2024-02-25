@@ -1,7 +1,7 @@
 #
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2017-2023
+# Copyright (c) Siemens AG, 2017-2024
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-FROM debian:bookworm-slim as kas-base
+ARG DEBIAN_TAG=bookworm-slim
+
+FROM debian:${DEBIAN_TAG} as kas-base
+
+ARG DEBIAN_TAG=bookworm-slim
+ENV DEBIAN_BASE_IMAGE_TAG=${DEBIAN_TAG}
 
 ARG TARGETPLATFORM
 ARG DEBIAN_FRONTEND=noninteractive
