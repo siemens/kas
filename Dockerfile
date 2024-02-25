@@ -48,7 +48,12 @@ RUN if echo "${DEBIAN_TAG}" | grep -q "[0-9]"; then \
         git-lfs mercurial iproute2 ssh-client telnet curl rsync gnupg awscli sudo \
         socat bash-completion python3-shtab python3-git && \
     apt-get clean && \
-    rm -rf /var/lib/apt/* /var/log/* /tmp/* /var/tmp/* /var/cache/ldconfig/aux-cache
+    rm -rf /var/lib/apt/* /var/log/* /tmp/* /var/tmp/* /var/cache/ldconfig/aux-cache && \
+    rm -f /etc/gitconfig && \
+    git config --system filter.lfs.clean 'git-lfs clean -- %f' && \
+    git config --system filter.lfs.smudge 'git-lfs smudge -- %f' && \
+    git config --system filter.lfs.process 'git-lfs filter-process' && \
+    git config --system filter.lfs.required true
 
 COPY . /kas
 
