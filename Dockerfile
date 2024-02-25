@@ -39,20 +39,21 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY . /kas
-RUN chmod -R o-w /kas
 
 RUN pip3 --proxy=$https_proxy install \
         --no-deps \
         --no-build-isolation \
         --break-system-packages \
         /kas && \
-    kas --version && \
     install -d /usr/local/share/bash-completion/completions/ && \
     shtab --shell=bash -u kas.kas.kas_get_argparser --error-unimportable --prog kas \
         > /usr/local/share/bash-completion/completions/kas && \
-    rm -rf $(pip3 cache dir)
+    rm -rf $(pip3 cache dir) && \
+    install -m 0755 /kas/contrib/oe-git-proxy /usr/bin/ && \
+    install -m 0755 /kas/container-entrypoint / && \
+    rm -rf /kas && \
+    kas --version
 
-RUN ln -s /kas/contrib/oe-git-proxy /usr/bin/
 ENV GIT_PROXY_COMMAND="oe-git-proxy" \
     NO_PROXY="*"
 
@@ -65,7 +66,7 @@ RUN echo "Defaults env_keep += \"ftp_proxy http_proxy https_proxy no_proxy\"" \
 RUN groupadd builder -g 30000 && \
     useradd builder -u 30000 -g 30000 --create-home --home-dir /builder
 
-ENTRYPOINT ["/kas/container-entrypoint"]
+ENTRYPOINT ["/container-entrypoint"]
 
 #
 # kas-isar image
@@ -89,7 +90,7 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     sbuild-adduser builder && \
-    sed -i 's|# kas-isar: ||g' /kas/container-entrypoint
+    sed -i 's|# kas-isar: ||g' /container-entrypoint
 
 USER builder
 
