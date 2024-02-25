@@ -25,13 +25,20 @@ ARG DEBIAN_TAG=bookworm-slim
 
 FROM debian:${DEBIAN_TAG} as kas-base
 
+ARG SOURCE_DATE_EPOCH
+
 ARG DEBIAN_TAG=bookworm-slim
 ENV DEBIAN_BASE_IMAGE_TAG=${DEBIAN_TAG}
 
 ARG TARGETPLATFORM
 ARG DEBIAN_FRONTEND=noninteractive
 ENV LANG=en_US.utf8
-RUN apt-get update && \
+RUN if echo "${DEBIAN_TAG}" | grep -q "[0-9]"; then \
+        sed -i -e '/^URIs:/d' -e 's|^# http://snapshot\.|URIs: http://snapshot-cloudflare.|' \
+            /etc/apt/sources.list.d/debian.sources; \
+        echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/use-snapshot.conf; \
+    fi && \
+    apt-get update && \
     apt-get install -y locales && \
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 && \
     apt-get install --no-install-recommends -y \
@@ -79,6 +86,8 @@ ENTRYPOINT ["/container-entrypoint"]
 
 FROM kas-base as kas-isar
 
+ARG SOURCE_DATE_EPOCH
+
 # The install package list are actually taking 1:1 from their documentation,
 # so there some packages that can already installed by other downstream layers.
 # This will not change any image sizes on all the layers in use.
@@ -104,6 +113,8 @@ USER builder
 #
 
 FROM kas-base as kas
+
+ARG SOURCE_DATE_EPOCH
 
 # The install package list are actually taking 1:1 from their documentation
 # (exception: pylint3 -> pylint),  so there some packages that can already
