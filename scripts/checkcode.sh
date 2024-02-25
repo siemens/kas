@@ -18,6 +18,11 @@ echo "Checking with doc8"
 doc8  "$SRCDIR"/docs --ignore-path "$SRCDIR"/docs/_build || ERROR=$((ERROR + 4))
 
 echo "Checking with shellcheck"
-shellcheck "$SRCDIR"/kas-container "$SRCDIR"/scripts/release.sh "$SRCDIR"/scripts/checkcode.sh "$SRCDIR"/container-entrypoint || ERROR=$((ERROR + 8))
+shellcheck "$SRCDIR"/kas-container \
+        "$SRCDIR"/scripts/release.sh \
+        "$SRCDIR"/scripts/checkcode.sh \
+        "$SRCDIR"/scripts/build-container.sh \
+        "$SRCDIR"/scripts/reproduce-container.sh \
+        "$SRCDIR"/container-entrypoint || ERROR=$((ERROR + 8))
 
 exit $ERROR
