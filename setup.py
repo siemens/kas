@@ -95,7 +95,7 @@ setup(
         'distro>=1.0.0,<2',
         'jsonschema>=2.5.0,<5',
         'kconfiglib>=14.1.0,<15',
-        'GitPython>=2.1.11,<3'
+        'GitPython>=3.1.0,<4'
     ],
 
     # At least python 3.6 is needed by now:
