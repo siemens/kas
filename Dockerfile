@@ -48,7 +48,7 @@ RUN if echo "${DEBIAN_TAG}" | grep -q "[0-9]"; then \
         git-lfs mercurial iproute2 ssh-client telnet curl rsync gnupg awscli sudo \
         socat bash-completion python3-shtab python3-git && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    rm -rf /var/lib/apt/* /var/log/* /tmp/* /var/tmp/* /var/cache/ldconfig/aux-cache
 
 COPY . /kas
 
@@ -102,7 +102,7 @@ RUN apt-get update && \
             python3-botocore \
             debootstrap && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    rm -rf /var/lib/apt/* /var/log/* /tmp/* /var/tmp/* /var/cache/ldconfig/aux-cache && \
     sbuild-adduser builder && \
     sed -i 's|# kas-isar: ||g' /container-entrypoint
 
@@ -130,6 +130,6 @@ RUN apt-get update && \
         apt-get install --no-install-recommends -y gcc-multilib g++-multilib; \
     fi && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    rm -rf /var/lib/apt/* /var/log/* /tmp/* /var/tmp/* /var/cache/ldconfig/aux-cache
 
 USER builder
