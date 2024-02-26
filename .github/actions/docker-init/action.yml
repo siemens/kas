@@ -5,6 +5,8 @@ inputs:
     required: true
   deploy-token:
     required: true
+  cache-key:
+    required: true
 
 runs:
   using: composite
@@ -35,3 +37,27 @@ runs:
       run: |
         git clone . /home/runner/kas-clone
       shell: bash
+    - name: Cache var-cache-apt
+      id: cache-var-cache-apt
+      uses: actions/cache@v4
+      with:
+        path: var-cache-apt
+        key: var-cache-apt-${{ env.DEBIAN_TAG }}-${{ inputs.cache-key }}
+    - name: Cache var-lib-apt
+      id: cache-var-lib-apt
+      uses: actions/cache@v4
+      with:
+        path: var-lib-apt
+        key: var-lib-apt-${{ env.DEBIAN_TAG }}-${{ inputs.cache-key }}
+    - name: Inject var-cache-apt into docker
+      uses: reproducible-containers/buildkit-cache-dance@v2.1.4
+      with:
+        cache-source: var-cache-apt
+        cache-target: /var/cache/apt
+        skip-extraction: ${{ steps.cache-var-cache-apt.outputs.cache-hit }}
+    - name: Inject var-lib-apt into docker
+      uses: reproducible-containers/buildkit-cache-dance@v2.1.4
+      with:
+        cache-source: var-lib-apt
+        cache-target: /var/lib/apt
+        skip-extraction: ${{ steps.cache-var-lib-apt.outputs.cache-hit }}
