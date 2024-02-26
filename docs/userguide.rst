@@ -80,35 +80,37 @@ Plugins
 kas sub-commands are implemented by a series of plugins. Each plugin
 typically provides a single command.
 
-``build`` plugin
-~~~~~~~~~~~~~~~~
+.. only:: html
 
-.. automodule:: kas.plugins.build
+  ``build`` plugin
+  ~~~~~~~~~~~~~~~~
 
-``checkout`` plugin
-~~~~~~~~~~~~~~~~~~~
+  .. include:: userguide/plugins/build.inc
 
-.. automodule:: kas.plugins.checkout
+  ``checkout`` plugin
+  ~~~~~~~~~~~~~~~~~~~
 
-``dump`` plugin
-~~~~~~~~~~~~~~~~~~~
+  .. include:: userguide/plugins/checkout.inc
 
-.. automodule:: kas.plugins.dump
+  ``dump`` plugin
+  ~~~~~~~~~~~~~~~
 
-``for-all-repos`` plugin
-~~~~~~~~~~~~~~~~~~~~~~~~
+  .. include:: userguide/plugins/dump.inc
 
-.. automodule:: kas.plugins.for_all_repos
+  ``for-all-repos`` plugin
+  ~~~~~~~~~~~~~~~~~~~~~~~~
 
-``menu`` plugin
-~~~~~~~~~~~~~~~~
+  .. include:: userguide/plugins/for-all-repos.inc
 
-.. automodule:: kas.plugins.menu
+  ``menu`` plugin
+  ~~~~~~~~~~~~~~~
 
-``shell`` plugin
-~~~~~~~~~~~~~~~~
+  .. include:: userguide/plugins/menu.inc
 
-.. automodule:: kas.plugins.shell
+  ``shell`` plugin
+  ~~~~~~~~~~~~~~~~
+
+  .. include:: userguide/plugins/shell.inc
 
 
 Project Configuration
