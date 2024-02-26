@@ -33,7 +33,10 @@ jobs:
         with:
           context: /home/runner/kas-clone
           platforms: linux/amd64,linux/arm64
-          push: true
+          build-args: |
+            SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
+            DEBIAN_TAG=${{ env.DEBIAN_TAG }}
+          outputs: type=registry,rewrite-timestamp=true
           tags: ghcr.io/siemens/kas/kas
       - name: Build kas-isar image
         uses: docker/build-push-action@v5
@@ -42,5 +45,8 @@ jobs:
           context: /home/runner/kas-clone
           target: kas-isar
           platforms: linux/amd64,linux/arm64
-          push: true
+          build-args: |
+            SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
+            DEBIAN_TAG=${{ env.DEBIAN_TAG }}
+          outputs: type=registry,rewrite-timestamp=true
           tags: ghcr.io/siemens/kas/kas-isar
