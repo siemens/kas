@@ -26,6 +26,7 @@ ARG DEBIAN_TAG=bookworm-slim
 FROM debian:${DEBIAN_TAG} as kas-base
 
 ARG SOURCE_DATE_EPOCH
+ARG CACHE_SHARING=locked
 
 ARG DEBIAN_TAG=bookworm-slim
 ENV DEBIAN_BASE_IMAGE_TAG=${DEBIAN_TAG}
@@ -33,7 +34,11 @@ ENV DEBIAN_BASE_IMAGE_TAG=${DEBIAN_TAG}
 ARG TARGETPLATFORM
 ARG DEBIAN_FRONTEND=noninteractive
 ENV LANG=en_US.utf8
-RUN if echo "${DEBIAN_TAG}" | grep -q "[0-9]"; then \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=${CACHE_SHARING} \
+    --mount=type=cache,target=/var/lib/apt,sharing=${CACHE_SHARING} \
+    rm -f /etc/apt/apt.conf.d/docker-clean && \
+    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-packages.conf && \
+    if echo "${DEBIAN_TAG}" | grep -q "[0-9]"; then \
         sed -i -e '/^URIs:/d' -e 's|^# http://snapshot\.|URIs: http://snapshot-cloudflare.|' \
             /etc/apt/sources.list.d/debian.sources; \
         echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/use-snapshot.conf; \
@@ -47,8 +52,7 @@ RUN if echo "${DEBIAN_TAG}" | grep -q "[0-9]"; then \
         gosu lsb-release file vim less procps tree tar bzip2 zstd pigz lz4 unzip tmux libncurses-dev \
         git-lfs mercurial iproute2 ssh-client telnet curl rsync gnupg awscli sudo \
         socat bash-completion python3-shtab python3-git && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/* /var/log/* /tmp/* /var/tmp/* /var/cache/ldconfig/aux-cache && \
+    rm -rf /var/log/* /tmp/* /var/tmp/* /var/cache/ldconfig/aux-cache && \
     rm -f /etc/gitconfig && \
     git config --system filter.lfs.clean 'git-lfs clean -- %f' && \
     git config --system filter.lfs.smudge 'git-lfs smudge -- %f' && \
@@ -92,12 +96,15 @@ ENTRYPOINT ["/container-entrypoint"]
 FROM kas-base as kas-isar
 
 ARG SOURCE_DATE_EPOCH
+ARG CACHE_SHARING=locked
 
 # The install package list are actually taking 1:1 from their documentation,
 # so there some packages that can already installed by other downstream layers.
 # This will not change any image sizes on all the layers in use.
 ENV LC_ALL=en_US.UTF-8
-RUN apt-get update && \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=${CACHE_SHARING} \
+    --mount=type=cache,target=/var/lib/apt,sharing=${CACHE_SHARING} \
+    apt-get update && \
     apt-get install -y -f --no-install-recommends \
             binfmt-support bzip2 mmdebstrap arch-test apt-utils dosfstools \
             dpkg-dev gettext-base git mtools parted python3 python3-distutils \
@@ -106,8 +113,7 @@ RUN apt-get update && \
             umoci skopeo \
             python3-botocore \
             debootstrap && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/* /var/log/* /tmp/* /var/tmp/* /var/cache/ldconfig/aux-cache && \
+    rm -rf /var/log/* /tmp/* /var/tmp/* /var/cache/ldconfig/aux-cache && \
     sbuild-adduser builder && \
     sed -i 's|# kas-isar: ||g' /container-entrypoint
 
@@ -120,12 +126,15 @@ USER builder
 FROM kas-base as kas
 
 ARG SOURCE_DATE_EPOCH
+ARG CACHE_SHARING=locked
 
 # The install package list are actually taking 1:1 from their documentation
 # (exception: pylint3 -> pylint),  so there some packages that can already
 # installed by other downstream layers. This will not change any image sizes
 # on all the layers in use.
-RUN apt-get update && \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=${CACHE_SHARING} \
+    --mount=type=cache,target=/var/lib/apt,sharing=${CACHE_SHARING} \
+    apt-get update && \
     apt-get install --no-install-recommends -y \
         gawk wget git diffstat unzip texinfo \
         gcc build-essential chrpath socat cpio python3 python3-pip python3-pexpect \
@@ -134,7 +143,6 @@ RUN apt-get update && \
     if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
         apt-get install --no-install-recommends -y gcc-multilib g++-multilib; \
     fi && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/* /var/log/* /tmp/* /var/tmp/* /var/cache/ldconfig/aux-cache
+    rm -rf /var/log/* /tmp/* /var/tmp/* /var/cache/ldconfig/aux-cache
 
 USER builder
