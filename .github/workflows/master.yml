@@ -29,14 +29,16 @@ jobs:
           deploy-token: ${{ secrets.PACKAGE_DEPLOY_TOKEN }}
       - name: Build kas image
         uses: docker/build-push-action@v5
+        if: ${{ env.PUSH_MASTER }}
         with:
           platforms: linux/amd64,linux/arm64
-          push: ${{ env.PUSH_MASTER }}
+          push: true
           tags: ghcr.io/siemens/kas/kas
       - name: Build kas-isar image
         uses: docker/build-push-action@v5
+        if: ${{ env.PUSH_MASTER }}
         with:
           target: kas-isar
           platforms: linux/amd64,linux/arm64
-          push: ${{ env.PUSH_MASTER }}
+          push: true
           tags: ghcr.io/siemens/kas/kas-isar
