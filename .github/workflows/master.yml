@@ -31,6 +31,7 @@ jobs:
         uses: docker/build-push-action@v5
         if: ${{ env.PUSH_MASTER }}
         with:
+          context: /home/runner/kas-clone
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ghcr.io/siemens/kas/kas
@@ -38,6 +39,7 @@ jobs:
         uses: docker/build-push-action@v5
         if: ${{ env.PUSH_MASTER }}
         with:
+          context: /home/runner/kas-clone
           target: kas-isar
           platforms: linux/amd64,linux/arm64
           push: true

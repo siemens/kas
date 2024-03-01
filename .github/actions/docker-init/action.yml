@@ -19,3 +19,7 @@ runs:
         registry: ghcr.io
         username: ${{ inputs.deploy-user }}
         password: ${{ inputs.deploy-token }}
+    - name: Prepare repository for COPY-in
+      run: |
+        git clone . /home/runner/kas-clone
+      shell: bash

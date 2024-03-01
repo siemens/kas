@@ -76,6 +76,7 @@ jobs:
       - name: Build kas image
         uses: docker/build-push-action@v5
         with:
+          context: /home/runner/kas-clone
           load: true
           tags: ghcr.io/siemens/kas/kas:next
       - name: Test kas image
@@ -85,12 +86,14 @@ jobs:
       - name: Complete build and deploy kas image
         uses: docker/build-push-action@v5
         with:
+          context: /home/runner/kas-clone
           platforms: linux/amd64,linux/arm64
           tags: ghcr.io/siemens/kas/kas:next
           push: true
       - name: Build kas-isar image
         uses: docker/build-push-action@v5
         with:
+          context: /home/runner/kas-clone
           target: kas-isar
           load: true
           tags: ghcr.io/siemens/kas/kas-isar:next
@@ -101,6 +104,7 @@ jobs:
       - name: Complete build and deploy kas-isar image
         uses: docker/build-push-action@v5
         with:
+          context: /home/runner/kas-clone
           target: kas-isar
           platforms: linux/amd64,linux/arm64
           tags: ghcr.io/siemens/kas/kas-isar:next

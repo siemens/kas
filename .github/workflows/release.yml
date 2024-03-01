@@ -22,6 +22,7 @@ jobs:
       - name: Build kas image
         uses: docker/build-push-action@v5
         with:
+          context: /home/runner/kas-clone
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
@@ -31,6 +32,7 @@ jobs:
       - name: Build kas-isar image
         uses: docker/build-push-action@v5
         with:
+          context: /home/runner/kas-clone
           target: kas-isar
           platforms: linux/amd64,linux/arm64
           push: true
