@@ -9,6 +9,9 @@ jobs:
   deploy_containers:
     name: Build and deploy container images
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image-name: ["kas", "kas-isar"]
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -19,30 +22,17 @@ jobs:
         with:
           deploy-user: ${{ secrets.PACKAGE_DEPLOY_USER }}
           deploy-token: ${{ secrets.PACKAGE_DEPLOY_TOKEN }}
-      - name: Build kas image
+      - name: Build ${{ matrix.image-name }} image
         uses: docker/build-push-action@v5
         with:
           context: /home/runner/kas-clone
+          target: ${{ matrix.image-name }}
           platforms: linux/amd64,linux/arm64
           build-args: |
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             DEBIAN_TAG=${{ env.DEBIAN_TAG }}
           outputs: type=registry,rewrite-timestamp=true
           tags: |
-            ghcr.io/siemens/kas/kas
-            ghcr.io/siemens/kas/kas:${{ env.RELEASE_VERSION }}
-            ghcr.io/siemens/kas/kas:latest-release
-      - name: Build kas-isar image
-        uses: docker/build-push-action@v5
-        with:
-          context: /home/runner/kas-clone
-          target: kas-isar
-          platforms: linux/amd64,linux/arm64
-          build-args: |
-            SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
-            DEBIAN_TAG=${{ env.DEBIAN_TAG }}
-          outputs: type=registry,rewrite-timestamp=true
-          tags: |
-            ghcr.io/siemens/kas/kas-isar
-            ghcr.io/siemens/kas/kas-isar:${{ env.RELEASE_VERSION }}
-            ghcr.io/siemens/kas/kas-isar:latest-release
+            ghcr.io/siemens/kas/${{ matrix.image-name }}
+            ghcr.io/siemens/kas/${{ matrix.image-name }}:${{ env.RELEASE_VERSION }}
+            ghcr.io/siemens/kas/${{ matrix.image-name }}:latest-release
