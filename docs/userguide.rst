@@ -1,41 +1,45 @@
 User Guide
 ==========
 
-Dependencies & installation
----------------------------
+.. only:: html
 
-This project depends on
+  Dependencies & installation
+  ---------------------------
 
-- Python 3
-- distro Python 3 package
-- jsonschema Python 3 package
-- PyYAML Python 3 package
-- GitPython Python 3 package
-- kconfiglib Python 3 package (optional, for menu plugin)
-- NEWT Python 3 distro package (optional, for menu plugin)
+  This project depends on
 
-To install kas into your python site-package repository, run::
+  - Python 3
+  - distro Python 3 package
+  - jsonschema Python 3 package
+  - PyYAML Python 3 package
+  - GitPython Python 3 package
+  - kconfiglib Python 3 package (optional, for menu plugin)
+  - NEWT Python 3 distro package (optional, for menu plugin)
 
-    $ sudo pip3 install .
+  To install kas into your python site-package repository, run::
+
+      $ sudo pip3 install .
 
 
 Usage
 -----
 
-There are (at least) four options for using kas:
+.. only:: html
 
-- Install it locally via pip to get the ``kas`` command.
-- Use the container image locally. In this case, download the ``kas-container``
-  script from the kas repository and use it in place of the ``kas`` command.
-  The script version corresponds to the kas tool and the kas image version.
-- Use the container image in CI. Specify
-  ``ghcr.io/siemens/kas/kas[-isar][:<x.y>]`` in your CI script that requests
-  a container image as runtime environment. See
-  https://github.com/orgs/siemens/packages/container/kas%2Fkas/versions and
-  https://github.com/orgs/siemens/packages/container/kas%2Fkas-isar/versions for
-  all available images.
-- Use the **run-kas** wrapper from this directory. In this case,
-  replace ``kas`` in the examples below with ``path/to/run-kas``.
+  There are (at least) four options for using kas:
+
+  - Install it locally via pip to get the ``kas`` command.
+  - Use the container image locally. In this case, download the ``kas-container``
+    script from the kas repository and use it in place of the ``kas`` command.
+    The script version corresponds to the kas tool and the kas image version.
+  - Use the container image in CI. Specify
+    ``ghcr.io/siemens/kas/kas[-isar][:<x.y>]`` in your CI script that requests
+    a container image as runtime environment. See
+    https://github.com/orgs/siemens/packages/container/kas%2Fkas/versions and
+    https://github.com/orgs/siemens/packages/container/kas%2Fkas-isar/versions for
+    all available images.
+  - Use the **run-kas** wrapper from this directory. In this case,
+    replace ``kas`` in the examples below with ``path/to/run-kas``.
 
 Start build::
 
@@ -112,6 +116,20 @@ typically provides a single command.
 
   .. include:: userguide/plugins/shell.inc
 
+.. only:: man
+
+  :manpage:`kas-build(1)`
+    build the project
+  :manpage:`kas-checkout(1)`
+    checkout all repos without building
+  :manpage:`kas-dump(1)`
+    dump the flattened configuration or lockfiles
+  :manpage:`kas-for-all-repos(1)`
+    run a command in each repository
+  :manpage:`kas-menu(1)`
+    interactive menu to configure the build
+  :manpage:`kas-shell(1)`
+    start a shell in the build environment
 
 Project Configuration
 ---------------------
@@ -119,6 +137,12 @@ Project Configuration
 .. only:: html
 
   .. include:: userguide/project-configuration.inc
+
+.. only:: man
+
+  The project configuration file describes the build environment and the layers
+  to be used. It is the main input to kas.
+  For details, see :manpage:`kas-project-config(1)`
 
 .. _checkout-creds-label:
 
@@ -128,3 +152,8 @@ Credential Handling
 .. only:: html
 
   .. include:: userguide/credentials.inc
+
+.. only:: man
+
+  KAS provides various mechanisms to inject credentials into the build.
+  For details, see :manpage:`kas-credentials(1)`.

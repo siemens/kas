@@ -90,7 +90,9 @@ language = 'en'
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '_man']
+if tags.has('man'):  # noqa: F821
+    exclude_patterns.remove('_man')
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
@@ -317,8 +319,29 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'kas', 'a setup tool for bitbake based projects',
-     [author], 1)
+    ('_man/kas', 'kas', 'a setup tool for bitbake based projects',
+     [author], 1),
+    ('_man/kas-plugin-build', 'kas-build', 'kas build plugin',
+     [author], 1),
+    ('_man/kas-plugin-checkout', 'kas-checkout', 'kas checkout plugin',
+     [author], 1),
+    ('_man/kas-plugin-dump', 'kas-dump', 'kas dump plugin',
+     [author], 1),
+    ('_man/kas-plugin-for-all-repos',
+     'kas-for-all-repos', 'kas for-all-repos plugin',
+     [author], 1),
+    ('_man/kas-plugin-menu', 'kas-menu', 'kas menu plugin',
+     [author], 1),
+    ('_man/kas-plugin-shell', 'kas-shell', 'kas shell plugin',
+     [author], 1),
+    ('_man/kas-project-config',
+     'kas-project-config', 'kas project configuration',
+     [author], 1),
+    ('_man/kas-format-changelog',
+     'kas-format-changelog', 'project configuration changelog',
+     [author], 1),
+    ('_man/kas-credentials', 'kas-credentials', 'kas credential handling',
+     [author], 1),
 ]
 
 # If true, show URL addresses after external links.
