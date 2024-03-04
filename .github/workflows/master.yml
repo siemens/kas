@@ -28,8 +28,8 @@ jobs:
       - name: Set up docker build
         uses: ./.github/actions/docker-init
         with:
-          deploy-user: ${{ secrets.PACKAGE_DEPLOY_USER }}
-          deploy-token: ${{ secrets.PACKAGE_DEPLOY_TOKEN }}
+          deploy-user: ${{ github.actor }}
+          deploy-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Build ${{ matrix.image-name }} image
         uses: docker/build-push-action@v5
         if: ${{ env.PUSH_MASTER }}
