@@ -193,7 +193,7 @@ class Repo:
         if refspec is None:
             commit = repo_overrides.get('commit', commit)
             if commit and get_context().update:
-                logging.warning(f'Update of {name} requested, but repo is '
+                logging.warning(f'Update of "{name}" requested, but repo is '
                                 'pinned to a fixed commit. Not updating.')
         else:
             if name not in Repo.__legacy_refspec_warned__:
@@ -202,8 +202,9 @@ class Repo:
                                 name)
                 Repo.__legacy_refspec_warned__.append(name)
             if commit is not None or tag is not None or branch is not None:
-                raise RepoRefError('Unsupported mixture of legacy refspec and '
-                                   'commit/tag/branch for repository "{name}"')
+                raise RepoRefError(
+                    'Unsupported mixture of legacy refspec and '
+                    f'commit/tag/branch for repository "{name}"')
             refspec = repo_overrides.get('commit', refspec)
         if tag and not commit:
             if name not in Repo.__no_commit_tag_warned__:
@@ -369,7 +370,7 @@ class RepoImpl(Repo):
                                      fail=False)
             if retc:
                 raise RepoRefError(f'Tag "{self.tag}" cannot be found '
-                                   f'in repository {self.name}')
+                                   f'in repository "{self.name}"')
 
             if self.commit and output.strip() != self.commit:
                 # Ensure provided commit and tag match
@@ -385,14 +386,15 @@ class RepoImpl(Repo):
             if retc:
                 raise RepoRefError(
                     f'Branch "{self.branch}" cannot be found '
-                    f'in repository {self.name}')
+                    f'in repository "{self.name}"')
             if self.commit:
                 (_, output) = run_cmd(self.branch_contains_ref(),
                                       cwd=self.path,
                                       fail=False)
                 if not output.strip():
                     raise RepoRefError(
-                        f'Branch "{self.branch}" does not contain '
+                        f'Branch "{self.branch}" in '
+                        f'repository "{self.name}" does not contain '
                         f'commit "{self.commit}"')
 
             desired_ref = self.commit or output.strip()
