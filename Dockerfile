@@ -34,7 +34,7 @@ RUN apt-get update && \
         python3-newt python3-colorlog python3-kconfiglib python3-websockets \
         gosu lsb-release file vim less procps tree tar bzip2 zstd pigz lz4 unzip tmux libncurses-dev \
         git-lfs mercurial iproute2 ssh-client telnet curl rsync gnupg awscli sudo \
-        socat bash-completion python3-git && \
+        socat bash-completion python3-shtab python3-git && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -47,6 +47,9 @@ RUN pip3 --proxy=$https_proxy install \
         --break-system-packages \
         /kas && \
     kas --version && \
+    install -d /usr/local/share/bash-completion/completions/ && \
+    shtab --shell=bash -u kas.kas.kas_get_argparser --error-unimportable --prog kas \
+        > /usr/local/share/bash-completion/completions/kas && \
     rm -rf $(pip3 cache dir)
 
 RUN ln -s /kas/contrib/oe-git-proxy /usr/bin/
