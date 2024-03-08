@@ -285,6 +285,8 @@ Configuration reference
   overwritten by the ``KAS_TARGET`` environment variable and defaults to
   ``core-image-minimal``. Space is used as a delimiter if multiple targets
   should be specified via the environment variable.
+  For targets prefixed with ``multiconfig:`` or ``mc:``, corresponding
+  entries are added to the ``BBMULTICONFIG`` in ``local.conf``.
 
 ``env``: dict [optional]
   Contains environment variable names with either default values or ``null``.
