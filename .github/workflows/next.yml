@@ -76,7 +76,7 @@ jobs:
         with:
           deploy-user: ${{ github.actor }}
           deploy-token: ${{ secrets.GITHUB_TOKEN }}
-          cache-key: ${{ matrix.image-name }}
+          image-name: ${{ matrix.image-name }}
 
       - name: Build ${{ matrix.image-name }} image
         uses: docker/build-push-action@v5
@@ -105,3 +105,4 @@ jobs:
           provenance: mode=max,reproducible=true
           outputs: type=registry,rewrite-timestamp=true
           tags: ghcr.io/siemens/kas/${{ matrix.image-name }}:next
+          annotations: ${{ env.DOCKER_METADATA_OUTPUT_ANNOTATIONS }}

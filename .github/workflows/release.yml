@@ -22,7 +22,7 @@ jobs:
         with:
           deploy-user: ${{ github.actor }}
           deploy-token: ${{ secrets.GITHUB_TOKEN }}
-          cache-key: ${{ matrix.image-name }}
+          image-name: ${{ matrix.image-name }}
       - name: Build ${{ matrix.image-name }} image
         uses: docker/build-push-action@v5
         with:
@@ -38,3 +38,4 @@ jobs:
             ghcr.io/siemens/kas/${{ matrix.image-name }}
             ghcr.io/siemens/kas/${{ matrix.image-name }}:${{ env.RELEASE_VERSION }}
             ghcr.io/siemens/kas/${{ matrix.image-name }}:latest-release
+          annotations: ${{ env.DOCKER_METADATA_OUTPUT_ANNOTATIONS }}
