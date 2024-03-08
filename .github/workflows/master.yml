@@ -41,5 +41,6 @@ jobs:
           build-args: |
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             DEBIAN_TAG=${{ env.DEBIAN_TAG }}
+          provenance: mode=max,reproducible=true
           outputs: type=registry,rewrite-timestamp=true
           tags: ghcr.io/siemens/kas/${{ matrix.image-name }}
