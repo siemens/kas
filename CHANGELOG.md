@@ -1,3 +1,16 @@
+4.3
+- kas: fix including from transitively referenced repos
+- kas: Add support for .gitconfig pass-through
+- kas: Optimize checkout of repos in larger configurations
+- kas: Reduce verbosity of kas startup output
+- kas: check if branch contains commit if both are set
+- kas: Improve error reporting in several places
+- kas-container: Bit-identically reproducible images
+- kas-container: Enrich manifests with provenance information
+- kas-container: Add bash completion for kas
+- docs: Separate man pages per subcommand
+- docs: Various smaller improvements
+
 4.2
 - kas: Fix lock files when references repos by tags
 - kas: add forgotten `tag` key to repos `defaults`
