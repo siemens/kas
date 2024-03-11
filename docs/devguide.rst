@@ -13,23 +13,27 @@ That will install a backlink ~/.local/bin/kas to this project. Now you are
 able to call it from anywhere.
 
 
-Docker image build
-------------------
+Container image build
+---------------------
 
-For the Yocto/OE build image, just run::
+To build the container images kas provides, there is a script provided for
+your convenience. It uses docker buildx and requires BuildKit 0.13.0 or newer.
+To start the build both container variants, invoke::
 
-    $ docker build -t <kas_image_name> .
+    $ scripts/build-container.sh
 
-For the Yocto/OE build image, use::
+You can limit the target type to either Yocto/OE (``kas``) or isar
+(``kas-isar``) via the ``--target`` options. See the script help for more
+options.
 
-    $ docker build --target kas-isar -t <kas-isar_image_name> .
+Since release 4.3, the containers officially provided via ghcr.io are fully
+reproducible. To test this, you can use the following script, e.g. to validate
+that release::
 
-When you need a proxy to access the internet, add::
+    $ scripts/reproduce-container.sh kas:4.3
 
-    --build-arg http_proxy=<http_proxy> --build-arg https_proxy=<https_proxy>
-    --build-arg ftp_proxy=<ftp_proxy> --build-arg no_proxy=<no_proxy>
-
-to the call.
+Both scripts also support building/checking of the arm64 container images. See
+the help of both scripts for more details.
 
 
 Measure code coverage
