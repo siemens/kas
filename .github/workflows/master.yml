@@ -27,13 +27,14 @@ jobs:
           fi
       - name: Set up docker build
         uses: ./.github/actions/docker-init
+        if: ${{ env.PUSH_MASTER == 'true' }}
         with:
           deploy-user: ${{ github.actor }}
           deploy-token: ${{ secrets.GITHUB_TOKEN }}
           image-name: ${{ matrix.image-name }}
       - name: Build ${{ matrix.image-name }} image
         uses: docker/build-push-action@v5
-        if: ${{ env.PUSH_MASTER }}
+        if: ${{ env.PUSH_MASTER == 'true' }}
         with:
           context: /home/runner/kas-clone
           target: ${{ matrix.image-name }}
