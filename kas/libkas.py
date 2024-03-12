@@ -357,7 +357,7 @@ def ssh_setup_agent(envkeys=None):
     envkeys = envkeys or ['SSH_PRIVATE_KEY', 'SSH_PRIVATE_KEY_FILE']
     (_, output) = run_cmd(['ssh-agent', '-s'], env=env,
                           cwd=ctx.kas_work_dir)
-    for line in output:
+    for line in output.split('\n'):
         matches = re.search(r"(\S+)\=(\S+)\;", line)
         if matches:
             env[matches.group(1)] = matches.group(2)
