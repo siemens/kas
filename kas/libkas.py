@@ -327,7 +327,7 @@ def ssh_add_key(env, key):
                     stderr=PIPE, env=env)
     (_, error) = process.communicate(input=str.encode(key))
     if process.returncode and error:
-        logging.error('failed to add ssh key: %s', error)
+        logging.error('failed to add ssh key: %s', error.decode('utf-8'))
 
 
 def ssh_cleanup_agent():
