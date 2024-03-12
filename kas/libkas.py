@@ -368,13 +368,13 @@ def ssh_setup_agent(envkeys=None):
             key_path = os.environ.get(envkey)
             if key_path:
                 found = True
-                logging.info("adding SSH key")
+                logging.info(f"adding SSH key from file '{key_path}'")
                 ssh_add_key_file(env, key_path)
         else:
             key = os.environ.get(envkey)
             if key:
                 found = True
-                logging.info("adding SSH key")
+                logging.info("adding SSH key from env-var 'SSH_PRIVATE_KEY'")
                 ssh_add_key(env, key)
 
     if found is not True:
