@@ -31,6 +31,8 @@ ENVVARS_KAS = [
     'KAS_TARGET',
     'KAS_TASK',
     'KAS_PREMIRRORS',
+    'SSH_PRIVATE_KEY',
+    'SSH_PRIVATE_KEY_FILE',
     'SSH_AUTH_SOCK',
 ]
 

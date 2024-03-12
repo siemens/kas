@@ -24,6 +24,7 @@
 import os
 import shutil
 import pathlib
+import subprocess
 import re
 import pytest
 from kas import kas
@@ -53,7 +54,7 @@ def test_build_dir_can_be_specified_by_environment_variable(monkeykas, tmpdir):
     assert os.path.exists(os.path.join(build_dir, 'conf'))
 
 
-def test_ssh_agent_setup(monkeykas, tmpdir):
+def test_ssh_agent_setup(monkeykas, tmpdir, capsys):
     conf_dir = str(tmpdir / 'test_ssh_agent_setup')
     shutil.copytree('tests/test_environment_variables', conf_dir)
     monkeykas.chdir(conf_dir)
@@ -72,6 +73,29 @@ def test_ssh_agent_setup(monkeykas, tmpdir):
         mp.setenv('SSH_PRIVATE_KEY', 'id_rsa')
         with pytest.raises(ArgsCombinationError):
             kas.kas(['checkout', 'test.yml'])
+
+    privkey_file = f'{tmpdir}/id_ecdsa_test'
+    genkey_cmd = ['ssh-keygen', '-f', privkey_file, '-N', '', '-t', 'ecdsa']
+    subprocess.check_call(genkey_cmd)
+    # ensure we also get the info messages
+    log = kas.logging.getLogger()
+    log.setLevel(kas.logging.INFO)
+    # flush the captured output
+    capsys.readouterr()
+    with monkeykas.context() as mp:
+        mp.setenv('SSH_PRIVATE_KEY_FILE', privkey_file)
+        kas.kas(['checkout', 'test.yml'])
+        out = capsys.readouterr().err
+        assert 'adding SSH key from file' in out
+        assert 'ERROR' not in out
+
+    with monkeykas.context() as mp:
+        privkey = pathlib.Path(privkey_file).read_text()
+        mp.setenv('SSH_PRIVATE_KEY', privkey)
+        kas.kas(['checkout', 'test.yml'])
+        out = capsys.readouterr().err
+        assert 'adding SSH key from env-var' in out
+        assert 'ERROR' not in out
 
 
 def _get_env_from_file(filename):
