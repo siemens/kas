@@ -37,6 +37,7 @@ usage()
 		    "\t\tstarting the build and do not use image cache\n"
 	printf "%b" "--debian-tag\tUse specified tag for Debian base image\n" \
 		    "\t\t(default=$DEFAULT_DEBIAN_TAG)\n"
+	printf "%b" "--git-refspec\tUse specified revision/branch of kas repository (default=HEAD)\n"
 	printf "%b" "--tag\t\tTag container with specified name (default=next)\n"
 	printf "%b" "--target\tBuild specified target(s) (default=\"kas kas-isar\")\n"
 }
@@ -79,6 +80,7 @@ build_image()
 ARCH=
 CLEAN=
 DEBIAN_TAG=
+GIT_REFSPEC=HEAD
 TARGETS=
 TAG=next
 while [ $# -gt 0 ]; do
@@ -93,6 +95,10 @@ while [ $# -gt 0 ]; do
 	--debian-tag)
 		shift
 		DEBIAN_TAG="$1"
+		;;
+	--git-refspec)
+		shift
+		GIT_REFSPEC="$1"
 		;;
 	--tag)
 		shift
@@ -127,6 +133,7 @@ fi
 KAS_CLONE=$(mktemp -d --tmpdir kas-tmp.XXXXXXXXXX)
 git clone . "$KAS_CLONE"
 cd "$KAS_CLONE" || exit 1
+git checkout -q "$GIT_REFSPEC"
 
 RESULT=0
 for TARGET in $TARGETS; do

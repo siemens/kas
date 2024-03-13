@@ -50,9 +50,15 @@ if [ -z "$DEBIAN_TAG" ]; then
 	exit 1
 fi
 
+GIT_REFSPEC="$TAG"
+if [ "$GIT_REFSPEC" = "latest" ]; then
+	GIT_REFSPEC=master
+fi
+
 # shellcheck disable=SC2086
 "$(dirname "$0")/build-container.sh" $ARCH_OPT --target "$TARGET" \
-	--tag repro-test --debian-tag "$DEBIAN_TAG" --clean || exit 1
+	--tag repro-test --git-refspec "$GIT_REFSPEC" \
+	--debian-tag "$DEBIAN_TAG" --clean || exit 1
 
 echo ""
 
