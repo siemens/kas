@@ -1,3 +1,7 @@
+4.3.1
+- kas: Fix regression of 4.3 when using SSH_PRIVATE_KEY[_FILE]
+- kas-container: Update to debian:bookworm-20240311-slim (implicitly)
+
 4.3
 - kas: fix including from transitively referenced repos
 - kas: Add support for .gitconfig pass-through
