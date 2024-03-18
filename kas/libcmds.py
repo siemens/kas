@@ -247,9 +247,11 @@ class SetupHome(Command):
             config.write()
 
     def execute(self, ctx):
+        def_umask = os.umask(0o077)
         self._setup_netrc()
         self._setup_gitconfig()
         self._setup_aws_creds()
+        os.umask(def_umask)
 
         ctx.environ['HOME'] = self.tmpdirname
 
