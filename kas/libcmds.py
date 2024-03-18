@@ -180,6 +180,18 @@ class SetupHome(Command):
     def __str__(self):
         return 'setup_home'
 
+    def _setup_netrc(self):
+        if os.environ.get('NETRC_FILE', False):
+            shutil.copy(os.environ['NETRC_FILE'],
+                        self.tmpdirname + "/.netrc")
+        if os.environ.get('CI_SERVER_HOST', False) \
+                and os.environ.get('CI_JOB_TOKEN', False):
+            with open(self.tmpdirname + '/.netrc', 'a') as fds:
+                fds.write('\n# appended by kas, you have gitlab CI env\n')
+                fds.write('machine ' + os.environ['CI_SERVER_HOST'] + '\n'
+                          'login gitlab-ci-token\n'
+                          'password ' + os.environ['CI_JOB_TOKEN'] + '\n')
+
     def _setup_aws_creds(self):
         aws_dir = self.tmpdirname + "/.aws"
         conf_file = aws_dir + "/config"
@@ -235,17 +247,7 @@ class SetupHome(Command):
             config.write()
 
     def execute(self, ctx):
-        if os.environ.get('NETRC_FILE', False):
-            shutil.copy(os.environ['NETRC_FILE'],
-                        self.tmpdirname + "/.netrc")
-        if os.environ.get('CI_SERVER_HOST', False) \
-                and os.environ.get('CI_JOB_TOKEN', False):
-            with open(self.tmpdirname + '/.netrc', 'a') as fds:
-                fds.write('\n# appended by kas, you have gitlab CI env\n')
-                fds.write('machine ' + os.environ['CI_SERVER_HOST'] + '\n'
-                          'login gitlab-ci-token\n'
-                          'password ' + os.environ['CI_JOB_TOKEN'] + '\n')
-
+        self._setup_netrc()
         self._setup_gitconfig()
         self._setup_aws_creds()
 
