@@ -589,7 +589,7 @@ class MercurialRepo(RepoImpl):
         return ['hg', 'pull']
 
     def is_dirty_cmd(self):
-        return ['hg', 'diff']
+        return ['hg', 'status']
 
     def resolve_branch_cmd(self):
         if self.branch:
