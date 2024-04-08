@@ -1,4 +1,4 @@
-Command line usage
+Command Line Usage
 ==================
 
 .. argparse::
@@ -10,20 +10,54 @@ Command line usage
 
 .. _env-vars-label:
 
-Environment variables
+Environment Variables
 ---------------------
+
+kas uses a number of environment variables to configure its behavior.
+The `Variables Glossary`_ provides an overview, wherein the tuple (C,K,E)
+denotes the scope of the variable.
+
+Variable Scope
+~~~~~~~~~~~~~~
+
+**kas-container (C)**
+
+The variable is processed or forwarded by the ``kas-container`` script.
+For some variables, the variable is re-written to the container's
+directory layout.
+
+.. note::
+    The ``env`` section of the `project configuration` can be used to make
+    arbitrary environment variables available to the build environment. When
+    invoking the build via ``kas-container``, make sure to also forward the
+    corresponding environment variables into the container.
+
+**kas (K)**
+
+The variable is processed by kas itself. Some variables (e.g. the credentials
+for the awscli) are re-written to configuration files to also support older
+versions of the tooling.
+
+**build environment (E)**
+
+The variable is exported into the build environment. In this environment, the
+``bitbake`` command is executed.
+
+
+Variables Glossary
+~~~~~~~~~~~~~~~~~~
 
 +--------------------------+--------------------------------------------------+
 | Environment variables    | Description                                      |
 +==========================+==================================================+
 | ``KAS_WORK_DIR``         | The path of the kas work directory, current work |
-|                          | directory is the default.                        |
+| (C, K)                   | directory is the default.                        |
 +--------------------------+--------------------------------------------------+
 | ``KAS_BUILD_DIR``        | The path build directory,                        |
-|                          | ``${KAS_WORK_DIR}/build`` is the default.        |
+| (C, K)                   | ``${KAS_WORK_DIR}/build`` is the default.        |
 +--------------------------+--------------------------------------------------+
 | ``KAS_REPO_REF_DIR``     | The path to the repository reference directory.  |
-|                          | Repositories in this directory are used as       |
+| (C, K)                   | Repositories in this directory are used as       |
 |                          | references when cloning. In order for kas to     |
 |                          | find those repositories, they have to be named   |
 |                          | in a specific way. The repo URLs are translated  |
@@ -41,77 +75,87 @@ Environment variables
 | ``KAS_MACHINE``          | configuration file.                              |
 | ``KAS_TARGET``           |                                                  |
 | ``KAS_TASK``             |                                                  |
+| (C, K)                   |                                                  |
 +--------------------------+--------------------------------------------------+
 | ``KAS_PREMIRRORS``       | Specifies alternatives for repo URLs. Just like  |
-| ``DISTRO_APT_PREMIRRORS``| bitbake ``PREMIRRORS``, this variable consists   |
+| (C, K)                   | bitbake ``PREMIRRORS``, this variable consists   |
 |                          | of new-line separated entries. Each entry        |
 |                          | defines a regular expression to match a URL and, |
 |                          | space-separated, its replacement. E.g.:          |
 |                          | "http://.*\.someurl\.io/ http://localmirror.net/"|
 +--------------------------+--------------------------------------------------+
+| ``DISTRO_APT_PREMIRRORS``| Specifies alternatives for apt URLs. Just like   |
+| (C)                      | ``KAS_PREMIRRORS``.                              |
++--------------------------+--------------------------------------------------+
 | ``SSH_PRIVATE_KEY``      | Variable containing the private key that should  |
-|                          | be added to an internal ssh-agent. This key      |
+| (K)                      | be added to an internal ssh-agent. This key      |
 |                          | cannot be password protected. This setting is    |
 |                          | useful for CI build servers. On desktop          |
 |                          | machines, an ssh-agent running outside the kas   |
 |                          | environment is more useful.                      |
 +--------------------------+--------------------------------------------------+
 | ``SSH_PRIVATE_KEY_FILE`` | Path to the private key file that should be      |
-|                          | added to an internal ssh-agent. This key cannot  |
+| (K)                      | added to an internal ssh-agent. This key cannot  |
 |                          | be password protected. This setting is useful    |
 |                          | for CI build servers. On desktop machines, an    |
 |                          | ssh-agent running outside the kas environment is |
 |                          | more useful.                                     |
 +--------------------------+--------------------------------------------------+
 | ``SSH_AUTH_SOCK``        | SSH authentication socket. Used for cloning over |
-|                          | SSH (alternative to ``SSH_PRIVATE_KEY`` or       |
+| (C,K,E)                  | SSH (alternative to ``SSH_PRIVATE_KEY`` or       |
 |                          | ``SSH_PRIVATE_KEY_FILE``).                       |
 +--------------------------+--------------------------------------------------+
 | ``DL_DIR``               | Environment variables that are transferred to    |
 | ``SSTATE_DIR``           | the bitbake environment.                         |
 | ``SSTATE_MIRRORS``       |                                                  |
-| ``TMPDIR``               |                                                  |
+| (C,K,E)                  |                                                  |
++--------------------------+--------------------------------------------------+
+| ``TMPDIR`` (K,E)         | Directory for temporary files.                   |
 +--------------------------+--------------------------------------------------+
 | ``http_proxy``           | These variables define the proxy configuration   |
 | ``https_proxy``          | bitbake should use.                              |
 | ``ftp_proxy``            |                                                  |
 | ``no_proxy``             |                                                  |
+| (C,K,E)                  |                                                  |
 +--------------------------+--------------------------------------------------+
-| ``GIT_PROXY_COMMAND``    | Set proxy for native git fetches. ``NO_PROXY``   |
-| ``NO_PROXY``             | is evaluated by OpenEmbedded's oe-git-proxy      |
+| ``GIT_PROXY_COMMAND`` (E)| Set proxy for native git fetches. ``NO_PROXY``   |
+| ``NO_PROXY`` (C,K,E)     | is evaluated by OpenEmbedded's oe-git-proxy      |
 |                          | script.                                          |
 +--------------------------+--------------------------------------------------+
 | ``SHELL``                | The shell to start when using the `shell`        |
-|                          | plugin.                                          |
+| (C,K,E)                  | plugin.                                          |
 +--------------------------+--------------------------------------------------+
 | ``TERM``                 | The terminal options used in the `shell` plugin. |
+| (C,K,E)                  |                                                  |
 +--------------------------+--------------------------------------------------+
 | ``AWS_CONFIG_FILE``      | Path to the awscli configuration and credentials |
 | |aws_cred|               | files that are copied to the kas home dir.       |
+| (K,C)                    |                                                  |
 +--------------------------+--------------------------------------------------+
 | |git_cred|               | Allows to set and configure the git credential   |
-|                          | helper in the `.gitconfig` of the kas user.      |
+| (K,C)                    | helper in the `.gitconfig` of the kas user.      |
 +--------------------------+--------------------------------------------------+
 | ``GITCONFIG_FILE``       | Path to a `.gitconfig` file which will be        |
-|                          | copied to the kas home dir as `.gitconfig`.      |
+| (K,C)                    | copied to the kas home dir as `.gitconfig`.      |
 +--------------------------+--------------------------------------------------+
 | ``NETRC_FILE``           | Path to a .netrc file which will be copied to    |
-|                          | the kas home dir as .netrc.                      |
+| (K,C)                    | the kas home dir as .netrc.                      |
 +--------------------------+--------------------------------------------------+
 | ``CI_SERVER_HOST``       | Environment variables from gitlab CI, if set     |
 | ``CI_JOB_TOKEN``         | .netrc is configured to allow fetching from      |
-|                          | the gitlab instance. An entry will be appended   |
+| (K)                      | the gitlab instance. An entry will be appended   |
 |                          | in case ``NETRC_FILE`` was given as well. Note   |
 |                          | that if the file already contains an entry for   |
 |                          | that host most tools would probably take that    |
 |                          | first one.                                       |
 +--------------------------+--------------------------------------------------+
 | ``GITHUB_ACTIONS``       | Environment variables from github actions. If    |
-|                          | set to `true`, `.gitconfig` is automatically     |
+| (K)                      | set to `true`, `.gitconfig` is automatically     |
 |                          | imported. For details, see ``GITCONFIG_FILE``.   |
 +--------------------------+--------------------------------------------------+
-| ``BB_NUMBER_THREADS``    | Environment variables to control the concurrency |
+| ``BB_NUMBER_THREADS``    | Environment variables to control the concurrency.|
 | ``PARALLEL_MAKE``        |                                                  |
+| (C,K,E)                  |                                                  |
 +--------------------------+--------------------------------------------------+
 
 .. |aws_cred| replace:: ``AWS_ROLE_ARN``
