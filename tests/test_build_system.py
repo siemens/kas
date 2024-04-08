@@ -50,7 +50,7 @@ def test_gitconfig(monkeykas, tmpdir, capsys):
     kas.kas(['shell', 'test-oe.yml', '-c',
              f'git config --get user.name > {tdir}/user.name'])
     with open(f'{tdir}/user.name', 'r') as f:
-        assert f.readline().strip() == 'Kas User'
+        assert f.readline().strip() == 'kas User'
 
     monkeykas.setenv('GITCONFIG_FILE', f'{tdir}/gitconfig')
     with open(f'{tdir}/gitconfig', 'w') as f:

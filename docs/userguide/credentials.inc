@@ -1,8 +1,8 @@
-KAS provides various mechanisms to inject credentials into the build.
+kas provides various mechanisms to inject credentials into the build.
 By using :ref:`env-vars-label`, a fine grained control is possible. All
 credentials are made available both to KAS, as well as inside the build
 environment. However, not all mechanisms are natively supported by all tools.
-As KAS might need to modify credentials and config files, these are copied
+As kas might need to modify credentials and config files, these are copied
 into the isolated environment first. One exception is the SSH folder, where
 changes are only performed if not yet present on the host.
 
@@ -24,7 +24,7 @@ Git Configuration
 
 A ``.gitconfig`` file can be used to provide credentials as well as
 url rewrites of git repositories (``insteadof``). To support the patching
-of git repositories, KAS injects a ``[user]`` section, possibly overwriting
+of git repositories, kas injects a ``[user]`` section, possibly overwriting
 an existing one. When running in the Github CI, the ``.gitconfig`` file is
 automatically injected. In addition, credential helpers can be used by
 setting the corresponding environment variables. These are added to the

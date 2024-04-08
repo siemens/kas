@@ -155,5 +155,5 @@ Credential Handling
 
 .. only:: man
 
-  KAS provides various mechanisms to inject credentials into the build.
+  kas provides various mechanisms to inject credentials into the build.
   For details, see :manpage:`kas-credentials(1)`.

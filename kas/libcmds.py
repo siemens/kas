@@ -234,7 +234,7 @@ class SetupHome(Command):
             # overwrite user as kas operates git
             config['user'] = {
                 'email': 'kas@example.com',
-                'name': 'Kas User'
+                'name': 'kas User'
             }
             if os.environ.get('GIT_CREDENTIAL_HELPER', False):
                 config['credential'] = {

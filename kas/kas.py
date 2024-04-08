@@ -22,7 +22,7 @@
 """
     This module is the main entry point for kas, setup tool for bitbake based
     projects. In case of user errors (e.g. invalid configuration, repo fetch
-    failure) KAS exits with error code 2, while exiting with 1 for internal
+    failure) kas exits with error code 2, while exiting with 1 for internal
     errors. For details on error handling, see :mod:`kas.kasusererror`.
 """
 

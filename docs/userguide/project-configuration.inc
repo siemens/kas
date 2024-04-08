@@ -161,7 +161,7 @@ configuration flaws that can easily emerge from them.
 Working with lockfiles
 ~~~~~~~~~~~~~~~~~~~~~~
 
-KAS supports the use of lockfiles to pinpoint repositories to exact commit ID
+kas supports the use of lockfiles to pinpoint repositories to exact commit ID
 (e.g. SHA-1 refs for git). A lockfile hereby only overrides the commit ID
 defined in a kas file. When performing the checkout operation (or any other
 operation that performs a checkout), kas checks if a file named
