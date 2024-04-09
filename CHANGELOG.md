@@ -1,3 +1,13 @@
+4.3.2
+- kas: don't add comments to .netrc, fixing gitlab-ci
+- kas: make file permissions on credentials more strict (not a security fix)
+- kas: align hg semantics of repo dirty checking
+- kas-container: fix warnings from shellcheck 0.9.0
+- docs: do not build docs against installed version
+- docs: update to match bitbake variable changes
+- docs: unify spelling of kas
+- docs: document scope of environment variables
+
 4.3.1
 - kas: Fix regression of 4.3 when using SSH_PRIVATE_KEY[_FILE]
 - kas-container: Update to debian:bookworm-20240311-slim (implicitly)
