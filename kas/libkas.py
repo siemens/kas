@@ -411,8 +411,10 @@ def setup_parser_common_args(parser):
                         '.config.yaml in KAS_WORK_DIR if none is specified.',
                         nargs='?')
     parser.add_argument('--skip',
-                        help='Skip build steps',
-                        default=[])
+                        help='Skip build steps. To skip more than one step, '
+                        'use this argument multiple times.',
+                        default=[],
+                        action='append')
     parser.add_argument('--force-checkout', action='store_true',
                         help='Always checkout the desired commit/branch/tag '
                         'of each repository, discarding any local changes')
