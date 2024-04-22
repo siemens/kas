@@ -433,6 +433,12 @@ def setup_parser_preserve_env_arg(parser):
                         action='store_true')
 
 
+def setup_parser_keep_config_unchanged_arg(parser):
+    parser.add_argument('-k', '--keep-config-unchanged',
+                        help='Skip steps that change the configuration',
+                        action='store_true')
+
+
 def run_handle_preserve_env_arg(ctx, os, args, SetupHome):
     if args.preserve_env:
         # Warn if there's any settings that setup_home would apply

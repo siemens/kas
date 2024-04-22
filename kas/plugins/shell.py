@@ -44,6 +44,7 @@ from kas.context import create_global_context
 from kas.config import Config
 from kas.libcmds import Macro, Command, SetupHome
 from kas.libkas import setup_parser_common_args
+from kas.libkas import setup_parser_keep_config_unchanged_arg
 from kas.libkas import setup_parser_preserve_env_arg
 from kas.libkas import run_handle_preserve_env_arg
 from kas.kasusererror import CommandExecError
@@ -68,9 +69,7 @@ class Shell:
 
         setup_parser_common_args(parser)
         setup_parser_preserve_env_arg(parser)
-        parser.add_argument('-k', '--keep-config-unchanged',
-                            help='Skip steps that change the configuration',
-                            action='store_true')
+        setup_parser_keep_config_unchanged_arg(parser)
         parser.add_argument('-c', '--command',
                             help='Run command',
                             default='')
