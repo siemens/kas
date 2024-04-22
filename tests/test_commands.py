@@ -47,6 +47,19 @@ def test_for_all_repos(monkeykas, tmpdir):
             == 'e9ca55a239caa1a2098e1d48773a29ea53c6cab2'
 
 
+def test_for_all_repos_keep_config_unchanged(monkeykas, tmpdir):
+    tdir = str(tmpdir / 'test_commands')
+    shutil.copytree('tests/test_commands', tdir)
+    monkeykas.chdir(tdir)
+
+    with pytest.raises(FileNotFoundError, match=r'.*/kas_1.[01]'):
+        kas.kas(['for-all-repos', '--keep-config-unchanged', 'test.yml',
+                 'pwd'])
+
+    assert not os.path.exists('kas_1.0')
+    assert not os.path.exists("kas_1.1")
+
+
 def test_checkout(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_commands')
     shutil.copytree('tests/test_commands', tdir)
