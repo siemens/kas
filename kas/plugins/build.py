@@ -38,6 +38,7 @@ import sys
 from kas.context import create_global_context
 from kas.config import Config
 from kas.libkas import find_program, run_cmd
+from kas.libkas import setup_parser_keep_config_unchanged_arg
 from kas.libcmds import Macro, Command
 from kas.libkas import setup_parser_common_args
 from kas.kasusererror import CommandExecError
@@ -64,6 +65,7 @@ class Build:
         """
 
         setup_parser_common_args(parser)
+        setup_parser_keep_config_unchanged_arg(parser)
         parser.add_argument('extra_bitbake_args',
                             nargs='*',
                             help='Extra arguments to pass to bitbake '
