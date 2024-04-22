@@ -141,10 +141,30 @@ def kas_get_argparser():
     subparser = parser.add_subparsers(help='sub command help', dest='cmd')
 
     for plugin in plugins.all():
-        plugin_parser = subparser.add_parser(plugin.name, help=plugin.helpmsg)
+        plugin_parser = subparser.add_parser(
+            plugin.name,
+            help=plugin.helpmsg,
+            formatter_class=ArgumentChoicesHelpFormatter)
         plugin.setup_parser(plugin_parser)
 
     return parser
+
+
+class ArgumentChoicesHelpFormatter(argparse.HelpFormatter):
+    """Help message formatter which adds choices to argument help.
+
+    If the default METAVAR is used, this will do nothing, as the default
+    METAVAR shows the available choices already. If the METAVAR is
+    overridden, and %(choice)s is not present in the help string, add
+    them.
+    """
+
+    def _get_help_string(self, action):
+        help = action.help
+        if action.choices and action.metavar is not None:
+            if "%(choices)" not in action.help:
+                help += " Possible choices: %(choices)s."
+        return help
 
 
 def kas(argv):
