@@ -23,6 +23,7 @@
     This module contains the core implementation of kas.
 """
 
+import argparse
 import re
 import os
 import sys
@@ -433,10 +434,46 @@ def setup_parser_preserve_env_arg(parser):
                         action='store_true')
 
 
+class ExtendConstAction(argparse._AppendConstAction):
+    """Add an 'extend_const' action similar to 'append_const'.
+
+    Based on the existing 'append_const' and 'extend' actions.
+    """
+    def __init__(self, option_strings, dest, const, default=None,
+                 required=False, help=None, metavar=None):
+        super(argparse._AppendConstAction, self).__init__(
+            option_strings=option_strings, dest=dest, nargs=0, const=const,
+            default=default, required=required, help=help, metavar=metavar)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        items = getattr(namespace, self.dest, None)
+        if items is None:
+            items = []
+
+        if isinstance(items, list):
+            items = items[:]
+        else:
+            import copy
+            items = copy.copy(items)
+
+        items.extend(self.const)
+        setattr(namespace, self.dest, items)
+
+
 def setup_parser_keep_config_unchanged_arg(parser):
+    # Skip the tasks which would change the config of the build
+    # environment
+    steps = [
+        'setup_dir',
+        'finish_setup_repos',
+        'repos_apply_patches',
+        'write_bbconfig',
+    ]
     parser.add_argument('-k', '--keep-config-unchanged',
                         help='Skip steps that change the configuration',
-                        action='store_true')
+                        action=ExtendConstAction,
+                        dest='skip',
+                        const=steps)
 
 
 def run_handle_preserve_env_arg(ctx, os, args, SetupHome):

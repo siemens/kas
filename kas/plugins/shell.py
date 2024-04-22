@@ -84,16 +84,6 @@ class Shell:
 
         run_handle_preserve_env_arg(ctx, os, args, SetupHome)
 
-        if args.keep_config_unchanged:
-            # Skip the tasks which would change the config of the build
-            # environment
-            args.skip += [
-                'setup_dir',
-                'finish_setup_repos',
-                'repos_apply_patches',
-                'write_bbconfig',
-            ]
-
         macro = Macro()
         macro.add(ShellCommand(args.command))
         macro.run(ctx, args.skip)
