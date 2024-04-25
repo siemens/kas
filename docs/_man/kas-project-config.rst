@@ -3,10 +3,12 @@
 kas project configuration
 =========================
 
-.. include:: ../userguide/project-configuration.inc
+  .. toctree::
+
+     ../userguide/project-configuration
 
 SEE ALSO
-~~~~~~~~
+--------
 
 :manpage:`kas-format-changelog(1)`
 

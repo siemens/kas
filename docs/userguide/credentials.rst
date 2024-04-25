@@ -1,3 +1,8 @@
+.. _checkout-creds-label:
+
+Credential Handling
+===================
+
 kas provides various mechanisms to inject credentials into the build.
 By using :ref:`env-vars-label`, a fine grained control is possible. All
 credentials are made available both to KAS, as well as inside the build
@@ -12,7 +17,7 @@ changes are only performed if not yet present on the host.
   see :manpage:`kas(1)`.
 
 AWS Configuration
-~~~~~~~~~~~~~~~~~
+-----------------
 
 For AWS, both conventional AWS config files as well as the environment
 variable controlled OAuth 2.0 workflow are supported. Note, that KAS
@@ -20,7 +25,7 @@ internally rewrites the ``AWS_*`` environment variables into a AWS
 config file to also support older versions of bitbake.
 
 Git Configuration
-~~~~~~~~~~~~~~~~~
+-----------------
 
 A ``.gitconfig`` file can be used to provide credentials as well as
 url rewrites of git repositories (``insteadof``). To support the patching
@@ -31,7 +36,7 @@ setting the corresponding environment variables. These are added to the
 ``.gitconfig`` file as well.
 
 Netrc File
-~~~~~~~~~~
+----------
 
 A ``.netrc`` file can be used to provide credentials for git or the
 HTTP(S) / FTP fetcher. When running in the Gitlab CI, the ``CI_JOB_TOKEN``
@@ -39,7 +44,7 @@ is appended to automatically grant access to repositories that can be
 accessed by the user that triggered the CI pipeline.
 
 SSH
-~~~
+---
 
 The ssh folder of the calling user is automatically shared with kas. This
 is currently not controllable, as ssh does not obey the ``$HOME`` variable.

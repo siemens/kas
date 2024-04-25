@@ -3,6 +3,9 @@
 Configuration Format Changes
 ============================
 
+DESCRIPTION
+-----------
+
 The kas project configuration is versioned to ensure that the requested
 features are supported by the current kas version.
 
@@ -12,7 +15,7 @@ features are supported by the current kas version.
    ../format-changelog
 
 SEE ALSO
-~~~~~~~~
+--------
 
 :manpage:`kas-project-config(1)`
 

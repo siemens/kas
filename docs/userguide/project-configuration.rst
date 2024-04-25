@@ -1,3 +1,6 @@
+Project Configuration
+=====================
+
 Currently, JSON and YAML are supported as the base file formats. Since YAML is
 arguably easier to read, this documentation focuses on the YAML format.
 

@@ -3,6 +3,8 @@
 kas credential handling
 =======================
 
-.. include:: ../userguide/credentials.inc
+.. toctree::
+
+   ../userguide/credentials
 
 .. include:: _kas-man-footer.inc

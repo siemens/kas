@@ -1,17 +1,37 @@
 :orphan:
 
-Welcome to the kas documentation, a setup tool for bitbake based projects
-=========================================================================
+kas manpage
+===========
 
-.. toctree::
-   :maxdepth: 2
+.. argparse::
+    :module: kas.kas
+    :func: kas_get_argparser
+    :prog: kas
+    :manpage:
 
-   ../intro
-   ../userguide
-   ../command-line
+    .. include:: ../intro.rst
+        :start-line: 3
+
+PROJECT CONFIGURATION
+---------------------
+
+The project configuration file describes the build environment and the layers
+to be used. It is the main input to kas.
+For details, see :manpage:`kas-project-config(1)`
+
+CREDENTIAL HANDLING
+-------------------
+
+kas provides various mechanisms to inject credentials into the build.
+For details, see :manpage:`kas-credentials(1)`.
+
+ENVIRONMENT VARIABLES
+---------------------
+
+.. include:: ../command-line/environment-variables.inc
 
 SEE ALSO
-~~~~~~~~
+--------
 
 :manpage:`kas-project-config(1)`,
 :manpage:`kas-build(1)`,
