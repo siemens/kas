@@ -5,31 +5,68 @@ kas sub-commands are implemented by a series of plugins. Each plugin
 typically provides a single command.
 
 ``build`` plugin
-~~~~~~~~~~~~~~~~
+----------------
 
-.. include:: plugins/build.inc
+.. automodule:: kas.plugins.build
+
+.. argparse::
+    :module: kas.kas
+    :func: kas_get_argparser
+    :prog: kas
+    :path: build
 
 ``checkout`` plugin
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
-.. include:: plugins/checkout.inc
+.. automodule:: kas.plugins.checkout
+
+.. argparse::
+    :module: kas.kas
+    :func: kas_get_argparser
+    :prog: kas
+    :path: checkout
+
 
 ``dump`` plugin
-~~~~~~~~~~~~~~~
+---------------
 
-.. include:: plugins/dump.inc
+.. automodule:: kas.plugins.dump
+
+.. argparse::
+    :module: kas.kas
+    :func: kas_get_argparser
+    :prog: kas
+    :path: dump
 
 ``for-all-repos`` plugin
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
-.. include:: plugins/for-all-repos.inc
+.. automodule:: kas.plugins.for_all_repos
+
+.. argparse::
+    :module: kas.kas
+    :func: kas_get_argparser
+    :prog: kas
+    :path: for-all-repos
 
 ``menu`` plugin
-~~~~~~~~~~~~~~~
+---------------
 
-.. include:: plugins/menu.inc
+.. automodule:: kas.plugins.menu
+
+.. argparse::
+    :module: kas.kas
+    :func: kas_get_argparser
+    :prog: kas
+    :path: menu
 
 ``shell`` plugin
-~~~~~~~~~~~~~~~~
+----------------
 
-.. include:: plugins/shell.inc
+.. automodule:: kas.plugins.shell
+
+.. argparse::
+    :module: kas.kas
+    :func: kas_get_argparser
+    :prog: kas
+    :path: shell

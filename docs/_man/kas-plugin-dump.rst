@@ -3,10 +3,18 @@
 kas dump plugin
 ===============
 
-.. include:: ../userguide/plugins/dump.inc
+.. argparse::
+    :module: kas.kas
+    :func: kas_get_argparser
+    :prog: kas
+    :path: dump
+    :manpage:
+
+    .. automodule:: kas.plugins.dump
+        :noindex:
 
 SEE ALSO
-~~~~~~~~
+--------
 
 :manpage:`kas-project-config(1)`,
 :manpage:`kas-checkout(1)`,

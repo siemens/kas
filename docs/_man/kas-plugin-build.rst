@@ -3,6 +3,14 @@
 kas build plugin
 ================
 
-.. include:: ../userguide/plugins/build.inc
+.. argparse::
+    :module: kas.kas
+    :func: kas_get_argparser
+    :prog: kas
+    :path: build
+    :manpage:
+
+    .. automodule:: kas.plugins.build
+        :noindex:
 
 .. include:: _kas-man-footer.inc
