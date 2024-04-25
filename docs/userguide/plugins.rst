@@ -1,5 +1,5 @@
-Plugins
-=======
+Sub-commands (Plugins)
+======================
 
 kas sub-commands are implemented by a series of plugins. Each plugin
 typically provides a single command.
