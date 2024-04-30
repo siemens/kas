@@ -38,7 +38,12 @@ ENVVARS_KAS = [
 
 
 @pytest.fixture
-def monkeykas(monkeypatch):
+def monkeykas(monkeypatch, tmpdir):
     for var in ENVVARS_KAS:
         monkeypatch.delenv(var, raising=False)
+    # Set HOME to a temporary directory
+    homedir = tmpdir / '_home'
+    homedir.mkdir()
+    monkeypatch.setenv('HOME', str(homedir))
+
     yield monkeypatch
