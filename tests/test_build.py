@@ -22,8 +22,12 @@
 
 import shutil
 import pytest
+import json
 from kas import kas
 from kas.kasusererror import ArtifactNotFoundError
+
+BITBAKE_OPTIONS_SHA256 = "e35d535e81cfdc4ed304af8000284c36" \
+                         "19d2c4c78392ddcefe9ca46b158235f8"
 
 
 def test_artifact_node(monkeykas, tmpdir):
@@ -35,3 +39,26 @@ def test_artifact_node(monkeykas, tmpdir):
 
     with pytest.raises(ArtifactNotFoundError):
         kas.kas(['build', 'artifact-invalid.yml'])
+
+
+def test_provenance(monkeykas, tmpdir):
+    tdir = str(tmpdir / 'test_build')
+    shutil.copytree('tests/test_build', tdir)
+    monkeykas.chdir(tdir)
+
+    kas.kas(['build', '--provenance', 'mode=min', 'provenance.yml'])
+    with open('build/attestation/kas-build.provenance.json', 'r') as f:
+        prov = json.load(f)
+        assert prov['subject'][0]['name'] == 'bitbake.options'
+        assert 'env' not in \
+            prov['predicate']['buildDefinition']['internalParameters']
+
+    with monkeykas.context() as mp:
+        mp.setenv('CAPTURE_THIS', 'OK Sir!')
+        kas.kas(['build', '--provenance', 'mode=max', 'provenance.yml'])
+    with open('build/attestation/kas-build.provenance.json', 'r') as f:
+        prov = json.load(f)
+        params = prov['predicate']['buildDefinition']['internalParameters']
+        assert params['env']['CAPTURE_THIS'] == 'OK Sir!'
+        assert prov['subject'][0]['name'] == 'bitbake.options'
+        assert prov['subject'][0]['digest']['sha256'] == BITBAKE_OPTIONS_SHA256
