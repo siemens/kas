@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 import pytest
+import os
 
 ENVVARS_KAS = [
     'KAS_WORK_DIR',
@@ -36,14 +37,28 @@ ENVVARS_KAS = [
     'SSH_AUTH_SOCK',
 ]
 
+ENVVARS_TOOLS = [
+    'EMAIL'
+]
+
 
 @pytest.fixture
 def monkeykas(monkeypatch, tmpdir):
-    for var in ENVVARS_KAS:
+    for var in ENVVARS_KAS + ENVVARS_TOOLS:
         monkeypatch.delenv(var, raising=False)
     # Set HOME to a temporary directory
     homedir = tmpdir / '_home'
     homedir.mkdir()
     monkeypatch.setenv('HOME', str(homedir))
+
+    # remove all git related variables
+    for var in os.environ.keys():
+        if var.startswith('GIT_'):
+            monkeypatch.delenv(var)
+    # provide minimal git environment
+    monkeypatch.setenv('GIT_AUTHOR_NAME', 'kas')
+    monkeypatch.setenv('GIT_AUTHOR_EMAIL', 'kas@example.com')
+    monkeypatch.setenv('GIT_COMMITTER_NAME', 'kas')
+    monkeypatch.setenv('GIT_COMMITTER_EMAIL', 'kas@example.com')
 
     yield monkeypatch
