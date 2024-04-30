@@ -122,7 +122,8 @@ class ForAllReposCommand(Command):
                 'KAS_REPO_NAME': repo.name,
                 'KAS_REPO_PATH': repo.path,
                 'KAS_REPO_URL': '' if repo.operations_disabled else repo.url,
-                'KAS_REPO_COMMIT': repo.commit or '',
+                'KAS_REPO_COMMIT': '' if repo.operations_disabled
+                                   else (repo.commit or ''),
                 'KAS_REPO_BRANCH': repo.branch or '',
                 'KAS_REPO_TAG': repo.tag or '',
                 'KAS_REPO_REFSPEC': repo.refspec or '',

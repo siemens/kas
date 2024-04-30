@@ -207,7 +207,7 @@ class Dump(Checkout):
             del config_expanded['header']['includes']
 
         if args.resolve_refs and not args.lock:
-            for r in repos:
+            for r in filter(lambda r: not r.operations_disabled, repos):
                 if r.commit or r.branch or r.tag:
                     config_expanded['repos'][r.name]['commit'] = r.revision
                 elif r.refspec:

@@ -90,6 +90,9 @@ class Repo:
         self._patches = patches
         self.operations_disabled = disable_operations
 
+        if not self.url:
+            self.resolve_local()
+
     @property
     def layers(self):
         return [os.path.join(self.path, layer).rstrip(os.sep + '.')
@@ -226,7 +229,6 @@ class Repo:
 
         if url is None:
             # No version control operation on repository
-            url = path
             disable_operations = True
 
         if repo_type == 'git':
@@ -483,6 +485,20 @@ class RepoImpl(Repo):
 
         return 0
 
+    def resolve_local(self):
+        (retc, output) = run_cmd(self.get_remote_url_cmd(),
+                                 cwd=self.path, fail=False)
+        if retc == 0:
+            self.url = output.strip()
+
+        (retc, output) = run_cmd(self.get_commit_cmd(),
+                                 cwd=self.path, fail=False)
+        if retc == 0:
+            self.commit = output.strip()
+        if self.url and self.commit:
+            logging.debug('Repository %s resolved to %s @ %s',
+                          self.name, self.url, self.commit)
+
 
 class GitRepo(RepoImpl):
     """
@@ -563,6 +579,12 @@ class GitRepo(RepoImpl):
     def set_remote_url_cmd(self):
         return ['git', 'remote', 'set-url', 'origin', self.effective_url]
 
+    def get_remote_url_cmd(self):
+        return ['git', 'remote', 'get-url', 'origin']
+
+    def get_commit_cmd(self):
+        return ['git', 'rev-parse', '--verify', 'HEAD']
+
 
 class MercurialRepo(RepoImpl):
     """
@@ -620,3 +642,9 @@ class MercurialRepo(RepoImpl):
 
     def set_remote_url_cmd(self):
         raise NotImplementedError()
+
+    def get_remote_url_cmd(self):
+        return ['hg', 'paths', 'default']
+
+    def get_commit_cmd(self):
+        return ['hg', 'log', '-r', '.', '--template', '{node}\n']
