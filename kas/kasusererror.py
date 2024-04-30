@@ -66,3 +66,11 @@ class ArgsCombinationError(KasUserError):
     """
     def __init__(self, message):
         super().__init__(f'Invalid combination of arguments: {message}')
+
+
+class ArtifactNotFoundError(KasUserError, FileNotFoundError):
+    """
+    A configured artifact is not found (or the glob matches 0 elements).
+    """
+    def __init__(self, name, artifact):
+        super().__init__(f'No artifact found for {name}:"{artifact}"')

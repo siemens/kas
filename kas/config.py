@@ -25,8 +25,10 @@
 
 import os
 import json
+from pathlib import Path
 from .repos import Repo
 from .includehandler import IncludeHandler, IncludeException
+from .kasusererror import ArtifactNotFoundError
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2021'
@@ -41,6 +43,7 @@ class Config:
     def __init__(self, ctx, filename, target=None, task=None):
         self._override_target = target
         self._override_task = task
+        self._build_dir = ctx.build_dir
         self._config = {}
         if not filename:
             filename = os.path.join(ctx.kas_work_dir, CONFIG_YAML_FILE)
@@ -219,3 +222,18 @@ class Config:
             if target.startswith('multiconfig:') or target.startswith('mc:'):
                 multiconfigs.add(target.split(':')[1])
         return ' '.join(multiconfigs)
+
+    def get_artifacts(self):
+        """
+            Returns the found artifacts after glob expansion, relative
+            to the build_dir as a list of tuples (name, path).
+        """
+        arts = self._config.get('artifacts', {})
+        foundfiles = []
+        for name, art in arts.items():
+            files = list(Path(self._build_dir).glob(art))
+            if len(files) == 0:
+                raise ArtifactNotFoundError(name, art)
+            foundfiles.extend([(name, f) for f in files])
+        return [(n, f.relative_to(self._build_dir))
+                for n, f in foundfiles]

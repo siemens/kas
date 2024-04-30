@@ -163,3 +163,11 @@ Fixed
 
 - The key ``tag`` introduced in v15 was not supported in ``defaults``.
   It's now added.
+
+Version 17
+----------
+
+Added
+~~~~~
+
+- The key ``artifacts`` is introduced to describe expected build artifacts.

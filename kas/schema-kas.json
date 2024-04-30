@@ -286,6 +286,12 @@
                 ]
             }
         },
+        "artifacts": {
+            "type": "object",
+            "additionalProperties": {
+                "type": ["string"]
+            }
+        },
         "_source_dir": {
             "type": "string"
         },

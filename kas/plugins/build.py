@@ -35,6 +35,8 @@
 import logging
 import subprocess
 import sys
+from pathlib import Path
+from datetime import datetime
 from kas.context import create_global_context
 from kas.config import Config
 from kas.libkas import find_program, run_cmd
@@ -105,6 +107,22 @@ class BuildCommand(Command):
     def __str__(self):
         return 'build'
 
+    def _warn_artifact_timestamp(self, ctx, artifacts,
+                                 t_started, t_finished):
+        """
+            Warn if artifact timestamp is not within the build range.
+        """
+        for n, s in artifacts:
+            logging.debug(f'Found artifact {n}:{s} in build dir')
+            fullpath = Path(ctx.build_dir) / s
+            mtime = datetime.fromtimestamp(fullpath.stat().st_mtime)
+            if mtime < t_started or mtime > t_finished:
+                logging.warning(
+                    f'Artifact {n}:{s.name} mtime {mtime.strftime("%c")}'
+                    f' not in build range '
+                    f'[{t_started.strftime("%c")} - '
+                    f'{t_finished.strftime("%c")}]')
+
     def execute(self, ctx):
         """
             Executes the bitbake build command.
@@ -113,6 +131,8 @@ class BuildCommand(Command):
         bitbake = find_program(ctx.environ['PATH'], 'bitbake')
         cmd = [bitbake, '-c', ctx.config.get_bitbake_task()] \
             + self.extra_bitbake_args + ctx.config.get_bitbake_targets()
+
+        time_started = datetime.now()
         if sys.stdout.isatty():
             logging.info('%s$ %s', ctx.build_dir, ' '.join(cmd))
             ret = subprocess.call(cmd, env=ctx.environ, cwd=ctx.build_dir)
@@ -120,6 +140,11 @@ class BuildCommand(Command):
                 raise CommandExecError(cmd, ret)
         else:
             run_cmd(cmd, cwd=ctx.build_dir, liveupdate=True)
+        time_finished = datetime.now()
+
+        artifacts = ctx.config.get_artifacts()
+        self._warn_artifact_timestamp(ctx, artifacts,
+                                      time_started, time_finished)
 
 
 __KAS_PLUGINS__ = [Build]
