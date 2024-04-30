@@ -1,0 +1,8 @@
+header:
+  version: 17
+
+repos:
+  this:
+
+artifacts:
+  disk-file: bitbake.opt*
