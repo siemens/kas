@@ -79,7 +79,7 @@ from kas.repos import Repo
 from kas.includehandler import load_config as load_config_yaml, \
     SOURCE_DIR_OVERRIDE_KEY, SOURCE_DIR_HOST_OVERRIDE_KEY
 from kas.plugins.build import Build
-from kas.kasusererror import KasUserError
+from kas.kasusererror import KasUserError, MissingModuleError
 
 try:
     from snack import SnackScreen, EntryWindow, ButtonChoiceWindow, \
@@ -97,10 +97,6 @@ SOURCE_DIR_HOST_ENV_KEY = '_KAS_REPO_DIR_HOST'
 
 
 class VariableTypeError(KasUserError):
-    pass
-
-
-class MissingModuleError(KasUserError):
     pass
 
 
@@ -263,8 +259,7 @@ class Menu:
 
     def run(self, args):
         if not HAVE_NEWT:
-            raise MissingModuleError(
-                'Menu plugin requires \'python3-newt\' distribution package.')
+            raise MissingModuleError('python3-newt', 'Menu plugin')
 
         ctx = create_global_context(args)
 

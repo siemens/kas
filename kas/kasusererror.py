@@ -74,3 +74,11 @@ class ArtifactNotFoundError(KasUserError, FileNotFoundError):
     """
     def __init__(self, name, artifact):
         super().__init__(f'No artifact found for {name}:"{artifact}"')
+
+
+class MissingModuleError(KasUserError):
+    """
+    An optional module is missing for the requested operation
+    """
+    def __init__(self, module, operation) -> None:
+        super().__init__(f'Module "{module}" is required for: {operation}')
