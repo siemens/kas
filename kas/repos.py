@@ -138,6 +138,14 @@ class Repo:
             return branch
         return None
 
+    @property
+    def dirty(self):
+        if not self.url:
+            return True
+        (_, output) = run_cmd(self.is_dirty_cmd(),
+                              cwd=self.path, fail=False)
+        return bool(output)
+
     def __str__(self):
         if self.commit and (self.tag or self.branch):
             refspec = f'{self.commit}({self.tag or self.branch})'
@@ -354,10 +362,7 @@ class RepoImpl(Repo):
 
         if not get_context().force_checkout:
             # Check if repos is dirty
-            (_, output) = run_cmd(self.is_dirty_cmd(),
-                                  cwd=self.path,
-                                  fail=False)
-            if output:
+            if self.dirty:
                 logging.warning('Repo %s is dirty - no checkout', self.name)
                 return
 
