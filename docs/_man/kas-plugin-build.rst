@@ -13,4 +13,9 @@ kas build plugin
     .. automodule:: kas.plugins.build
         :noindex:
 
+SEE ALSO
+~~~~~~~~
+
+:manpage:`kas-build-attestation(1)`,
+
 .. include:: _kas-man-footer.inc

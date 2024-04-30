@@ -343,6 +343,9 @@ man_pages = [
      [author], 1),
     ('_man/kas-credentials', 'kas-credentials', 'kas credential handling',
      [author], 1),
+    ('_man/kas-build-attestation',
+     'kas-build-attestation', 'working with SLSA / in-toto attestations',
+     [author], 1),
 ]
 
 # If true, show URL addresses after external links.

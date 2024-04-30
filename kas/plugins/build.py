@@ -1,6 +1,6 @@
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2017-2018
+# Copyright (c) Siemens AG, 2017-2024
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,15 +26,16 @@
     build environment and then invoke bitbake to build the targets selected
     in the chosen config file.
 
-    For example, to build the configuration described in the file
-    ``kas-project.yml`` you could run::
-
-        kas build kas-project.yml
+    When running with ``--provenance <true|mode=...>`` kas will generate an
+    provenance attestation for the build. The attestation will be stored in
+    ``attestation/kas-build.provenance.json`` in the build directory.
+    For details about provenance, see the build attestation chapter.
 """
 
 import logging
 import subprocess
 import sys
+import json
 from pathlib import Path
 from datetime import datetime
 from kas.context import create_global_context
@@ -44,9 +45,11 @@ from kas.libkas import setup_parser_keep_config_unchanged_arg
 from kas.libcmds import Macro, Command
 from kas.libkas import setup_parser_common_args
 from kas.kasusererror import CommandExecError
+from kas.attestation import Provenance, Statement
+
 
 __license__ = 'MIT'
-__copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
+__copyright__ = 'Copyright (c) Siemens AG, 2017-2024'
 
 
 class Build:
@@ -77,6 +80,9 @@ class Build:
                             help='Select target to build')
         parser.add_argument('-c', '--cmd', '--task', dest='task',
                             help='Select which task should be executed')
+        parser.add_argument('--provenance',
+                            choices=['true', 'mode=min', 'mode=max'],
+                            help='Enable provenance attestation generation')
 
     def run(self, args):
         """
@@ -106,6 +112,21 @@ class BuildCommand(Command):
 
     def __str__(self):
         return 'build'
+
+    def _generate_attestation(self, ctx,
+                              time_started, time_finished,
+                              mode):
+        """
+            Generate the provenance attestation for the build.
+        """
+        predicate = Provenance(ctx, time_started, time_finished,
+                               mode)
+        stmt = Statement(predicate, ctx, time_started, time_finished).as_dict()
+        att_dir = Path(ctx.build_dir) / 'attestation'
+        att_dir.mkdir(parents=True, exist_ok=True)
+        with open(att_dir / 'kas-build.provenance.json', 'w') as f:
+            f.write(json.dumps(stmt, indent=4))
+            f.write('\n')
 
     def _warn_artifact_timestamp(self, ctx, artifacts,
                                  t_started, t_finished):
@@ -145,6 +166,11 @@ class BuildCommand(Command):
         artifacts = ctx.config.get_artifacts()
         self._warn_artifact_timestamp(ctx, artifacts,
                                       time_started, time_finished)
+
+        if ctx.args.provenance:
+            mode = Provenance.Mode.MAX if ctx.args.provenance == 'mode=max' \
+                else Provenance.Mode.MIN
+            self._generate_attestation(ctx, time_started, time_finished, mode)
 
 
 __KAS_PLUGINS__ = [Build]

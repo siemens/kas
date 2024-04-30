@@ -128,11 +128,12 @@ Variables Glossary
 +--------------------------+--------------------------------------------------+
 | ``CI_SERVER_HOST``       | Environment variables from gitlab CI, if set     |
 | ``CI_JOB_TOKEN``         | .netrc is configured to allow fetching from      |
-| (K)                      | the gitlab instance. An entry will be appended   |
-|                          | in case ``NETRC_FILE`` was given as well. Note   |
+| ``CI_JOB_URL``           | the gitlab instance. An entry will be appended   |
+| (K)                      | in case ``NETRC_FILE`` was given as well. Note   |
 |                          | that if the file already contains an entry for   |
 |                          | that host most tools would probably take that    |
-|                          | first one.                                       |
+|                          | first one. The job url is added to the           |
+|                          | provenance attestation (if enabled).             |
 +--------------------------+--------------------------------------------------+
 | ``GITHUB_ACTIONS``       | Environment variables from github actions. If    |
 | (K)                      | set to `true`, `.gitconfig` is automatically     |

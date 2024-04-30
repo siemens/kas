@@ -7,4 +7,5 @@ User Guide
   userguide/getting-started
   userguide/plugins
   userguide/project-configuration
+  userguide/build-attestation
   userguide/credentials

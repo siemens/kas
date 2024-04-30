@@ -510,6 +510,10 @@ class GitRepo(RepoImpl):
         Provides the git functionality for a Repo.
     """
 
+    @staticmethod
+    def get_type():
+        return 'git'
+
     def remove_ref_prefix(self, ref):
         ref_prefix = 'refs/'
         return ref[ref.startswith(ref_prefix) and len(ref_prefix):]
@@ -595,6 +599,10 @@ class MercurialRepo(RepoImpl):
     """
         Provides the hg functionality for a Repo.
     """
+
+    @staticmethod
+    def get_type():
+        return 'mercurial'
 
     def add_cmd(self):
         return ['hg', 'add']

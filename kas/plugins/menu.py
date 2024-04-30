@@ -293,6 +293,7 @@ class Menu:
             build_args.task = None
             build_args.extra_bitbake_args = []
             build_args.skip = None
+            build_args.provenance = False
 
             Build().run(build_args)
 
