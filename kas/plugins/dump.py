@@ -1,6 +1,6 @@
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2017-2023
+# Copyright (c) Siemens AG, 2017-2024
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +36,12 @@
     on the kas cmdline. For details on the locking support, see
     :class:`kas.includehandler.IncludeHandler`.
 
+    When running with ``--resolve-local``, VCS tracking information of the root
+    repo (the one with the kas-project.yml) is added to the output. The
+    generated file can be used as single input to kas to reproduce the build
+    environment. If the root repo is not under version control or contains
+    uncommitted changes, a warning is emitted.
+
     Please note:
 
     - the dumped config is semantically identical but not bit-by-bit identical
@@ -66,6 +72,7 @@
 import sys
 import json
 import yaml
+import logging
 from typing import TypeVar, TextIO
 from collections import OrderedDict
 from kas.context import get_context
@@ -162,6 +169,9 @@ class Dump(Checkout):
         parser.add_argument('--resolve-refs',
                             action='store_true',
                             help='Replace floating refs with exact SHAs')
+        parser.add_argument('--resolve-local',
+                            action='store_true',
+                            help='Add tracking information of root repo')
         lk_or_env.add_argument('--resolve-env',
                                action='store_true',
                                help='Set env defaults to captured env value')
@@ -190,6 +200,9 @@ class Dump(Checkout):
 
         if args.inplace and not args.lock:
             raise ArgsCombinationError('--inplace requires --lock')
+        if args.resolve_local and args.lock:
+            raise ArgsCombinationError(
+                '--resolve-local cannot be used with --lock')
 
         if args.lock:
             args.resolve_refs = True
@@ -212,6 +225,20 @@ class Dump(Checkout):
                     config_expanded['repos'][r.name]['commit'] = r.revision
                 elif r.refspec:
                     config_expanded['repos'][r.name]['refspec'] = r.revision
+
+        if args.resolve_local:
+            for r in filter(lambda r: r.operations_disabled and r.name, repos):
+                if r.revision:
+                    if r.dirty:
+                        logging.warning(f'Repository {r.name} (root repo) '
+                                        'contains uncommitted changes.')
+                    if config_expanded['repos'][r.name] is None:
+                        config_expanded['repos'][r.name] = {}
+                    config_expanded['repos'][r.name]['url'] = r.url
+                    config_expanded['repos'][r.name]['commit'] = r.revision
+                else:
+                    logging.warning(f'Repository {r.name} (root repo) '
+                                    'is not under version control.')
 
         if args.resolve_env and 'env' in config_expanded:
             config_expanded['env'] = ctx.config.get_environment()
