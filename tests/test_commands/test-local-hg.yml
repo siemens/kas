@@ -1,0 +1,6 @@
+header:
+  version: 15
+
+repos:
+  local:
+    type: hg
