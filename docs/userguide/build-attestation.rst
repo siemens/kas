@@ -45,10 +45,12 @@ For example, to build the configuration described in the file
 Working with sigstore cosign
 ----------------------------
 
-The sigstore cosign tool has native support for in-toto build predicates.
-However, it currently can only operate directly on the predicate but not
-on the enclosing attestation (cosign 2.2.4). By that, the predicate first
-needs to be extracted (provenance in this example)::
+The `cosign tool <https://github.com/sigstore/cosign>`_ from the `sigstore
+project <https://www.sigstore.dev/>`_ (`documentation <https://docs.sigstore.dev/>`_)
+has native support for in-toto build predicates. However, it currently can only
+operate directly on the predicate but not on the enclosing attestation
+(cosign 2.2.4). By that, the predicate first needs to be extracted (provenance
+in this example)::
 
     cat build/attestation/kas-build.provenance.json | jq '.predicate' > provenance.json
 
