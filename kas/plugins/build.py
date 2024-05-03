@@ -128,22 +128,6 @@ class BuildCommand(Command):
             f.write(json.dumps(stmt, indent=4))
             f.write('\n')
 
-    def _warn_artifact_timestamp(self, ctx, artifacts,
-                                 t_started, t_finished):
-        """
-            Warn if artifact timestamp is not within the build range.
-        """
-        for n, s in artifacts:
-            logging.debug(f'Found artifact {n}:{s} in build dir')
-            fullpath = Path(ctx.build_dir) / s
-            mtime = datetime.fromtimestamp(fullpath.stat().st_mtime)
-            if mtime < t_started or mtime > t_finished:
-                logging.warning(
-                    f'Artifact {n}:{s.name} mtime {mtime.strftime("%c")}'
-                    f' not in build range '
-                    f'[{t_started.strftime("%c")} - '
-                    f'{t_finished.strftime("%c")}]')
-
     def execute(self, ctx):
         """
             Executes the bitbake build command.
@@ -164,8 +148,6 @@ class BuildCommand(Command):
         time_finished = datetime.now()
 
         artifacts = ctx.config.get_artifacts()
-        self._warn_artifact_timestamp(ctx, artifacts,
-                                      time_started, time_finished)
 
         if ctx.args.provenance:
             mode = Provenance.Mode.MAX if ctx.args.provenance == 'mode=max' \

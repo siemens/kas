@@ -33,7 +33,7 @@ import sys
 from enum import Enum
 from urllib.parse import urlparse
 from pathlib import Path
-from datetime import timezone
+from datetime import datetime, timezone
 from kas import __version__ as KASVERSION
 
 
@@ -202,11 +202,26 @@ class Statement:
         self._t_started = t_started
         self._t_finished = t_finished
 
+    def _check_artifact_timestamp(self, name, path):
+        """
+            Warn if artifact timestamp is not within the build range.
+        """
+        logging.debug(f'Found artifact {name}:{path} in build dir')
+        fullpath = Path(self._ctx.build_dir) / path
+        mtime = datetime.fromtimestamp(fullpath.stat().st_mtime)
+        if mtime < self._t_started or mtime > self._t_finished:
+            logging.warning(
+                f'Artifact {name}:{path.name} mtime {mtime.strftime("%c")}'
+                f' not in build range '
+                f'[{self._t_started.strftime("%c")} - '
+                f'{self._t_finished.strftime("%c")}]')
+
     def as_dict(self):
         pt = self._predicate.type_()
         pp = self._predicate.as_dict()
         subjects = []
         for n, s in self._ctx.config.get_artifacts():
+            self._check_artifact_timestamp(n, s)
             fullpath = Path(self._ctx.build_dir) / s
             with open(fullpath, "rb") as f:
                 if sys.version_info < (3, 11):
