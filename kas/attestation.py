@@ -219,7 +219,7 @@ class Statement:
             }
             subjects.append(rd)
         if len(subjects) == 0:
-            logging.warning('Attestation does not contain any subjects.')
+            logging.warning('Attestation does not contain any artifacts.')
         st = {
             '_type': INTOTO_STATEMENT_TYPE,
             'subject': subjects,
