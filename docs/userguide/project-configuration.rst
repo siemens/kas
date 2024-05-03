@@ -446,8 +446,9 @@ Configuration reference
   This entry describes artifacts which are expected to be present after
   executing the build. Each key-value pair describes an identifier and a
   path relative to the kas build dir, whereby the path can contain wildcards
-  like '*'. Unix-style globbing is applied to all paths and at least one file
-  per entry must match. Otherwise the build is considered to be failed.
+  like '*'. Unix-style globbing is applied to all paths. In case no artifact
+  is found, the build is considered successful, if not stated otherwise by
+  the used plugin and mode of operation.
 
   .. note:: There are no further semantics attached to the identifiers (yet).
             Both the author and the consumer of the artifacts node need to

@@ -220,7 +220,7 @@ class Statement:
         pt = self._predicate.type_()
         pp = self._predicate.as_dict()
         subjects = []
-        for n, s in self._ctx.config.get_artifacts():
+        for n, s in self._ctx.config.get_artifacts(missing_ok=False):
             self._check_artifact_timestamp(n, s)
             fullpath = Path(self._ctx.build_dir) / s
             with open(fullpath, "rb") as f:

@@ -36,15 +36,17 @@ def test_artifact_node(monkeykas, tmpdir):
     monkeykas.chdir(tdir)
     kas.kas(['build', 'artifact-named.yml'])
     kas.kas(['build', 'artifact-glob.yml'])
-
-    with pytest.raises(ArtifactNotFoundError):
-        kas.kas(['build', 'artifact-invalid.yml'])
+    kas.kas(['build', 'artifact-invalid.yml'])
 
 
 def test_provenance(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_build')
     shutil.copytree('tests/test_build', tdir)
     monkeykas.chdir(tdir)
+
+    with pytest.raises(ArtifactNotFoundError):
+        kas.kas(['build', '--provenance', 'mode=min',
+                 'artifact-invalid.yml'])
 
     kas.kas(['build', '--provenance', 'mode=min', 'provenance.yml'])
     with open('build/attestation/kas-build.provenance.json', 'r') as f:

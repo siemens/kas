@@ -30,6 +30,10 @@
     provenance attestation for the build. The attestation will be stored in
     ``attestation/kas-build.provenance.json`` in the build directory.
     For details about provenance, see the build attestation chapter.
+
+    .. note::
+        In provenance mode, the command returns with a non-zero exit
+        code in case no artifact is found for at least one entry.
 """
 
 import logging
@@ -146,8 +150,6 @@ class BuildCommand(Command):
         else:
             run_cmd(cmd, cwd=ctx.build_dir, liveupdate=True)
         time_finished = datetime.now()
-
-        artifacts = ctx.config.get_artifacts()
 
         if ctx.args.provenance:
             mode = Provenance.Mode.MAX if ctx.args.provenance == 'mode=max' \

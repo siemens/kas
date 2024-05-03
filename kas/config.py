@@ -223,16 +223,18 @@ class Config:
                 multiconfigs.add(target.split(':')[1])
         return ' '.join(multiconfigs)
 
-    def get_artifacts(self):
+    def get_artifacts(self, missing_ok=True):
         """
             Returns the found artifacts after glob expansion, relative
             to the build_dir as a list of tuples (name, path).
+            If missing_ok=False, raises an ArtifactNotFoundError if no
+            artifact for a given name is found.
         """
         arts = self._config.get('artifacts', {})
         foundfiles = []
         for name, art in arts.items():
             files = list(Path(self._build_dir).glob(art))
-            if len(files) == 0:
+            if not missing_ok and len(files) == 0:
                 raise ArtifactNotFoundError(name, art)
             foundfiles.extend([(name, f) for f in files])
         return [(n, f.relative_to(self._build_dir))
