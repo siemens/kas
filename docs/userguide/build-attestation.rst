@@ -19,6 +19,8 @@ the mode controls the amount of information that is included in the
 attestation. The CLI options hereby loosely follow the ``docker buildx``
 provenance options, which are described in detail in
 `Provenance attestations <https://docs.docker.com/build/attestations/slsa-provenance/>`_.
+For compatibility with the ``docker buildx`` CLI options, we also support
+``--provenance true``, which is equivalent to ``--provenance mode=min``.
 
 In min mode, the provenance attestation will contain information about:
 
