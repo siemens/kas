@@ -65,30 +65,21 @@ runs:
       env:
         DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
 
-    - name: Cache var-cache-apt
-      id: cache-var-cache-apt
+    - name: Cache apt
+      id: cache-apt
       uses: actions/cache@v4
       with:
-        path: var-cache-apt
-        key: var-cache-apt-${{ env.DEBIAN_TAG }}-${{ inputs.image-name }}
+        path: |
+          var-cache-apt
+          var-lib-apt
+        key: cache-apt-${{ env.DEBIAN_TAG }}-${{ inputs.image-name }}
 
-    - name: Cache var-lib-apt
-      id: cache-var-lib-apt
-      uses: actions/cache@v4
+    - name: Inject cache into docker
+      uses: reproducible-containers/buildkit-cache-dance@v3.1.0
       with:
-        path: var-lib-apt
-        key: var-lib-apt-${{ env.DEBIAN_TAG }}-${{ inputs.image-name }}
-
-    - name: Inject var-cache-apt into docker
-      uses: reproducible-containers/buildkit-cache-dance@v2.1.4
-      with:
-        cache-source: var-cache-apt
-        cache-target: /var/cache/apt
-        skip-extraction: ${{ steps.cache-var-cache-apt.outputs.cache-hit }}
-
-    - name: Inject var-lib-apt into docker
-      uses: reproducible-containers/buildkit-cache-dance@v2.1.4
-      with:
-        cache-source: var-lib-apt
-        cache-target: /var/lib/apt
-        skip-extraction: ${{ steps.cache-var-lib-apt.outputs.cache-hit }}
+        cache-map: |
+          {
+            "var-cache-apt": "/var/cache/apt",
+            "var-lib-apt": "/var/lib/apt"
+          }
+        skip-extraction: ${{ steps.cache.outputs.cache-hit }}
