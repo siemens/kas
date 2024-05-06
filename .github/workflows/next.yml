@@ -88,11 +88,12 @@ jobs:
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             DEBIAN_TAG=${{ env.DEBIAN_TAG }}
           outputs: type=docker,rewrite-timestamp=true
-          tags: ghcr.io/siemens/kas/${{ matrix.image-name }}:next
+          tags: ghcr.io/${{ github.repository }}/${{ matrix.image-name }}:next
       - name: Test ${{ matrix.image-name }} image
         run: |
           cd image-tests/${{ matrix.image-name }}
-          KAS_IMAGE_VERSION=next ../../kas-container build kas.yml
+          KAS_CONTAINER_IMAGE=ghcr.io/${{ github.repository }}/${{ matrix.image-name }}:next \
+          ../../kas-container build kas.yml
       - name: Complete build and deploy ${{ matrix.image-name }} image
         uses: docker/build-push-action@v5
         with:
@@ -104,5 +105,5 @@ jobs:
             DEBIAN_TAG=${{ env.DEBIAN_TAG }}
           provenance: mode=max,reproducible=true
           outputs: type=registry,rewrite-timestamp=true
-          tags: ghcr.io/siemens/kas/${{ matrix.image-name }}:next
+          tags: ghcr.io/${{ github.repository }}/${{ matrix.image-name }}:next
           annotations: ${{ env.DOCKER_METADATA_OUTPUT_ANNOTATIONS }}

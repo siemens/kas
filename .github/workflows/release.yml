@@ -35,7 +35,7 @@ jobs:
           provenance: mode=max,reproducible=true
           outputs: type=registry,rewrite-timestamp=true
           tags: |
-            ghcr.io/siemens/kas/${{ matrix.image-name }}
-            ghcr.io/siemens/kas/${{ matrix.image-name }}:${{ env.RELEASE_VERSION }}
-            ghcr.io/siemens/kas/${{ matrix.image-name }}:latest-release
+            ghcr.io/${{ github.repository }}/${{ matrix.image-name }}
+            ghcr.io/${{ github.repository }}/${{ matrix.image-name }}:${{ env.RELEASE_VERSION }}
+            ghcr.io/${{ github.repository }}/${{ matrix.image-name }}:latest-release
           annotations: ${{ env.DOCKER_METADATA_OUTPUT_ANNOTATIONS }}
