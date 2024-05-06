@@ -1,7 +1,7 @@
 #
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2022-2023
+# Copyright (c) Siemens AG, 2022-2024
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,7 @@ target: mc:qemuamd64-bullseye:cowsay
 repos:
   isar:
     url: https://github.com/ilbers/isar.git
-    commit: 8dfa97cf6e25a7adec2e02c50c5ef6329f31931b
+    commit: 9dc362cd7115074c0f60843e687ed89db5c9339a
     layers:
       meta:
       meta-isar:

@@ -1,7 +1,7 @@
 #
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2022-2023
+# Copyright (c) Siemens AG, 2022-2024
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -30,7 +30,7 @@ target: zlib-native
 repos:
   poky:
     url: https://git.yoctoproject.org/poky.git
-    commit: 387ab5f18b17c3af3e9e30dc58584641a70f359f
+    commit: fb91a49387cfb0c8d48303bb3354325ba2a05587
     layers:
       meta:
       meta-poky:
