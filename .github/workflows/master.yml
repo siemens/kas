@@ -9,6 +9,11 @@ jobs:
   deploy_containers:
     name: Build and deploy container images
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      packages: write
+      contents: read
+      attestations: write
     strategy:
       matrix:
         image-name: ["kas", "kas-isar"]
@@ -35,6 +40,7 @@ jobs:
       - name: Build ${{ matrix.image-name }} image
         uses: docker/build-push-action@v5
         if: ${{ env.PUSH_MASTER == 'true' }}
+        id: push
         with:
           context: /home/runner/kas-clone
           target: ${{ matrix.image-name }}
@@ -46,3 +52,9 @@ jobs:
           outputs: type=registry,rewrite-timestamp=true
           tags: ghcr.io/${{ github.repository }}/${{ matrix.image-name }}
           annotations: ${{ env.DOCKER_METADATA_OUTPUT_ANNOTATIONS }}
+      - name: Attest ${{ matrix.image-name }} image
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ghcr.io/${{ github.repository }}/${{ matrix.image-name }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
