@@ -30,10 +30,32 @@ Git Configuration
 A ``.gitconfig`` file can be used to provide credentials as well as
 url rewrites of git repositories (``insteadof``). To support the patching
 of git repositories, kas injects a ``[user]`` section, possibly overwriting
-an existing one. When running in the Github CI, the ``.gitconfig`` file is
-automatically injected. In addition, credential helpers can be used by
+an existing one. In addition, credential helpers can be used by
 setting the corresponding environment variables. These are added to the
 ``.gitconfig`` file as well.
+
+Github Actions
+~~~~~~~~~~~~~~
+
+When running in a Github Action, the ``.gitconfig`` file is automatically
+injected. In combination with the
+`webfactory/ssh-agent <https://github.com/webfactory/ssh-agent>`_ action,
+this automatically makes the required credentials available to kas and
+bitbake.
+
+Gitlab CI
+~~~~~~~~~
+
+When running in the Gitlab CI, the ``CI_JOB_TOKEN`` can be used to access
+git repositories via https. kas automatically adds this token to the
+``.netrc`` file, where it is picked up by git. To be able to clone via ssh
+locally, but via https in the CI, a rewrite rule needs to be added to the
+``KAS_PREMIRRORS`` CI environment variable. Example:
+
+.. code-block:: yaml
+
+  variables:
+    KAS_PREMIRRORS: "git@${CI_SERVER_HOST}: https://${CI_SERVER_HOST}/"
 
 Netrc File
 ----------
