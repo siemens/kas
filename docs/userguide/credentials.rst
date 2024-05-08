@@ -50,14 +50,14 @@ Gitlab CI
 
 When running in the GitLab CI, the ``CI_JOB_TOKEN`` can be used to access
 git repositories via https. kas automatically adds this token to the
-``.netrc`` file, where it is picked up by git. To be able to clone via ssh
-locally, but via https in the CI, a rewrite rule needs to be added to the
-``KAS_PREMIRRORS`` CI environment variable. Example:
+``.netrc`` file, where it is picked up by git. Further, kas configures git
+to automatically rewrite the urls of the repositories to clone via https
+for repos stored on the same server. Technically this is achieved by adding
+`insteadof` entries to the ``.gitconfig`` file.
 
-.. code-block:: yaml
-
-  variables:
-    KAS_PREMIRRORS: "git@${CI_SERVER_HOST}: https://${CI_SERVER_HOST}/"
+.. note::
+  For backwards compatibility, the git rewrite rules are only added if
+  ``.gitconfig`` does not exists and no SSH configuration is provided.
 
 Netrc File
 ----------

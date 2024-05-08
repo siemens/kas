@@ -192,6 +192,23 @@ class SetupHome(Command):
             return 'GitLab CI'
         return None
 
+    @staticmethod
+    def _ssh_config_present():
+        """
+            Checks if any file in the .ssh dir exists or
+            any manual ssh config option is set.
+        """
+        ssh_vars = ['SSH_PRIVATE_KEY', 'SSH_PRIVATE_KEY_FILE', 'SSH_AUTH_SOCK']
+        if any(e in os.environ for e in ssh_vars):
+            return True
+
+        ssh_path = os.path.expanduser('~/.ssh')
+        if os.path.isdir(ssh_path):
+            with os.scandir(ssh_path) as it:
+                if any(it):
+                    return True
+        return False
+
     def _setup_netrc(self):
         if os.environ.get('NETRC_FILE', False):
             shutil.copy(os.environ['NETRC_FILE'],
@@ -254,6 +271,17 @@ class SetupHome(Command):
                 if os.environ.get('GIT_CREDENTIAL_USEHTTPPATH', False):
                     config['credential']['useHttpPath'] = \
                         os.environ.get('GIT_CREDENTIAL_USEHTTPPATH')
+            # in GitLab CI, add ssh -> https rewrites if no config is present
+            ci_server = os.environ.get('CI_SERVER_HOST', False)
+            if self._on_ci() == 'GitLab CI' and ci_server and \
+                    not self._ssh_config_present() and \
+                    not os.path.exists(gitconfig_host):
+                logging.debug('Adding GitLab CI ssh -> https rewrites')
+                section = f'url "https://{ci_server}/"'
+                config.add_value(section, 'insteadOf',
+                                 f'git@{ci_server}:')
+                config.add_value(section, 'insteadOf',
+                                 f'ssh://git@{ci_server}/')
             config.write()
 
     def execute(self, ctx):
