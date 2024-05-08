@@ -37,7 +37,7 @@ setting the corresponding environment variables. These are added to the
 When running in a GitHub Action or GitLab CI job, the ``.gitconfig`` file
 is automatically injected.
 
-Github Actions
+GitHub Actions
 ~~~~~~~~~~~~~~
 
 In combination with the
@@ -45,7 +45,7 @@ In combination with the
 this automatically makes the required credentials available to kas and
 bitbake.
 
-Gitlab CI
+GitLab CI
 ~~~~~~~~~
 
 When running in the GitLab CI, the ``CI_JOB_TOKEN`` can be used to access
@@ -66,7 +66,7 @@ Netrc File
 ----------
 
 A ``.netrc`` file can be used to provide credentials for git or the
-HTTP(S) / FTP fetcher. When running in the Gitlab CI, the ``CI_JOB_TOKEN``
+HTTP(S) / FTP fetcher. When running in the GitLab CI, the ``CI_JOB_TOKEN``
 is appended to automatically grant access to repositories that can be
 accessed by the user that triggered the CI pipeline.
 

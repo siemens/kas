@@ -126,9 +126,9 @@ Variables Glossary
 | ``NETRC_FILE``           | Path to a .netrc file which will be copied to    |
 | (K,C)                    | the kas home dir as .netrc.                      |
 +--------------------------+--------------------------------------------------+
-| ``CI_SERVER_HOST``       | Environment variables from gitlab CI, if set     |
+| ``CI_SERVER_HOST``       | Environment variables from GitLab CI, if set     |
 | ``CI_JOB_TOKEN``         | .netrc is configured to allow fetching from      |
-| ``CI_JOB_URL``           | the gitlab instance. An entry will be appended   |
+| ``CI_JOB_URL``           | the GitLab instance. An entry will be appended   |
 | (K)                      | in case ``NETRC_FILE`` was given as well. Note   |
 |                          | that if the file already contains an entry for   |
 |                          | that host most tools would probably take that    |
