@@ -1,0 +1,9 @@
+header:
+  version: 14
+
+repos:
+  this:
+
+  kas:
+    url: git@github.com:siemens/kas.git
+    commit: 907816a5c4094b59a36aec12226e71c461c05b77

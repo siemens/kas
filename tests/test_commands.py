@@ -85,6 +85,17 @@ def test_invalid_checkout(monkeykas, tmpdir, capsys):
         kas.kas(['checkout', 'test-invalid.yml'])
 
 
+def test_checkout_with_ci_rewrite(monkeykas, tmpdir):
+    tdir = str(tmpdir / 'test_commands')
+    shutil.copytree('tests/test_commands', tdir)
+    monkeykas.chdir(tdir)
+    with monkeykas.context() as mp:
+        mp.setenv('GITLAB_CI', 'true')
+        mp.setenv('CI_SERVER_HOST', 'github.com')
+        mp.setenv('CI_JOB_TOKEN', 'not-needed')
+        kas.kas(['checkout', 'test-url-rewrite.yml'])
+
+
 def test_checkout_create_refs(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_commands')
     repo_cache = pathlib.Path(str(tmpdir.mkdir('repos')))

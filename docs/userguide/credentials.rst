@@ -55,9 +55,12 @@ to automatically rewrite the urls of the repositories to clone via https
 for repos stored on the same server. Technically this is achieved by adding
 `insteadof` entries to the ``.gitconfig`` file.
 
+For backwards compatibility, the git rewrite rules are only added if
+``.gitconfig`` does not exists and no SSH configuration is provided.
+
 .. note::
-  For backwards compatibility, the git rewrite rules are only added if
-  ``.gitconfig`` does not exists and no SSH configuration is provided.
+  Make sure to assign the correct permissions to the ``CI_JOB_TOKEN``.
+  For details, see `GitLab CI/CD job token <https://docs.gitlab.com/ee/ci/jobs/ci_job_token.html>`_.
 
 Netrc File
 ----------
