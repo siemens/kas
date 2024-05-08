@@ -180,6 +180,18 @@ class SetupHome(Command):
     def __str__(self):
         return 'setup_home'
 
+    @staticmethod
+    def _on_ci():
+        """
+            Detects if we are running on a CI system.
+            Returns the name of the CI system or None.
+        """
+        if os.environ.get('GITHUB_ACTIONS', False) == 'true':
+            return 'GitHub Actions'
+        elif os.environ.get('GITLAB_CI', False) == 'true':
+            return 'GitLab CI'
+        return None
+
     def _setup_netrc(self):
         if os.environ.get('NETRC_FILE', False):
             shutil.copy(os.environ['NETRC_FILE'],
@@ -222,9 +234,8 @@ class SetupHome(Command):
         gitconfig_host = os.environ.get('GITCONFIG_FILE', False)
         gitconfig_kas = self.tmpdirname + '/.gitconfig'
 
-        # when running in the github ci, always try to read the gitconfig
-        if not gitconfig_host and \
-           os.environ.get('GITHUB_ACTIONS', False) == 'true':
+        # on supported CI systems, always try to read the gitconfig
+        if not gitconfig_host and self._on_ci():
             gitconfig_host = os.path.expanduser('~/.gitconfig')
 
         if gitconfig_host and os.path.exists(gitconfig_host):
@@ -246,6 +257,9 @@ class SetupHome(Command):
             config.write()
 
     def execute(self, ctx):
+        ci = self._on_ci()
+        if ci:
+            logging.info(f'Running on {ci}')
         def_umask = os.umask(0o077)
         self._setup_netrc()
         self._setup_gitconfig()

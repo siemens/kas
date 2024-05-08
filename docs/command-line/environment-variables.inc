@@ -135,9 +135,10 @@ Variables Glossary
 |                          | first one. The job url is added to the           |
 |                          | provenance attestation (if enabled).             |
 +--------------------------+--------------------------------------------------+
-| ``GITHUB_ACTIONS``       | Environment variables from github actions. If    |
-| (K)                      | set to `true`, `.gitconfig` is automatically     |
-|                          | imported. For details, see ``GITCONFIG_FILE``.   |
+| ``GITHUB_ACTIONS``       | Environment variables from GitHub actions or     |
+| ``GITLAB_CI``            | GitLab CI. If set to `true`, `.gitconfig` is     |
+| (K)                      | automatically imported.                          |
+|                          | For details, see ``GITCONFIG_FILE``.             |
 +--------------------------+--------------------------------------------------+
 | ``BB_NUMBER_THREADS``    | Environment variables to control the concurrency.|
 | ``PARALLEL_MAKE``        |                                                  |

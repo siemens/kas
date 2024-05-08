@@ -34,11 +34,13 @@ an existing one. In addition, credential helpers can be used by
 setting the corresponding environment variables. These are added to the
 ``.gitconfig`` file as well.
 
+When running in a GitHub Action or GitLab CI job, the ``.gitconfig`` file
+is automatically injected.
+
 Github Actions
 ~~~~~~~~~~~~~~
 
-When running in a Github Action, the ``.gitconfig`` file is automatically
-injected. In combination with the
+In combination with the
 `webfactory/ssh-agent <https://github.com/webfactory/ssh-agent>`_ action,
 this automatically makes the required credentials available to kas and
 bitbake.
@@ -46,7 +48,7 @@ bitbake.
 Gitlab CI
 ~~~~~~~~~
 
-When running in the Gitlab CI, the ``CI_JOB_TOKEN`` can be used to access
+When running in the GitLab CI, the ``CI_JOB_TOKEN`` can be used to access
 git repositories via https. kas automatically adds this token to the
 ``.netrc`` file, where it is picked up by git. To be able to clone via ssh
 locally, but via https in the CI, a rewrite rule needs to be added to the
