@@ -33,9 +33,12 @@ runs:
 
     - name: Determine Debian tag
       run: |
+        COMMIT_DATE=$(date -d @$(git log -1 --pretty=%ct) +%Y%m%d)
         DEBIAN_RELEASE=$(grep -m 1 'ARG DEBIAN_TAG=' Dockerfile | sed 's/.*DEBIAN_TAG=\(.*\)-.*/\1/')
-        echo "DEBIAN_TAG=$(podman image search --list-tags debian --limit 1000000000 | \
-                           grep "$DEBIAN_RELEASE-.*-slim" | sort -r | head -1 | sed 's/.*[ ]\+//')" >> $GITHUB_ENV
+        echo "DEBIAN_TAG=$(podman search --list-tags docker.io/debian --limit 1000000000 | \
+                           grep "$DEBIAN_RELEASE-.*-slim" | sort -r | sed 's/.*[ ]\+//' | \
+                           ./scripts/lower-bound.py $DEBIAN_RELEASE-$COMMIT_DATE-slim )" \
+                           >> $GITHUB_ENV
       shell: bash
 
     - name: Prepare repository for COPY-in
