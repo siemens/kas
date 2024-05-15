@@ -65,6 +65,10 @@ runs:
         annotations: |
           org.opencontainers.image.description=${{ env.IMAGE_DESCRIPTION }}
           org.opencontainers.image.licenses=MIT and others
+          # redact information that is not reproducible
+          org.opencontainers.image.created=
+          org.opencontainers.image.source=
+          org.opencontainers.image.url=
       env:
         DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
 
