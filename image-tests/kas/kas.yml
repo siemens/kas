@@ -25,6 +25,9 @@
 header:
   version: 14
 
+machine: qemux86-64
+distro: poky
+
 target: zlib-native
 
 repos:
