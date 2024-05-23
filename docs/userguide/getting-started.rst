@@ -45,9 +45,14 @@ manually, e.g.::
 
     $ kas shell /path/to/kas-project.yml -c 'bitbake dosfsutils-native'
 
-kas will place downloads and build artifacts under the current directory when
-being invoked. You can specify a different location via the environment
-variable `KAS_WORK_DIR`.
+For details about the kas input file(s), see
+:ref:`project-configuration-label`. Example configurations can be found in
+:ref:`example-configurations-label`.
+
+.. note::
+  kas will place downloads and build artifacts under the current directory when
+  being invoked. You can specify a different location via the environment
+  variable ``KAS_WORK_DIR``.
 
 
 Use Cases

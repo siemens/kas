@@ -1,3 +1,5 @@
+.. _project-configuration-label:
+
 Project Configuration
 =====================
 
@@ -474,3 +476,25 @@ Configuration reference
   outside of the container (on the host). This value is only evaluated by the
   ``kas-container`` script. It must not be set manually and might only be
   defined in the top-level ``.config.yaml`` file.
+
+.. _example-configurations-label:
+
+Example project configurations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following snippets show minimal but working project configurations for
+both OpenEmbedded and ISAR based distributions.
+
+OpenEmbedded
+------------
+
+.. literalinclude:: ../../examples/openembedded.yml
+  :language: YAML
+  :lines: 25-
+
+ISAR
+----
+
+.. literalinclude:: ../../examples/isar.yml
+  :language: YAML
+  :lines: 25-
