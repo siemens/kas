@@ -225,7 +225,7 @@ def test_branch_and_tag(monkeykas, tmpdir):
     shutil.copytree('tests/test_refspec', tdir)
     monkeykas.chdir(tdir)
     with pytest.raises(RepoRefError):
-        kas.kas(['checkout', 'test10.yml'])
+        kas.kas(['checkout', 'test9.yml'])
 
     with pytest.raises(RepoRefError):
-        kas.kas(['checkout', 'test11.yml'])
+        kas.kas(['checkout', 'test10.yml'])

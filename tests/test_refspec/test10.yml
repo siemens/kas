@@ -4,8 +4,7 @@ header:
 repos:
   this:
 
-  evolve:
-    url: https://repo.mercurial-scm.org/evolve/
-    type: hg
-    branch: stable
-    commit: '6634:991cbf0f66f2'
+  kas:
+    url: https://github.com/siemens/kas.git
+    tag: 3.0.1
+    branch: master
