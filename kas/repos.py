@@ -544,7 +544,7 @@ class GitRepo(RepoImpl):
     def fetch_cmd(self):
         cmd = ['git', 'fetch', '-q']
         if self.tag:
-            cmd.append('--tags')
+            cmd.extend(['origin', f'+{self.tag}:refs/tags/{self.tag}'])
 
         branch = self.branch or self.refspec
         if branch and branch.startswith('refs/'):
