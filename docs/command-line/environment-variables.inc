@@ -72,6 +72,12 @@ Variables Glossary
 | ``DISTRO_APT_PREMIRRORS``| Specifies alternatives for apt URLs. Just like   |
 | (C)                      | ``KAS_PREMIRRORS``.                              |
 +--------------------------+--------------------------------------------------+
+| ``KAS_CLONE_DEPTH``      | Perform shallow git clone/fetch using --depth=N  |
+| (C, K)                   | specified by this variable. This is useful in    |
+|                          | case CI always starts with empty work directory  |
+|                          | and this directory is always discarded after the |
+|                          | CI run.                                          |
++--------------------------+--------------------------------------------------+
 | ``SSH_PRIVATE_KEY``      | Variable containing the private key that should  |
 | (K)                      | be added to an internal ssh-agent. This key      |
 |                          | cannot be password protected. This setting is    |

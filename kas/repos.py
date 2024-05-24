@@ -394,7 +394,9 @@ class RepoImpl(Repo):
                 raise RepoRefError(
                     f'Branch "{self.branch}" cannot be found '
                     f'in repository "{self.name}"')
-            if self.commit:
+            # check if branch contains the requested commit.
+            # skip check on shallow clones, as branch information is missing
+            if self.commit and not get_context().repo_clone_depth:
                 (_, output) = run_cmd(self.branch_contains_ref(),
                                       cwd=self.path,
                                       fail=False)
@@ -523,6 +525,19 @@ class GitRepo(RepoImpl):
 
     def clone_cmd(self, srcdir, createref):
         cmd = ['git', 'clone', '-q']
+
+        depth = get_context().repo_clone_depth
+        if depth:
+            if self.refspec:
+                logging.warning('Shallow cloning is not supported for legacy '
+                                f'refspec on repository "{self.name}". '
+                                'Performing full clone.')
+            else:
+                cmd.extend(['--depth', str(depth)])
+                if self.branch:
+                    cmd.extend(['--branch',
+                                self.remove_ref_prefix(self.branch)])
+
         if createref:
             cmd.extend([self.effective_url, '--bare', srcdir])
         elif srcdir:
@@ -543,11 +558,22 @@ class GitRepo(RepoImpl):
 
     def fetch_cmd(self):
         cmd = ['git', 'fetch', '-q']
+
+        depth = 0 if self.refspec else get_context().repo_clone_depth
+        if depth:
+            cmd.extend(['--depth', str(depth)])
+
         if self.tag:
             cmd.extend(['origin', f'+{self.tag}:refs/tags/{self.tag}'])
+            return cmd
+
+        # only fetch this commit (branch information is lost)
+        if depth and self.commit:
+            cmd.extend(['origin', self.commit])
+            return cmd
 
         branch = self.branch or self.refspec
-        if branch and branch.startswith('refs/'):
+        if branch and (branch.startswith('refs/') or depth):
             branch = self.remove_ref_prefix(branch)
             cmd.extend(['origin', f'+{branch}:refs/remotes/origin/{branch}'])
 

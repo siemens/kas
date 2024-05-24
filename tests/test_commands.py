@@ -29,7 +29,8 @@ import yaml
 import subprocess
 import pytest
 from kas import kas
-from kas.libkas import TaskExecError
+from kas.libkas import run_cmd
+from kas.libkas import TaskExecError, KasUserError
 
 
 def test_for_all_repos(monkeykas, tmpdir):
@@ -105,6 +106,68 @@ def test_checkout_create_refs(monkeykas, tmpdir):
     kas.kas(['checkout', 'test.yml'])
     assert os.path.exists(str(repo_cache / 'github.com.siemens.kas.git'))
     assert os.path.exists('kas/.git/objects/info/alternates')
+
+
+def test_checkout_shallow(monkeykas, tmpdir):
+    tdir = str(tmpdir / 'test_commands')
+    shutil.copytree('tests/test_commands', tdir)
+    monkeykas.chdir(tdir)
+    with monkeykas.context() as mp:
+        mp.setenv('KAS_CLONE_DEPTH', 'invalid')
+        with pytest.raises(KasUserError):
+            kas.kas(['checkout', 'test-shallow.yml'])
+
+    with monkeykas.context() as mp:
+        mp.setenv('KAS_CLONE_DEPTH', '1')
+        kas.kas(['checkout', 'test-shallow.yml'])
+    for repo in ['kas_1', 'kas_2', 'kas_3', 'kas_4']:
+        (rc, output) = run_cmd(['git', 'rev-list', '--count', 'HEAD'],
+                               cwd=repo, fail=False, liveupdate=False)
+        assert rc == 0
+        if repo == 'kas_4':
+            assert output.strip() >= '1'
+        else:
+            assert output.strip() == '1'
+
+
+def test_shallow_updates(monkeykas, tmpdir):
+    def _get_commit(repo):
+        (rc, output) = run_cmd(['git', 'rev-parse', '--verify', 'HEAD'],
+                               cwd=repo, fail=False, liveupdate=False)
+        assert rc == 0
+        return output.strip()
+
+    tdir = tmpdir / 'test_commands'
+    tdir.mkdir()
+    shutil.copy('tests/test_commands/oe-init-build-env', tdir)
+    monkeykas.chdir(tdir)
+    monkeykas.setenv('KAS_CLONE_DEPTH', '1')
+    # test non-pinned checkout of master branch
+    base_yml = {'header': {'version': 15}, 'repos': {
+                'this': {},
+                'kas': {
+                    'url': 'https://github.com/siemens/kas.git',
+                    'branch': 'master'
+                }}}
+    with open(tdir / 'kas.yml', 'w') as f:
+        yaml.dump(base_yml, f)
+    kas.kas(['checkout', 'kas.yml'])
+    # switch branches, perform checkout again
+    base_yml['repos']['kas']['branch'] = 'next'
+    with open(tdir / 'kas.yml', 'w') as f:
+        yaml.dump(base_yml, f)
+    kas.kas(['checkout', 'kas.yml'])
+    # pin commit on next branch
+    commit = '5d1ab6e8ed3a12c7093c9041f104fb6a2db701a1'
+    base_yml_lock = {'header': {'version': 15},
+                     'overrides': {'repos': {'kas': {'commit': commit}}}}
+    with open(tdir / 'kas.lock.yml', 'w') as f:
+        yaml.dump(base_yml_lock, f)
+    kas.kas(['checkout', 'kas.yml'])
+    assert _get_commit('kas') == commit
+    # update to latest revision of next branch
+    kas.kas(['checkout', '--update', 'kas.yml'])
+    assert _get_commit('kas') != commit
 
 
 def test_repo_includes(monkeykas, tmpdir):

@@ -1,0 +1,23 @@
+header:
+  version: 14
+
+repos:
+  this:
+
+  kas_1:
+    url: https://github.com/siemens/kas.git
+    branch: master
+
+  kas_2:
+    url: https://github.com/siemens/kas.git
+    tag: '4.3'
+    commit: f650ebe2495a9cbe2fdf4a2c8becc7b3db470d55
+
+  kas_3:
+    url: https://github.com/siemens/kas.git
+    commit: e42a64a666082b77fbc2758b07191b662d17f792
+
+  kas_4:
+    url: https://github.com/siemens/kas.git
+    # keep legacy refspec here for testing purposes
+    refspec: master

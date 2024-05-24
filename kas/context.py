@@ -25,6 +25,7 @@
 
 import os
 import logging
+from kas.kasusererror import KasUserError
 
 try:
     import distro
@@ -78,6 +79,10 @@ class Context:
         self.__kas_build_dir = os.path.abspath(build_dir)
         ref_dir = os.environ.get('KAS_REPO_REF_DIR', None)
         self.__kas_repo_ref_dir = os.path.abspath(ref_dir) if ref_dir else None
+        clone_depth = os.environ.get('KAS_CLONE_DEPTH', '0')
+        if not clone_depth.isdigit():
+            raise KasUserError('KAS_CLONE_DEPTH must be a number')
+        self.repo_clone_depth = max(int(clone_depth), 0)
         self.setup_initial_environ()
         self.config = None
         self.args = args
