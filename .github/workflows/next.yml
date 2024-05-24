@@ -98,6 +98,7 @@ jobs:
         run: |
           cd image-tests/${{ matrix.image-name }}
           KAS_CONTAINER_IMAGE=ghcr.io/${{ github.repository }}/${{ matrix.image-name }}:next \
+          KAS_CLONE_DEPTH=1 \
           ../../kas-container build kas.yml
       - name: Complete build and deploy ${{ matrix.image-name }} image
         uses: docker/build-push-action@v5
