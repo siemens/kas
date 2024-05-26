@@ -23,7 +23,7 @@
 
 ARG DEBIAN_TAG=bookworm-slim
 
-FROM debian:${DEBIAN_TAG} as kas-base
+FROM debian:${DEBIAN_TAG} as kas-base-conditional
 
 ARG SOURCE_DATE_EPOCH
 ARG CACHE_SHARING=locked
@@ -48,10 +48,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=${CACHE_SHARING} \
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 && \
     apt-get install --no-install-recommends -y \
         python3-pip python3-setuptools python3-wheel python3-yaml python3-distro python3-jsonschema \
-        python3-newt python3-colorlog python3-kconfiglib python3-websockets \
+        python3-newt python3-colorlog python3-websockets \
         gosu lsb-release file vim less procps tree tar bzip2 zstd pigz lz4 unzip tmux libncurses-dev \
         git-lfs mercurial iproute2 ssh-client telnet curl rsync gnupg awscli sudo \
-        socat bash-completion python3-shtab python3-git && \
+        socat bash-completion python3-git && \
     rm -rf /var/log/* /tmp/* /var/tmp/* /var/cache/ldconfig/aux-cache && \
     rm -f /etc/gitconfig && \
     git config --system filter.lfs.clean 'git-lfs clean -- %f' && \
@@ -59,12 +59,23 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=${CACHE_SHARING} \
     git config --system filter.lfs.process 'git-lfs filter-process' && \
     git config --system filter.lfs.required true
 
+FROM kas-base-conditional as kas-base-bookworm-slim
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y python3-kconfiglib python3-shtab
+ENV PIP3_EXTRA_ARGS="--break-system-packages"
+FROM kas-base-conditional as kas-base-bullseye-slim
+RUN curl http://ftp.de.debian.org/debian/pool/main/k/kconfiglib/python3-kconfiglib_14.1.0-3_all.deb -o /tmp/python3-kconfiglib.deb && \
+   curl http://ftp.de.debian.org/debian/pool/main/p/python-shtab/python3-shtab_1.5.5-3_all.deb -o /tmp/python3-shtab.deb && \
+   dpkg -i /tmp/python3-kconfiglib.deb /tmp/python3-shtab.deb && \
+   rm /tmp/python3-kconfiglib.deb /tmp/python3-shtab.deb
+FROM kas-base-${DEBIAN_TAG} as kas-base
+
 COPY . /kas
 
 RUN pip3 --proxy=$https_proxy install \
         --no-deps \
         --no-build-isolation \
-        --break-system-packages \
+        ${PIP3_EXTRA_ARGS} \
         /kas && \
     install -d /usr/local/share/bash-completion/completions/ && \
     shtab --shell=bash -u kas.kas.kas_get_argparser --error-unimportable --prog kas \
