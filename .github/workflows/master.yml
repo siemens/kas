@@ -54,6 +54,7 @@ jobs:
           annotations: ${{ env.DOCKER_METADATA_OUTPUT_ANNOTATIONS }}
       - name: Attest ${{ matrix.image-name }} image
         uses: actions/attest-build-provenance@v1
+        if: ${{ env.PUSH_MASTER == 'true' }}
         with:
           subject-name: ghcr.io/${{ github.repository }}/${{ matrix.image-name }}
           subject-digest: ${{ steps.push.outputs.digest }}
