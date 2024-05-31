@@ -50,6 +50,7 @@ highlights=$(sed -e "/$OLD_VERSION$/,\$d" CHANGELOG.md)
 prolog=$PWD/release-email.txt
 echo \
 "Hi all,
+!!! SET CONTAINER SHAs BEFORE SENDING !!!
 
 A new release $NEW_VERSION is available. A big thanks to all contributors:
 $authors
@@ -60,8 +61,11 @@ Thanks,
 Jan
 
 https://github.com/siemens/kas/releases/tag/$NEW_VERSION
+  ($(git rev-parse "$NEW_VERSION"))
 https://github.com/orgs/siemens/packages/container/package/kas%2Fkas
+  (ghcr.io/siemens/kas/kas:$NEW_VERSION@sha256:FILLME)
 https://github.com/orgs/siemens/packages/container/package/kas%2Fkas-isar
+  (ghcr.io/siemens/kas/kas-isar:$NEW_VERSION@sha256:FILLME)
 
 "> "$prolog"
 
