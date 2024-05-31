@@ -1,3 +1,18 @@
+4.4
+- kas: Auto-import runner-provided .gitconfig also inside GitLab-CI
+- kas: Auto-inject git credentials on gitlab ci
+- kas: Add --keep-config-unchanged to preserve repos and configs on actions
+- kas: Fix --skip'ing multiple steps
+- kas: List --skip'able steps in --help
+- kas: Add support for shallow clones
+- kas: Add support to create provenance build attestations
+- kas: Add config key to describe build artifacts (used by attestation)
+- kas: Add option to dump-plugin to include VCS info of local repos
+- kas-container: Handle missing extra argument in subcommands gracefully
+- kas-container: improve container reproduction using git commit date
+- docs: Several format improvements
+- docs: Add simple examples
+
 4.3.2
 - kas: don't add comments to .netrc, fixing gitlab-ci
 - kas: make file permissions on credentials more strict (not a security fix)
