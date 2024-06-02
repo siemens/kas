@@ -42,7 +42,7 @@ git tag -s -m "Release $NEW_VERSION" "$NEW_VERSION"
 git push --follow-tags
 
 python3 setup.py sdist
-twine upload -r pypi "dist/kas-$NEW_VERSION.tar.gz"
+twine upload -s -r pypi "dist/kas-$NEW_VERSION.tar.gz"
 
 authors=$(git shortlog -s "$OLD_VERSION".."$NEW_VERSION" | cut -c8- | paste -s -d, - | sed -e 's/,/, /g')
 highlights=$(sed -e "/$OLD_VERSION$/,\$d" CHANGELOG.md)
