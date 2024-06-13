@@ -337,7 +337,16 @@ class RepoImpl(Repo):
                              self.commit or self.tag or self.branch
                              or self.refspec,
                              output.strip())
-                return retc
+                # if branch is specified, check if it contains the commit
+                # also in our local clone
+                depth = get_context().repo_clone_depth
+                if self.branch and self.commit and not depth:
+                    (_, output) = await run_cmd_async(
+                        self.branch_contains_ref(), cwd=self.path, fail=False)
+                    if output.strip():
+                        return retc
+                else:
+                    return retc
 
         # Try to fetch if commit/tag/branch/refspec is missing or if --update
         # argument was passed
