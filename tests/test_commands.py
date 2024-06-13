@@ -340,3 +340,63 @@ def test_root_resolve_hg(monkeykas, tmpdir, capsys):
     kas.kas('dump --resolve-local test-local-hg.yml'.split())
     console = capsys.readouterr()
     assert 'contains uncommitted' not in console.err
+
+
+def test_ff_merges(monkeykas, tmpdir):
+    """
+    This tests check if kas correcly handles fast-forward merges.
+    """
+    tdir = tmpdir / 'test_commands'
+    rdirbare = tdir / 'upstream.git'
+    rdirwork = tdir / 'upstream.clone'
+    wdirkas = tdir / 'kas'
+    for d in [tdir, rdirbare, rdirwork, wdirkas]:
+        d.mkdir()
+
+    with open('tests/test_commands/test-ff-merges.yml', 'r') as f:
+        kas_input = yaml.safe_load(f)
+
+    shutil.copy('tests/test_commands/oe-init-build-env', rdirwork)
+    # create a bare upstream repository
+    monkeykas.chdir(rdirbare)
+    subprocess.check_call(['git', 'init', '--bare'])
+    subprocess.check_call(['git', 'symbolic-ref', 'HEAD', 'refs/heads/main'])
+    # create a repository with a branch (working copy)
+    monkeykas.chdir(rdirwork)
+    subprocess.check_call(['git', 'init'])
+    subprocess.check_call(['git', 'branch', '-m', 'main'])
+    subprocess.check_call(['git', 'add', 'oe-init-build-env'])
+    subprocess.check_call(['git', 'commit', '-m', 'test'])
+    # get head of main branch (before merge)
+    c_main = subprocess.check_output(['git', 'rev-parse', '--verify', 'HEAD'])
+    subprocess.check_call(['git', 'checkout', '-b', 'feature'])
+    subprocess.check_call(['touch', 'foo'])
+    subprocess.check_call(['git', 'add', 'foo'])
+    subprocess.check_call(['git', 'commit', '-m', 'test-feature'])
+    # get head of feature branch
+    c_feat = subprocess.check_output(['git', 'rev-parse', '--verify', 'HEAD'])
+    subprocess.check_call(['git', 'remote', 'add', 'origin', rdirbare])
+    subprocess.check_call(['git', 'push', 'origin', 'main', 'feature'])
+
+    # perform initial kas checkout
+    monkeykas.chdir(wdirkas)
+    kas_input['repos']['upstream']['commit'] = c_main.decode('utf-8').strip()
+    kas_input['repos']['upstream']['url'] = str(rdirbare)
+    with open('kas.yml', 'w') as f:
+        yaml.dump(kas_input, f)
+    kas.kas(['checkout', 'kas.yml'])
+
+    # ff merge feature into main
+    monkeykas.chdir(rdirwork)
+    # checkout main branch with kas
+    subprocess.check_call(['git', 'checkout', 'main'])
+    subprocess.check_call(['git', 'merge', '--ff-only', 'feature'])
+    subprocess.check_call(['git', 'push', 'origin', 'main'])
+
+    # bump commit on main branch in kas project, perform kas checkout
+    monkeykas.chdir(wdirkas)
+    # checkout main branch with kas again
+    kas_input['repos']['upstream']['commit'] = c_feat.decode('utf-8').strip()
+    with open('kas.yml', 'w') as f:
+        yaml.dump(kas_input, f)
+    kas.kas(['checkout', 'kas.yml'])
