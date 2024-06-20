@@ -9,7 +9,7 @@ steps. It also sketches the typical integration process of patches.
 Contribution Checklist
 ----------------------
 
-- use git to manage your changes [*recomended*]
+- use git to manage your changes [*recommended*]
 
 - follow Python coding style outlined in pep8 [**required**]
 
