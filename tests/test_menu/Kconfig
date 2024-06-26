@@ -30,3 +30,16 @@ config KAS_TARGET_CHOICE
 	string
 	default "target1" if CHOICE1
 	default "target2" if CHOICE2
+
+config PKG_NGINX
+	bool "nginx"
+config KAS_LOCAL_PKG_NGINX
+	string
+	default "IMAGE_INSTALL += \"nginx\"" if PKG_NGINX
+
+config PKG_MYSQL
+	bool "mysql"
+config KAS_LOCAL_PKG_MYSQL
+	string
+	default "IMAGE_INSTALL += \"mysql\"" if PKG_MYSQL
+
