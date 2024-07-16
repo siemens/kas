@@ -29,6 +29,8 @@ import shutil
 import os
 import pprint
 import configparser
+import json
+import base64
 from git.config import GitConfigParser
 from .libkas import (ssh_cleanup_agent, ssh_setup_agent, ssh_no_host_key_check,
                      get_build_environ, repos_fetch, repos_apply_patches)
@@ -168,6 +170,7 @@ class SetupHome(Command):
         'AWS_SHARED_CREDENTIALS_FILE',
         'AWS_WEB_IDENTITY_TOKEN_FILE',
         'NETRC_FILE',
+        'REGISTRY_AUTH_FILE',
     ]
 
     def __init__(self):
@@ -219,6 +222,30 @@ class SetupHome(Command):
                 fds.write('machine ' + os.environ['CI_SERVER_HOST'] + '\n'
                           'login gitlab-ci-token\n'
                           'password ' + os.environ['CI_JOB_TOKEN'] + '\n')
+
+    def _setup_registry_auth(self):
+        os.makedirs(self.tmpdirname + "/.docker")
+        if os.environ.get('REGISTRY_AUTH_FILE', False):
+            shutil.copy(os.environ['REGISTRY_AUTH_FILE'],
+                        self.tmpdirname + "/.docker/config.json")
+        elif not os.path.exists(self.tmpdirname + '/.docker/config.json'):
+            with open(self.tmpdirname + '/.docker/config.json', 'w') as fds:
+                fds.write("{}")
+
+        if os.environ.get('CI_REGISTRY', False) \
+                and os.environ.get('CI_JOB_TOKEN', False) \
+                and os.environ.get('CI_REGISTRY_USER', False):
+            with open(self.tmpdirname + '/.docker/config.json', 'r+') as fds:
+                data = json.loads(fds.read())
+                token = os.environ['CI_JOB_TOKEN']
+                base64_token = base64.b64encode(token.encode()).decode()
+                auths = data.get('auths', {})
+                auths.update(
+                    {os.environ['CI_REGISTRY']: {"auth": base64_token}})
+                data['auths'] = auths
+                fds.seek(0)
+                fds.write(json.dumps(data, indent=4))
+                fds.truncate()
 
     def _setup_aws_creds(self):
         aws_dir = self.tmpdirname + "/.aws"
@@ -290,6 +317,7 @@ class SetupHome(Command):
             logging.info(f'Running on {ci}')
         def_umask = os.umask(0o077)
         self._setup_netrc()
+        self._setup_registry_auth()
         self._setup_gitconfig()
         self._setup_aws_creds()
         os.umask(def_umask)
