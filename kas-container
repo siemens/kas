@@ -512,6 +512,11 @@ if [ -f "${GITCONFIG_FILE}" ]; then
 		-e GITCONFIG_FILE="/var/kas/userdata/.gitconfig"
 fi
 
+if [ -f "${REGISTRY_AUTH_FILE}" ]; then
+	set -- "$@" -v "$(readlink -fv "${REGISTRY_AUTH_FILE}")":/var/kas/userdata/.docker/config.json:ro \
+		-e REGISTRY_AUTH_FILE="/var/kas/userdata/.docker/config.json"
+fi
+
 if [ -t 1 ]; then
 	set -- "$@" -t -i
 fi
