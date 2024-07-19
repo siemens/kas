@@ -46,7 +46,7 @@ runs:
         git clone . /home/runner/kas-clone
       shell: bash
 
-    - name: Define image description
+    - name: Define image metadata
       run: |
         case ${{ inputs.image-name }} in
         kas)
@@ -56,6 +56,9 @@ runs:
             echo "IMAGE_DESCRIPTION=kas build environment for isar-based Debian projects" >> $GITHUB_ENV
             ;;
         esac
+        # make image metadata reproducible (also for image re-builders)
+        echo "IMAGE_COMMIT_DATE=$(date -d @$(git log -1 --pretty=%ct) --iso-8601=seconds)" >> $GITHUB_ENV
+        echo "IMAGE_OFFICIAL_URL=https://github.com/siemens/kas" >> $GITHUB_ENV
       shell: bash
 
     - name: Extract metadata
@@ -65,10 +68,9 @@ runs:
         annotations: |
           org.opencontainers.image.description=${{ env.IMAGE_DESCRIPTION }}
           org.opencontainers.image.licenses=MIT and others
-          # redact information that is not reproducible
-          org.opencontainers.image.created=
-          org.opencontainers.image.source=
-          org.opencontainers.image.url=
+          org.opencontainers.image.created=${{ env.IMAGE_COMMIT_DATE }}
+          org.opencontainers.image.source=${{ env.IMAGE_OFFICIAL_URL }}
+          org.opencontainers.image.url=${{ env.IMAGE_OFFICIAL_URL }}
       env:
         DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
 
