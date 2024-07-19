@@ -39,7 +39,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=${CACHE_SHARING} \
     rm -f /etc/apt/apt.conf.d/docker-clean && \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-packages.conf && \
     if echo "${DEBIAN_TAG}" | grep -q "[0-9]"; then \
-        sed -i -e '/^URIs:/d' -e 's|^# http://snapshot\.|URIs: http://snapshot-cloudflare.|' \
+        sed -i -e '/^URIs:/d' -e 's|^# http://snapshot\.|URIs: http://snapshot.|' \
             /etc/apt/sources.list.d/debian.sources; \
         echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/use-snapshot.conf; \
     fi && \
