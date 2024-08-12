@@ -8,8 +8,12 @@ By using :ref:`env-vars-label`, a fine grained control is possible. All
 credentials are made available both to KAS, as well as inside the build
 environment. However, not all mechanisms are natively supported by all tools.
 As kas might need to modify credentials and config files, these are copied
-into the isolated environment first. One exception is the SSH folder, where
-changes are only performed if not yet present on the host.
+into the isolated environment first.
+
+.. note::
+  In general, file based credentials (e.g. ``.netrc``) are only copied
+  if explicitly requested by setting the corresponding environment variable.
+  Environment variable based credentials are automatically forwarded.
 
 .. only:: man
 
