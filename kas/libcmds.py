@@ -40,6 +40,9 @@ from .kasusererror import ArgsCombinationError
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
 
+KAS_USER_NAME = 'kas User'
+KAS_USER_EMAIL = 'kas@example.com'
+
 
 class Macro:
     """
@@ -286,11 +289,6 @@ class SetupHome(Command):
             shutil.copy(gitconfig_host, gitconfig_kas)
 
         with GitConfigParser(gitconfig_kas, read_only=False) as config:
-            # overwrite user as kas operates git
-            config['user'] = {
-                'email': 'kas@example.com',
-                'name': 'kas User'
-            }
             if os.environ.get('GIT_CREDENTIAL_HELPER', False):
                 config['credential'] = {
                     'helper': os.environ.get('GIT_CREDENTIAL_HELPER')
@@ -436,8 +434,34 @@ class ReposApplyPatches(Command):
     def __str__(self):
         return 'repos_apply_patches'
 
+    def _vcs_operate_as_kas(self, gitconfig):
+        # currently only implemented for git
+        with GitConfigParser(gitconfig, read_only=False) as config:
+            # in case no user is defined, we keep the kas user
+            user_orig = {
+                'name': config.get('user', 'name',
+                                   fallback=KAS_USER_NAME),
+                'email': config.get('user', 'email',
+                                    fallback=KAS_USER_EMAIL)
+            }
+            config.set_value('user', 'name', KAS_USER_NAME)
+            config.set_value('user', 'email', KAS_USER_EMAIL)
+            config.write()
+            return user_orig
+
+    def _vcs_restore_user(self, gitconfig, user):
+        # currently only implemented for git
+        with GitConfigParser(gitconfig, read_only=False) as config:
+            config['user'] = user
+            config.write()
+
     def execute(self, ctx):
+        gitconfig = ctx.environ['HOME'] + '/.gitconfig'
+        user = self._vcs_operate_as_kas(gitconfig)
+
         repos_apply_patches(ctx.config.get_repos())
+
+        self._vcs_restore_user(gitconfig, user)
 
 
 class InitSetupRepos(Command):

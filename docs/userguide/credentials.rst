@@ -28,14 +28,15 @@ Git Configuration
 -----------------
 
 A ``.gitconfig`` file can be used to provide credentials as well as
-url rewrites of git repositories (``insteadof``). To support the patching
+url rewrites of git repositories (``insteadof``). In addition, credential
+helpers can be used by setting the corresponding environment variables.
+These are added to the ``.gitconfig`` file as well. To support the patching
 of git repositories, kas injects a ``[user]`` section, possibly overwriting
-an existing one. In addition, credential helpers can be used by
-setting the corresponding environment variables. These are added to the
-``.gitconfig`` file as well.
+an existing one. After patching, the original user is restored (if set).
 
 When running in a GitHub Action or GitLab CI job, the ``.gitconfig`` file
-is automatically injected.
+is automatically injected. Otherwise, the environment variable
+``GITCONFIG_FILE`` needs to point to the `.gitconfig` kas should use.
 
 GitHub Actions
 ~~~~~~~~~~~~~~

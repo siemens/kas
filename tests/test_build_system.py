@@ -64,9 +64,9 @@ def test_gitconfig(monkeykas, tmpdir, capsys):
     kas.kas(['shell', 'test-oe.yml', '-c',
              'git config --get-all "url.git@github.com:.insteadof" '
              f'> {tdir}/url'])
-    # check if user is overwritten
+    # check if user is restored after patching
     with open(f'{tdir}/user.email', 'r') as f:
-        assert f.readline().strip() == 'kas@example.com'
+        assert f.readline().strip() == 'kas@kastest.io'
     # check the multi-key url rewrites
     with open(f'{tdir}/url', 'r') as f:
         assert f.readline().strip() == 'git://github'
