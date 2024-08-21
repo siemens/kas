@@ -25,7 +25,21 @@ import stat
 import shutil
 import pytest
 from kas import kas
+from kas.libkas import run_cmd
 from kas.repos import PatchApplyError, PatchFileNotFound, PatchMappingError
+
+
+def git_get_commit(path):
+    (rc, output) = run_cmd(['git', 'rev-parse', 'HEAD'], cwd=path, fail=False)
+    assert rc == 0
+    return output.strip()
+
+
+def mercurial_get_commit(path):
+    (rc, output) = run_cmd(['hg', 'log', '-r', '.', '--template', '{node}\n'],
+                           cwd=path, fail=False)
+    assert rc == 0
+    return output.strip()
 
 
 def test_patch(monkeykas, tmpdir):
@@ -35,7 +49,18 @@ def test_patch(monkeykas, tmpdir):
     kas.kas(['shell', 'test.yml', '-c', 'true'])
     for f in ['kas/tests/test_patch/hello.sh', 'hello/hello.sh']:
         assert os.stat(f)[stat.ST_MODE] & stat.S_IXUSR
+
+    kas_head_ref = git_get_commit("kas")
+    kas_branch_head_ref = git_get_commit("kas-branch")
+    hello_head_ref = mercurial_get_commit("hello")
+    hello_branch_head_ref = mercurial_get_commit("hello-branch")
+
     kas.kas(['shell', 'test.yml', '-c', 'true'])
+
+    assert git_get_commit("kas") == kas_head_ref
+    assert git_get_commit("kas-branch") == kas_branch_head_ref
+    assert mercurial_get_commit("hello") == hello_head_ref
+    assert mercurial_get_commit("hello-branch") == hello_branch_head_ref
 
 
 def test_patch_update(monkeykas, tmpdir):
