@@ -26,8 +26,10 @@
 import re
 import os
 import sys
+import linecache
 import logging
 import shutil
+from datetime import datetime
 from urllib.parse import urlparse
 from tempfile import TemporaryDirectory
 from .context import get_context
@@ -492,9 +494,17 @@ class RepoImpl(Repo):
                 raise PatchApplyError('Could not add patched files. repo: '
                                       f'{self.name}, vcs output: {output})')
 
-            cmd = self.commit_cmd()
+            timestamp = self.get_patch_timestamp(path)
+            if not timestamp:
+                dt = datetime.fromtimestamp(os.path.getmtime(path))
+                timestamp = dt.astimezone().strftime(
+                    "%a, %d %b %Y %H:%M:%S %z")
+
+            env = get_context().environ.copy()
+            cmd = self.commit_cmd(env, 'kas <kas@example.com>', 'msg',
+                                  timestamp)
             (retc, output) = await run_cmd_async(
-                cmd, cwd=self.path, fail=False)
+                cmd, cwd=self.path, env=env, fail=False)
             if retc:
                 raise PatchApplyError('Could not commit patch changes. repo: '
                                       f'{self.name}, vcs output: {output})')
@@ -555,9 +565,10 @@ class GitRepo(RepoImpl):
             cmd.extend([self.effective_url, self.path])
         return cmd
 
-    def commit_cmd(self):
-        return ['git', 'commit', '-a', '--author', 'kas <kas@example.com>',
-                '-m', 'msg']
+    def commit_cmd(self, env, author, msg, date):
+        env["GIT_COMMITTER_DATE"] = date
+        return ['git', 'commit', '-a', '--author', author, '-m', msg,
+                '--date', date]
 
     def contains_refspec_cmd(self):
         branch = self.branch or self.refspec
@@ -629,6 +640,12 @@ class GitRepo(RepoImpl):
     def get_commit_cmd(self):
         return ['git', 'rev-parse', '--verify', 'HEAD']
 
+    def get_patch_timestamp(self, path):
+        date = linecache.getline(path, 3)
+        linecache.clearcache()
+        if date and date.startswith("Date: "):
+            return date.replace("Date: ", "").strip()
+
 
 class MercurialRepo(RepoImpl):
     """
@@ -648,8 +665,8 @@ class MercurialRepo(RepoImpl):
             return ['true']
         return ['hg', 'clone', self.effective_url, self.path]
 
-    def commit_cmd(self):
-        return ['hg', 'commit', '--user', 'kas <kas@example.com>', '-m', 'msg']
+    def commit_cmd(self, env, author, msg, date):
+        return ['hg', 'commit', '--user', author, '-m', msg, '--date', date]
 
     def contains_refspec_cmd(self):
         return ['hg', 'log', '-r', self.commit or self.tag or self.branch
@@ -696,3 +713,12 @@ class MercurialRepo(RepoImpl):
 
     def get_commit_cmd(self):
         return ['hg', 'log', '-r', '.', '--template', '{node}\n']
+
+    def get_patch_timestamp(self, path):
+        date = None
+        if linecache.getline(path, 3).startswith("# Date "):
+            date = linecache.getline(path, 4)
+        linecache.clearcache()
+
+        if date and date.startswith("# "):
+            return date.replace("# ", "").strip()
