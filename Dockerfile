@@ -104,6 +104,9 @@ ARG CACHE_SHARING=locked
 ENV LC_ALL=en_US.UTF-8
 RUN --mount=type=cache,target=/var/cache/apt,sharing=${CACHE_SHARING} \
     --mount=type=cache,target=/var/lib/apt,sharing=${CACHE_SHARING} \
+    sed -i '/bookworm-updates/ s/$/ bookworm-proposed-updates/' /etc/apt/sources.list.d/debian.sources && \
+    printf "Package: *\nPin: release a=proposed-updates\nPin-Priority: 100\n\n" > /etc/apt/preferences.d/proposed-updates && \
+    printf "Package: reprepro\nPin: release a=proposed-updates\nPin-Priority: 500\n" >> /etc/apt/preferences.d/proposed-updates && \
     apt-get update && \
     apt-get install -y -f --no-install-recommends \
             binfmt-support bzip2 mmdebstrap arch-test apt-utils dosfstools \
