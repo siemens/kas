@@ -135,7 +135,7 @@ Variables Glossary
 | ``REGISTRY_AUTH_FILE``   | Path to a container registry authentication file.|
 | (K,C)                    |                                                  |
 +--------------------------+--------------------------------------------------+
-| ``CI_SERVER_HOST``       | Environment variables from GitLab CI, if set     |
+| |ci_server_vars|         | Environment variables from GitLab CI, if set     |
 | ``CI_JOB_TOKEN``         | .netrc is configured to allow fetching from      |
 | ``CI_JOB_URL``           | the GitLab instance. An entry will be appended   |
 | ``CI_REGISTRY``          | in case ``NETRC_FILE`` was given as well. Note   |
@@ -166,6 +166,11 @@ Variables Glossary
                         ``AWS_SHARED_CREDENTIALS_FILE``
                         ``AWS_WEB_IDENTITY_TOKEN_FILE``
 .. |git_cred| replace:: ``GIT_CREDENTIAL_HELPER`` ``GIT_CREDENTIAL_USEHTTPPATH``
+.. |ci_server_vars| replace:: ``CI_SERVER_HOST``
+                              ``CI_SERVER_PORT``
+                              ``CI_SERVER_PROTOCOL``
+                              ``CI_SERVER_SHELL_SSH_HOST``
+                              ``CI_SERVER_SHELL_SSH_PORT``
 
 .. only:: html
 

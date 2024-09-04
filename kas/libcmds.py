@@ -42,6 +42,8 @@ __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
 
 KAS_USER_NAME = 'kas User'
 KAS_USER_EMAIL = 'kas@example.com'
+HTTPS_PORT_DEFAULT = 443
+SSH_PORT_DEFAULT = 22
 
 
 class Macro:
@@ -277,6 +279,27 @@ class SetupHome(Command):
             shutil.copy(os.environ['AWS_WEB_IDENTITY_TOKEN_FILE'],
                         webid_token_file)
 
+    @staticmethod
+    def _setup_gitlab_ci_ssh_rewrite(config):
+        ci_host = os.environ.get('CI_SERVER_HOST', None)
+        ci_port = os.environ.get('CI_SERVER_PORT', HTTPS_PORT_DEFAULT)
+        ci_prot = os.environ.get('CI_SERVER_PROTOCOL', 'https')
+        # added in GitLab 15.11. Set sensible defaults for older versions.
+        ci_ssh_host = os.environ.get('CI_SERVER_SHELL_SSH_HOST', ci_host)
+        ci_ssh_port = os.environ.get('CI_SERVER_SHELL_SSH_PORT',
+                                     SSH_PORT_DEFAULT)
+
+        for host in [ci_host, f'{ci_host}:{ci_port}']:
+            section = f'url "{ci_prot}://{host}/"'
+            config.add_value(section, 'insteadOf',
+                             f'git@{ci_ssh_host}:')
+            config.add_value(section, 'insteadOf',
+                             f'git@{ci_ssh_host}:{ci_ssh_port}')
+            config.add_value(section, 'insteadOf',
+                             f'ssh://git@{ci_ssh_host}/')
+            config.add_value(section, 'insteadOf',
+                             f'ssh://git@{ci_ssh_host}:{ci_ssh_port}/')
+
     def _setup_gitconfig(self):
         gitconfig_host = os.environ.get('GITCONFIG_FILE', False)
         gitconfig_kas = self.tmpdirname + '/.gitconfig'
@@ -297,16 +320,12 @@ class SetupHome(Command):
                     config['credential']['useHttpPath'] = \
                         os.environ.get('GIT_CREDENTIAL_USEHTTPPATH')
             # in GitLab CI, add ssh -> https rewrites if no config is present
-            ci_server = os.environ.get('CI_SERVER_HOST', False)
+            ci_server = os.environ.get('CI_SERVER_HOST', None)
             if self._on_ci() == 'GitLab CI' and ci_server and \
                     not self._ssh_config_present() and \
                     not os.path.exists(gitconfig_host):
                 logging.debug('Adding GitLab CI ssh -> https rewrites')
-                section = f'url "https://{ci_server}/"'
-                config.add_value(section, 'insteadOf',
-                                 f'git@{ci_server}:')
-                config.add_value(section, 'insteadOf',
-                                 f'ssh://git@{ci_server}/')
+                self._setup_gitlab_ci_ssh_rewrite(config)
             config.write()
 
     def execute(self, ctx):
