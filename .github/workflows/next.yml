@@ -120,3 +120,20 @@ jobs:
           subject-name: ghcr.io/${{ github.repository }}/${{ matrix.image-name }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
+
+  cleanup_ghcr_containers:
+    name: cleanup untagged ${{ matrix.image-name }} containers
+    runs-on: ubuntu-latest
+    needs: build_containers
+    permissions:
+      packages: write
+    strategy:
+      matrix:
+        image-name: ["kas", "kas-isar"]
+    steps:
+      - uses: dataaxiom/ghcr-cleanup-action@0fd10e8918e3994b92c417a43fb6e33bc6188c9e #v1.0.10
+        with:
+          dry-run: false
+          validate: true
+          package: kas/${{ matrix.image-name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
