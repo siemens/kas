@@ -1,3 +1,16 @@
+4.5
+- kas: avoid bitbake parsing due to non-deterministic layer patches
+- kas: correctly handle upstream ff merges on fetch
+- kas: keep git committer identity if provided in .gitconfig
+- kas: add support for container registry authentication
+- kas: Improve GitLab CI rewrite rules for git
+- kas-container: Use official snapshot.debian.org
+- kas-container: Fix positional argument processing with for-all-repos
+- kas-container: allow recent Ubuntu builds via isar
+- kas-container: re-add deterministic metadata
+- docs: document difference between file and env credentials
+- sign pip packages on release
+
 4.4
 - kas: Auto-import runner-provided .gitconfig also inside GitLab-CI
 - kas: Auto-inject git credentials on gitlab ci
