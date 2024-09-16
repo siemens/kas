@@ -466,6 +466,7 @@ def setup_parser_keep_config_unchanged_arg(parser):
     steps = [
         'setup_dir',
         'finish_setup_repos',
+        'repos_checkout',
         'repos_apply_patches',
         'write_bbconfig',
     ]
