@@ -131,7 +131,7 @@ jobs:
       matrix:
         image-name: ["kas", "kas-isar"]
     steps:
-      - uses: dataaxiom/ghcr-cleanup-action@0fd10e8918e3994b92c417a43fb6e33bc6188c9e #v1.0.10
+      - uses: dataaxiom/ghcr-cleanup-action@98b4022383d6ddb70ccbf6a378b4d8c67a60f066 #v1.0.13
         with:
           dry-run: false
           validate: true
