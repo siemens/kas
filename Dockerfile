@@ -23,7 +23,7 @@
 
 ARG DEBIAN_TAG=bookworm-slim
 
-FROM debian:${DEBIAN_TAG} as kas-base
+FROM debian:${DEBIAN_TAG} AS kas-base
 
 ARG SOURCE_DATE_EPOCH
 ARG CACHE_SHARING=locked
@@ -91,7 +91,7 @@ ENTRYPOINT ["/container-entrypoint"]
 # kas-isar image
 #
 
-FROM kas-base as kas-isar
+FROM kas-base AS kas-isar
 
 ARG SOURCE_DATE_EPOCH
 ARG CACHE_SHARING=locked
@@ -124,7 +124,7 @@ USER builder
 # kas image
 #
 
-FROM kas-base as kas
+FROM kas-base AS kas
 
 ARG SOURCE_DATE_EPOCH
 ARG CACHE_SHARING=locked
