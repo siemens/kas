@@ -79,12 +79,10 @@ ENV GIT_PROXY_COMMAND="oe-git-proxy" \
     NO_PROXY="*"
 
 RUN echo "builder ALL=NOPASSWD: ALL" > /etc/sudoers.d/builder-nopasswd && \
-    chmod 660 /etc/sudoers.d/builder-nopasswd
-
-RUN echo "Defaults env_keep += \"ftp_proxy http_proxy https_proxy no_proxy\"" \
-    > /etc/sudoers.d/env_keep && chmod 660 /etc/sudoers.d/env_keep
-
-RUN groupadd builder -g 30000 && \
+    chmod 660 /etc/sudoers.d/builder-nopasswd && \
+    echo "Defaults env_keep += \"ftp_proxy http_proxy https_proxy no_proxy\"" \
+    > /etc/sudoers.d/env_keep && chmod 660 /etc/sudoers.d/env_keep && \
+    groupadd builder -g 30000 && \
     useradd builder -u 30000 -g 30000 --create-home --home-dir /builder
 
 ENTRYPOINT ["/container-entrypoint"]
