@@ -155,8 +155,8 @@ This is equivalent to static inclusion from some kas-combined.yml like this:
         - debug.image.yml
         - board.yml
 
-Command line inclusion allows to create configurations on-demand, without the
-need to write a kas configuration file for each possible combination.
+Command line inclusion allows one to create configurations on-demand, without
+the need to write a kas configuration file for each possible combination.
 
 Note that all configuration files combined via the command line either have to
 come from the same repository or have to live outside of any versioning control.

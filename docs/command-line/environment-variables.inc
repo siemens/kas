@@ -123,8 +123,9 @@ Variables Glossary
 | |aws_cred|               | files that are copied to the kas home dir.       |
 | (K,C)                    |                                                  |
 +--------------------------+--------------------------------------------------+
-| |git_cred|               | Allows to set and configure the git credential   |
-| (K,C)                    | helper in the `.gitconfig` of the kas user.      |
+| |git_cred|               | Allows one to set and configure the git          |
+| (K,C)                    | credential helper in the `.gitconfig` of the kas |
+|                          | user.                                            |
 +--------------------------+--------------------------------------------------+
 | ``GITCONFIG_FILE``       | Path to a `.gitconfig` file which will be        |
 | (K,C)                    | copied to the kas home dir as `.gitconfig`.      |
