@@ -84,7 +84,7 @@ runs:
         key: cache-apt-${{ env.DEBIAN_TAG }}-${{ inputs.image-name }}
 
     - name: Inject cache into docker
-      uses: reproducible-containers/buildkit-cache-dance@v3.1.0
+      uses: reproducible-containers/buildkit-cache-dance@5b6db76d1da5c8b307d5d2e0706d266521b710de #v3.1.2
       with:
         cache-map: |
           {
