@@ -28,6 +28,7 @@ import subprocess
 import re
 import pytest
 from kas import kas
+from kas.context import create_global_context
 from kas.kasusererror import ArgsCombinationError
 
 
@@ -172,3 +173,18 @@ def test_env_section_export_bb_extra_white(monkeykas, tmpdir):
 def test_env_section_export_bb_env_passthrough_additions(monkeykas, tmpdir):
     _test_env_section_export(monkeykas, tmpdir, 'BB_ENV_PASSTHROUGH_ADDITIONS',
                              'bitbake_new')
+
+
+def test_managed_env_detection(monkeykas):
+    with monkeykas.context() as mp:
+        mp.setenv('GITLAB_CI', 'true')
+        ctx = create_global_context([])
+        me = ctx.managed_env
+        assert bool(me)
+        assert str(me) == 'GitLab CI'
+    with monkeykas.context() as mp:
+        mp.setenv('GITHUB_ACTIONS', 'true')
+        ctx = create_global_context([])
+        me = ctx.managed_env
+        assert bool(me)
+        assert str(me) == 'GitHub Actions'

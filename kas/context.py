@@ -25,6 +25,7 @@
 
 import os
 import logging
+from enum import Enum
 from kas.kasusererror import KasUserError
 
 try:
@@ -65,6 +66,22 @@ def get_context():
         Returns singleton global context.
     """
     return __context__
+
+
+class ManagedEnvironment(Enum):
+    """
+    Managed environments are well-known executors (like CI systems)
+    that kas can detect and adapt to.
+    """
+    GITHUB_ACTIONS = 1
+    GITLAB_CI = 2
+
+    def __str__(self):
+        if self == self.GITHUB_ACTIONS:
+            return 'GitHub Actions'
+        if self == self.GITLAB_CI:
+            return 'GitLab CI'
+        return f'{self.name}'
 
 
 class Context:
@@ -116,6 +133,18 @@ class Context:
             if val:
                 self.environ[key] = val
 
+    @staticmethod
+    def _get_managed_env():
+        """
+            Detects if kas is running in well-known environment (e.g. a
+            CI system). Returns the identifier of the CI system or None.
+        """
+        if os.environ.get('GITHUB_ACTIONS', False) == 'true':
+            return ManagedEnvironment.GITHUB_ACTIONS
+        if os.environ.get('GITLAB_CI', False) == 'true':
+            return ManagedEnvironment.GITLAB_CI
+        return None
+
     @property
     def build_dir(self):
         """
@@ -144,3 +173,7 @@ class Context:
     @property
     def update(self):
         return getattr(self.args, 'update', None)
+
+    @property
+    def managed_env(self):
+        return self._get_managed_env()

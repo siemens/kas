@@ -34,6 +34,8 @@ import base64
 from git.config import GitConfigParser
 from .libkas import (ssh_cleanup_agent, ssh_setup_agent, ssh_no_host_key_check,
                      get_build_environ, repos_fetch, repos_apply_patches)
+from .context import ManagedEnvironment as ME
+from .context import get_context
 from .includehandler import IncludeException
 from .kasusererror import ArgsCombinationError
 
@@ -189,18 +191,6 @@ class SetupHome(Command):
         return 'setup_home'
 
     @staticmethod
-    def _on_ci():
-        """
-            Detects if we are running on a CI system.
-            Returns the name of the CI system or None.
-        """
-        if os.environ.get('GITHUB_ACTIONS', False) == 'true':
-            return 'GitHub Actions'
-        elif os.environ.get('GITLAB_CI', False) == 'true':
-            return 'GitLab CI'
-        return None
-
-    @staticmethod
     def _ssh_config_present():
         """
             Checks if any file in the .ssh dir exists or
@@ -304,8 +294,9 @@ class SetupHome(Command):
         gitconfig_host = os.environ.get('GITCONFIG_FILE', False)
         gitconfig_kas = self.tmpdirname + '/.gitconfig'
 
-        # on supported CI systems, always try to read the gitconfig
-        if not gitconfig_host and self._on_ci():
+        # when running in a externally managed environment,
+        # always try to read the gitconfig
+        if not gitconfig_host and get_context().managed_env:
             gitconfig_host = os.path.expanduser('~/.gitconfig')
 
         if gitconfig_host and os.path.exists(gitconfig_host):
@@ -321,7 +312,7 @@ class SetupHome(Command):
                         os.environ.get('GIT_CREDENTIAL_USEHTTPPATH')
             # in GitLab CI, add ssh -> https rewrites if no config is present
             ci_server = os.environ.get('CI_SERVER_HOST', None)
-            if self._on_ci() == 'GitLab CI' and ci_server and \
+            if get_context().managed_env == ME.GITLAB_CI and ci_server and \
                     not self._ssh_config_present() and \
                     not os.path.exists(gitconfig_host):
                 logging.debug('Adding GitLab CI ssh -> https rewrites')
@@ -329,9 +320,9 @@ class SetupHome(Command):
             config.write()
 
     def execute(self, ctx):
-        ci = self._on_ci()
-        if ci:
-            logging.info(f'Running on {ci}')
+        managed_env = get_context().managed_env
+        if managed_env:
+            logging.info(f'Running on {managed_env}')
         def_umask = os.umask(0o077)
         self._setup_netrc()
         self._setup_registry_auth()
