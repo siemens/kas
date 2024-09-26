@@ -39,7 +39,8 @@ ENVVARS_KAS = [
     'CI_SERVER_HOST',
     'CI_JOB_TOKEN',
     'GITLAB_CI',
-    'GITHUB_ACTIONS'
+    'GITHUB_ACTIONS',
+    'REMOTE_CONTAINERS'
 ]
 
 ENVVARS_TOOLS = [
@@ -56,6 +57,10 @@ def monkeykas(monkeypatch, tmpdir):
     homedir.mkdir()
     monkeypatch.setenv('HOME', str(homedir))
 
+    # remove all VSCode devcontainers related variables
+    for var in os.environ.keys():
+        if var.startswith('REMOTE_CONTAINERS_'):
+            monkeypatch.delenv(var)
     # remove all git related variables
     for var in os.environ.keys():
         if var.startswith('GIT_'):

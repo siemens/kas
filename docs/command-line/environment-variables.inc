@@ -158,6 +158,10 @@ Variables Glossary
 | (K)                      | automatically imported.                          |
 |                          | For details, see ``GITCONFIG_FILE``.             |
 +--------------------------+--------------------------------------------------+
+| ``REMOTE_CONTAINERS`` (K)| Environment variables related to VSCode Remote   |
+| ``REMOTE_CONTAINERS_<x>``| Containers. If running in this environment,      |
+| (K,E)                    | `.gitconfig` is automatically imported.          |
++--------------------------+--------------------------------------------------+
 | ``BB_NUMBER_THREADS``    | Environment variables to control the concurrency.|
 | ``PARALLEL_MAKE``        |                                                  |
 | (C,K,E)                  |                                                  |

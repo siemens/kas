@@ -188,3 +188,11 @@ def test_managed_env_detection(monkeykas):
         me = ctx.managed_env
         assert bool(me)
         assert str(me) == 'GitHub Actions'
+    with monkeykas.context() as mp:
+        mp.setenv('REMOTE_CONTAINERS', 'true')
+        mp.setenv('REMOTE_CONTAINERS_FOO', 'bar')
+        ctx = create_global_context([])
+        me = ctx.managed_env
+        assert bool(me)
+        assert str(me) == 'VSCode Remote Containers'
+        assert ctx.environ['REMOTE_CONTAINERS_FOO'] == 'bar'

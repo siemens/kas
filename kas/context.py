@@ -75,12 +75,15 @@ class ManagedEnvironment(Enum):
     """
     GITHUB_ACTIONS = 1
     GITLAB_CI = 2
+    VSCODE_REMOTE_CONTAINERS = 3
 
     def __str__(self):
         if self == self.GITHUB_ACTIONS:
             return 'GitHub Actions'
         if self == self.GITLAB_CI:
             return 'GitLab CI'
+        if self == self.VSCODE_REMOTE_CONTAINERS:
+            return 'VSCode Remote Containers'
         return f'{self.name}'
 
 
@@ -133,6 +136,12 @@ class Context:
             if val:
                 self.environ[key] = val
 
+        # make remote containers environment available in kas
+        if self.managed_env == ManagedEnvironment.VSCODE_REMOTE_CONTAINERS:
+            for k in os.environ.keys():
+                if k.startswith('REMOTE_CONTAINERS_'):
+                    self.environ[k] = os.environ[k]
+
     @staticmethod
     def _get_managed_env():
         """
@@ -143,6 +152,8 @@ class Context:
             return ManagedEnvironment.GITHUB_ACTIONS
         if os.environ.get('GITLAB_CI', False) == 'true':
             return ManagedEnvironment.GITLAB_CI
+        if os.environ.get('REMOTE_CONTAINERS', False) == 'true':
+            return ManagedEnvironment.VSCODE_REMOTE_CONTAINERS
         return None
 
     @property
