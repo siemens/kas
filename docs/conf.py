@@ -322,6 +322,9 @@ latex_documents = [
 man_pages = [
     ('_man/kas', 'kas', 'a setup tool for bitbake based projects',
      [author], 1),
+    ('_man/kas-container',
+     'kas-container', 'a setup tool for bitbake based projects',
+     [author], 1),
     ('_man/kas-plugin-build', 'kas-build', 'kas build plugin',
      [author], 1),
     ('_man/kas-plugin-checkout', 'kas-checkout', 'kas checkout plugin',

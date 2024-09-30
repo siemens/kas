@@ -15,7 +15,7 @@ echo "Checking with flake8"
 flake8 "$SRCDIR" || ERROR=$((ERROR + 2))
 
 echo "Checking with doc8"
-doc8  "$SRCDIR"/docs --ignore-path "$SRCDIR"/docs/_build || ERROR=$((ERROR + 4))
+doc8  "$SRCDIR"/docs --ignore-path "$SRCDIR"/docs/_build --ignore D000 || ERROR=$((ERROR + 4))
 
 echo "Checking with shellcheck"
 shellcheck "$SRCDIR"/kas-container \

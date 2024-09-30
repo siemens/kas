@@ -1,6 +1,11 @@
+#!/bin/sh
+#
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2021-2024
+# Copyright (c) Siemens AG, 2024
+#
+# Authors:
+#  Felix Moessbauer <felix.moessbauer@siemens.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,25 +25,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-version: 2
+# Extract the usage information of kas-container and convert it to rst
+# to be included in the documentation.
 
-build:
-  os: ubuntu-24.04
-  tools:
-    python: "3.12"
-  apt_packages:
-    - python3-newt
-    - make
-    - podman
-  jobs:
-    pre_build:
-      - cd docs && make kas-container-usage && cd ..
-
-python:
-  install:
-    - method: setuptools
-      path: .
-    - requirements: docs/requirements.txt
-
-sphinx:
-  configuration: docs/conf.py
+cat - | \
+    sed    's/^Usage:/|SYNOPSIS|\n----------\n/g' | \
+    sed -e 's/^\s*kas-container /| kas-container /g' | \
+    # unwrap long lines
+    perl -0pe 's/\n\s\s+/ /g' | \
+    sed    's/^Positional arguments:/|KAS-COMMANDS|\n--------------/g' | \
+    # each commands starts with a new line
+    sed -r 's/^(build|checkout|dump|shell|for-all-repos|clean|cleansstate|cleanall|menu)\t\t*(.*)$/:\1: \2/g' | \
+    sed    's/^Optional arguments:/|OPTIONS|\n---------/g' | \
+    sed    '/^You can force/d' | \
+    cat

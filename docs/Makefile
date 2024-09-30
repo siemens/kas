@@ -49,19 +49,19 @@ clean:
 	rm -rf $(BUILDDIR)/*
 
 .PHONY: html
-html:
+html: kas-container-usage
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
 .PHONY: dirhtml
-dirhtml:
+dirhtml: kas-container-usage
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/dirhtml."
 
 .PHONY: singlehtml
-singlehtml:
+singlehtml: kas-container-usage
 	$(SPHINXBUILD) -b singlehtml $(ALLSPHINXOPTS) $(BUILDDIR)/singlehtml
 	@echo
 	@echo "Build finished. The HTML page is in $(BUILDDIR)/singlehtml."
@@ -154,8 +154,16 @@ text:
 	@echo
 	@echo "Build finished. The text files are in $(BUILDDIR)/text."
 
+kas-container-usage:
+	@echo Generate kas-container usage documentation
+	@mkdir -p $(BUILDDIR)
+	@../kas-container --help | ../scripts/kas-container-usage-to-rst.sh | awk '/KAS-COMMANDS/ {exit} {print}' \
+	    > $(BUILDDIR)/kas-container-usage-synopsis.inc
+	@../kas-container --help | ../scripts/kas-container-usage-to-rst.sh | awk '/KAS-COMMANDS/ {found=1} found' \
+	    > $(BUILDDIR)/kas-container-usage-options.inc
+
 .PHONY: man
-man:
+man: kas-container-usage
 	$(SPHINXBUILD) -b man $(ALLSPHINXOPTS) -t man $(BUILDDIR)/man
 	@echo
 	@echo "Build finished. The manual pages are in $(BUILDDIR)/man."

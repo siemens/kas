@@ -9,3 +9,4 @@ User Guide
   userguide/project-configuration
   userguide/build-attestation
   userguide/credentials
+  userguide/kas-container
