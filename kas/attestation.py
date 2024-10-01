@@ -123,7 +123,7 @@ class Provenance:
             if r.operations_disabled:
                 if not r.url or not r.revision:
                     continue
-            digest = {'sha1': r.revision}
+            digest = {f'{r.get_type()}Commit': r.revision}
             annotations = {
                 'dirty': r.dirty,
                 'layers': [str(Path(layer).relative_to(r.path))
