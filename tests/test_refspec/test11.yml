@@ -1,0 +1,10 @@
+header:
+  version: 15
+
+repos:
+  this:
+
+  kas:
+    url: https://github.com/siemens/kas.git
+    # this commit is valid, but not a branch. Reject!
+    branch: abd109469d17b7ff4d958b5aa5ab5f5511cc4d43

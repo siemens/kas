@@ -229,3 +229,6 @@ def test_branch_and_tag(monkeykas, tmpdir):
 
     with pytest.raises(RepoRefError):
         kas.kas(['checkout', 'test10.yml'])
+
+    with pytest.raises(RepoRefError):
+        kas.kas(['checkout', 'test11.yml'])
