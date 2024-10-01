@@ -124,6 +124,10 @@ class Repo:
     @property
     def revision(self):
         if self.commit:
+            (_, output) = run_cmd(self.get_commit_cmd(),
+                                  cwd=self.path, fail=False)
+            if output:
+                return output.strip()
             return self.commit
         if self.tag:
             (_, output) = run_cmd(self.resolve_tag_cmd(),
@@ -638,7 +642,8 @@ class GitRepo(RepoImpl):
         return ['git', 'remote', 'get-url', 'origin']
 
     def get_commit_cmd(self):
-        return ['git', 'rev-parse', '--verify', 'HEAD']
+        rev = self.commit or 'HEAD'
+        return ['git', 'rev-parse', '--verify', rev]
 
     def get_patch_timestamp(self, path):
         date = linecache.getline(path, 3)
@@ -712,7 +717,8 @@ class MercurialRepo(RepoImpl):
         return ['hg', 'paths', 'default']
 
     def get_commit_cmd(self):
-        return ['hg', 'log', '-r', '.', '--template', '{node}\n']
+        rev = self.commit or '.'
+        return ['hg', 'log', '-r', rev, '--template', '{node}\n']
 
     def get_patch_timestamp(self, path):
         date = None

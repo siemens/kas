@@ -22,6 +22,7 @@
 
 import pytest
 import shutil
+import yaml
 from kas import kas
 from kas.libkas import run_cmd
 from kas.repos import RepoRefError, Repo
@@ -232,3 +233,16 @@ def test_branch_and_tag(monkeykas, tmpdir):
 
     with pytest.raises(RepoRefError):
         kas.kas(['checkout', 'test11.yml'])
+
+
+def test_commit_expand(monkeykas, tmpdir, capsys):
+    """
+        Test if an abbreviated commit hash is expanded to the full hash.
+    """
+    tdir = str(tmpdir / 'test_commit_expand')
+    shutil.copytree('tests/test_refspec', tdir)
+    monkeykas.chdir(tdir)
+    kas.kas(['dump', '--resolve-refs', 'test12.yml'])
+    rawspec = yaml.safe_load(capsys.readouterr().out)
+    assert rawspec['repos']['kas']['commit'] == \
+        'abd109469d17b7ff4d958b5aa5ab5f5511cc4d43'
