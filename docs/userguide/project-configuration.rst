@@ -333,10 +333,10 @@ Configuration reference
       and ``hg`` is also supported.
 
     ``commit``: string [optional]
-      The commit ID (no branch names, no symbolic refs, no tags) that should
-      be used. If ``url`` was specified but no ``commit``, ``branch`` or
-      ``tag``, the revision you get depends on the defaults of the version
-      control system used.
+      The full-length commit ID (all-lowercase, no branch names, no symbolic
+      refs, no tags) that should be used. If ``url`` was specified but no
+      ``commit``, ``branch`` or ``tag``, the revision you get depends on the
+      defaults of the version control system used.
 
     ``branch``: string [optional]
       The upstream branch that should be tracked. If ``commit`` was

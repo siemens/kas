@@ -246,6 +246,10 @@ class Repo:
             disable_operations = True
 
         if repo_type == 'git':
+            if commit and not re.match(r'^[0-9a-f]{40}|[0-9a-f]{64}$', commit):
+                logging.warning(
+                    f'{commit} is not a full-length hash for repo '
+                    f'"{name}". This will be an error in future versions.')
             return GitRepo(name, url, path, commit, tag, branch, refspec,
                            layers, patches, disable_operations)
         if repo_type == 'hg':
