@@ -36,6 +36,11 @@ from .context import get_context
 from .libkas import run_cmd_async, run_cmd
 from .kasusererror import KasUserError
 
+if sys.version_info < (3, 8):
+    from cached_property import cached_property
+else:
+    from functools import cached_property
+
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
 
@@ -121,7 +126,7 @@ class Repo:
                 continue
         return self.url
 
-    @property
+    @cached_property
     def revision(self):
         if self.commit:
             (_, output) = run_cmd(self.get_commit_cmd(),
@@ -144,7 +149,7 @@ class Repo:
             return branch
         return None
 
-    @property
+    @cached_property
     def dirty(self):
         if not self.url:
             return True

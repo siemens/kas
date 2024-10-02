@@ -95,7 +95,8 @@ setup(
         'distro>=1.0.0,<2',
         'jsonschema>=2.5.0,<5',
         'kconfiglib>=14.1.0,<15',
-        'GitPython>=3.1.0,<4'
+        'GitPython>=3.1.0,<4',
+        "cached-property>=1.0,<2; python_version<'3.8'"
     ],
 
     # At least python 3.6 is needed by now:
