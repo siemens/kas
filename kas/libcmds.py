@@ -416,9 +416,10 @@ class WriteBBConfig(Command):
                 fds.write(ctx.config.get_bblayers_conf_header())
                 fds.write('BBLAYERS ?= " \\\n    ')
                 fds.write(' \\\n    '.join(
-                    sorted(_get_layer_path_under_topdir(ctx, layer)
-                           for repo in ctx.config.get_repos()
-                           for layer in repo.layers)))
+                          [_get_layer_path_under_topdir(ctx, layer)
+                           for repo in sorted(ctx.config.get_repos(),
+                                              key=lambda r: r.name)
+                           for layer in sorted(repo.layers)]))
                 fds.write('"\n')
                 fds.write('BBPATH ?= "${TOPDIR}"\n')
                 fds.write('BBFILES ??= ""\n')

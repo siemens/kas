@@ -310,7 +310,9 @@ Configuration reference
   ``KAS_TASK`` environment variable and defaults to ``build``.
 
 ``repos``: dict [optional]
-  Contains the definitions of all available repos and layers.
+  Contains the definitions of all available repos and layers. The layers
+  are appended to the ``bblayers.conf`` sorted by the repository name first
+  and then by the layer name.
 
   ``<repo-id>``: dict [optional]
     Contains the definition of a repository and the layers, that should be
