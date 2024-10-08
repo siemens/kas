@@ -111,49 +111,49 @@ Class reference documentation
 -----------------------------
 
 ``kas.kas`` Module
-..................
+^^^^^^^^^^^^^^^^^^
 
 .. automodule:: kas.kas
    :members:
 
 ``kas.libkas`` Module
-.....................
+^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: kas.libkas
    :members:
 
 ``kas.libcmds`` Module
-......................
+^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: kas.libcmds
    :members:
 
 ``kas.config`` Module
-.....................
+^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: kas.config
    :members:
 
 ``kas.repos`` Module
-....................
+^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: kas.repos
    :members:
 
 ``kas.includehandler`` Module
-.............................
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: kas.includehandler
    :members:
 
 ``kas.kasusererror`` Module
-.............................
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: kas.kasusererror
    :members:
 
 ``kas.plugins`` Module
-......................
+^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: kas.plugins
    :members:
