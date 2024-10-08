@@ -33,6 +33,7 @@ def dokas(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_layers')
     shutil.copytree('tests/test_layers', tdir)
     monkeykas.chdir(tdir)
+    monkeykas.setenv('KAS_CLONE_DEPTH', '1')
     kas.kas(['shell', 'test.yml', '-c', 'true'])
 
 
