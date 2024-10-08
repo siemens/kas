@@ -66,3 +66,14 @@ def test_layers_strip_dot(dokas):
         lines = f.readlines()
         assert any(f'{LAYERBASE}/kas3 ' in x for x in lines)
         assert any(f'{LAYERBASE}/kas3/meta-bar' in x for x in lines)
+
+
+def test_layers_order(dokas):
+    with open('build/conf/bblayers.conf', 'r') as f:
+        layers = [x.strip(' \\"\n').replace(LAYERBASE, '')
+                  for x in f.readlines() if x.lstrip().startswith(LAYERBASE)]
+        # layers of a repo are sorted alphabetically
+        assert layers[1] == '/kas1/meta-bar'
+        assert layers[2] == '/kas1/meta-foo'
+        # repos are sorted alphabetically (aa-kas from kas4 is last)
+        assert layers[-1] == '/aa-kas/meta'

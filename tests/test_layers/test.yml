@@ -27,3 +27,11 @@ repos:
     layers:
       .:
       meta-bar:
+
+  kas4:
+    url: https://github.com/siemens/kas.git
+    path: aa-kas
+    name: zz-last
+    branch: master
+    layers:
+      meta:
