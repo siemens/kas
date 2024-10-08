@@ -36,8 +36,37 @@ Both scripts also support building/checking of the arm64 container images. See
 the help of both scripts for more details.
 
 
+Testing
+-------
+
+The kas project has an extensive test suite. When adding new features or fixing
+bugs, it is recommended to add a test. The tests are written using the pytest
+framework. Please make sure to decouple the tests from your local environment.
+To simplify this, we provide the ``monkeykas`` fixture to clean up the
+environment prior to each test. When adding new kas environment variables,
+make sure to add these to the cleanup handler as well.
+
+To run the tests, invoke::
+
+    $ python3 -m pytest
+
+Online and offline testing
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Some tests require internet access to fetch resources. These tests are marked
+with the ``online`` marker. To run these tests, invoke::
+
+    $ python3 -m pytest -m online
+
+To run all tests except the online tests, invoke::
+
+    $ python3 -m pytest -m "not online"
+
+When adding new tests, please consider whether they require internet access or
+not and mark them accordingly. In general, we prefer offline tests.
+
 Measure code coverage
----------------------
+^^^^^^^^^^^^^^^^^^^^^
 
 To measure the code coverage of the unit tests, the ``pytest-cov`` package is
 required. On Debian systems, this is provided in ``python3-pytest-cov``.

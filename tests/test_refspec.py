@@ -28,6 +28,7 @@ from kas.libkas import run_cmd
 from kas.repos import RepoRefError, Repo
 
 
+@pytest.mark.online
 def test_refspec_switch(monkeykas, tmpdir):
     """
         Test that the local git clone is correctly updated when switching
@@ -78,6 +79,7 @@ def test_refspec_switch(monkeykas, tmpdir):
     assert output.strip() == '2.6.3'
 
 
+@pytest.mark.online
 def test_refspec_absolute(monkeykas, tmpdir):
     """
         Test that the local git clone works when a absolute refspec
@@ -131,6 +133,7 @@ def test_commit_refspec_mix(monkeykas, tmpdir):
         kas.kas(['shell', 'test7.yml', '-c', 'true'])
 
 
+@pytest.mark.online
 def test_tag_commit_do_not_match(monkeykas, tmpdir):
     """
         Test that giving tag and commit that do not match raises an error.
@@ -142,6 +145,7 @@ def test_tag_commit_do_not_match(monkeykas, tmpdir):
         kas.kas(['shell', 'test8.yml', '-c', 'true'])
 
 
+@pytest.mark.online
 def test_unsafe_tag_warning(capsys, monkeykas, tmpdir):
     """
         Test that using tag without commit issues a warning, but only once.
@@ -157,6 +161,7 @@ def test_unsafe_tag_warning(capsys, monkeykas, tmpdir):
         'are mutable.') == 1
 
 
+@pytest.mark.online
 def test_tag_branch_same_name(capsys, monkeykas, tmpdir):
     """
         Test that kas uses the tag if a branch has the same name as the tag.
@@ -204,6 +209,7 @@ def test_tag_branch_same_name(capsys, monkeykas, tmpdir):
     assert output.strip() == output2.strip()
 
 
+@pytest.mark.online
 def test_refspec_warning(capsys, monkeykas, tmpdir):
     """
         Test that using legacy refspec issues a warning, but only once.
@@ -218,6 +224,7 @@ def test_refspec_warning(capsys, monkeykas, tmpdir):
         'Using deprecated refspec for repository "kas2".') == 1
 
 
+@pytest.mark.online
 def test_branch_and_tag(monkeykas, tmpdir):
     """
         Test if error is raised when branch and tag are set.
@@ -235,6 +242,7 @@ def test_branch_and_tag(monkeykas, tmpdir):
         kas.kas(['checkout', 'test11.yml'])
 
 
+@pytest.mark.online
 def test_commit_expand(monkeykas, tmpdir, capsys):
     """
         Test if an abbreviated commit hash is expanded to the full hash.

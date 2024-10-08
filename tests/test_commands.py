@@ -33,6 +33,7 @@ from kas.libkas import run_cmd
 from kas.libkas import TaskExecError, KasUserError
 
 
+@pytest.mark.online
 def test_for_all_repos(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_commands')
     shutil.copytree('tests/test_commands', tdir)
@@ -49,6 +50,7 @@ def test_for_all_repos(monkeykas, tmpdir):
             == 'e9ca55a239caa1a2098e1d48773a29ea53c6cab2'
 
 
+@pytest.mark.online
 def test_for_all_repos_keep_config_unchanged(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_commands')
     shutil.copytree('tests/test_commands', tdir)
@@ -62,6 +64,7 @@ def test_for_all_repos_keep_config_unchanged(monkeykas, tmpdir):
     assert not os.path.exists("kas_1.1")
 
 
+@pytest.mark.online
 def test_checkout(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_commands')
     shutil.copytree('tests/test_commands', tdir)
@@ -86,6 +89,7 @@ def test_invalid_checkout(monkeykas, tmpdir, capsys):
         kas.kas(['checkout', 'test-invalid.yml'])
 
 
+@pytest.mark.online
 def test_checkout_with_ci_rewrite(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_commands')
     shutil.copytree('tests/test_commands', tdir)
@@ -97,6 +101,7 @@ def test_checkout_with_ci_rewrite(monkeykas, tmpdir):
         kas.kas(['checkout', 'test-url-rewrite.yml'])
 
 
+@pytest.mark.online
 def test_checkout_create_refs(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_commands')
     repo_cache = pathlib.Path(str(tmpdir.mkdir('repos')))
@@ -108,6 +113,7 @@ def test_checkout_create_refs(monkeykas, tmpdir):
     assert os.path.exists('kas/.git/objects/info/alternates')
 
 
+@pytest.mark.online
 def test_checkout_shallow(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_commands')
     shutil.copytree('tests/test_commands', tdir)
@@ -130,6 +136,7 @@ def test_checkout_shallow(monkeykas, tmpdir):
             assert output.strip() == '1'
 
 
+@pytest.mark.online
 def test_shallow_updates(monkeykas, tmpdir):
     def _get_commit(repo):
         (rc, output) = run_cmd(['git', 'rev-parse', '--verify', 'HEAD'],
@@ -170,6 +177,7 @@ def test_shallow_updates(monkeykas, tmpdir):
     assert _get_commit('kas') != commit
 
 
+@pytest.mark.online
 def test_repo_includes(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_commands')
     shutil.copytree('tests/test_repo_includes', tdir)
@@ -177,6 +185,7 @@ def test_repo_includes(monkeykas, tmpdir):
     kas.kas(['checkout', 'test.yml'])
 
 
+@pytest.mark.online
 def test_dump(monkeykas, tmpdir, capsys):
     tdir = str(tmpdir / 'test_commands')
     shutil.copytree('tests/test_repo_includes', tdir)
@@ -217,6 +226,7 @@ def test_dump(monkeykas, tmpdir, capsys):
                 assert os.path.exists('build/conf/local.conf')
 
 
+@pytest.mark.online
 def test_lockfile(monkeykas, tmpdir, capsys):
     tdir = str(tmpdir.mkdir('test_commands'))
     shutil.rmtree(tdir, ignore_errors=True)

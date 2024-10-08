@@ -39,6 +39,7 @@ def test_artifact_node(monkeykas, tmpdir):
     kas.kas(['build', 'artifact-invalid.yml'])
 
 
+@pytest.mark.online
 def test_provenance(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_build')
     shutil.copytree('tests/test_build', tdir)

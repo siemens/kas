@@ -165,11 +165,13 @@ def _test_env_section_export(monkeykas, tmpdir, bb_env_var, bb_repo):
 
 
 # BB_ENV_EXTRAWHITE is deprecated but may still be used
+@pytest.mark.online
 def test_env_section_export_bb_extra_white(monkeykas, tmpdir):
     _test_env_section_export(monkeykas, tmpdir, 'BB_ENV_EXTRAWHITE',
                              'bitbake_old')
 
 
+@pytest.mark.online
 def test_env_section_export_bb_env_passthrough_additions(monkeykas, tmpdir):
     _test_env_section_export(monkeykas, tmpdir, 'BB_ENV_PASSTHROUGH_ADDITIONS',
                              'bitbake_new')

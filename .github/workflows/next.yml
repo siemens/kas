@@ -56,10 +56,18 @@ jobs:
                 $(python3 -c 'import site; print(site.getsitepackages()[0])')/
           ln -s /usr/local/lib/python${{ matrix.python-version }}/site-packages/snack.py \
                 $(python3 -c 'import site; print(site.getsitepackages()[0])')/
-      - name: Run tests
-        run: |
-          scripts/checkcode.sh .
-          TERM=xterm pytest
+      - name: Check code
+        run: scripts/checkcode.sh .
+      - name: Run offline tests
+        env:
+          TERM: xterm
+          http_proxy: http://0.0.0.0:8118
+          https_proxy: http://0.0.0.0:8118
+        run: pytest -m "not online"
+      - name: Run online tests
+        env:
+          TERM: xterm
+        run: pytest -m "online"
 
   build_containers:
     name: Build, test and deploy container images

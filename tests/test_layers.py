@@ -37,6 +37,7 @@ def dokas(monkeykas, tmpdir):
     kas.kas(['shell', 'test.yml', '-c', 'true'])
 
 
+@pytest.mark.online
 def test_layers_default(dokas):
     match = 0
     with open('build/conf/bblayers.conf', 'r') as f:
@@ -46,6 +47,7 @@ def test_layers_default(dokas):
     assert match == 1
 
 
+@pytest.mark.online
 def test_layers_include(dokas):
     match = 0
     with open('build/conf/bblayers.conf', 'r') as f:
@@ -55,12 +57,14 @@ def test_layers_include(dokas):
     assert match == 2
 
 
+@pytest.mark.online
 def test_layers_exclude(dokas):
     with open('build/conf/bblayers.conf', 'r') as f:
         for line in f:
             assert f'{LAYERBASE}/kas2' not in line
 
 
+@pytest.mark.online
 def test_layers_strip_dot(dokas):
     with open('build/conf/bblayers.conf', 'r') as f:
         lines = f.readlines()
@@ -68,6 +72,7 @@ def test_layers_strip_dot(dokas):
         assert any(f'{LAYERBASE}/kas3/meta-bar' in x for x in lines)
 
 
+@pytest.mark.online
 def test_layers_order(dokas):
     with open('build/conf/bblayers.conf', 'r') as f:
         layers = [x.strip(' \\"\n').replace(LAYERBASE, '')

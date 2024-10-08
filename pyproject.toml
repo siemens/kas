@@ -1,2 +1,7 @@
 [build-system]
 requires = ["setuptools>=40.5.0", "wheel"]
+
+[tool.pytest.ini_options]
+markers = [
+    "online: tests requiring internet access"
+]

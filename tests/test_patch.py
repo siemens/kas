@@ -42,6 +42,7 @@ def mercurial_get_commit(path):
     return output.strip()
 
 
+@pytest.mark.online
 def test_patch(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_patch')
     shutil.copytree('tests/test_patch', tdir)
@@ -63,6 +64,7 @@ def test_patch(monkeykas, tmpdir):
     assert mercurial_get_commit("hello-branch") == hello_branch_head_ref
 
 
+@pytest.mark.online
 def test_patch_update(monkeykas, tmpdir):
     """
         Test that patches are applied correctly after switching a repo from
@@ -80,6 +82,7 @@ def test_patch_update(monkeykas, tmpdir):
     os.chdir(cwd)
 
 
+@pytest.mark.online
 def test_invalid_patch(monkeykas, tmpdir):
     """
         Test on common errors when applying patches
