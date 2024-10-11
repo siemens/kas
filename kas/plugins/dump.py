@@ -183,6 +183,13 @@ class Dump(Checkout):
                             help='Update lockfile in-place (requires --lock)')
 
     def run(self, args):
+        def _filter_enabled(repos):
+            return [(k, r) for k, r in repos if not r.operations_disabled]
+
+        def _filter_local(repos):
+            return [(k, r) for k, r in repos
+                    if r.operations_disabled and r.name]
+
         args.skip += [
             'setup_dir',
             'repos_apply_patches',
@@ -195,7 +202,7 @@ class Dump(Checkout):
         schema_v = 14 if args.lock else 7
         config_expanded = {'header': {'version': schema_v}} if args.lock \
             else ctx.config.get_config()
-        repos = ctx.config.get_repos()
+        repos = ctx.config.repo_dict.items()
         output = IoTarget(target=sys.stdout, managed=False)
 
         if args.inplace and not args.lock:
@@ -207,9 +214,9 @@ class Dump(Checkout):
         if args.lock:
             args.resolve_refs = True
             # when locking, only consider repos managed by kas
-            repos = [r for r in repos if not r.operations_disabled]
+            repos = _filter_enabled(repos)
             config_expanded['overrides'] = \
-                {'repos': {r.name: {'commit': r.revision} for r in repos}}
+                {'repos': {k: {'commit': r.revision} for k, r in repos}}
 
         if args.lock and args.inplace:
             lockfile = ctx.config.handler.get_lockfile()
@@ -220,22 +227,22 @@ class Dump(Checkout):
             del config_expanded['header']['includes']
 
         if args.resolve_refs and not args.lock:
-            for r in filter(lambda r: not r.operations_disabled, repos):
+            for k, r in _filter_enabled(repos):
                 if r.commit or r.branch or r.tag:
-                    config_expanded['repos'][r.name]['commit'] = r.revision
+                    config_expanded['repos'][k]['commit'] = r.revision
                 elif r.refspec:
-                    config_expanded['repos'][r.name]['refspec'] = r.revision
+                    config_expanded['repos'][k]['refspec'] = r.revision
 
         if args.resolve_local:
-            for r in filter(lambda r: r.operations_disabled and r.name, repos):
+            for k, r in _filter_local(repos):
                 if r.revision:
                     if r.dirty:
                         logging.warning(f'Repository {r.name} (root repo) '
                                         'contains uncommitted changes.')
-                    if config_expanded['repos'][r.name] is None:
-                        config_expanded['repos'][r.name] = {}
-                    config_expanded['repos'][r.name]['url'] = r.url
-                    config_expanded['repos'][r.name]['commit'] = r.revision
+                    if config_expanded['repos'][k] is None:
+                        config_expanded['repos'][k] = {}
+                    config_expanded['repos'][k]['url'] = r.url
+                    config_expanded['repos'][k]['commit'] = r.revision
                 else:
                     logging.warning(f'Repository {r.name} (root repo) '
                                     'is not under version control.')
