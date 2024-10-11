@@ -5,7 +5,7 @@ repos:
   this:
 
   evolve:
-    url: https://repo.mercurial-scm.org/evolve/
+    url: ../evolve
     type: hg
     branch: stable
     commit: '6634:991cbf0f66f2'

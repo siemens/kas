@@ -225,15 +225,16 @@ def test_refspec_warning(capsys, monkeykas, tmpdir):
 
 
 @pytest.mark.online
-def test_branch_and_tag(monkeykas, tmpdir):
+def test_branch_and_tag(monkeykas, tmpdir, mercurial):
     """
         Test if error is raised when branch and tag are set.
     """
     tdir = str(tmpdir / 'test_branch_and_tag')
     shutil.copytree('tests/test_refspec', tdir)
     monkeykas.chdir(tdir)
-    with pytest.raises(RepoRefError):
-        kas.kas(['checkout', 'test9.yml'])
+    with mercurial(tmpdir, 'evolve', branch='stable'):
+        with pytest.raises(RepoRefError):
+            kas.kas(['checkout', 'test9.yml'])
 
     with pytest.raises(RepoRefError):
         kas.kas(['checkout', 'test10.yml'])

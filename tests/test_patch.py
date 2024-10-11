@@ -24,6 +24,7 @@ import os
 import stat
 import shutil
 import pytest
+import subprocess
 from kas import kas
 from kas.libkas import run_cmd
 from kas.repos import PatchApplyError, PatchFileNotFound, PatchMappingError
@@ -43,10 +44,16 @@ def mercurial_get_commit(path):
 
 
 @pytest.mark.online
-def test_patch(monkeykas, tmpdir):
+def test_patch(monkeykas, tmpdir, mercurial):
     tdir = str(tmpdir / 'test_patch')
     shutil.copytree('tests/test_patch', tdir)
     monkeykas.chdir(tdir)
+
+    repo = mercurial(tmpdir, 'example')
+    commit = repo.get_commit()
+    subprocess.check_call(
+        ['sed', '-i', f's/82e55d328c8c/{commit}/', 'test.yml'])
+
     kas.kas(['shell', 'test.yml', '-c', 'true'])
     for f in ['kas/tests/test_patch/hello.sh', 'hello/hello.sh']:
         assert os.stat(f)[stat.ST_MODE] & stat.S_IXUSR
@@ -65,7 +72,7 @@ def test_patch(monkeykas, tmpdir):
 
 
 @pytest.mark.online
-def test_patch_update(monkeykas, tmpdir):
+def test_patch_update(monkeykas, tmpdir, mercurial):
     """
         Test that patches are applied correctly after switching a repo from
         a branch to a commit hash and vice-versa with both git and mercurial
@@ -75,6 +82,14 @@ def test_patch_update(monkeykas, tmpdir):
     shutil.copytree('tests/test_patch', tdir)
     cwd = os.getcwd()
     monkeykas.chdir(tdir)
+
+    repo = mercurial(tmpdir, 'example')
+    commit = repo.get_commit()
+    for file, c in [('test.yml', '82e55d328c8c'),
+                    ('test2.yml', '0a04b987be5a')]:
+        subprocess.check_call(
+            ['sed', '-i', f's/{c}/{commit}/', file])
+
     kas.kas(['shell', 'test.yml', '-c', 'true'])
     kas.kas(['shell', 'test2.yml', '-c', 'true'])
     for f in ['kas/tests/test_patch/hello.sh', 'hello/hello.sh']:

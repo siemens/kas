@@ -22,6 +22,7 @@
 
 import pytest
 import os
+import subprocess
 
 ENVVARS_KAS = [
     'KAS_WORK_DIR',
@@ -72,3 +73,43 @@ def monkeykas(monkeypatch, tmpdir):
     monkeypatch.setenv('GIT_COMMITTER_EMAIL', 'kas@example.com')
 
     yield monkeypatch
+
+
+class MercurialRepo:
+    """
+    Create a new Mercurial repository with a single commit.
+    """
+    def __init__(self, tmpdir, name, branch=None):
+        """
+        Creates a new Mercurial repository with a single commit.
+        The content resembles the Makefile from the hello world example.
+        """
+        self.repo = tmpdir / name
+        self.repo.mkdir()
+        subprocess.check_call(['hg', 'init'], cwd=self.repo)
+        if branch:
+            subprocess.check_call(['hg', 'branch', branch], cwd=self.repo)
+        with open(self.repo / 'Makefile', 'w') as f:
+            f.write('all:\n\techo hello\n')
+        subprocess.check_call(['hg', 'add', 'Makefile'], cwd=self.repo)
+        subprocess.check_call(['hg', '--config', 'ui.username=kas',
+                               'commit', '-m', 'initial commit',
+                               '--date', '2024-11-10 08:00'], cwd=self.repo)
+
+    def __enter__(self):
+        return self.repo
+
+    def get_commit(self):
+        return subprocess.check_output(
+            ['hg', 'log', '-r', '.', '--template', '{rev}:{node}'],
+            cwd=self.repo).decode('utf-8').strip()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.repo.remove()
+
+
+@pytest.fixture
+def mercurial():
+    def make_hg_repo(tmpdir, name, branch=None):
+        return MercurialRepo(tmpdir, name, branch)
+    return make_hg_repo
