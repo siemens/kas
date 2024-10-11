@@ -513,15 +513,16 @@ class SetupReposStep(Command):
             if repo_name not in ctx.config.get_repos_config():
                 # we don't have this repo yet (e.g. due to transitive incl.)
                 continue
-            ctx.missing_repos.append(ctx.config.get_repo(repo_name))
+            ctx.missing_repos.append((repo_name,
+                                      ctx.config.get_repo(repo_name)))
 
-        repos_fetch(ctx.missing_repos)
+        repos_fetch([v for k, v in ctx.missing_repos])
 
-        for repo in ctx.missing_repos:
+        for _, repo in ctx.missing_repos:
             repo.checkout()
 
         ctx.config.repo_dict.update(
-            {repo.name: repo for repo in ctx.missing_repos})
+            {id: repo for id, repo in ctx.missing_repos})
 
         repo_paths = {r: ctx.config.repo_dict[r].path for r
                       in ctx.config.repo_dict}
