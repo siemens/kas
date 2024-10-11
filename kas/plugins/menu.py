@@ -167,6 +167,7 @@ class Menu:
         kas_targets = []
         kas_build_system = None
         kas_vars = {}
+        kas_local = []
         menu_configuration = {}
 
         for symname in self.kconf.syms:
@@ -197,6 +198,10 @@ class Menu:
                 check_sym_is_string(sym)
                 if symvalue != '':
                     kas_includes.append(symvalue)
+            elif symname.startswith('KAS_LOCAL_'):
+                check_sym_is_string(sym)
+                if symvalue != '':
+                    kas_local.append(symvalue)
             elif symname.startswith('KAS_TARGET_'):
                 check_sym_is_string(sym)
                 if symvalue != '':
@@ -224,13 +229,17 @@ class Menu:
             config['build_system'] = kas_build_system
         if len(kas_targets) > 0:
             config['target'] = kas_targets
-        if len(kas_vars) > 0:
+        if len(kas_vars) > 0 or len(kas_local) > 0:
             config['local_conf_header'] = {
                 '__menu_config_vars': '\n'.join([
                     f'{key} = "{value}"'
                     for key, value in kas_vars.items()
-                ])
-            }
+                ]),
+                '__menu_config_locals': '\n'.join(
+                    f'{local}'
+                    for local in kas_local
+                )
+             }
 
         logging.debug('Menu configuration:\n%s', pprint.pformat(config))
 
