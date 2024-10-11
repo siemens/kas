@@ -713,7 +713,9 @@ class MercurialRepo(RepoImpl):
         return cmd
 
     def prepare_patches_cmd(self):
-        refspec = self.commit or self.tag or self.branch or self.refspec
+        refspec = (self.commit or self.tag or self.branch or self.refspec)
+        # strip revision part from refspec as not allowed in branch names
+        refspec = refspec.split(':')[-1]
         return ['hg', 'branch', '-f', f'patched-{refspec}']
 
     def apply_patches_file_cmd(self, path):
