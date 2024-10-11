@@ -12,6 +12,8 @@ repos:
 
   subrepo:
     path: subrepo
+    name: sub-repo
 
   externalrepo:
     refspec: master
+    name: external-repo
