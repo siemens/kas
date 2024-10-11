@@ -105,12 +105,12 @@ def test_checkout_with_ci_rewrite(monkeykas, tmpdir):
 def test_checkout_create_refs(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_commands')
     repo_cache = pathlib.Path(str(tmpdir.mkdir('repos')))
-    shutil.copytree('tests/test_patch', tdir)
+    shutil.copytree('tests/test_commands', tdir)
     monkeykas.chdir(tdir)
     monkeykas.setenv('KAS_REPO_REF_DIR', str(repo_cache))
     kas.kas(['checkout', 'test.yml'])
     assert os.path.exists(str(repo_cache / 'github.com.siemens.kas.git'))
-    assert os.path.exists('kas/.git/objects/info/alternates')
+    assert os.path.exists('kas_1.0/.git/objects/info/alternates')
 
 
 @pytest.mark.online
