@@ -117,6 +117,8 @@ def _test_env_section_export(monkeykas, tmpdir, bb_env_var, bb_repo):
     shutil.copytree('tests/test_environment_variables', str(conf_dir))
     monkeykas.chdir(conf_dir)
     monkeykas.setenv('KAS_CLONE_DEPTH', '1')
+    monkeykas.setenv('KAS_PREMIRRORS', 'https://git\\.openembedded\\.org/ '
+                     'https://github.com/openembedded/\n')
 
     # Overwrite oe-init-build-env script
     # BB_ENV_* filter variables are only exported by
