@@ -180,7 +180,8 @@ class Dump(Checkout):
                                help='Create lockfile with exact SHAs')
         parser.add_argument('-i', '--inplace',
                             action='store_true',
-                            help='Update lockfile in-place (requires --lock)')
+                            help='Create or update top-level lockfile '
+                                 'in-place (requires --lock)')
 
     def run(self, args):
         def _filter_enabled(repos):
