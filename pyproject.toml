@@ -5,3 +5,6 @@ requires = ["setuptools>=40.5.0", "wheel"]
 markers = [
     "online: tests requiring internet access"
 ]
+filterwarnings = [
+    "error"
+]
