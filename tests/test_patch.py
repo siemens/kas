@@ -26,21 +26,19 @@ import shutil
 import pytest
 import subprocess
 from kas import kas
-from kas.libkas import run_cmd
 from kas.repos import PatchApplyError, PatchFileNotFound, PatchMappingError
 
 
 def git_get_commit(path):
-    (rc, output) = run_cmd(['git', 'rev-parse', 'HEAD'], cwd=path, fail=False)
-    assert rc == 0
-    return output.strip()
+    output = subprocess.check_output(
+        ['git', 'rev-parse', 'HEAD'], cwd=path)
+    return output.decode('utf-8').strip()
 
 
 def mercurial_get_commit(path):
-    (rc, output) = run_cmd(['hg', 'log', '-r', '.', '--template', '{node}\n'],
-                           cwd=path, fail=False)
-    assert rc == 0
-    return output.strip()
+    output = subprocess.check_output(
+        ['hg', 'log', '-r', '.', '--template', '{node}\n'], cwd=path)
+    return output.decode('utf-8').strip()
 
 
 @pytest.mark.online

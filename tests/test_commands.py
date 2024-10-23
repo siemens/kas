@@ -29,7 +29,6 @@ import yaml
 import subprocess
 import pytest
 from kas import kas
-from kas.libkas import run_cmd
 from kas.libkas import TaskExecError, KasUserError
 from kas.attestation import file_digest_slow
 
@@ -128,22 +127,21 @@ def test_checkout_shallow(monkeykas, tmpdir):
         mp.setenv('KAS_CLONE_DEPTH', '1')
         kas.kas(['checkout', 'test-shallow.yml'])
     for repo in ['kas_1', 'kas_2', 'kas_3', 'kas_4']:
-        (rc, output) = run_cmd(['git', 'rev-list', '--count', 'HEAD'],
-                               cwd=repo, fail=False, liveupdate=False)
-        assert rc == 0
+        output = subprocess.check_output(
+            ['git', 'rev-list', '--count', 'HEAD'], cwd=repo)
+        count = int(output.decode('utf-8').strip())
         if repo == 'kas_4':
-            assert output.strip() >= '1'
+            assert count >= 1
         else:
-            assert output.strip() == '1'
+            assert count == 1
 
 
 @pytest.mark.online
 def test_shallow_updates(monkeykas, tmpdir):
     def _get_commit(repo):
-        (rc, output) = run_cmd(['git', 'rev-parse', '--verify', 'HEAD'],
-                               cwd=repo, fail=False, liveupdate=False)
-        assert rc == 0
-        return output.strip()
+        output = subprocess.check_output(
+            ['git', 'rev-parse', '--verify', 'HEAD'], cwd=repo)
+        return output.decode('utf-8').strip()
 
     tdir = tmpdir / 'test_commands'
     tdir.mkdir()

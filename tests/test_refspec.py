@@ -23,9 +23,24 @@
 import pytest
 import shutil
 import yaml
+import subprocess
 from kas import kas
-from kas.libkas import run_cmd
 from kas.repos import RepoRefError, Repo
+
+
+def run_cmd(cmd, cwd=None, fail=True):
+    """
+        Run a command and return the return code and output.
+        Replacement for kas internal run_cmd function which
+        cannot be used outside of kas as there is no event loop.
+    """
+    try:
+        output = subprocess.check_output(cmd, cwd=cwd)
+        return (0, output.decode('utf-8'))
+    except subprocess.CalledProcessError as e:
+        if fail:
+            raise e
+        return (e.returncode, e.output.decode('utf-8'))
 
 
 @pytest.mark.online
