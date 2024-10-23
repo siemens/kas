@@ -190,7 +190,8 @@ def kas(argv):
 
     logging.info('%s %s started', os.path.basename(sys.argv[0]), __version__)
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
 
     loop.add_signal_handler(signal.SIGTERM, interruption)
     # don't overwrite pytest's signal handler
@@ -216,6 +217,7 @@ def kas(argv):
         raise
     finally:
         cleanup_logger()
+        loop.close()
 
 
 def main():
