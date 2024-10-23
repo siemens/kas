@@ -133,7 +133,8 @@ async def run_cmd_async(cmd, cwd, env=None, fail=True, liveupdate=False):
             cwd=cwd,
             env=env,
             stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE)
+            stderr=asyncio.subprocess.PIPE,
+            preexec_fn=os.setpgrp)
     except FileNotFoundError as ex:
         if fail:
             raise ex
@@ -143,12 +144,26 @@ async def run_cmd_async(cmd, cwd, env=None, fail=True, liveupdate=False):
             raise ex
         return (errno.EPERM, str(ex))
 
+    # Process termination is a complicated thing. We need to ensure that
+    # the event-loop ThreadedChildWatcher thread fires before the loop is
+    # terminated. The best we can do it to ask the process to terminate
+    # (SIGINT) and wait for it. We need to shield the process wait to avoid
+    # that it is killed by the cancellation of the task, as we want a
+    # controlled termination. Forced terminations can leak an orphaned process.
+    # https://github.com/pytest-dev/pytest-asyncio/issues/708#issuecomment-1868488942
     tasks = [
         asyncio.ensure_future(_read_stream(process.stdout, logo.log_stdout)),
         asyncio.ensure_future(_read_stream(process.stderr, logo.log_stderr))
     ]
-    await asyncio.wait(tasks)
-    ret = await process.wait()
+
+    try:
+        await asyncio.gather(*[asyncio.shield(t) for t in tasks])
+        ret = await asyncio.shield(process.wait())
+    except asyncio.CancelledError:
+        process.terminate()
+        logging.debug('Command "%s" cancelled', cmdstr)
+        await process.wait()
+        raise
 
     if ret and fail:
         msg = f'Command "{cwd}$ {cmdstr}" failed'

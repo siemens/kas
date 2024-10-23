@@ -23,11 +23,11 @@
     This module is the main entry point for kas, setup tool for bitbake based
     projects. In case of user errors (e.g. invalid configuration, repo fetch
     failure) kas exits with error code 2, while exiting with 1 for internal
-    errors. For details on error handling, see :mod:`kas.kasusererror`.
+    errors. When cancelled by SIGINT, kas exits with 130. For details on error
+    handling, see :mod:`kas.kasusererror`.
 """
 
 import argparse
-import atexit
 import asyncio
 import traceback
 import logging
@@ -85,37 +85,37 @@ def cleanup_logger():
             logging.root.removeHandler(handler)
 
 
+def get_pending_tasks(loop):
+    try:
+        return asyncio.all_tasks(loop)
+    except AttributeError:
+        # for Python < 3.7
+        return asyncio.Task.all_tasks(loop)
+
+
 def interruption():
     """
-        Ignore SIGINT/SIGTERM in kas, let them be handled by our sub-processes
+        Gracefully cancel all tasks in the event loop
     """
-    pass
+    loop = asyncio.get_event_loop()
+    pending = get_pending_tasks(loop)
+    if pending:
+        logging.debug(f'waiting for {len(pending)} tasks to terminate')
+    [t.cancel() for t in pending]
 
 
-def _atexit_handler():
+def shutdown_loop(loop):
     """
         Waits for completion of the event loop
     """
+    pending = get_pending_tasks(loop)
+    # Ignore exceptions in final shutdown (Python3.6 workaround).
+    # These are related to the cancellation of tasks.
     try:
-        loop = asyncio.get_running_loop()
-        pending = asyncio.all_tasks(loop)
-    except RuntimeError:
-        # no running loop anymore, nothing to do
-        return
-    except AttributeError:
-        # for Python < 3.7
-        loop = asyncio.get_event_loop()
-        pending = asyncio.Task.all_tasks(loop)
-    if not loop.is_closed():
-        # this code path is observed on older python versions (e.g. 3.6).
-        # In case the loop is not yet closed, tasks still might throw
-        # exceptions, but we are not interested in these as they are
-        # likely due to the cancellation. By that, we simply drop them.
-        try:
-            loop.run_until_complete(asyncio.gather(*pending))
-        except KasUserError:
-            pass
-        loop.close()
+        loop.run_until_complete(asyncio.gather(*pending))
+    except KasUserError:
+        pass
+    loop.close()
 
 
 def kas_get_argparser():
@@ -197,7 +197,6 @@ def kas(argv):
     # don't overwrite pytest's signal handler
     if "PYTEST_CURRENT_TEST" not in os.environ:
         loop.add_signal_handler(signal.SIGINT, interruption)
-    atexit.register(_atexit_handler)
 
     try:
         plugin_class = plugins.get(args.cmd)
@@ -212,12 +211,15 @@ def kas(argv):
     except KasUserError as err:
         logging.error('%s', err)
         raise
+    except asyncio.CancelledError:
+        logging.error('kas execution cancelled')
+        raise
     except Exception as err:
         logging.error('%s', err)
         raise
     finally:
+        shutdown_loop(loop)
         cleanup_logger()
-        loop.close()
 
 
 def main():
@@ -231,6 +233,8 @@ def main():
         sys.exit(err.ret_code if err.forward else 2)
     except KasUserError:
         sys.exit(2)
+    except asyncio.CancelledError:
+        sys.exit(130)
     except Exception:
         traceback.print_exc()
         sys.exit(1)
