@@ -62,7 +62,8 @@ for repos stored on the same server. Technically this is achieved by adding
 `insteadof` entries to the ``.gitconfig`` file.
 
 For backwards compatibility, the git rewrite rules are only added if
-``.gitconfig`` does not exists and no SSH configuration is provided.
+``.gitconfig`` does not exist and no SSH configuration is provided (either
+via the kas ``SSH_`` variables or using ``.ssh/config``).
 
 If the ``CI_REGISTRY``, ``CI_REGISTRY_USER`` and ``CI_JOB_TOKEN`` variables
 are set, kas automatically creates a login file for the container

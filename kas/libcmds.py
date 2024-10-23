@@ -193,18 +193,16 @@ class SetupHome(Command):
     @staticmethod
     def _ssh_config_present():
         """
-            Checks if any file in the .ssh dir exists or
-            any manual ssh config option is set.
+            Checks if the .ssh/config file exists or any manual ssh config
+            option is set.
         """
         ssh_vars = ['SSH_PRIVATE_KEY', 'SSH_PRIVATE_KEY_FILE', 'SSH_AUTH_SOCK']
         if any(e in os.environ for e in ssh_vars):
             return True
 
         ssh_path = os.path.expanduser('~/.ssh')
-        if os.path.isdir(ssh_path):
-            with os.scandir(ssh_path) as it:
-                if any(it):
-                    return True
+        if os.path.exists(os.path.join(ssh_path, 'config')):
+            return True
         return False
 
     def _setup_netrc(self):
