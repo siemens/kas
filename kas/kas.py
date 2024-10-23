@@ -98,10 +98,21 @@ def interruption():
         Gracefully cancel all tasks in the event loop
     """
     loop = asyncio.get_event_loop()
+    for sig in [signal.SIGINT, signal.SIGTERM]:
+        loop.remove_signal_handler(sig)
+        loop.add_signal_handler(sig, termination)
     pending = get_pending_tasks(loop)
     if pending:
         logging.debug(f'waiting for {len(pending)} tasks to terminate')
     [t.cancel() for t in pending]
+
+
+def termination():
+    """
+        Forcefully terminate the process
+    """
+    logging.error('kas terminated forcefully')
+    os._exit(130)
 
 
 def shutdown_loop(loop):
