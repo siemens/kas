@@ -257,22 +257,19 @@ class IncludeHandler:
             missing_repos = list(OrderedDict.fromkeys(missing_repos))
             return (configs, missing_repos)
 
-        def _internal_dict_merge(dest, upd, recursive_merge=True):
+        def _internal_dict_merge(dest, upd):
             """
             Merges upd recursively into a copy of dest as OrderedDict
 
-            If recursive_merge is False, it will use the classic dict.update,
-            otherwise it will fall back on a manual merge (helpful for non-dict
-            types like FunctionWrapper)
+            If keys in upd intersect with keys in dest we will do a manual
+            merge (helpful for non-dict types like FunctionWrapper).
             """
             if (not isinstance(dest, Mapping)) \
                     or (not isinstance(upd, Mapping)):
                 raise IncludeException('Cannot merge using non-dict')
             dest = OrderedDict(dest)
             updkeys = list(upd.keys())
-            if not set(list(dest.keys())) & set(updkeys):
-                recursive_merge = False
-            if recursive_merge:
+            if set(list(dest.keys())) & set(updkeys):
                 for key in updkeys:
                     val = upd[key]
                     try:
