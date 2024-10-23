@@ -192,8 +192,10 @@ def kas(argv):
 
     loop = asyncio.get_event_loop()
 
-    for sig in (signal.SIGINT, signal.SIGTERM):
-        loop.add_signal_handler(sig, interruption)
+    loop.add_signal_handler(signal.SIGTERM, interruption)
+    # don't overwrite pytest's signal handler
+    if "PYTEST_CURRENT_TEST" not in os.environ:
+        loop.add_signal_handler(signal.SIGINT, interruption)
     atexit.register(_atexit_handler)
 
     try:
