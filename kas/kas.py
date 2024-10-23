@@ -48,7 +48,7 @@ from . import plugins
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
 
-default_log_level = 'info'
+DEFAULT_LOG_LEVEL = 'info'
 
 
 def create_logger():
@@ -56,7 +56,7 @@ def create_logger():
         Setup the logging environment
     """
     log = logging.getLogger()  # root logger
-    log.setLevel(default_log_level.upper())
+    log.setLevel(DEFAULT_LOG_LEVEL.upper())
     format_str = '%(asctime)s - %(levelname)-8s - %(message)s'
     date_format = '%Y-%m-%d %H:%M:%S'
     if HAVE_COLORLOG and os.isatty(2):
@@ -135,8 +135,8 @@ def kas_get_argparser():
     parser.add_argument('-l', '--log-level',
                         choices=['debug', 'info', 'warning', 'error',
                                  'critical'],
-                        default=f'{default_log_level}',
-                        help=f'Set log level (default: {default_log_level})')
+                        default=f'{DEFAULT_LOG_LEVEL}',
+                        help=f'Set log level (default: {DEFAULT_LOG_LEVEL})')
 
     subparser = parser.add_subparsers(help='sub command help', dest='cmd')
 
