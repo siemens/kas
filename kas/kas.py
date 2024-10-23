@@ -76,6 +76,15 @@ def create_logger():
     return logging.getLogger(__name__)
 
 
+def cleanup_logger():
+    """
+        Cleanup the logging environment
+    """
+    for handler in logging.root.handlers[:]:
+        if isinstance(handler, logging.StreamHandler):
+            logging.root.removeHandler(handler)
+
+
 def interruption():
     """
         Ignore SIGINT/SIGTERM in kas, let them be handled by our sub-processes
@@ -187,12 +196,24 @@ def kas(argv):
         loop.add_signal_handler(sig, interruption)
     atexit.register(_atexit_handler)
 
-    plugin_class = plugins.get(args.cmd)
-    if plugin_class:
-        plugin = plugin_class()
-        plugin.run(args)
-    else:
-        parser.print_help()
+    try:
+        plugin_class = plugins.get(args.cmd)
+        if plugin_class:
+            plugin = plugin_class()
+            plugin.run(args)
+        else:
+            parser.print_help()
+    except CommandExecError as err:
+        logging.error('%s', err)
+        raise
+    except KasUserError as err:
+        logging.error('%s', err)
+        raise
+    except Exception as err:
+        logging.error('%s', err)
+        raise
+    finally:
+        cleanup_logger()
 
 
 def main():
@@ -203,13 +224,10 @@ def main():
     try:
         kas(sys.argv[1:])
     except CommandExecError as err:
-        logging.error('%s', err)
         sys.exit(err.ret_code if err.forward else 2)
-    except KasUserError as err:
-        logging.error('%s', err)
+    except KasUserError:
         sys.exit(2)
-    except Exception as err:
-        logging.error('%s', err)
+    except Exception:
         traceback.print_exc()
         sys.exit(1)
 
