@@ -51,7 +51,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=${CACHE_SHARING} \
         python3-newt python3-colorlog python3-kconfiglib python3-websockets \
         gosu lsb-release file vim less procps tree tar bzip2 zstd pigz lz4 unzip tmux libncurses-dev \
         git-lfs mercurial iproute2 ssh-client telnet curl rsync gnupg awscli sudo \
-        patchutils wget jq \
+        patchutils wget jq gh \
         socat bash-completion python3-shtab python3-git && \
     wget -qO /usr/bin/yq https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64 && \
     chmod a+x /usr/bin/yq && \
