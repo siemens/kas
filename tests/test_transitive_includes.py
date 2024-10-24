@@ -25,7 +25,9 @@ from pathlib import Path
 import shutil
 import subprocess
 import yaml
+import pytest
 from kas import kas
+from kas.includehandler import IncludeException
 
 
 def test_transitive_includes(monkeykas, tmpdir, capsys):
@@ -78,3 +80,31 @@ def test_transitive_includes(monkeykas, tmpdir, capsys):
     kas.kas(['dump', 'main.yml'])
     config_final = yaml.safe_load(capsys.readouterr().out)
     assert config_final['env']['KAS_REPO_BAR'] == "1"
+
+
+def test_include_from_submodule(monkeykas, tmpdir):
+    tmpdir.mkdir('main')
+    tmpdir.mkdir('sub')
+    for s, t in [('sub_repo.yml', 'sub'),
+                 ('super_repo.yml', 'main'),
+                 ('oe-init-build-env', 'main')]:
+        shutil.copy(f'tests/test_transitive_includes/{s}', tmpdir / t)
+
+    monkeykas.chdir(tmpdir / 'sub')
+    subprocess.check_call(['git', 'init', '-b', 'main'])
+    subprocess.check_call(['git', 'add', 'sub_repo.yml'])
+    subprocess.check_call(['git', 'commit', '-m', 'init'])
+
+    monkeykas.chdir(tmpdir / 'main')
+    subprocess.check_call(['git', 'init', '-b', 'main'])
+
+    # clone a repo as non-submodule
+    subprocess.check_call(['git', 'clone', '../sub', 'sub'])
+    with pytest.raises(IncludeException):
+        kas.kas(['checkout', 'super_repo.yml:sub/sub_repo.yml'])
+
+    # now add the repo as submodule
+    shutil.rmtree('sub')
+    subprocess.check_call(['git', '-c', 'protocol.file.allow=always',
+                          'submodule', 'add', '../sub', 'sub'])
+    kas.kas(['-d', 'checkout', 'super_repo.yml:sub/sub_repo.yml'])
