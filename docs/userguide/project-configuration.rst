@@ -158,10 +158,16 @@ This is equivalent to static inclusion from some kas-combined.yml like this:
 Command line inclusion allows one to create configurations on-demand, without
 the need to write a kas configuration file for each possible combination.
 
-Note that all configuration files combined via the command line either have to
+All configuration files combined via the command line either have to
 come from the same repository or have to live outside of any versioning control.
 kas will refuse any other combination in order to avoid complications and
 configuration flaws that can easily emerge from them.
+
+.. note::
+  Git submodules are considered to be part of the main repository. Hence,
+  including config files from a submodule is supported. The repository root
+  is always the root of the main repository (if under VCS) or the directory
+  of the first kas config file otherwise.
 
 Working with lockfiles
 ~~~~~~~~~~~~~~~~~~~~~~

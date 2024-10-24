@@ -270,11 +270,14 @@ class Repo:
     def get_root_path(path, fallback=True):
         """
             Checks if path is under version control and returns its root path.
+            If the repo is a submodule, the root path of the super-repository
+            is returned.
         """
-        (ret, output) = run_cmd(['git', 'rev-parse', '--show-toplevel'],
-                                cwd=path, fail=False)
+        git_cmd = ['git', 'rev-parse', '--show-toplevel',
+                   '--show-superproject-working-tree']
+        (ret, output) = run_cmd(git_cmd, cwd=path, fail=False)
         if ret == 0:
-            return output.strip()
+            return sorted(output.strip().split('\n'))[0]
 
         (ret, output) = run_cmd(['hg', 'root'],
                                 cwd=path, fail=False)
