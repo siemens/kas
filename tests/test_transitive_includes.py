@@ -74,7 +74,7 @@ def test_transitive_includes(monkeykas, tmpdir, capsys):
     subprocess.check_call(['git', 'add', 'bar.yml'], cwd=dirs['bar'])
     subprocess.check_call(['git', 'commit', '-m', 'init'], cwd=dirs['bar'])
 
-    os.chdir(dirs['main'])
+    monkeykas.chdir(dirs['main'])
     kas.kas(['dump', 'main.yml'])
     config_final = yaml.safe_load(capsys.readouterr().out)
     assert config_final['env']['KAS_REPO_BAR'] == "1"
