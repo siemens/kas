@@ -166,6 +166,16 @@ Variables Glossary
 | ``PARALLEL_MAKE``        |                                                  |
 | (C,K,E)                  |                                                  |
 +--------------------------+--------------------------------------------------+
+| ``KAS_IMAGE_VERSION`` (C)| Select the version of the (official) kas         |
+|                          | container (e.g. 4.5).                            |
++--------------------------+--------------------------------------------------+
+| ``KAS_CONTAINER_IMAGE``  | Select the container image (full OCI path        |
+| (C)                      | including tag).                                  |
++--------------------------+--------------------------------------------------+
+| ``KAS_CONTAINER_ENGINE`` | Explicitly set the container engine (either      |
+| (C)                      | ``docker`` or ``podman``). If not set, this is   |
+|                          | auto-detected (preference: docker).              |
++--------------------------+--------------------------------------------------+
 
 .. |aws_cred| replace:: ``AWS_ROLE_ARN``
                         ``AWS_SHARED_CREDENTIALS_FILE``
