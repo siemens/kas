@@ -11,6 +11,8 @@ project yourself you can create the necessary links via::
 
 That will install a backlink ~/.local/bin/kas to this project. Now you are
 able to call it from anywhere.
+For local development, use the **run-kas** wrapper from the project root
+directory. In this case, replace ``kas`` with ``path/to/run-kas``.
 
 
 Container image build

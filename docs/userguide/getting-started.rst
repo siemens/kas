@@ -21,7 +21,7 @@ To install kas into your python site-package repository, run::
 Usage
 -----
 
-There are (at least) four options for using kas:
+There are (at least) three options for using kas:
 
 - Install it locally via pip to get the ``kas`` command.
 - Use the container image locally. In this case, download the
@@ -31,8 +31,6 @@ There are (at least) four options for using kas:
 - Use the container image in CI. Specify
   ``ghcr.io/siemens/kas/kas[-isar][:<x.y>]`` in your CI script that requests
   a container image as runtime environment.
-- Use the **run-kas** wrapper from this directory. In this case,
-  replace ``kas`` in the examples below with ``path/to/run-kas``.
 
 Start build::
 
