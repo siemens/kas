@@ -465,6 +465,9 @@ class ReposApplyPatches(Command):
             config.write()
 
     def execute(self, ctx):
+        if 'HOME' not in ctx.environ:
+            raise ArgsCombinationError('Apply patches requires setup_home')
+
         gitconfig = ctx.environ['HOME'] + '/.gitconfig'
         user = self._vcs_operate_as_kas(gitconfig)
 
