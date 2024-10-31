@@ -31,6 +31,7 @@ import pytest
 from kas import kas
 from kas.libkas import run_cmd
 from kas.libkas import TaskExecError, KasUserError
+from kas.attestation import file_digest_slow
 
 
 @pytest.mark.online
@@ -244,6 +245,15 @@ def test_lockfile(monkeykas, tmpdir, capsys):
     # create lockfile
     kas.kas('dump --lock --inplace test.yml'.split())
     assert os.path.exists('test.lock.yml')
+
+    # check if legacy dump -> lock redirection works
+    with open('test.lock.yml', "rb") as f:
+        hash_dump = file_digest_slow(f, 'sha256')
+    os.remove('test.lock.yml')
+    kas.kas('lock test.yml'.split())
+    with open('test.lock.yml', "rb") as f:
+        hash_lock = file_digest_slow(f, 'sha256')
+    assert hash_dump.hexdigest() == hash_lock.hexdigest()
 
     # lockfile is considered during import, expect pinned branches
     kas.kas('dump test.yml'.split())
