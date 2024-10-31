@@ -205,8 +205,8 @@ and its corresponding lockfile ``kas/kas-isar.lock.yml``.
       isar:
         commit: 0336610df8bb0adce76ef8c5a921c758efed9f45
 
-The ``dump`` plugin provides helpers to simplify the creation and update
-of lockfiles. For details, see the plugins documentation: :mod:`kas.plugins.dump`.
+The ``lock`` plugin provides helpers to simplify the creation and update
+of lockfiles. For details, see the plugins documentation: :mod:`kas.plugins.lock`.
 
 Configuration reference
 ~~~~~~~~~~~~~~~~~~~~~~~

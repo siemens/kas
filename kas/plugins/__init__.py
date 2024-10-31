@@ -44,11 +44,13 @@ def load():
     from . import shell
     from . import menu
     from . import dump
+    from . import lock
 
     register_plugins(build)
     register_plugins(checkout)
     register_plugins(dump)
     register_plugins(for_all_repos)
+    register_plugins(lock)
     register_plugins(shell)
     register_plugins(menu)
 

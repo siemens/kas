@@ -49,6 +49,17 @@ typically provides a single command.
     :prog: kas
     :path: for-all-repos
 
+``lock`` plugin
+------------------------
+
+.. automodule:: kas.plugins.lock
+
+.. argparse::
+    :module: kas.kas
+    :func: kas_get_argparser
+    :prog: kas
+    :path: lock
+
 ``menu`` plugin
 ---------------
 

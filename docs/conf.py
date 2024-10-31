@@ -334,6 +334,8 @@ man_pages = [
     ('_man/kas-plugin-for-all-repos',
      'kas-for-all-repos', 'kas for-all-repos plugin',
      [author], 1),
+    ('_man/kas-plugin-lock', 'kas-lock', 'kas lock plugin',
+     [author], 1),
     ('_man/kas-plugin-menu', 'kas-menu', 'kas menu plugin',
      [author], 1),
     ('_man/kas-plugin-shell', 'kas-shell', 'kas shell plugin',

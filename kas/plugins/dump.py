@@ -31,10 +31,12 @@
 
     When running with ``--lock``, a locking spec is created which only contains
     the exact commit of each repository. This can be used to pin the commit of
-    floating branches and tags, while still keeping an easy update path. When
-    combining with ``--inplace``, a lockfile is created next to the first file
-    on the kas cmdline. For details on the locking support, see
-    :class:`kas.includehandler.IncludeHandler`.
+    floating branches and tags, while still keeping an easy update path. For
+    details on the locking support, see :class:`kas.plugins.lock`.
+
+    .. note::
+        The options to create and update lock files have been moved to the lock
+        plugin.
 
     When running with ``--resolve-local``, VCS tracking information of the root
     repo (the one with the kas-project.yml) is added to the output. The
@@ -56,23 +58,13 @@
     The generated config can be used as input for kas::
 
         kas build kas-project-expanded.yml
-
-    Example of the locking mechanism (call again to regenerate lockfile).
-    The lockfile is created as ``kas-project.lock.yml``::
-
-        kas dump --lock --inplace --update kas-project.yml
-
-    The generated lockfile will automatically be used to pin the revisions::
-
-        kas build kas-project.yml
-
-    Note, that the lockfiles should be checked-in into the VCS.
 """
 
 import sys
 import json
 import yaml
 import logging
+import argparse
 from typing import TypeVar, TextIO
 from collections import OrderedDict
 from kas.context import get_context
@@ -184,8 +176,7 @@ class Dump(Checkout):
                                help='Create lockfile with exact SHAs')
         parser.add_argument('-i', '--inplace',
                             action='store_true',
-                            help='Create or update top-level lockfile '
-                                 'in-place (requires --lock)')
+                            help=argparse.SUPPRESS)
 
     @staticmethod
     def dump_config(config: dict, target: IoTarget, format: str, indent: int):
@@ -232,6 +223,11 @@ class Dump(Checkout):
         if args.resolve_local and args.lock:
             raise ArgsCombinationError(
                 '--resolve-local cannot be used with --lock')
+        if args.inplace and args.lock:
+            from kas.plugins.lock import Lock
+            logging.warning('The --inplace option is deprecated. '
+                            'Migrate to the "lock" command.')
+            return Lock().run(args)
 
         if args.lock:
             args.resolve_refs = True
@@ -239,10 +235,6 @@ class Dump(Checkout):
             repos = _filter_enabled(repos)
             config_expanded['overrides'] = \
                 {'repos': {k: {'commit': r.revision} for k, r in repos}}
-
-        if args.lock and args.inplace:
-            lockfile = ctx.config.handler.get_lockfile()
-            output = IoTarget(target=lockfile, managed=True)
 
         # includes are already expanded, delete the key
         if 'includes' in config_expanded['header']:
