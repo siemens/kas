@@ -154,18 +154,22 @@ class Dump(Checkout):
                 return self.represent_scalar('tag:yaml.org,2002:null', '')
             return super().represent_data(data)
 
+    @staticmethod
+    def setup_parser_format_args(parser):
+        parser.add_argument('--indent',
+                            type=int,
+                            default=4,
+                            help='Line indent (# of spaces, default: 4)')
+
     @classmethod
     def setup_parser(cls, parser):
         super().setup_parser(parser)
+        Dump.setup_parser_format_args(parser)
         lk_or_env = parser.add_mutually_exclusive_group()
         parser.add_argument('--format',
                             choices=['yaml', 'json'],
                             default='yaml',
                             help='Output format (default: yaml)')
-        parser.add_argument('--indent',
-                            type=int,
-                            default=4,
-                            help='Line indent (# of spaces, default: 4)')
         parser.add_argument('--resolve-refs',
                             action='store_true',
                             help='Replace floating refs with exact SHAs')
