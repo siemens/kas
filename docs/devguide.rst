@@ -48,6 +48,11 @@ To simplify this, we provide the ``monkeykas`` fixture to clean up the
 environment prior to each test. When adding new kas environment variables,
 make sure to add these to the cleanup handler as well.
 
+.. note::
+    The menu plugin tests require the ``snack`` package to be installed. On
+    most distros this is packaged in ``python3-newt``, on Arch Linux it is
+    part of libnewt.
+
 To run the tests, invoke::
 
     $ python3 -m pytest
