@@ -171,3 +171,13 @@ Added
 ~~~~~
 
 - The key ``artifacts`` is introduced to describe expected build artifacts.
+
+Version 18
+----------
+
+Added
+~~~~~
+
+The repo keys ``tag`` and ``branch`` can now be set to ``null`` to remove
+these properties from the repo. This is needed in case a default value is
+set in the ``defaults`` section that should not apply to a repo.

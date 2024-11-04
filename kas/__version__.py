@@ -28,5 +28,5 @@ __copyright__ = 'Copyright (c) Siemens AG, 2017-2020'
 __version__ = '4.5'
 
 # Please update docs/format-changelog.rst when changing the file version.
-__file_version__ = 17
+__file_version__ = 18
 __compatible_file_version__ = 1

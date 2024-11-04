@@ -346,15 +346,17 @@ Configuration reference
       ``commit``, ``branch`` or ``tag``, the revision you get depends on the
       defaults of the version control system used.
 
-    ``branch``: string [optional]
+    ``branch``: string or nothing (``null``) [optional]
       The upstream branch that should be tracked. If ``commit`` was
       specified, kas checks that the branch contains the commit. If no
       ``commit`` was specified, the head of the upstream branch is checked out.
+      The nothing (``null``) value is used to remove a possible default value.
 
-    ``tag``: string [optional]
+    ``tag``: string or nothing (``null``)  [optional]
       The tag that should be checked out. If a ``commit`` was specified, kas
       checks that the tag points to this commit. This must not be combined
-      with ``branch``.
+      with ``branch``. The nothing (``null``) value is used to remove a
+      possible default value.
 
     ``path``: string [optional]
       The path where the repository is stored.
