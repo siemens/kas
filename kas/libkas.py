@@ -409,6 +409,7 @@ def ssh_no_host_key_check():
 def setup_parser_common_args(parser):
     from kas.libcmds import Macro
 
+    setup_cmds = [str(s) for (s, _) in Macro().setup_commands]
     parser.add_argument('config',
                         help='Config file(s), separated by colon. Using '
                         '.config.yaml in KAS_WORK_DIR if none is specified.',
@@ -419,7 +420,7 @@ def setup_parser_common_args(parser):
                         default=[],
                         action='append',
                         metavar='STEP',
-                        choices=[str(c) for c in Macro().setup_commands])
+                        choices=setup_cmds)
     parser.add_argument('--force-checkout', action='store_true',
                         help='Always checkout the desired commit/branch/tag '
                         'of each repository, discarding any local changes')

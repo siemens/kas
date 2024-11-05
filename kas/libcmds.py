@@ -53,13 +53,14 @@ class Macro:
         Contains commands and provides method to run them.
     """
 
-    def __init__(self, use_common_setup=True, use_common_cleanup=True):
+    def __init__(self, use_common_setup=True):
         if use_common_setup:
             repo_loop = Loop('repo_setup_loop')
             repo_loop.add(SetupReposStep())
 
+            # setup commands are pairs of setup / cleanup commands
             self.setup_commands = [
-                SetupDir(),
+                (SetupDir(), None)
             ]
 
             if ('SSH_PRIVATE_KEY' in os.environ
@@ -68,9 +69,10 @@ class Macro:
                     raise ArgsCombinationError(
                         'Internal SSH agent (e.g. for "SSH_PRIVATE_KEY") can '
                         'only be started if no external one is passed.')
-                self.setup_commands.append(SetupSSHAgent())
+                self.setup_commands.append((SetupSSHAgent(),
+                                            CleanupSSHAgent()))
 
-            self.setup_commands += [
+            self.setup_commands += [(x, None) for x in [
                 SetupHome(),
                 InitSetupRepos(),
                 repo_loop,
@@ -79,18 +81,9 @@ class Macro:
                 ReposApplyPatches(),
                 SetupEnviron(),
                 WriteBBConfig(),
-            ]
+            ]]
         else:
             self.setup_commands = []
-
-        if (use_common_cleanup
-                and ('SSH_PRIVATE_KEY' in os.environ
-                     or 'SSH_PRIVATE_KEY_FILE' in os.environ)):
-            self.cleanup_commands = [
-                CleanupSSHAgent(),
-            ]
-        else:
-            self.cleanup_commands = []
 
         self.commands = []
 
@@ -105,15 +98,24 @@ class Macro:
             Runs a command from the command list with respect to the
             configuration.
         """
-        skip = skip or []
-        joined_commands = self.setup_commands + \
-            self.commands + self.cleanup_commands
-        for command in joined_commands:
+        def _run_single(command):
             command_name = str(command)
-            if command_name in skip:
-                continue
+            if command_name in (skip or []):
+                return False
             logging.debug('execute %s', command_name)
             command.execute(ctx)
+            return True
+
+        cleanup_commands = []
+        try:
+            for cmd in self.setup_commands:
+                if _run_single(cmd[0]) and cmd[1]:
+                    cleanup_commands.insert(0, cmd[1])
+            for cmd in self.commands:
+                _run_single(cmd)
+        finally:
+            for cmd in cleanup_commands:
+                _run_single(cmd)
 
 
 class Command:
