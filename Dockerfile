@@ -42,6 +42,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=${CACHE_SHARING} \
         sed -i -e '/^URIs:/d' -e 's|^# http://snapshot\.|URIs: http://snapshot.|' \
             /etc/apt/sources.list.d/debian.sources; \
         echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/use-snapshot.conf; \
+        echo 'Acquire::Retries "10";' >> /etc/apt/apt.conf.d/use-snapshot.conf; \
+        echo 'Acquire::Retries::Delay::Maximum "600";' >> /etc/apt/apt.conf.d/use-snapshot.conf; \
     fi && \
     apt-get update && \
     apt-get install -y locales && \
