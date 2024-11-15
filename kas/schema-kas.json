@@ -25,7 +25,9 @@
                             ]
                         },
                         {
-                            "type": "integer"
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 18
                         }
                     ]
                 },

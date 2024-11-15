@@ -14,6 +14,16 @@ able to call it from anywhere.
 For local development, use the **run-kas** wrapper from the project root
 directory. In this case, replace ``kas`` with ``path/to/run-kas``.
 
+Changes of the project configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When changing the project configuration, you need to update the json
+configuration schema (``schema-kas.json``). Further, a short description of
+the changes needs to be added to :doc:`format-changelog`.
+After making the changes, you need to update the minimum and maximum values
+of ``header.version``. If the version was already updated after the last
+release, the version bump is not required.
+
 
 Container image build
 ---------------------

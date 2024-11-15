@@ -24,12 +24,24 @@
     This module contains the schema of the configuration file.
 '''
 __license__ = 'MIT'
-__copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
+__copyright__ = 'Copyright (c) Siemens AG, 2017-2024'
 
 import json
 import os
 
-cwd = os.path.dirname(os.path.realpath(__file__))
 
-with open(os.path.join(cwd, 'schema-kas.json'), 'r') as f:
-    CONFIGSCHEMA = json.load(f)
+def _load_schema():
+    global CONFIGSCHEMA
+    global __file_version__
+    global __compatible_file_version__
+
+    cwd = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(cwd, 'schema-kas.json'), 'r') as f:
+        CONFIGSCHEMA = json.load(f)
+        header_node = CONFIGSCHEMA['properties']['header']
+        version_node = header_node['properties']['version']['oneOf'][1]
+        __file_version__ = version_node["maximum"]
+        __compatible_file_version__ = version_node["minimum"]
+
+
+_load_schema()
