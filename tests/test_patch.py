@@ -110,3 +110,27 @@ def test_invalid_patch(monkeykas, tmpdir):
 
     with pytest.raises(PatchApplyError):
         kas.kas(['shell', 'test-invalid3.yml', '-c', 'true'])
+
+
+@pytest.mark.online
+def test_patch_dirty_repo(monkeykas, tmpdir, mercurial):
+    """
+        Test that kas will not apply patches to a dirty repository
+    """
+    tdir = str(tmpdir / 'test_patch_dirty')
+    shutil.copytree('tests/test_patch', tdir)
+    monkeykas.chdir(tdir)
+
+    repo = mercurial(tmpdir, 'example')
+    commit = repo.get_commit()
+    subprocess.check_call(
+        ['sed', '-i', f's/82e55d328c8c/{commit}/', 'test.yml'])
+
+    kas.kas(['checkout', '--skip', 'repos_apply_patches', 'test.yml'])
+    with open('kas-branch/make-dirty', 'a') as f:
+        f.write('echo "dirty"')
+    kas.kas(['checkout', 'test.yml'])
+    # the dirty repo must not be patched
+    assert not os.path.exists('kas-branch/tests/test_patch/hello.sh')
+    # the clean repo must be patched
+    assert os.path.exists('hello-branch/hello.sh')
