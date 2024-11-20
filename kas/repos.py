@@ -452,6 +452,10 @@ class RepoImpl(Repo):
         if self.operations_disabled or not self._patches:
             return 0
 
+        if self.dirty:
+            logging.warning(f'Repo {self.name} is dirty - no patching')
+            return 0
+
         (retc, _) = await run_cmd_async(self.prepare_patches_cmd(),
                                         cwd=self.path)
 
