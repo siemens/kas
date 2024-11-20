@@ -40,11 +40,12 @@ import logging
 import subprocess
 import sys
 import json
+import asyncio
 from pathlib import Path
 from datetime import datetime
 from kas.context import create_global_context
 from kas.config import Config
-from kas.libkas import find_program, run_cmd
+from kas.libkas import find_program, run_cmd_async
 from kas.libkas import setup_parser_keep_config_unchanged_arg
 from kas.libcmds import Macro, Command
 from kas.libkas import setup_parser_common_args
@@ -148,7 +149,9 @@ class BuildCommand(Command):
             if ret != 0:
                 raise CommandExecError(cmd, ret)
         else:
-            run_cmd(cmd, cwd=ctx.build_dir, liveupdate=True)
+            loop = asyncio.get_event_loop()
+            loop.run_until_complete(run_cmd_async(cmd, cwd=ctx.build_dir,
+                                                  liveupdate=True))
         time_finished = datetime.now()
 
         if ctx.args.provenance:

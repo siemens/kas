@@ -33,7 +33,7 @@ import asyncio
 import errno
 import pathlib
 import signal
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, run as subprocess_run
 from .context import get_context
 from .kasusererror import KasUserError, CommandExecError
 
@@ -177,17 +177,18 @@ async def run_cmd_async(cmd, cwd, env=None, fail=True, liveupdate=False):
     return (ret, ''.join(logo.stdout))
 
 
-def run_cmd(cmd, cwd, env=None, fail=True, liveupdate=False):
+def run_cmd(cmd, cwd, env=None, fail=True):
     """
         Runs a command synchronously.
     """
+    env = env or get_context().environ
+    cmdstr = ' '.join(cmd)
+    logging.debug('%s$ %s', cwd, cmdstr)
 
-    loop = asyncio.get_event_loop()
-    (ret, output) = loop.run_until_complete(
-        run_cmd_async(cmd, cwd, env, fail, liveupdate))
-    if ret and fail:
-        raise CommandExecError(cmd, ret)
-    return (ret, output)
+    ret = subprocess_run(cmd, env=env, cwd=cwd, stdout=PIPE)
+    if ret.returncode and fail:
+        raise CommandExecError(cmd, ret.returncode)
+    return (ret.returncode, ret.stdout.decode('utf-8'))
 
 
 def find_program(paths, name):
@@ -204,6 +205,8 @@ def find_program(paths, name):
 def repos_fetch(repos):
     """
         Fetches the list of repositories to the kas_work_dir.
+
+        .. note:: termination point of the asyncio event loop.
     """
     if len(repos) == 0:
         return
@@ -222,6 +225,8 @@ def repos_fetch(repos):
 def repos_apply_patches(repos):
     """
         Applies the patches to the repositories.
+
+        .. note:: termination point of the asyncio event loop.
     """
     if len(repos) == 0:
         return
