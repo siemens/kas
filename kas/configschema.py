@@ -34,9 +34,11 @@ def _load_schema():
     global CONFIGSCHEMA
     global __file_version__
     global __compatible_file_version__
+    global __schema_definition__
 
     cwd = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(cwd, 'schema-kas.json'), 'r') as f:
+    __schema_definition__ = os.path.join(cwd, 'schema-kas.json')
+    with open(__schema_definition__, 'r') as f:
         CONFIGSCHEMA = json.load(f)
         header_node = CONFIGSCHEMA['properties']['header']
         version_node = header_node['properties']['version']['oneOf'][1]
