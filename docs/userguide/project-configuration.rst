@@ -212,38 +212,34 @@ Configuration reference
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 ``header``: dict [required]
-  The header of every kas configuration file. It contains information about
-  the context of the file.
+  :kasschemadesc:`header`
 
   ``version``: integer [required]
-    Lets kas check if it is compatible with this file. See the
-    :doc:`configuration format changelog <../format-changelog>` for the
+    :kasschemadesc:`header.properties.version`
+    See the :doc:`configuration format changelog <../format-changelog>` for the
     format history and the latest available version.
 
   ``includes``: list [optional]
-    A list of configuration files this current file is based on. They are
-    merged in order they are stated. So a latter one could overwrite
-    settings from previous files. The current file can overwrite settings
-    from every included file. An item in this list can have one of two types:
+    :kasschemadesc:`header.properties.includes`
+    An item in this list can have one of two types:
 
     item: string
-      The path to a kas configuration file, relative to the repository root
-      of the current file.
+      :kasschemadesc:`header.properties.includes.items.oneOf[0]`
 
     item: dict
-      If files from other repositories should be included, choose this
-      representation.
+      :kasschemadesc:`header.properties.includes.items.oneOf[1]`
 
       ``repo``: string [required]
-        The id of the repository where the file is located. The repo
-        needs to be defined in the ``repos`` dictionary as ``<repo-id>``.
+        :kasschemadesc:`header.properties.includes.items.oneOf[1].properties.repo`
+        The repo needs to be defined in the ``repos`` dictionary as
+        ``<repo-id>``.
 
       ``file``: string [required]
-        The path to the file, relative to the root of the specified
-        repository.
+        :kasschemadesc:`header.properties.includes.items.oneOf[1].properties.file`
 
 ``build_system``: string [optional]
-  Defines the bitbake-based build system. Known build systems are
+  :kasschemadesc:`build_system`
+  Known build systems are
   ``openembedded`` (or ``oe``) and ``isar``. If set, this restricts the
   search of kas for the init script in the configured repositories to
   ``oe-init-build-env`` or ``isar-init-build-env``, respectively. If
@@ -252,28 +248,26 @@ Configuration reference
   required container image and invocation mode.
 
 ``defaults``: dict [optional]
-  This key can be used to set default values for various properties.
+  :kasschemadesc:`defaults`
   This may help you to avoid repeating the same property assignment in
   multiple places if, for example, you wish to use the same branch for
   all repositories.
 
   ``repos``: dict [optional]
-    This key can contain default values for some repository properties.
+    :kasschemadesc:`defaults.properties.repos`
     If a default value is set for a repository property it may still be
     overridden by setting the same property to a different value in a given
     repository.
 
     ``branch``: string [optional]
-      Sets the default ``branch`` property applied to all repositories that
-      do not override this.
+      :kasschemadesc:`defaults.properties.repos.properties.branch`
 
     ``tag``: string [optional]
-      Sets the default ``tag`` property applied to all repositories that
-      do not override this.
+      :kasschemadesc:`defaults.properties.repos.properties.tag`
 
     ``patches``: dict [optional]
-      This key can contain default values for some repository patch
-      properties. If a default value is set for a patch property it may
+      :kasschemadesc:`defaults.properties.repos.properties.patches`
+      If a default value is set for a patch property it may
       still be overridden by setting the same property to a different value
       in a given patch.
 
@@ -282,29 +276,16 @@ Configuration reference
         patches that do not override this.
 
 ``machine``: string [optional]
-  Contains the value of the ``MACHINE`` variable that is written into the
-  ``local.conf``. Can be overwritten by the ``KAS_MACHINE`` environment
-  variable and defaults to ``qemux86-64``.
+  :kasschemadesc:`machine`
 
 ``distro``: string [optional]
-  Contains the value of the ``DISTRO`` variable that is written into the
-  ``local.conf``. Can be overwritten by the ``KAS_DISTRO`` environment
-  variable and defaults to ``poky``.
+  :kasschemadesc:`distro`
 
 ``target``: string [optional] or list [optional]
-  Contains the target or a list of targets to build by bitbake. Can be
-  overwritten by the ``KAS_TARGET`` environment variable and defaults to
-  ``core-image-minimal``. Space is used as a delimiter if multiple targets
-  should be specified via the environment variable.
-  For targets prefixed with ``multiconfig:`` or ``mc:``, corresponding
-  entries are added to the ``BBMULTICONFIG`` in ``local.conf``.
+  :kasschemadesc:`target`
 
 ``env``: dict [optional]
-  Contains environment variable names with either default values or ``null``.
-  These variables are made available to bitbake via
-  ``BB_ENV_PASSTHROUGH_ADDITIONS`` (``BB_ENV_EXTRAWHITE`` in older Bitbake
-  versions) and can be overwritten by the variables of the environment in
-  which kas is started.
+  :kasschemadesc:`env`
   Either a string or nothing (``null``) can be assigned as value.
   The former one serves as a default value whereas the latter one will lead
   to add the variable only to ``BB_ENV_PASSTHROUGH_ADDITIONS`` and not to
@@ -312,54 +293,34 @@ Configuration reference
   be assigned as the nulltype (e.g. ``MYVAR: null``), not as 'null'.
 
 ``task``: string [optional]
-  Contains the task to build by bitbake. Can be overwritten by the
-  ``KAS_TASK`` environment variable and defaults to ``build``.
+  :kasschemadesc:`task`
 
 ``repos``: dict [optional]
-  Contains the definitions of all available repos and layers. The layers
-  are appended to the ``bblayers.conf`` sorted by the repository name first
-  and then by the layer name.
+  :kasschemadesc:`repos`
 
   ``<repo-id>``: dict [optional]
-    Contains the definition of a repository and the layers, that should be
-    part of the build. If the value is ``None``, the repository, where the
-    current configuration file is located is defined as ``<repo-id>`` and
-    added as a layer to the build. It is recommended that the ``<repo-id>``
-    is related to the containing repository/layer to ease cross-project
-    referencing.
+    :kasschemadesc:`repos.additionalProperties.oneOf[0]`
 
     ``name``: string [optional]
-      Defines under which name the repository is stored. If its missing
-      the ``<repo-id>`` will be used.
+      :kasschemadesc:`repos.additionalProperties.oneOf[0].properties.name`
 
     ``url``: string [optional]
-      The url of the repository. If this is missing, no version control
-      operations are performed.
+      :kasschemadesc:`repos.additionalProperties.oneOf[0].properties.url`
 
     ``type``: string [optional]
-      The type of version control repository. The default value is ``git``
-      and ``hg`` is also supported.
+      :kasschemadesc:`repos.additionalProperties.oneOf[0].properties.type`
 
     ``commit``: string [optional]
-      The full-length commit ID (all-lowercase, no branch names, no symbolic
-      refs, no tags) that should be used. If ``url`` was specified but no
-      ``commit``, ``branch`` or ``tag``, the revision you get depends on the
-      defaults of the version control system used.
+      :kasschemadesc:`repos.additionalProperties.oneOf[0].properties.commit`
 
     ``branch``: string or nothing (``null``) [optional]
-      The upstream branch that should be tracked. If ``commit`` was
-      specified, kas checks that the branch contains the commit. If no
-      ``commit`` was specified, the head of the upstream branch is checked out.
-      The nothing (``null``) value is used to remove a possible default value.
+      :kasschemadesc:`repos.additionalProperties.oneOf[0].properties.branch`
 
     ``tag``: string or nothing (``null``)  [optional]
-      The tag that should be checked out. If a ``commit`` was specified, kas
-      checks that the tag points to this commit. This must not be combined
-      with ``branch``. The nothing (``null``) value is used to remove a
-      possible default value.
+      :kasschemadesc:`repos.additionalProperties.oneOf[0].properties.tag`
 
     ``path``: string [optional]
-      The path where the repository is stored.
+      :kasschemadesc:`repos.additionalProperties.oneOf[0].properties.path`
       If the ``url`` and ``path`` is missing, the repository where the
       current configuration file is located is defined.
       If the ``url`` is missing and the path defined, this entry references
@@ -370,11 +331,8 @@ Configuration reference
       In case of a relative path name ``kas_work_dir`` is prepended.
 
     ``layers``: dict [optional]
-      Contains the layers from this repository that should be added to the
-      ``bblayers.conf``. If this is missing or ``None`` or an empty
-      dictionary, the path to the repo itself is added as a layer.
-      Additionally, ``.`` is a valid value if the repo itself should be added
-      as a layer. This allows combinations:
+      :kasschemadesc:`repos.additionalProperties.oneOf[0].properties.layers`
+      This allows combinations:
 
       .. code-block:: yaml
 
@@ -398,8 +356,7 @@ Configuration reference
         of a layer in latter loaded configuration files.
 
     ``patches``: dict [optional]
-      Contains the patches that should be applied to this repo before it is
-      used.
+      :kasschemadesc:`repos.additionalProperties.oneOf[0].properties.patches`
 
       ``<patches-id>``: dict [optional]
         One entry in patches with its specific and unique id. All available
@@ -414,10 +371,7 @@ Configuration reference
           The path to one patch file or a quilt formatted patchset directory.
 
 ``overrides``: dict [optional]
-  This object provides a mechanism to override kas configuration items
-  without defining them. By that, only items that already exist are
-  overridden. Note, that all entries below this key are reserved for
-  auto-generation using kas plugins. Do not manually add entries.
+  :kasschemadesc:`overrides`
 
   ``repos``: dict [optional]
     Mapps to the top-level ``repos`` entry.
@@ -430,8 +384,7 @@ Configuration reference
       repo.
 
 ``bblayers_conf_header``: dict [optional]
-  This contains strings that should be added to the ``bblayers.conf`` before
-  any layers are included.
+  :kasschemadesc:`bblayers_conf_header`
 
   ``<bblayers-conf-id>``: string [optional]
     A string that is added to the ``bblayers.conf``. The entry id
@@ -442,25 +395,26 @@ Configuration reference
     files.
 
 ``local_conf_header``: dict [optional]
-  This contains strings that should be added to the ``local.conf``.
+  :kasschemadesc:`local_conf_header`
 
   ``<local-conf-id>``: string [optional]
     A string that is added to the ``local.conf``. It operates in the same way
     as the ``bblayers_conf_header`` entry.
 
 ``menu_configuration``: dict [optional]
-  This contains user choices for a Kconfig menu of a project. Each variable
+  :kasschemadesc:`menu_configuration`
+  Each variable
   corresponds to a Kconfig configuration variable and can be of the types
   string, boolean or integer. The content of this key is typically
   maintained by the ``kas menu`` plugin in a ``.config.yaml`` file.
 
 ``artifacts``: dict [optional]
-  This entry describes artifacts which are expected to be present after
-  executing the build. Each key-value pair describes an identifier and a
-  path relative to the kas build dir, whereby the path can contain wildcards
-  like '*'. Unix-style globbing is applied to all paths. In case no artifact
-  is found, the build is considered successful, if not stated otherwise by
-  the used plugin and mode of operation.
+  :kasschemadesc:`artifacts`
+  Each key-value pair describes an identifier and a path relative to the kas
+  build dir, whereby the path can contain wildcards like ``*``. Unix-style
+  globbing is applied to all paths. In case no artifact is found, the build is
+  considered successful, if not stated otherwise by the used plugin and mode
+  of operation.
 
   .. note:: There are no further semantics attached to the identifiers (yet).
             Both the author and the consumer of the artifacts node need to
@@ -476,13 +430,11 @@ Configuration reference
         swu: path/to/update.swu
 
 ``_source_dir``: string [optional]
-  This entry is auto-generated by the menu plugin and provides the path to
-  the top repo at time of invoking the plugin. It must not be set
-  manually and might only be defined in the top-level ``.config.yaml`` file.
+  :kasschemadesc:`_source_dir`
 
 ``_source_dir_host``: string [optional]
-  This entry is auto-generated by the menu plugin when invoking kas via
-  the ``kas-container`` script. It provides the absolute path to the top repo
+  :kasschemadesc:`_source_dir_host`
+  It provides the absolute path to the top repo
   outside of the container (on the host). This value is only evaluated by the
   ``kas-container`` script. It must not be set manually and might only be
   defined in the top-level ``.config.yaml`` file.
