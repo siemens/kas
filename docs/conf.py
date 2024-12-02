@@ -23,6 +23,9 @@ import sys
 # Prepend the project directory to the path, in order to include it:
 sys.path.insert(0,
                 os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.insert(0, os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "_ext")))
+
 import kas  # noqa (disables pycodestyle check for this line)
 
 # -- General configuration ------------------------------------------------
@@ -40,6 +43,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinxarg.ext',
     'sphinx_rtd_theme',
+    'sphinx_kas_schema'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
