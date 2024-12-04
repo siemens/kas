@@ -107,4 +107,4 @@ def test_include_from_submodule(monkeykas, tmpdir):
     shutil.rmtree('sub')
     subprocess.check_call(['git', '-c', 'protocol.file.allow=always',
                           'submodule', 'add', '../sub', 'sub'])
-    kas.kas(['-d', 'checkout', 'super_repo.yml:sub/sub_repo.yml'])
+    kas.kas(['-l', 'debug', 'checkout', 'super_repo.yml:sub/sub_repo.yml'])
