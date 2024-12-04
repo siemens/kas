@@ -147,11 +147,6 @@ def kas_get_argparser():
              f'earliest compatible version {__compatible_file_version__})'
     parser.add_argument('--version', action='version', version=verstr)
 
-    parser.add_argument('-d', '--debug',
-                        action='store_const', const='debug', dest='log_level',
-                        help='Enable debug logging (deprecated, use '
-                             '--log-level debug).')
-
     parser.add_argument('-l', '--log-level',
                         choices=['debug', 'info', 'warning', 'error',
                                  'critical'],
