@@ -67,9 +67,7 @@ usage()
 	printf "%b" "--runtime-args\t\tAdditional arguments to pass to the " \
 			"container runtime\n"
 	printf "%b" "\t\t\tfor running the build.\n"
-	printf "%b" "-d\t\t\tPrint debug output (deprecated, use -l debug).\n"
 	printf "%b" "-l, --log-level\t\tSet log level (default=info).\n"
-	printf "%b" "-v\t\t\tSame as -d (deprecated).\n"
 	printf "%b" "--version\t\tprint program version.\n"
 	printf "%b" "--ssh-dir\t\tDirectory containing SSH configurations.\n"
 	printf "%b" "\t\t\tAvoid \$HOME/.ssh unless you fully trust the " \
@@ -273,11 +271,6 @@ while [ $# -gt 0 ]; do
 		;;
 	--repo-rw)
 		KAS_REPO_MOUNT_OPT="rw"
-		shift 1
-		;;
-	-v | -d)
-		KAS_VERBOSE=1
-		KAS_OPTIONS_DIRECT="${KAS_OPTIONS_DIRECT} -d"
 		shift 1
 		;;
 	-l | --log-level)
