@@ -29,7 +29,7 @@ import yaml
 import subprocess
 import pytest
 from kas import kas
-from kas.libkas import TaskExecError, KasUserError
+from kas.libkas import TaskExecError, KasUserError, run_cmd
 from kas.attestation import file_digest_slow
 
 
@@ -418,3 +418,11 @@ def test_ff_merges(monkeykas, tmpdir):
     with open('kas.yml', 'w') as f:
         yaml.dump(kas_input, f)
     kas.kas(['checkout', 'kas.yml'])
+
+
+def test_cmd_not_found(monkeykas, tmpdir):
+    cmd = ['/usr/bin/kas-not-exists']
+    ret, _ = run_cmd(cmd, tmpdir, os.environ, fail=False)
+    assert ret != 0
+    with pytest.raises(FileNotFoundError):
+        run_cmd(cmd, tmpdir, os.environ, fail=True)
