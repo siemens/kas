@@ -185,9 +185,18 @@ def run_cmd(cmd, cwd, env=None, fail=True):
     cmdstr = ' '.join(cmd)
     logging.debug('%s$ %s', cwd, cmdstr)
 
-    ret = subprocess_run(cmd, env=env, cwd=cwd, stdout=PIPE)
-    if ret.returncode and fail:
-        raise CommandExecError(cmd, ret.returncode)
+    try:
+        ret = subprocess_run(cmd, env=env, cwd=cwd, stdout=PIPE)
+        if ret.returncode and fail:
+            raise CommandExecError(cmd, ret.returncode)
+    except FileNotFoundError as ex:
+        if fail:
+            raise ex
+        return (errno.ENOENT, str(ex))
+    except PermissionError as ex:
+        if fail:
+            raise ex
+        return (errno.EPERM, str(ex))
     return (ret.returncode, ret.stdout.decode('utf-8'))
 
 
