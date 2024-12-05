@@ -29,6 +29,7 @@ from pathlib import Path
 from .repos import Repo
 from .includehandler import IncludeHandler, IncludeException
 from .kasusererror import ArtifactNotFoundError
+from .configschema import CONFIGSCHEMA
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2021'
@@ -156,7 +157,8 @@ class Config:
                            if i]
         if environ_targets:
             return environ_targets
-        target = self._config.get('target', 'core-image-minimal')
+        def_target = CONFIGSCHEMA['properties']['target']['default']
+        target = self._config.get('target', def_target)
         if isinstance(target, str):
             return [target]
         return target
@@ -167,8 +169,9 @@ class Config:
         """
         if self._override_task:
             return self._override_task
+        default = CONFIGSCHEMA['properties']['task']['default']
         return os.environ.get('KAS_TASK',
-                              self._config.get('task', 'build'))
+                              self._config.get('task', default))
 
     def _get_conf_header(self, header_name):
         """
@@ -195,15 +198,17 @@ class Config:
         """
             Returns the machine
         """
+        default = CONFIGSCHEMA['properties']['machine']['default']
         return os.environ.get('KAS_MACHINE',
-                              self._config.get('machine', 'qemux86-64'))
+                              self._config.get('machine', default))
 
     def get_distro(self):
         """
             Returns the distro
         """
+        default = CONFIGSCHEMA['properties']['distro']['default']
         return os.environ.get('KAS_DISTRO',
-                              self._config.get('distro', 'poky'))
+                              self._config.get('distro', default))
 
     def get_environment(self):
         """
