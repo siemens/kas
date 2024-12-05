@@ -75,6 +75,7 @@ class KasSchemaDescRole(SphinxRole):
                 line=self.lineno,
             ))
             return [], messages
+        default = node.get('default', None)
 
         memo = Struct(document=self.inliner.document,
                       reporter=self.inliner.reporter,
@@ -83,6 +84,11 @@ class KasSchemaDescRole(SphinxRole):
         processed, msgs = self.inliner.parse(desc, self.lineno, memo, parent)
         parent += processed
         messages += msgs
+        if default:
+            def_pg = nodes.paragraph()
+            def_pg += nodes.strong(text='Default: ')
+            def_pg += nodes.literal(text=default)
+            parent += def_pg
 
         return parent, messages
 
