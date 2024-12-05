@@ -112,7 +112,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=${CACHE_SHARING} \
             binfmt-support bzip2 mmdebstrap arch-test apt-utils dosfstools \
             dpkg-dev gettext-base git mtools parted python3 python3-distutils \
             quilt qemu-user-static reprepro sudo unzip git-buildpackage \
-            pristine-tar sbuild schroot zstd \
+            pristine-tar sbsigntool sbuild schroot zstd \
             umoci skopeo \
             python3-botocore \
             debootstrap && \
