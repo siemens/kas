@@ -1,3 +1,27 @@
+4.6
+- kas: move lock file handling to new lock plugin
+- kas: add support for running inside vscode devcontainer
+- kas: keep repos in their current state when using -k
+- kas: permit kas config snippets in git submodules of main repo
+- kas: do not apply patches to unclean repos
+- kas: GitLab CI: allow ssh config adjustments in more cases
+- kas: add override to remove default tag or branch
+- kas: order layers by repo and layer name in bblayers.conf
+- kas: deprecate non full-length digests for git repos
+- kas: mercurial: create valid branch names on patching
+- kas: attestation: make repo digest sha256-aware
+- kas: make version property in json schema more strict
+- kas: fix repo processing in the presence of identical names
+- kas: fix resource leaks on command execution error
+- kas: fix/improve event loop and termination handling
+- kas: Drop -d option
+- kas-container: Drop already deprecated -d and -v options
+- kas-container: gracefully handle rate-limits of snapshot.d.o
+- docs: document kas-container command
+- docs: enhance json schema with descriptions
+- docs: kas-container: document how to select image
+- docs: add note about snack test dependency
+
 4.5
 - kas: avoid bitbake parsing due to non-deterministic layer patches
 - kas: correctly handle upstream ff merges on fetch
