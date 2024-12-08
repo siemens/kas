@@ -25,6 +25,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+# This needs to be aligned with .github/actions/docker-init/action.yml
+BUILDKIT="moby/buildkit:v0.16.0"
+
 usage()
 {
 	DEFAULT_DEBIAN_TAG=$(grep -m 1 'ARG DEBIAN_TAG=' "$(dirname "$0")/../Dockerfile" |
@@ -128,6 +131,11 @@ if [ "$CLEAN" = y ]; then
 	for TARGET in $TARGETS; do
 		docker rmi "ghcr.io/siemens/kas/$TARGET:$TAG" 2>/dev/null
 	done
+fi
+
+if ! docker buildx inspect | grep -q "Driver Options:.*$BUILDKIT"; then
+	BUILDX_INSTANCE=$(docker buildx create --driver-opt image="$BUILDKIT")
+	docker buildx use "$BUILDX_INSTANCE"
 fi
 
 KAS_CLONE=$(mktemp -d --tmpdir kas-tmp.XXXXXXXXXX)
