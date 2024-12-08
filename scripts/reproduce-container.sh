@@ -42,9 +42,10 @@ if [ -n "$ARCH" ]; then
 fi
 
 # shellcheck disable=SC2086
-DEBIAN_TAG=$(docker run --entrypoint "" --rm -t $PLATFORM_OPT \
-	     "ghcr.io/siemens/kas/$TARGET:$TAG" \
-	     sh -c 'printf "%b" $DEBIAN_BASE_IMAGE_TAG')
+docker pull $PLATFORM_OPT "ghcr.io/siemens/kas/$TARGET:$TAG"
+DEBIAN_TAG=$(docker image inspect --format '{{json .Config.Env}}' \
+	     "ghcr.io/siemens/kas/$TARGET:$TAG" |
+	     sed 's/.*DEBIAN_BASE_IMAGE_TAG=\([^"]\+\).*/\1/')
 if [ -z "$DEBIAN_TAG" ]; then
 	echo "Cannot determine base image of ghcr.io/siemens/kas/$TARGET:$TAG"
 	exit 1
