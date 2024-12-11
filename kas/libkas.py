@@ -186,7 +186,7 @@ def run_cmd(cmd, cwd, env=None, fail=True):
     logging.debug('%s$ %s', cwd, cmdstr)
 
     try:
-        ret = subprocess_run(cmd, env=env, cwd=cwd, stdout=PIPE)
+        ret = subprocess_run(cmd, env=env, cwd=cwd, stdout=PIPE, stderr=PIPE)
         if ret.returncode and fail:
             raise CommandExecError(cmd, ret.returncode)
     except FileNotFoundError as ex:
