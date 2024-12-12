@@ -24,6 +24,19 @@ After making the changes, you need to update the minimum and maximum values
 of ``header.version``. If the version was already updated after the last
 release, the version bump is not required.
 
+Add a new sub-command (plugin)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To add a new sub-command, you need to create a new python file in the
+``kas/plugins`` directory. It then needs to be imported and registered
+in ``kas/plugins/__init__.py``. Further, it needs to be registered in
+``kas-container``, as well as in the ``container-entrypoint``.
+
+Each sub-command must be documented and have its own man page. The
+documentation is generated from the docstrings of the sub-command file and
+must be registered in ``docs/userguide/plugins.rst``. In addition, a manpage
+should be added in ``docs/_man/kas-plugin-<name>`` and registered in
+``docs/conf.py`` (as ``kas-<name>.1``).
 
 Container image build
 ---------------------
