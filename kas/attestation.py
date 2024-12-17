@@ -40,7 +40,7 @@ from kas import __version__ as KASVERSION
 SLSA_PROVENANCE_TYPE = 'https://slsa.dev/provenance/v1'
 KAS_BUILDER_ID = 'https://github.com/siemens/kas'
 KAS_BUILD_TYPE = 'https://kas.readthedocs.io/en' \
-                 f'/{KASVERSION}/userguide.html#project-configuration'
+                 f'/{KASVERSION}/userguide/project-configuration.html'
 INTOTO_STATEMENT_TYPE = 'https://in-toto.io/Statement/v1'
 
 
