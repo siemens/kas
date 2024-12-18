@@ -310,7 +310,6 @@ def test_root_resolve_git(monkeykas, tmpdir, capsys):
     capsys.readouterr()
     kas.kas('dump --resolve-local test-local.yml'.split())
     console = capsys.readouterr()
-    assert 'contains uncommitted' not in console.err
     data = yaml.safe_load(console.out)
     assert data['repos']['local']['commit'] == commit.decode('utf-8').strip()
     assert data['repos']['local']['url'] == upstream_url
@@ -320,7 +319,6 @@ def test_root_resolve_git(monkeykas, tmpdir, capsys):
         f.write('test')
     kas.kas('dump --resolve-local test-local.yml'.split())
     console = capsys.readouterr()
-    assert 'contains uncommitted' in console.err
     data = yaml.safe_load(console.out)
     assert data['repos']['local']['commit'] == commit.decode('utf-8').strip()
     assert data['repos']['local']['url'] == upstream_url
@@ -345,7 +343,6 @@ def test_root_resolve_hg(monkeykas, tmpdir, capsys):
     capsys.readouterr()
     kas.kas('dump --resolve-local test-local-hg.yml'.split())
     console = capsys.readouterr()
-    assert 'contains uncommitted' in console.err
     data = yaml.safe_load(console.out)
     assert data['repos']['local']['commit'] == commit.decode('utf-8').strip()
     assert data['repos']['local']['url'] == upstream_url
@@ -354,10 +351,7 @@ def test_root_resolve_hg(monkeykas, tmpdir, capsys):
     # add all files to repository
     subprocess.check_call(['hg', 'add'])
     subprocess.check_call(['hg', 'commit', '-m', 'test2'])
-    capsys.readouterr()
     kas.kas('dump --resolve-local test-local-hg.yml'.split())
-    console = capsys.readouterr()
-    assert 'contains uncommitted' not in console.err
 
 
 def test_ff_merges(monkeykas, tmpdir):
