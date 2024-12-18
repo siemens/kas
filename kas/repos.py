@@ -164,6 +164,11 @@ class Repo:
         """
         raise NotImplementedError("Repo type not implemented")
 
+    def contains_path(self, path):
+        (ret, _) = run_cmd(self.contains_path_cmd(str(path)),
+                           cwd=self.path, fail=False)
+        return ret == 0
+
     def __str__(self):
         if self.commit and (self.tag or self.branch):
             refspec = f'{self.commit}({self.tag or self.branch})'
@@ -674,6 +679,9 @@ class GitRepo(RepoImpl):
         if date and date.startswith("Date: "):
             return date.replace("Date: ", "").strip()
 
+    def contains_path_cmd(self, path):
+        return ['git', 'ls-files', '--error-unmatch', path]
+
 
 class MercurialRepo(RepoImpl):
     """
@@ -754,3 +762,6 @@ class MercurialRepo(RepoImpl):
 
         if date and date.startswith("# "):
             return date.replace("# ", "").strip()
+
+    def contains_path_cmd(self, path):
+        return ['hg', 'files', path]
