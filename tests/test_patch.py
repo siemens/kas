@@ -127,7 +127,7 @@ def test_patch_dirty_repo(monkeykas, tmpdir, mercurial):
         ['sed', '-i', f's/82e55d328c8c/{commit}/', 'test.yml'])
 
     kas.kas(['checkout', '--skip', 'repos_apply_patches', 'test.yml'])
-    with open('kas-branch/make-dirty', 'a') as f:
+    with open('kas-branch/README.rst', 'a') as f:
         f.write('echo "dirty"')
     kas.kas(['checkout', 'test.yml'])
     # the dirty repo must not be patched
