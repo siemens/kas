@@ -119,6 +119,7 @@ class Provenance:
 
     def as_dict(self):
         res_deps = []
+        tracked_repos = []
         for r in self._ctx.config.get_repos():
             if r.operations_disabled:
                 if not r.url or not r.revision:
@@ -137,11 +138,16 @@ class Provenance:
                 'annotations': annotations
             }
             res_deps.append(dep)
+            tracked_repos.append(r)
 
         # (abspath, relpath)
         config_files = [(Path(c), self._make_relative_path(Path(c)))
                         for c in self._ctx.config.filenames]
         for ca, cr in config_files:
+            if any([r.contains_path(cr) for r in tracked_repos]):
+                logging.debug(f'Config file {cr} is tracked')
+                continue
+
             with open(ca, 'rb') as f:
                 content = f.read()
             rd = {
