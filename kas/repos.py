@@ -157,6 +157,13 @@ class Repo:
                               cwd=self.path, fail=False)
         return bool(output)
 
+    @staticmethod
+    def get_type():
+        """
+            Repo type as defined in spdx-spec/v2.3/package-information
+        """
+        raise NotImplementedError("Repo type not implemented")
+
     def __str__(self):
         if self.commit and (self.tag or self.branch):
             refspec = f'{self.commit}({self.tag or self.branch})'
@@ -675,7 +682,7 @@ class MercurialRepo(RepoImpl):
 
     @staticmethod
     def get_type():
-        return 'mercurial'
+        return 'hg'
 
     def add_cmd(self):
         return ['hg', 'add']
