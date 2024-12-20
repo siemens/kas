@@ -95,7 +95,8 @@ class Lock(Checkout):
         output = IoTarget(target=lockfile, managed=True)
         format = "json" if lockfile.suffix == '.json' else "yaml"
 
-        Dump.dump_config(config_expanded, output, format, args.indent)
+        Dump.dump_config(config_expanded, output, format,
+                         args.indent, args.sort)
         logging.info('Lockfile created: %s',
                      os.path.relpath(lockfile, os.getcwd()))
 

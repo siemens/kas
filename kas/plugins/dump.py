@@ -49,6 +49,9 @@
     - the dumped config is semantically identical but not bit-by-bit identical
     - all referenced repositories are checked out to resolve cross-repo configs
     - all branches are resolved before patches are applied
+    - the ordering of the keys is kept unless ``--sort`` is used. If you intend
+      to store the flattened configs for comparison, it is recommended to sort
+      the keys.
 
     For example, to get a single config representing the final build config of
     ``kas-project.yml:target-override.yml`` you could run::
@@ -152,6 +155,10 @@ class Dump(Checkout):
                             type=int,
                             default=4,
                             help='Line indent (# of spaces, default: 4)')
+        parser.add_argument('--sort',
+                            action='store_true',
+                            default=False,
+                            help='Alphanumerically sort keys in output')
 
     @classmethod
     def setup_parser(cls, parser):
@@ -179,18 +186,20 @@ class Dump(Checkout):
                             help=argparse.SUPPRESS)
 
     @staticmethod
-    def dump_config(config: dict, target: IoTarget, format: str, indent: int):
+    def dump_config(config: dict, target: IoTarget, format: str, indent: int,
+                    sorted: bool):
         """
         Dump the configuration to the target in the specified format.
         """
         with IoTargetMonitor(target) as f:
             if format == 'json':
-                json.dump(config, f, indent=indent)
+                json.dump(config, f, indent=indent, sort_keys=sorted)
                 f.write('\n')
             elif format == 'yaml':
                 yaml.dump(
                     config, f,
                     indent=indent,
+                    sort_keys=sorted,
                     Dumper=Dump.KasYamlDumper)
             else:
                 raise OutputFormatError(format)
@@ -264,7 +273,8 @@ class Dump(Checkout):
         if args.resolve_env and 'env' in config_expanded:
             config_expanded['env'] = ctx.config.get_environment()
 
-        self.dump_config(config_expanded, output, args.format, args.indent)
+        self.dump_config(config_expanded, output, args.format, args.indent,
+                         args.sort)
 
 
 __KAS_PLUGINS__ = [Dump]
