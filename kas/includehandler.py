@@ -306,4 +306,8 @@ class IncludeHandler:
 
         config = functools.reduce(_internal_dict_merge,
                                   map(lambda x: x[1], configs))
+        # the merged config must have the highest (used) version number
+        header_version = max([int(cfg['header']['version'])
+                              for _, cfg in configs])
+        config['header']['version'] = header_version
         return config, missing_repos
