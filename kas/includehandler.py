@@ -259,7 +259,9 @@ class IncludeHandler:
 
         def _internal_dict_merge(dest, upd):
             """
-            Merges upd recursively into a copy of dest as OrderedDict
+            Merges upd recursively into a copy of dest. The order is preserved
+            as in the original dict as dict-insertion orders are preserved from
+            Python 3.6 onwards.
 
             If keys in upd intersect with keys in dest we will do a manual
             merge (helpful for non-dict types like FunctionWrapper).
@@ -267,7 +269,7 @@ class IncludeHandler:
             if (not isinstance(dest, Mapping)) \
                     or (not isinstance(upd, Mapping)):
                 raise IncludeException('Cannot merge using non-dict')
-            dest = OrderedDict(dest)
+            dest = dest.copy()
             updkeys = list(upd.keys())
             if set(list(dest.keys())) & set(updkeys):
                 for key in updkeys:

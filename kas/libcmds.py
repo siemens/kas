@@ -27,6 +27,7 @@ import tempfile
 import logging
 import shutil
 import os
+import sys
 import pprint
 import configparser
 import json
@@ -549,8 +550,12 @@ class FinishSetupRepos(Command):
         # now fetch everything with complete config
         repos_fetch(ctx.config.get_repos())
 
-        logging.debug('Configuration from config file:\n%s',
-                      pprint.pformat(ctx.config.get_config()))
+        if sys.version_info < (3, 8):
+            config_str = pprint.pformat(ctx.config.get_config())
+        else:
+            config_str = pprint.pformat(ctx.config.get_config(),
+                                        sort_dicts=False)
+        logging.debug('Configuration from config file:\n%s', config_str)
 
 
 class ReposCheckout(Command):

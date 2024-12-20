@@ -132,9 +132,7 @@ be overwritten by the current file. While merging all the dictionaries are
 merged recursively while preserving the order in which the entries are added to
 the dictionary. This means that ``local_conf_header`` entries are added to the
 ``local.conf`` file in the same order in which they are defined in the
-different include files. Note that the order of the configuration file entries
-is not preserved within one include file, because the parser creates normal
-unordered dictionaries.
+different include files.
 
 Including configuration files via the command line
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
