@@ -153,6 +153,15 @@ run_clean() {
 	fi
 }
 
+KAS_GIT_OVERLAY_FILE=""
+kas_container_cleanup()
+{
+	if [ -f "${KAS_GIT_OVERLAY_FILE}" ]; then
+		trace rm -f "${KAS_GIT_OVERLAY_FILE}"
+	fi
+}
+trap kas_container_cleanup EXIT INT TERM
+
 set_container_image_var() {
 	KAS_IMAGE_VERSION="${KAS_IMAGE_VERSION:-${KAS_IMAGE_VERSION_DEFAULT}}"
 	KAS_CONTAINER_IMAGE_NAME="${KAS_CONTAINER_IMAGE_NAME:-${KAS_CONTAINER_IMAGE_NAME_DEFAULT}}"
@@ -460,6 +469,22 @@ set -- "$@" -v "${KAS_REPO_DIR}:/repo:${KAS_REPO_MOUNT_OPT}" \
 	--workdir=/repo \
 	-e KAS_BUILD_DIR=/build \
 	-e USER_ID="$(id -u)" -e GROUP_ID="$(id -g)" --rm --init
+
+if git_com_dir=$(git -C "${KAS_REPO_DIR}" rev-parse --git-common-dir 2>/dev/null) \
+	&& [ "$git_com_dir" != "$(git -C "${KAS_REPO_DIR}" rev-parse --git-dir)" ]; then
+	# If (it's a git repo) and the common dir isn't the git-dir, it is shared worktree and
+	# we have to mount the common dir in the container to make git work
+	# The mount path inside the container is different from the host path. Hence, we over-mount
+	# the .git file to point to the correct path.
+	KAS_GIT_OVERLAY_FILE=$(mktemp)
+	sed "s|gitdir: ${git_com_dir}/|gitdir: /repo-common/|" "${KAS_REPO_DIR}/.git" > "${KAS_GIT_OVERLAY_FILE}"
+	set -- "$@" -v "${git_com_dir}:/repo-common:${KAS_REPO_MOUNT_OPT}" \
+		-v "${KAS_GIT_OVERLAY_FILE}:/repo/.git:ro"
+	# if the workdir is the same as the repo dir, it is the same shared worktree
+	if [ "${KAS_WORK_DIR}" = "${KAS_REPO_DIR}" ]; then
+		set -- "$@" -v "${KAS_GIT_OVERLAY_FILE}:/work/.git:ro"
+	fi
+fi
 
 if [ -n "${KAS_SSH_DIR}" ] ; then
 	if [ ! -d "${KAS_SSH_DIR}" ]; then

@@ -3,6 +3,11 @@ It gives fine grained control over the data that is mapped into the build and
 decouples the build environment from the host system. The wrapper also takes care of
 mounting the necessary directories and setting up the environment variables.
 
+.. note::
+    The ``kas-container`` script has limited support for Git worktrees. Regular
+    Git operations on the checked-out repository are supported. However, executing
+    any ``git worktree ...`` command inside the container is not allowed.
+
 By default ``kas-container`` uses the official images provided by the kas project:
 ``ghcr.io/siemens/kas/kas[-isar]:<version>``. To specify your own image set the
 ``KAS_CONTAINER_IMAGE`` environment variable. As container backends, Docker and
