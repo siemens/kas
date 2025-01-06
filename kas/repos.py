@@ -418,12 +418,13 @@ class RepoImpl(Repo):
                 raise RepoRefError(f'Tag "{self.tag}" cannot be found '
                                    f'in repository "{self.name}"')
 
-            if self.commit and output.strip() != self.commit:
+            desired_ref = output.strip()
+            if self.commit and desired_ref != self.commit:
                 # Ensure provided commit and tag match
-                raise RepoRefError(f'Provided tag "{self.tag}" does not match '
+                raise RepoRefError(f'Provided tag "{self.tag}" '
+                                   f'("{desired_ref}") does not match '
                                    f'provided commit "{self.commit}" in '
                                    f'repository "{self.name}", aborting!')
-            desired_ref = output.strip()
             is_branch = False
         elif self.branch:
             (retc, output) = run_cmd(self.resolve_branch_cmd(),
