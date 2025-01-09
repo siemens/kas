@@ -633,7 +633,7 @@ class GitRepo(RepoImpl):
         return cmd
 
     def is_dirty_cmd(self):
-        return ['git', 'diff-index', 'HEAD', '--']
+        return ['git', 'diff', '--stat']
 
     def resolve_branch_cmd(self):
         refspec = self.remove_ref_prefix(self.branch or self.refspec)
