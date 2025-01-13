@@ -90,12 +90,14 @@ usage()
 	exit "${EXIT_CODE:-1}"
 }
 
-fatal_error(){
+fatal_error()
+{
 	echo "${KAS_CONTAINER_SELF_NAME}: Error: $*" >&2
 	exit 1
 }
 
-warning(){
+warning()
+{
 	echo "${KAS_CONTAINER_SELF_NAME}: Warning: $*" >&2
 }
 
@@ -111,7 +113,8 @@ trace()
 	"$@"
 }
 
-enable_isar_mode() {
+enable_isar_mode()
+{
 	if [ -n "${ISAR_MODE}" ]; then
 		return
 	fi
@@ -128,7 +131,8 @@ enable_isar_mode() {
 	fi
 }
 
-enable_oe_mode() {
+enable_oe_mode()
+{
 	if [ "${KAS_CONTAINER_ENGINE}" = "podman" ]; then
 		# The container entry point expects that the current userid
 		# calling "podman run" has a 1:1 mapping
@@ -136,7 +140,8 @@ enable_oe_mode() {
 	fi
 }
 
-enable_unpriv_userns_docker() {
+enable_unpriv_userns_docker()
+{
 	if [ -f /etc/os-release ] && grep -q 'NAME="Ubuntu"' /etc/os-release &&
 	   [ -f /proc/sys/kernel/apparmor_restrict_unprivileged_userns ] &&
 	   [ "$(cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns)" = "1" ]; then
@@ -150,7 +155,8 @@ enable_unpriv_userns_docker() {
 	fi
 }
 
-run_clean() {
+run_clean()
+{
 	if [ -n "${KAS_ISAR_ARGS}" ]; then
 		# SC2086: Double quote to prevent globbing and word splitting.
 		# shellcheck disable=2086
@@ -182,7 +188,8 @@ kas_container_cleanup()
 }
 trap kas_container_cleanup EXIT INT TERM
 
-set_container_image_var() {
+set_container_image_var()
+{
 	KAS_IMAGE_VERSION="${KAS_IMAGE_VERSION:-${KAS_IMAGE_VERSION_DEFAULT}}"
 	KAS_CONTAINER_IMAGE_NAME="${KAS_CONTAINER_IMAGE_NAME:-${KAS_CONTAINER_IMAGE_NAME_DEFAULT}}"
 	KAS_CONTAINER_IMAGE_PATH="${KAS_CONTAINER_IMAGE_PATH:-${KAS_CONTAINER_IMAGE_PATH_DEFAULT}}"
