@@ -99,6 +99,12 @@ warning(){
 	echo "${KAS_CONTAINER_SELF_NAME}: Warning: $*" >&2
 }
 
+debug(){
+	if [ -n "${KAS_VERBOSE}" ]; then
+		echo "${KAS_CONTAINER_SELF_NAME}: Debug: $*" >&2
+	fi
+}
+
 trace()
 {
 	[ -n "${KAS_VERBOSE}" ] && echo "+ $*" >&2
@@ -127,6 +133,20 @@ enable_oe_mode() {
 		# The container entry point expects that the current userid
 		# calling "podman run" has a 1:1 mapping
 		KAS_RUNTIME_ARGS="${KAS_RUNTIME_ARGS} --userns=keep-id"
+	fi
+}
+
+enable_unpriv_userns_docker() {
+	if [ -f /etc/os-release ] && grep -q 'NAME="Ubuntu"' /etc/os-release &&
+	   [ -f /proc/sys/kernel/apparmor_restrict_unprivileged_userns ] &&
+	   [ "$(cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns)" = "1" ]; then
+		if [ -f /etc/apparmor.d/rootlesskit ]; then
+			debug "AppArmor restricts unprivileged userns, using \"rootlesskit\" profile"
+			KAS_RUNTIME_ARGS="${KAS_RUNTIME_ARGS} --security-opt apparmor=rootlesskit"
+		else
+			warning "AppArmor restricts unprivileged userns but no suitable apparmor " \
+			        "profile found. Consider setting apparmor_restrict_unprivileged_userns=0"
+		fi
 	fi
 }
 
@@ -205,6 +225,7 @@ KAS_RUNTIME_ARGS="--log-driver=none --user=root"
 case "${KAS_CONTAINER_ENGINE}" in
 docker)
 	KAS_CONTAINER_COMMAND="docker"
+	enable_unpriv_userns_docker
 	;;
 podman)
 	KAS_CONTAINER_COMMAND="podman"
