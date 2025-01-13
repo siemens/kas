@@ -12,67 +12,59 @@ env:
   NEWT_SHA256: 5ded7e221f85f642521c49b1826c8de19845aa372baf5d630a51774b544fbdbb
 
 jobs:
-  perform_tests:
-    name: Run tests on kas code
+  codestyle:
+    name: Code style
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Check out repo
+      uses: actions/checkout@v4
+    - name: Install Checkcode dependencies
+      run: |
+        pip install flake8 pycodestyle doc8 Pygments
+    - name: Install recent shellcheck
+      run: |
+        wget -q https://github.com/koalaman/shellcheck/releases/download/$SHELLCHECK_VERSION/shellcheck-$SHELLCHECK_VERSION.linux.x86_64.tar.xz
+        echo "$SHELLCHECK_SHA256 shellcheck-$SHELLCHECK_VERSION.linux.x86_64.tar.xz" | sha256sum -c
+        tar -xJf shellcheck-$SHELLCHECK_VERSION.linux.x86_64.tar.xz
+        sudo cp shellcheck-$SHELLCHECK_VERSION/shellcheck /usr/local/bin/
+    - name: Check code
+      run: scripts/checkcode.sh .
+
+  perform_tests_legacy:
+    name: Legacy Python
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        python-version: ["3.6", "3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.6", "3.7"]
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Run tests
+        uses: ./.github/actions/perform-tests
         with:
           python-version: ${{ matrix.python-version }}
-          architecture: x64
-      - name: Install Python dependencies of kas and tests
-        run: |
-          # install kas to have all kas dependencies:
-          pip install .
-          # checkcode dependencies:
-          pip install flake8 pycodestyle doc8 Pygments
-          # test dependencies:
-          pip install -U pytest
-      - name: Install recent shellcheck
-        run: |
-          wget -q https://github.com/koalaman/shellcheck/releases/download/$SHELLCHECK_VERSION/shellcheck-$SHELLCHECK_VERSION.linux.x86_64.tar.xz
-          echo "$SHELLCHECK_SHA256 shellcheck-$SHELLCHECK_VERSION.linux.x86_64.tar.xz" | sha256sum -c
-          tar -xJf shellcheck-$SHELLCHECK_VERSION.linux.x86_64.tar.xz
-          sudo cp shellcheck-$SHELLCHECK_VERSION/shellcheck /usr/local/bin/
-      - name: Install python-newt
-        run: |
-          sudo apt-get update
-          sudo apt-get install libpopt-dev libslang2-dev
-          wget -q https://releases.pagure.org/newt/newt-$NEWT_VERSION.tar.gz
-          echo "$NEWT_SHA256 newt-$NEWT_VERSION.tar.gz" | sha256sum -c
-          tar -C /tmp -xzf newt-$NEWT_VERSION.tar.gz
-          cd /tmp/newt-$NEWT_VERSION
-          autoconf
-          ./configure --with-python=python${{ matrix.python-version }}
-          make -j $(nproc)
-          sudo make install
-          ln -s /usr/local/lib/python${{ matrix.python-version }}/site-packages/_snack.so \
-                $(python3 -c 'import site; print(site.getsitepackages()[0])')/
-          ln -s /usr/local/lib/python${{ matrix.python-version }}/site-packages/snack.py \
-                $(python3 -c 'import site; print(site.getsitepackages()[0])')/
-      - name: Check code
-        run: scripts/checkcode.sh .
-      - name: Run offline tests
-        env:
-          TERM: xterm
-          http_proxy: http://0.0.0.0:8118
-          https_proxy: http://0.0.0.0:8118
-        run: pytest -m "not online"
-      - name: Run online tests
-        env:
-          TERM: xterm
-        run: pytest -m "online"
+
+  perform_tests_modern:
+    name: Modern Python
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+      - name: PyTest
+        uses: ./.github/actions/perform-tests
+        with:
+          python-version: ${{ matrix.python-version }}
 
   build_containers:
     name: Build, test and deploy container images
-    needs: perform_tests
-    runs-on: ubuntu-latest
+    needs:
+      - codestyle
+      - perform_tests_legacy
+      - perform_tests_modern
+    runs-on: ubuntu-24.04
     permissions:
       id-token: write
       packages: write
@@ -131,7 +123,7 @@ jobs:
 
   cleanup_ghcr_containers:
     name: cleanup untagged ${{ matrix.image-name }} containers
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: build_containers
     permissions:
       packages: write

@@ -1,0 +1,49 @@
+name: perform-tests
+inputs:
+  python-version:
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+        architecture: x64
+    - name: Install Python dependencies of kas and tests
+      shell: bash
+      run: |
+        # install kas to have all kas dependencies:
+        pip install .
+        # test dependencies:
+        pip install -U pytest
+    - name: Install python-newt
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install libpopt-dev libslang2-dev
+        wget -q https://releases.pagure.org/newt/newt-$NEWT_VERSION.tar.gz
+        echo "$NEWT_SHA256 newt-$NEWT_VERSION.tar.gz" | sha256sum -c
+        tar -C /tmp -xzf newt-$NEWT_VERSION.tar.gz
+        cd /tmp/newt-$NEWT_VERSION
+        autoconf
+        ./configure --with-python=python${{ matrix.python-version }}
+        make -j $(nproc)
+        sudo make install
+        ln -s /usr/local/lib/python${{ matrix.python-version }}/site-packages/_snack.so \
+              $(python3 -c 'import site; print(site.getsitepackages()[0])')/
+        ln -s /usr/local/lib/python${{ matrix.python-version }}/site-packages/snack.py \
+              $(python3 -c 'import site; print(site.getsitepackages()[0])')/
+    - name: Run offline tests
+      shell: bash
+      env:
+        TERM: xterm
+        http_proxy: http://0.0.0.0:8118
+        https_proxy: http://0.0.0.0:8118
+      run: pytest -m "not online"
+    - name: Run online tests
+      shell: bash
+      env:
+        TERM: xterm
+      run: pytest -m "online"
