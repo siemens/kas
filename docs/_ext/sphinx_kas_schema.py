@@ -76,6 +76,7 @@ class KasSchemaDescRole(SphinxRole):
             ))
             return [], messages
         default = node.get('default', None)
+        allowed_values = node.get('enum', None)
 
         memo = Struct(document=self.inliner.document,
                       reporter=self.inliner.reporter,
@@ -89,6 +90,14 @@ class KasSchemaDescRole(SphinxRole):
             def_pg += nodes.strong(text='Default: ')
             def_pg += nodes.literal(text=default)
             parent += def_pg
+        if allowed_values:
+            av_pg = nodes.paragraph()
+            av_pg += nodes.strong(text='Supported values: ')
+            for i in range(len(allowed_values)):
+                if i != 0:
+                    av_pg += nodes.Text(', ')
+                av_pg += nodes.literal(text=allowed_values[i])
+            parent += av_pg
 
         return parent, messages
 
