@@ -534,7 +534,8 @@ class RepoImpl(Repo):
                     "%a, %d %b %Y %H:%M:%S %z")
 
             env = get_context().environ.copy()
-            cmd = self.commit_cmd(env, 'kas <kas@example.com>', 'msg',
+            msg = f'kas: {patch_id}\n\npatch {path} applied by kas'
+            cmd = self.commit_cmd(env, 'kas <kas@example.com>', msg,
                                   timestamp)
             (retc, output) = await run_cmd_async(
                 cmd, cwd=self.path, env=env, fail=False)
