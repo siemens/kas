@@ -539,7 +539,7 @@ if [ -n "${KAS_AWS_DIR}" ] ; then
 fi
 if [ -n "${AWS_WEB_IDENTITY_TOKEN_FILE}" ] ; then
 	if [ ! -f "${AWS_WEB_IDENTITY_TOKEN_FILE}" ]; then
-		echo "Passed AWS_WEB_IDENTITY_TOKEN_FILE '${AWS_WEB_IDENTITY_TOKEN_FILE}' is not a directory"
+		echo "Passed AWS_WEB_IDENTITY_TOKEN_FILE '${AWS_WEB_IDENTITY_TOKEN_FILE}' is not a file"
 		exit 1
 	fi
 	set -- "$@" -v "$(readlink -fv "${AWS_WEB_IDENTITY_TOKEN_FILE}")":/var/kas/userdata/.aws/web_identity_token:ro \
