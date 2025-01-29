@@ -1,6 +1,6 @@
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2017-2018
+# Copyright (c) Siemens AG, 2017-2025
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -51,6 +51,8 @@ from kas.kasusererror import CommandExecError
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
+
+SHELL_HISTORY_FILE = '.kas_shell_history'
 
 
 class Shell:
@@ -111,6 +113,8 @@ class ShellCommand(Command):
         if self.cmd:
             cmd.append('-c')
             cmd.append(self.cmd)
+        ctx.environ['HISTFILE'] = os.path.join(ctx.kas_work_dir,
+                                               SHELL_HISTORY_FILE)
         ret = subprocess.call(cmd, env=ctx.environ, cwd=ctx.build_dir)
         if ret != 0:
             logging.error('Shell returned non-zero exit status')
