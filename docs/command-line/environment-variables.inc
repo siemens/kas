@@ -2,6 +2,11 @@ kas uses a number of environment variables to configure its behavior.
 The `Variables Glossary`_ provides an overview, wherein the tuple (C,K,E)
 denotes the scope of the variable.
 
+All directories that are passed to kas by setting the corresponding
+environment variables (e.g. ``KAS_WORK_DIR``, ``KAS_BUILD_DIR``, ...) must
+not overlap with each other, except for overlapping with ``KAS_WORK_DIR``
+(i.e. the build|sstate|downloads|repo-ref dirs can be below the work dir).
+
 Variable Scope
 ~~~~~~~~~~~~~~
 
@@ -36,10 +41,12 @@ Variables Glossary
 | Environment variables    | Description                                      |
 +==========================+==================================================+
 | ``KAS_WORK_DIR``         | The path of the kas work directory, current work |
-| (C, K)                   | directory is the default.                        |
+| (C, K)                   | directory is the default. This directory must    |
+|                          | exist if set.                                    |
 +--------------------------+--------------------------------------------------+
 | ``KAS_BUILD_DIR``        | The path of the build directory,                 |
 | (C, K)                   | ``${KAS_WORK_DIR}/build`` is the default.        |
+|                          | The parent directory must exist if set.          |
 +--------------------------+--------------------------------------------------+
 | ``KAS_REPO_REF_DIR``     | The path to the repository reference directory.  |
 | (C, K)                   | Repositories in this directory are used as       |
@@ -54,7 +61,7 @@ Variables Glossary
 |                          | below this directory. Multiple instances of kas  |
 |                          | can simultaneously work on the same directory,   |
 |                          | as long as the underlying filesystem is POSIX    |
-|                          | compatible.                                      |
+|                          | compatible. This directory must exist if set.    |
 +--------------------------+--------------------------------------------------+
 | ``KAS_DISTRO``           | This overwrites the respective setting in the    |
 | ``KAS_MACHINE``          | configuration file.                              |
@@ -97,9 +104,9 @@ Variables Glossary
 |                          | ``SSH_PRIVATE_KEY_FILE``).                       |
 +--------------------------+--------------------------------------------------+
 | ``DL_DIR``               | Environment variables that are transferred to    |
-| ``SSTATE_DIR``           | the bitbake environment.                         |
-| ``SSTATE_MIRRORS``       |                                                  |
-| (C,K,E)                  |                                                  |
+| ``SSTATE_DIR``           | the bitbake environment. The ``DL_DIR`` and      |
+| ``SSTATE_MIRRORS``       | ``SSTATE_DIR`` directories are created along     |
+| (C,K,E)                  | with their parents, if set.                      |
 +--------------------------+--------------------------------------------------+
 | ``TMPDIR`` (K,E)         | Directory for temporary files.                   |
 +--------------------------+--------------------------------------------------+
