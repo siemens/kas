@@ -37,7 +37,7 @@ import yaml
 from jsonschema.validators import validator_for
 
 from .kasusererror import KasUserError
-from . import __file_version__, __compatible_file_version__
+from . import __file_version__, __compatible_file_version__, __version__
 from . import CONFIGSCHEMA
 
 __license__ = 'MIT'
@@ -45,6 +45,8 @@ __copyright__ = 'Copyright (c) Siemens AG, 2017-2021'
 
 SOURCE_DIR_OVERRIDE_KEY = '_source_dir'
 SOURCE_DIR_HOST_OVERRIDE_KEY = '_source_dir_host'
+PROJECT_CONFIG_URL = f'https://kas.readthedocs.io/en/{__version__}/' \
+    'userguide/project-configuration.html'
 
 
 class LoadConfigException(KasUserError):
@@ -78,6 +80,8 @@ def load_config(filename):
     for error in sorted(validator.iter_errors(config), key=str):
         validation_error = True
         logging.error('Config file validation Error:\n%s', error.message)
+        logging.error('For a list of supported configuration elements, see %s',
+                      PROJECT_CONFIG_URL)
 
     if validation_error:
         logging.debug('Validation against this schema failed:\n%s',
