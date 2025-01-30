@@ -198,8 +198,10 @@ set_container_image_var()
 }
 
 KAS_WORK_DIR=$(readlink -fv "${KAS_WORK_DIR:-$(pwd)}")
-# KAS_WORK_DIR needs to exist for the subsequent code
-trace mkdir -p "${KAS_WORK_DIR}"
+if ! [ -d "${KAS_WORK_DIR}" ]; then
+	fatal_error "KAS_WORK_DIR '${KAS_WORK_DIR}' is not a directory"
+fi
+
 KAS_BUILD_DIR=$(readlink -fv "${KAS_BUILD_DIR:-${KAS_WORK_DIR}/build}")
 trace mkdir -p "${KAS_BUILD_DIR}"
 
