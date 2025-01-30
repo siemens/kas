@@ -75,11 +75,13 @@ def load_config(filename):
     validator = validator_class(CONFIGSCHEMA)
     validation_error = False
 
-    for error in validator.iter_errors(config):
+    for error in sorted(validator.iter_errors(config), key=str):
         validation_error = True
-        logging.error('Config file validation Error:\n%s', error)
+        logging.error('Config file validation Error:\n%s', error.message)
 
     if validation_error:
+        logging.debug('Validation against this schema failed:\n%s',
+                      json.dumps(error.schema, indent=2))
         raise LoadConfigException('Error(s) occured while validating the '
                                   'config file', filename)
 
