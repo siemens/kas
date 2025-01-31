@@ -41,7 +41,7 @@ def _load_schema():
     with open(__schema_definition__, 'r') as f:
         CONFIGSCHEMA = json.load(f)
         header_node = CONFIGSCHEMA['properties']['header']
-        version_node = header_node['properties']['version']['oneOf'][1]
+        version_node = header_node['properties']['version']['anyOf'][1]
         __file_version__ = version_node["maximum"]
         __compatible_file_version__ = version_node["minimum"]
 

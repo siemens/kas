@@ -19,7 +19,7 @@
             "properties": {
                 "version": {
                     "description": "Version of the configuration file format.",
-                    "oneOf": [
+                    "anyOf": [
                         {
                             "type": "string",
                             "enum": [
@@ -37,7 +37,7 @@
                     "description": "List of configuration files to include (parsed depth-first). They are merged in order they are stated. So a latter one could overwrite settings from previous files. The current file can overwrite settings from every included file.",
                     "type": "array",
                     "items": {
-                        "oneOf": [
+                        "anyOf": [
                             {
                                 "description": "Path to a kas configuration file, relative to the repository root of the current file.",
                                 "type": "string"
@@ -150,7 +150,7 @@
         "target": {
             "description": "Single target or a list of targets to build by bitbake. Can be overwritten by the ``KAS_TARGET`` environment variable.  Space is used as a delimiter if multiple targets should be specified via the environment variable. For targets prefixed with ``multiconfig:`` or ``mc:``, corresponding entries are added to the ``BBMULTICONFIG`` in ``local.conf``.",
             "default": "core-image-minimal",
-            "oneOf": [
+            "anyOf": [
                 {
                     "type": "string"
                 },
@@ -171,7 +171,7 @@
             "description": "Definitions of all available repos and layers. The layers are appended to the ``bblayers.conf`` sorted by the repository name first and then by the layer name.",
             "type": "object",
             "additionalProperties": {
-                "oneOf": [
+                "anyOf": [
                     {
                         "description": "Definition of a repository and the layers, that should be part of the build. If the value is ``None``, the repository, where the current configuration file is located is defined as ``<repo-id>`` and added as a layer to the build. It is recommended that the ``<repo-id>`` is related to the containing repository/layer to ease cross-project referencing.",
                         "type": "object",
@@ -183,7 +183,7 @@
                             },
                             "url": {
                                 "description": "Url of the repository. If this is missing, no version control operations are performed.",
-                                "oneOf": [
+                                "anyOf": [
                                     {
                                         "type": "string"
                                     },
@@ -204,7 +204,7 @@
                             },
                             "branch": {
                                 "description": "Upstream branch that should be tracked. If ``commit`` was specified, kas checks that the branch contains the commit. If no ``commit`` was specified, the head of the upstream branch is checked out. The nothing (``null``) value is used to remove a possible default value.",
-                                "oneOf": [
+                                "anyOf": [
                                     {
                                         "type": "string"
                                     },
@@ -215,7 +215,7 @@
                             },
                             "tag": {
                                 "description": "Tag that should be checked out. If a ``commit`` was specified, kas checks that the tag points to this commit. This must not be combined with ``branch``. The nothing (``null``) value is used to remove a possible default value.",
-                                "oneOf": [
+                                "anyOf": [
                                     {
                                         "type": "string"
                                     },
@@ -230,7 +230,7 @@
                             },
                             "path": {
                                 "description": "Path where the repository is stored.",
-                                "oneOf": [
+                                "anyOf": [
                                     {
                                         "type": "string"
                                     },
@@ -243,7 +243,7 @@
                                 "description": "List of layers to append to the ``bblayers.conf``. If this is missing or ``None`` or an empty dictionary, the path to the repo itself is added as a layer. Additionally, ``.`` is a valid value if the repo itself should be added as a layer.",
                                 "type": "object",
                                 "additionalProperties": {
-                                    "oneOf": [
+                                    "anyOf": [
                                         {
                                             "type": "null"
                                         },
@@ -263,7 +263,7 @@
                                 "description": "Patches to apply to the repository.",
                                 "type": "object",
                                 "additionalProperties": {
-                                    "oneOf": [
+                                    "anyOf": [
                                         {
                                             "type": "object",
                                             "additionalProperties": false,
@@ -330,7 +330,7 @@
             "description": "Menu configuration, auto-generated by menu plugin.",
             "type": "object",
             "additionalProperties": {
-                "oneOf": [
+                "anyOf": [
                     {
                         "type": "boolean"
                     },

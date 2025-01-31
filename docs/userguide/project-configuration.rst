@@ -223,18 +223,18 @@ Configuration reference
     An item in this list can have one of two types:
 
     item: string
-      :kasschemadesc:`header.properties.includes.items.oneOf[0]`
+      :kasschemadesc:`header.properties.includes.items.anyOf[0]`
 
     item: dict
-      :kasschemadesc:`header.properties.includes.items.oneOf[1]`
+      :kasschemadesc:`header.properties.includes.items.anyOf[1]`
 
       ``repo``: string [required]
-        :kasschemadesc:`header.properties.includes.items.oneOf[1].properties.repo`
+        :kasschemadesc:`header.properties.includes.items.anyOf[1].properties.repo`
         The repo needs to be defined in the ``repos`` dictionary as
         ``<repo-id>``.
 
       ``file``: string [required]
-        :kasschemadesc:`header.properties.includes.items.oneOf[1].properties.file`
+        :kasschemadesc:`header.properties.includes.items.anyOf[1].properties.file`
 
 ``build_system``: string [optional]
   :kasschemadesc:`build_system`
@@ -298,28 +298,28 @@ Configuration reference
   :kasschemadesc:`repos`
 
   ``<repo-id>``: dict [optional]
-    :kasschemadesc:`repos.additionalProperties.oneOf[0]`
+    :kasschemadesc:`repos.additionalProperties.anyOf[0]`
 
     ``name``: string [optional]
-      :kasschemadesc:`repos.additionalProperties.oneOf[0].properties.name`
+      :kasschemadesc:`repos.additionalProperties.anyOf[0].properties.name`
 
     ``url``: string [optional]
-      :kasschemadesc:`repos.additionalProperties.oneOf[0].properties.url`
+      :kasschemadesc:`repos.additionalProperties.anyOf[0].properties.url`
 
     ``type``: string [optional]
-      :kasschemadesc:`repos.additionalProperties.oneOf[0].properties.type`
+      :kasschemadesc:`repos.additionalProperties.anyOf[0].properties.type`
 
     ``commit``: string [optional]
-      :kasschemadesc:`repos.additionalProperties.oneOf[0].properties.commit`
+      :kasschemadesc:`repos.additionalProperties.anyOf[0].properties.commit`
 
     ``branch``: string or nothing (``null``) [optional]
-      :kasschemadesc:`repos.additionalProperties.oneOf[0].properties.branch`
+      :kasschemadesc:`repos.additionalProperties.anyOf[0].properties.branch`
 
     ``tag``: string or nothing (``null``)  [optional]
-      :kasschemadesc:`repos.additionalProperties.oneOf[0].properties.tag`
+      :kasschemadesc:`repos.additionalProperties.anyOf[0].properties.tag`
 
     ``path``: string [optional]
-      :kasschemadesc:`repos.additionalProperties.oneOf[0].properties.path`
+      :kasschemadesc:`repos.additionalProperties.anyOf[0].properties.path`
       If the ``url`` and ``path`` is missing, the repository where the
       current configuration file is located is defined.
       If the ``url`` is missing and the path defined, this entry references
@@ -330,7 +330,7 @@ Configuration reference
       In case of a relative path name ``kas_work_dir`` is prepended.
 
     ``layers``: dict [optional]
-      :kasschemadesc:`repos.additionalProperties.oneOf[0].properties.layers`
+      :kasschemadesc:`repos.additionalProperties.anyOf[0].properties.layers`
       This allows combinations:
 
       .. code-block:: yaml
@@ -355,7 +355,7 @@ Configuration reference
         of a layer in latter loaded configuration files.
 
     ``patches``: dict [optional]
-      :kasschemadesc:`repos.additionalProperties.oneOf[0].properties.patches`
+      :kasschemadesc:`repos.additionalProperties.anyOf[0].properties.patches`
 
       ``<patches-id>``: dict [optional]
         One entry in patches with its specific and unique id. All available
