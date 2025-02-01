@@ -1,3 +1,23 @@
+4.7
+- kas: preserve history across shell plugin invocations
+- kas: adjust/improve dirty repo detection
+- kas: only sort keys in dump plugin output if explicitly requested
+- kas: ensure consistent config ordering in dump output
+- kas: enforce maximum header version when merging configs
+- kas: only include config in attestation if not tracked
+- kas: fix repo type identifier for mercurial in attestations
+- kas: improve annotation of kas-generated repo commits
+- kas: improve schema validation error messages
+- kas: show both commit ids in error message on tag commit mismatch
+- kas-container: do not create KAS_WORK_DIR
+- kas-container: add support for git worktrees
+- kas-container: add support for Ubuntu 24.04 hosts
+- kas-container: account for lock plugin in container entrypoint
+- kas-container: make AWS_WEB_IDENTITY_TOKEN_FILE errors more precise
+- docs: document rules for provided directories
+- docs: describe steps needed to add a new plugin
+- docs: auto add enum values of schema node
+
 4.6
 - kas: move lock file handling to new lock plugin
 - kas: add support for running inside vscode devcontainer
