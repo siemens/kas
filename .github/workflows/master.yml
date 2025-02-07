@@ -38,7 +38,7 @@ jobs:
           deploy-token: ${{ secrets.GITHUB_TOKEN }}
           image-name: ${{ matrix.image-name }}
       - name: Build ${{ matrix.image-name }} image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         if: ${{ env.PUSH_MASTER == 'true' }}
         id: push
         with:

@@ -84,7 +84,7 @@ jobs:
           image-name: ${{ matrix.image-name }}
 
       - name: Build ${{ matrix.image-name }} image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: /home/runner/kas-clone
           target: ${{ matrix.image-name }}
@@ -101,7 +101,7 @@ jobs:
           KAS_CLONE_DEPTH=1 \
           ../../kas-container build kas.yml
       - name: Complete build and deploy ${{ matrix.image-name }} image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         id: push
         with:
           context: /home/runner/kas-clone
