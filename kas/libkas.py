@@ -120,12 +120,8 @@ async def run_cmd_async(cmd, cwd, env=None, fail=True, liveupdate=False):
 
     logo = LogOutput(liveupdate)
 
-    try:
-        orig_fd = signal.set_wakeup_fd(-1, warn_on_full_buffer=False)
-        signal.set_wakeup_fd(orig_fd, warn_on_full_buffer=False)
-    except TypeError:
-        # Python < 3.7 - we tried our best
-        pass
+    orig_fd = signal.set_wakeup_fd(-1, warn_on_full_buffer=False)
+    signal.set_wakeup_fd(orig_fd, warn_on_full_buffer=False)
 
     try:
         process = await asyncio.create_subprocess_exec(

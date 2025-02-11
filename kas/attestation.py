@@ -108,10 +108,9 @@ class Provenance:
         top_repo_path = Path(self._ctx.config.handler.get_top_repo_path())
         workdir = Path(self._ctx.kas_work_dir)
 
-        # is_relative_to implementation for python < 3.9
-        try:
+        if path.is_relative_to(workdir):
             return path.relative_to(workdir)
-        except ValueError:
+        else:
             return path.relative_to(top_repo_path)
 
     def type_(self):

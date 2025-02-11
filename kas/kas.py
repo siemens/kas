@@ -85,14 +85,6 @@ def cleanup_logger():
             logging.root.removeHandler(handler)
 
 
-def get_pending_tasks(loop):
-    try:
-        return asyncio.all_tasks(loop)
-    except AttributeError:
-        # for Python < 3.7
-        return asyncio.Task.all_tasks(loop)
-
-
 def interruption():
     """
         Gracefully cancel all tasks in the event loop
@@ -101,7 +93,7 @@ def interruption():
     for sig in [signal.SIGINT, signal.SIGTERM]:
         loop.remove_signal_handler(sig)
         loop.add_signal_handler(sig, termination)
-    pending = get_pending_tasks(loop)
+    pending = asyncio.all_tasks(loop)
     if pending:
         logging.debug(f'waiting for {len(pending)} tasks to terminate')
     [t.cancel() for t in pending]
@@ -119,13 +111,8 @@ def shutdown_loop(loop):
     """
         Waits for completion of the event loop
     """
-    pending = get_pending_tasks(loop)
-    # Ignore exceptions in final shutdown (Python3.6 workaround).
-    # These are related to the cancellation of tasks.
-    try:
-        loop.run_until_complete(asyncio.gather(*pending))
-    except KasUserError:
-        pass
+    pending = asyncio.all_tasks(loop)
+    loop.run_until_complete(asyncio.gather(*pending))
     loop.close()
 
 

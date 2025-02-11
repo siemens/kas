@@ -23,33 +23,20 @@
     This module contains the implementation of the kas context.
 """
 
+import distro
 import os
 import logging
 from enum import Enum
 from kas.kasusererror import KasUserError
 
-try:
-    import distro
-
-    def get_distro_id_base():
-        """
-            Returns a compatible distro id.
-        """
-        return distro.like() or distro.id()
-
-except ImportError:
-    import platform
-
-    def get_distro_id_base():
-        """
-            Wrapper around platform.dist to simulate distro.id
-            platform.dist is deprecated and will be removed in python 3.7
-            Use the 'distro' package instead.
-        """
-        return platform.dist()[0]
-
-
 __context__ = None
+
+
+def get_distro_id_base():
+    """
+        Returns a compatible distro id.
+    """
+    return distro.like() or distro.id()
 
 
 def create_global_context(args):

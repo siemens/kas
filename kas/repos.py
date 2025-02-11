@@ -25,7 +25,6 @@
 
 import re
 import os
-import sys
 import linecache
 import logging
 import shutil
@@ -35,11 +34,7 @@ from tempfile import TemporaryDirectory
 from .context import get_context
 from .libkas import run_cmd_async, run_cmd
 from .kasusererror import KasUserError
-
-if sys.version_info < (3, 8):
-    from cached_property import cached_property
-else:
-    from functools import cached_property
+from functools import cached_property
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
@@ -327,9 +322,6 @@ class RepoImpl(Repo):
                 logging.debug('Created repo ref for %s', self.qualified_name)
                 try:
                     os.rename(tmpdir, sdir)
-                    if sys.version_info < (3, 8):
-                        # recreate dir so cleanup handler can delete it
-                        os.makedirs(tmpdir, exist_ok=True)
                 except OSError:
                     logging.debug('repo %s already cloned by other instance',
                                   self.qualified_name)
