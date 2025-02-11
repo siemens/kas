@@ -32,26 +32,12 @@ jobs:
     - name: Check code
       run: scripts/checkcode.sh .
 
-  perform_tests_legacy:
-    name: Legacy Python
-    runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        python-version: ["3.6", "3.7"]
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@v4
-      - name: Run tests
-        uses: ./.github/actions/perform-tests
-        with:
-          python-version: ${{ matrix.python-version }}
-
-  perform_tests_modern:
+  perform_tests:
     name: Modern Python
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -64,8 +50,7 @@ jobs:
     name: Build, test and deploy container images
     needs:
       - codestyle
-      - perform_tests_legacy
-      - perform_tests_modern
+      - perform_tests
     runs-on: ubuntu-24.04
     permissions:
       id-token: write

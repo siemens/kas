@@ -1,6 +1,6 @@
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2017-2019
+# Copyright (c) Siemens AG, 2017-2025
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,7 @@ from setuptools import setup, find_packages
 from kas import __version__
 
 __license__ = 'MIT'
-__copyright__ = 'Copyright (c) Siemens AG, 2017-2019'
+__copyright__ = 'Copyright (c) Siemens AG, 2017-2025'
 
 HERE = path.abspath(path.dirname(__file__))
 with open(path.join(HERE, 'README.rst')) as f:
@@ -66,9 +66,6 @@ setup(
         'License :: OSI Approved :: MIT License',
 
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
@@ -92,10 +89,9 @@ setup(
         'distro>=1.0.0,<2',
         'jsonschema>=2.5.0,<5',
         'kconfiglib>=14.1.0,<15',
-        'GitPython>=3.1.0,<4',
-        "cached-property>=1.0,<2; python_version<'3.8'"
+        'GitPython>=3.1.0,<4'
     ],
 
-    # At least python 3.6 is needed by now:
-    python_requires='>=3.6',
+    # At least python 3.9 is needed by now:
+    python_requires='>=3.9',
 )
