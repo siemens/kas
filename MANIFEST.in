@@ -1,0 +1,5 @@
+# The following folders are excluded to prevent setuptools' package
+# auto-discovery from adding the *.py files in these folders to the sdist
+# tarball
+exclude scripts
+exclude docs

@@ -23,75 +23,21 @@
     Setup script for kas, a setup tool for bitbake based projects
 """
 
-from os import path
-from setuptools import setup, find_packages
+import sys
 
-from kas import __version__
+from setuptools import setup
+
+sys.path.append('.')
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2025'
 
-HERE = path.abspath(path.dirname(__file__))
-with open(path.join(HERE, 'README.rst')) as f:
-    LONG_DESCRIPTION = f.read()
+
+def get_version():
+    from kas import __version__
+    return __version__
 
 
 setup(
-    name='kas',
-    version=__version__,
-
-    scripts=['kas-container'],
-
-    description='Setup tool for bitbake based projects',
-    long_description=LONG_DESCRIPTION,
-
-    maintainer='Jan Kiszka',
-    maintainer_email='jan.kiszka@siemens.com',
-
-    url='https://github.com/siemens/kas',
-    download_url=('https://github.com/siemens/'
-                  f'kas/archive/{__version__}.tar.gz'),
-
-    license='MIT',
-
-    # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-
-        # Indicate who your project is intended for
-        'Intended Audience :: Developers',
-        'Topic :: Software Development :: Build Tools',
-
-        # Pick your license as you wish (should match "license" above)
-        'License :: OSI Approved :: MIT License',
-
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
-        'Programming Language :: Python :: 3.11',
-        'Programming Language :: Python :: 3.12',
-        'Programming Language :: Python :: 3.13',
-    ],
-    keywords='OpenEmbedded bitbake development',
-
-    packages=find_packages(),
-
-    package_data={'kas': ['*.json']},
-
-    entry_points={
-        'console_scripts': [
-            'kas=kas.kas:main',
-        ],
-    },
-
-    install_requires=[
-        'PyYAML>=3.0,<7',
-        'distro>=1.0.0,<2',
-        'jsonschema>=2.5.0,<5',
-        'kconfiglib>=14.1.0,<15',
-        'GitPython>=3.1.0,<4'
-    ],
-
-    # At least python 3.9 is needed by now:
-    python_requires='>=3.9',
+    version=get_version(),
 )
