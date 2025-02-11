@@ -586,7 +586,14 @@ class GitRepo(RepoImpl):
                                 f'refspec on repository "{self.name}". '
                                 'Performing full clone.')
             else:
-                cmd.extend(['--depth', str(depth)])
+                if createref:
+                    # this is not a user-error, as the clone of the work repo
+                    # can still be shallow.
+                    logging.debug('Shallow cloning is not supported for '
+                                  f'reference repository of "{self.name}". '
+                                  'Performing full clone.')
+                else:
+                    cmd.extend(['--depth', str(depth)])
                 if self.branch:
                     cmd.extend(['--branch',
                                 self.remove_ref_prefix(self.branch)])
