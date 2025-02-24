@@ -70,8 +70,6 @@ import logging
 import os
 import pprint
 import yaml
-from kconfiglib import Kconfig, Symbol, Choice, KconfigError, \
-    expr_value, TYPE_TO_STR, MENU, COMMENT, STRING, BOOL, INT, HEX, UNKNOWN
 from kas import __version__, __file_version__
 from kas.context import create_global_context
 from kas.config import CONFIG_YAML_FILE
@@ -80,6 +78,13 @@ from kas.includehandler import load_config as load_config_yaml, \
     SOURCE_DIR_OVERRIDE_KEY, SOURCE_DIR_HOST_OVERRIDE_KEY
 from kas.plugins.build import Build
 from kas.kasusererror import KasUserError, MissingModuleError
+
+try:
+    from kconfiglib import Kconfig, Symbol, Choice, KconfigError, \
+        expr_value, TYPE_TO_STR, MENU, COMMENT, STRING, BOOL, INT, HEX, UNKNOWN
+    HAVE_KCONFIGLIB = True
+except ImportError:
+    HAVE_KCONFIGLIB = False  # will be reported in run()
 
 try:
     from snack import SnackScreen, EntryWindow, ButtonChoiceWindow, \
@@ -258,6 +263,8 @@ class Menu:
             self.kconf.warnings = []
 
     def run(self, args):
+        if not HAVE_KCONFIGLIB:
+            raise MissingModuleError('python3-kconfiglib', 'Menu plugin')
         if not HAVE_NEWT:
             raise MissingModuleError('python3-newt', 'Menu plugin')
 

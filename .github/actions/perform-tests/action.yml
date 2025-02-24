@@ -15,9 +15,7 @@ runs:
       shell: bash
       run: |
         # install kas to have all kas dependencies:
-        pip install .
-        # test dependencies:
-        pip install -U pytest
+        pip install .[test]
     - name: Install python-newt
       shell: bash
       run: |
