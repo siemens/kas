@@ -33,9 +33,18 @@ versions of the tooling.
 The variable is exported into the build environment. In this environment, the
 ``bitbake`` command is executed.
 
+**config-file (c)**
+
+The variable can be set in the ``env`` section of the
+:ref:`project-configuration-label`. Note, that a value provided by the calling
+environment takes precedence over the value in the configuration file.
 
 Variables Glossary
 ~~~~~~~~~~~~~~~~~~
+
+These environment variables are processed before the configuration file is
+read (except if stated otherwise). By that, they cannot be defined or
+overwritten using the ``env`` section of the config file.
 
 +--------------------------+--------------------------------------------------+
 | Environment variables    | Description                                      |
@@ -77,7 +86,7 @@ Variables Glossary
 |                          | "http://.*\.someurl\.io/ http://localmirror.net/"|
 +--------------------------+--------------------------------------------------+
 | ``DISTRO_APT_PREMIRRORS``| Specifies alternatives for apt URLs. Just like   |
-| (C)                      | ``KAS_PREMIRRORS``.                              |
+| (C,c)                    | ``KAS_PREMIRRORS``.                              |
 +--------------------------+--------------------------------------------------+
 | ``KAS_CLONE_DEPTH``      | Perform shallow git clone/fetch using --depth=N  |
 | (C, K)                   | specified by this variable. This is useful in    |
@@ -106,9 +115,9 @@ Variables Glossary
 | ``DL_DIR``               | Environment variables that are transferred to    |
 | ``SSTATE_DIR``           | the bitbake environment. The ``DL_DIR`` and      |
 | ``SSTATE_MIRRORS``       | ``SSTATE_DIR`` directories are created along     |
-| (C,K,E)                  | with their parents, if set.                      |
+| (C,K,E,c)                | with their parents, if set.                      |
 +--------------------------+--------------------------------------------------+
-| ``TMPDIR`` (K,E)         | Directory for temporary files.                   |
+| ``TMPDIR`` (K,E,c)       | Directory for temporary files.                   |
 +--------------------------+--------------------------------------------------+
 | ``http_proxy``           | These variables define the proxy configuration   |
 | ``https_proxy``          | bitbake should use.                              |
