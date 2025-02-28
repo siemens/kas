@@ -28,13 +28,20 @@ import contextlib
 
 import pytest
 
-from kas import includehandler
+from kas import includehandler, context
 
 
 @pytest.fixture(autouse=True)
 def fixed_version(monkeypatch):
     monkeypatch.setattr(includehandler, '__file_version__', 5)
     monkeypatch.setattr(includehandler, '__compatible_file_version__', 4)
+
+
+@pytest.fixture(autouse=True)
+def with_kas_context():
+    context.create_global_context(None)
+    yield
+    context.__context__ = None
 
 
 class MockFileIO(io.StringIO):
