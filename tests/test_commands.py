@@ -98,6 +98,7 @@ def test_checkout_with_ci_rewrite(monkeykas, tmpdir):
         mp.setenv('GITLAB_CI', 'true')
         mp.setenv('CI_SERVER_HOST', 'github.com')
         mp.setenv('CI_JOB_TOKEN', 'not-needed')
+        mp.setenv('CI_PROJECT_DIR', '/build')
         kas.kas(['checkout', 'test-url-rewrite.yml'])
 
 

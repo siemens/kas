@@ -310,13 +310,19 @@ class SetupHome(Command):
                 if os.environ.get('GIT_CREDENTIAL_USEHTTPPATH', False):
                     config['credential']['useHttpPath'] = \
                         os.environ.get('GIT_CREDENTIAL_USEHTTPPATH')
-            # in GitLab CI, add ssh -> https rewrites if no config is present
-            ci_server = os.environ.get('CI_SERVER_HOST', None)
-            if get_context().managed_env == ME.GITLAB_CI and ci_server and \
-                    not self._ssh_config_present() and \
+
+            if get_context().managed_env == ME.GITLAB_CI and \
                     not os.path.exists(gitconfig_host):
-                logging.debug('Adding GitLab CI ssh -> https rewrites')
-                self._setup_gitlab_ci_ssh_rewrite(config)
+                ci_project_dir = os.environ.get('CI_PROJECT_DIR', False)
+                if ci_project_dir:
+                    logging.debug('Adding git safe.directory %s',
+                                  ci_project_dir)
+                    config.add_value('safe', 'directory', ci_project_dir)
+
+                ci_server = os.environ.get('CI_SERVER_HOST', None)
+                if ci_server and not self._ssh_config_present():
+                    logging.debug('Adding GitLab CI ssh -> https rewrites')
+                    self._setup_gitlab_ci_ssh_rewrite(config)
             config.write()
 
     def execute(self, ctx):
