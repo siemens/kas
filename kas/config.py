@@ -27,7 +27,7 @@ import os
 import json
 from pathlib import Path
 from .repos import Repo
-from .includehandler import IncludeHandler, IncludeException
+from .includehandler import IncludeHandler
 from .kasusererror import ArtifactNotFoundError
 from .configschema import CONFIGSCHEMA
 
@@ -51,23 +51,10 @@ class Config:
 
         self.filenames = [os.path.abspath(configfile)
                           for configfile in filename.split(':')]
-        top_repo_path = Repo.get_root_path(
-            os.path.dirname(self.filenames[0]))
-
-        repo_paths = [Repo.get_root_path(os.path.dirname(configfile),
-                                         fallback=False)
-                      for configfile in self.filenames]
-
-        if len(set(repo_paths)) > 1:
-            raise IncludeException('All concatenated config files must '
-                                   'belong to the same repository or all '
-                                   'must be outside of versioning control')
 
         update = ctx.args.update if hasattr(ctx.args, 'update') else False
 
-        self.handler = IncludeHandler(self.filenames,
-                                      top_repo_path,
-                                      not update)
+        self.handler = IncludeHandler(self.filenames, not update)
         self.repo_dict = self._get_repo_dict()
         self.repo_cfg_hashes = {}
 

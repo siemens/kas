@@ -29,6 +29,7 @@ import os
 from pathlib import Path
 from collections import OrderedDict
 from collections.abc import Mapping
+from functools import cached_property
 import functools
 import logging
 import json
@@ -37,6 +38,7 @@ import yaml
 from jsonschema.validators import validator_for
 
 from .kasusererror import KasUserError
+from .repos import Repo
 from . import __file_version__, __compatible_file_version__, __version__
 from . import CONFIGSCHEMA
 
@@ -130,7 +132,8 @@ class IncludeHandler:
         current file, or as a dictionary. The dictionary must have a
         'file' key containing the path to the include file and a 'repo'
         key containing the key of the repository. The path is interpreted
-        relative to the repository root path.
+        relative to the repository root path, which is lazy resolved by
+        the first access of a method.
 
         The includes are read and merged from the deepest level upwards.
 
@@ -140,17 +143,36 @@ class IncludeHandler:
         ``top_files``.
     """
 
-    def __init__(self, top_files, top_repo_path, use_lock=True):
+    def __init__(self, top_files, use_lock=True):
         self.top_files = top_files
-        self.top_repo_path = top_repo_path
         self.use_lock = use_lock
 
     def get_lockfile(self, kasfile=None):
         file = Path(kasfile or self.top_files[0])
         return file.parent / (file.stem + '.lock' + file.suffix)
 
+    @cached_property
+    def top_repo_path(self):
+        """
+        Lazy resolve top repo path as we might need a prepared environment
+        """
+        return Repo.get_root_path(os.path.dirname(self.top_files[0]))
+
     def get_top_repo_path(self):
         return self.top_repo_path
+
+    def ensure_from_same_repo(self):
+        """
+        Ensure that all concatenated config files belong to the same repository
+        """
+        repo_paths = [Repo.get_root_path(os.path.dirname(configfile),
+                                         fallback=False)
+                      for configfile in self.top_files]
+
+        if len(set(repo_paths)) > 1:
+            raise IncludeException('All concatenated config files must '
+                                   'belong to the same repository or all '
+                                   'must be outside of versioning control')
 
     def get_config(self, repos=None):
         """
@@ -302,9 +324,10 @@ class IncludeHandler:
 
         configs = []
         missing_repos = []
+        self.ensure_from_same_repo()
         for configfile in self.top_files:
             cfgs, reps = _internal_include_handler(configfile,
-                                                   self.top_repo_path)
+                                                   self.get_top_repo_path())
             configs.extend(cfgs)
             for repo in reps:
                 if repo not in missing_repos:
