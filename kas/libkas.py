@@ -109,7 +109,15 @@ async def _read_stream(stream, callback):
             break
 
 
-async def run_cmd_async(cmd, cwd, env=None, fail=True, liveupdate=False):
+def _filter_stderr(capture_stderr, ret, out, err):
+    if capture_stderr:
+        return (ret, out, err or '')
+    else:
+        return (ret, out)
+
+
+async def run_cmd_async(cmd, cwd, env=None, fail=True, liveupdate=False,
+                        capture_stderr=False):
     """
         Run a command asynchronously.
     """
@@ -134,11 +142,11 @@ async def run_cmd_async(cmd, cwd, env=None, fail=True, liveupdate=False):
     except FileNotFoundError as ex:
         if fail:
             raise ex
-        return (errno.ENOENT, str(ex))
+        return _filter_stderr(capture_stderr, errno.ENOENT, str(ex))
     except PermissionError as ex:
         if fail:
             raise ex
-        return (errno.EPERM, str(ex))
+        return _filter_stderr(capture_stderr, errno.EPERM, str(ex))
 
     # Process termination is a complicated thing. We need to ensure that
     # the event-loop ThreadedChildWatcher thread fires before the loop is
@@ -170,10 +178,11 @@ async def run_cmd_async(cmd, cwd, env=None, fail=True, liveupdate=False):
         logging.error(msg)
         raise CommandExecError(cmd, ret)
 
-    return (ret, ''.join(logo.stdout))
+    return _filter_stderr(capture_stderr, ret,
+                          ''.join(logo.stdout), ''.join(logo.stderr))
 
 
-def run_cmd(cmd, cwd, env=None, fail=True):
+def run_cmd(cmd, cwd, env=None, fail=True, capture_stderr=False):
     """
         Runs a command synchronously.
     """
@@ -193,7 +202,9 @@ def run_cmd(cmd, cwd, env=None, fail=True):
         if fail:
             raise ex
         return (errno.EPERM, str(ex))
-    return (ret.returncode, ret.stdout.decode('utf-8'))
+    return _filter_stderr(capture_stderr, ret.returncode,
+                          ret.stdout.decode('utf-8'),
+                          ret.stderr.decode('utf-8'))
 
 
 def find_program(paths, name):
