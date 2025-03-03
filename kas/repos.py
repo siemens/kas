@@ -72,6 +72,14 @@ class PatchApplyError(KasUserError):
     """
     The provided patch file could not be applied
     """
+    def __init__(self, msg, cmd=None, out=None, err=None):
+        if cmd:
+            msg += '\nvcs command: ' + ' '.join(cmd)
+        if out and out.strip():
+            msg += f'\nvcs output:\n{out.strip()}'
+        if err and err.strip():
+            msg += f'\nvcs error:\n{err.strip()}'
+        super().__init__(msg)
 
 
 class Repo:
@@ -500,24 +508,24 @@ class RepoImpl(Repo):
 
         for (path, patch_id) in my_patches:
             cmd = self.apply_patches_file_cmd(path)
-            (retc, output) = await run_cmd_async(
-                cmd, cwd=self.path, fail=False)
+            (retc, out, err) = await run_cmd_async(
+                cmd, cwd=self.path, fail=False, capture_stderr=True)
             if retc:
                 raise PatchApplyError(
-                    'Could not apply patch. Please fix repos and patches. '
-                    f'(patch path: {path}, repo: {self.name}, patch '
-                    f'entry: {patch_id}, vcs output: {output})')
+                    'Could not apply patch. Please fix repos and patches:\n'
+                    f'patch path: {path}, repo: {self.name}, patch '
+                    f'entry: {patch_id}', cmd, out, err)
 
             logging.info('Patch applied. '
                          '(patch path: %s, repo: %s, patch entry: %s)',
                          path, self.name, patch_id)
 
             cmd = self.add_cmd()
-            (retc, output) = await run_cmd_async(
-                cmd, cwd=self.path, fail=False)
+            (retc, out, err) = await run_cmd_async(
+                cmd, cwd=self.path, fail=False, capture_stderr=True)
             if retc:
-                raise PatchApplyError('Could not add patched files. repo: '
-                                      f'{self.name}, vcs output: {output})')
+                raise PatchApplyError('Could not add patched files: repo: '
+                                      f'{self.name}', cmd, out, err)
 
             timestamp = self.get_patch_timestamp(path)
             if not timestamp:
@@ -529,11 +537,11 @@ class RepoImpl(Repo):
             msg = f'kas: {patch_id}\n\npatch {path} applied by kas'
             cmd = self.commit_cmd(env, 'kas <kas@example.com>', msg,
                                   timestamp)
-            (retc, output) = await run_cmd_async(
-                cmd, cwd=self.path, env=env, fail=False)
+            (retc, out, err) = await run_cmd_async(
+                cmd, cwd=self.path, env=env, fail=False, capture_stderr=True)
             if retc:
                 raise PatchApplyError('Could not commit patch changes. repo: '
-                                      f'{self.name}, vcs output: {output})')
+                                      f'{self.name}', cmd, out, err)
 
         return 0
 
