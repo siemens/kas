@@ -157,6 +157,8 @@ enable_unpriv_userns_docker()
 
 run_clean()
 {
+	KAS_BUILD_DIR="$(realpath "${KAS_BUILD_DIR:-${KAS_WORK_DIR}/build}")"
+	trace mkdir -p "${KAS_BUILD_DIR}"
 	if [ -n "${KAS_ISAR_ARGS}" ]; then
 		# SC2086: Double quote to prevent globbing and word splitting.
 		# shellcheck disable=2086
@@ -179,6 +181,39 @@ run_clean()
 	fi
 }
 
+# Params: NAME CREATE_MODE
+check_and_expand()
+{
+	eval _varval=\"\$"$1"\"
+	[ -z "$_varval" ] && return
+	case "$2" in
+	required)
+		[ ! -d "$_varval" ] && fatal_error "Variable $1 set, but \"$_varval\" is not a directory."
+		;;
+	create)
+		[ ! -d "$_varval" ] && trace mkdir "$_varval"
+		;;
+	createrec)
+		trace mkdir -p "$_varval"
+		;;
+	esac
+	realpath -e "$_varval"
+}
+
+# Params: NAME CONTAINER_PATH MODE
+# If the dir is not below KAS_WORK_DIR, the dir is mounted into the container.
+forward_dir()
+{
+	eval _varval=\"\$"$1"\"
+	[ -z "$_varval" ] && return
+	FW_DIR_REL=$(realpath -q --relative-base="${KAS_WORK_DIR}" "$_varval")
+	if [ "${FW_DIR_REL}" = "$_varval" ]; then
+		KAS_RUNTIME_ARGS="${KAS_RUNTIME_ARGS} -v ${FW_DIR_REL}:$2:$3 -e $1=$2"
+	else
+		KAS_RUNTIME_ARGS="${KAS_RUNTIME_ARGS} -e $1=/work/${FW_DIR_REL}"
+	fi
+}
+
 KAS_GIT_OVERLAY_FILE=""
 kas_container_cleanup()
 {
@@ -197,13 +232,18 @@ set_container_image_var()
 	KAS_CONTAINER_IMAGE="${KAS_CONTAINER_IMAGE:-${KAS_CONTAINER_IMAGE_DEFAULT}}"
 }
 
-KAS_WORK_DIR=$(readlink -fv "${KAS_WORK_DIR:-$(pwd)}")
-if ! [ -d "${KAS_WORK_DIR}" ]; then
-	fatal_error "KAS_WORK_DIR '${KAS_WORK_DIR}' is not a directory"
-fi
-
-KAS_BUILD_DIR=$(readlink -fv "${KAS_BUILD_DIR:-${KAS_WORK_DIR}/build}")
-trace mkdir -p "${KAS_BUILD_DIR}"
+# SC2034: DIR appears unused (ignore, as they are used inside eval)
+# shellcheck disable=2034
+setup_kas_dirs()
+{
+	KAS_WORK_DIR="${KAS_WORK_DIR:-$(pwd)}"
+	KAS_WORK_DIR="$(check_and_expand KAS_WORK_DIR required)"
+	KAS_BUILD_DIR="$(check_and_expand KAS_BUILD_DIR create)"
+	KAS_REPO_REF_DIR="$(check_and_expand KAS_REPO_REF_DIR required)"
+	DL_DIR="$(check_and_expand DL_DIR createrec)"
+	SSTATE_DIR="$(check_and_expand SSTATE_DIR createrec)"
+}
+setup_kas_dirs
 
 KAS_CONTAINER_ENGINE="${KAS_CONTAINER_ENGINE:-${KAS_DOCKER_ENGINE}}"
 if [ -z "${KAS_CONTAINER_ENGINE}" ]; then
@@ -287,7 +327,7 @@ while [ $# -gt 0 ]; do
 		if [ -z "${SSH_AUTH_SOCK}" ]; then
 			fatal_error "no SSH agent running"
 		fi
-		KAS_SSH_AUTH_SOCK=$(readlink -fv "$SSH_AUTH_SOCK")
+		KAS_SSH_AUTH_SOCK=$(realpath -e "$SSH_AUTH_SOCK")
 		shift 1
 		;;
 	--aws-dir)
@@ -451,8 +491,9 @@ if [ "${KAS_CMD}" = "menu" ]; then
 	# on the host. This data is then added to the .config.yaml where it can
 	# be evaluated by the next invocation of kas-container.
 
-	if ! [ "$(realpath -qe "${KAS_REPO_DIR}")" = "$(realpath -qe "${KAS_WORK_DIR}")" ]; then
-		set -- "$@" -e _KAS_REPO_DIR_HOST="$(readlink -fv "${KAS_REPO_DIR}")"
+	KAS_REPO_DIR=$(check_and_expand KAS_REPO_DIR required)
+	if ! [ "${KAS_REPO_DIR}" = "${KAS_WORK_DIR}" ]; then
+		set -- "$@" -e _KAS_REPO_DIR_HOST="${KAS_REPO_DIR}"
 	fi
 
 	BUILD_SYSTEM=$(tr '\n' '\f' 2>/dev/null < "${KAS_FIRST_FILE}" | \
@@ -495,10 +536,13 @@ fi
 
 set -- "$@" -v "${KAS_REPO_DIR}:/repo:${KAS_REPO_MOUNT_OPT}" \
 	-v "${KAS_WORK_DIR}":/work:rw -e KAS_WORK_DIR=/work \
-	-v "${KAS_BUILD_DIR}":/build:rw \
 	--workdir=/repo \
-	-e KAS_BUILD_DIR=/build \
 	-e USER_ID="$(id -u)" -e GROUP_ID="$(id -g)" --rm --init
+
+forward_dir KAS_BUILD_DIR "/build" "rw"
+forward_dir DL_DIR "/downloads" "rw"
+forward_dir KAS_REPO_REF_DIR "/repo-ref" "rw"
+forward_dir SSTATE_DIR "/sstate" "rw"
 
 if git_com_dir=$(git -C "${KAS_REPO_DIR}" rev-parse --git-common-dir 2>/dev/null) \
 	&& [ "$git_com_dir" != "$(git -C "${KAS_REPO_DIR}" rev-parse --git-dir)" ]; then
@@ -516,11 +560,9 @@ if git_com_dir=$(git -C "${KAS_REPO_DIR}" rev-parse --git-common-dir 2>/dev/null
 	fi
 fi
 
+KAS_SSH_DIR="$(check_and_expand KAS_SSH_DIR required)"
 if [ -n "${KAS_SSH_DIR}" ] ; then
-	if [ ! -d "${KAS_SSH_DIR}" ]; then
-		fatal_error "passed KAS_SSH_DIR '${KAS_SSH_DIR}' is not a directory"
-	fi
-	set -- "$@" -v "$(readlink -fv "${KAS_SSH_DIR}")":/var/kas/userdata/.ssh:ro
+	set -- "$@" -v "${KAS_SSH_DIR}":/var/kas/userdata/.ssh:ro
 fi
 
 if [ -n "${KAS_SSH_AUTH_SOCK}" ]; then
@@ -531,11 +573,9 @@ if [ -n "${KAS_SSH_AUTH_SOCK}" ]; then
 		-e SSH_AUTH_SOCK=/ssh-agent/ssh-auth-sock
 fi
 
+KAS_AWS_DIR="$(check_and_expand KAS_AWS_DIR required)"
 if [ -n "${KAS_AWS_DIR}" ] ; then
-	if [ ! -d "${KAS_AWS_DIR}" ]; then
-		fatal_error "passed KAS_AWS_DIR '${KAS_AWS_DIR}' is not a directory"
-	fi
-	set -- "$@" -v "$(readlink -fv "${KAS_AWS_DIR}")":/var/kas/userdata/.aws:ro \
+	set -- "$@" -v "${KAS_AWS_DIR}":/var/kas/userdata/.aws:ro \
 		-e AWS_CONFIG_FILE="${AWS_CONFIG_FILE:-/var/kas/userdata/.aws/config}" \
 		-e AWS_SHARED_CREDENTIALS_FILE="${AWS_SHARED_CREDENTIALS_FILE:-/var/kas/userdata/.aws/credentials}"
 fi
@@ -544,7 +584,7 @@ if [ -n "${AWS_WEB_IDENTITY_TOKEN_FILE}" ] ; then
 		echo "Passed AWS_WEB_IDENTITY_TOKEN_FILE '${AWS_WEB_IDENTITY_TOKEN_FILE}' is not a file"
 		exit 1
 	fi
-	set -- "$@" -v "$(readlink -fv "${AWS_WEB_IDENTITY_TOKEN_FILE}")":/var/kas/userdata/.aws/web_identity_token:ro \
+	set -- "$@" -v "$(realpath -e "${AWS_WEB_IDENTITY_TOKEN_FILE}")":/var/kas/userdata/.aws/web_identity_token:ro \
 		-e AWS_WEB_IDENTITY_TOKEN_FILE="${AWS_CONFIG_FILE:-/var/kas/userdata/.aws/web_identity_token}" \
 		-e AWS_ROLE_ARN="${AWS_ROLE_ARN}"
 fi
@@ -556,7 +596,7 @@ if [ -n "${KAS_GIT_CREDENTIAL_STORE}" ] ; then
 		fatal_error "passed KAS_GIT_CREDENTIAL_STORE '${KAS_GIT_CREDENTIAL_STORE}' is not a file"
 	fi
 	KAS_GIT_CREDENTIAL_HELPER_DEFAULT="store --file=/var/kas/userdata/.git-credentials"
-	set -- "$@" -v "$(readlink -fv "${KAS_GIT_CREDENTIAL_STORE}")":/var/kas/userdata/.git-credentials:ro
+	set -- "$@" -v "$(realpath -e "${KAS_GIT_CREDENTIAL_STORE}")":/var/kas/userdata/.git-credentials:ro
 fi
 
 GIT_CREDENTIAL_HELPER="${GIT_CREDENTIAL_HELPER:-${KAS_GIT_CREDENTIAL_HELPER_DEFAULT}}"
@@ -566,17 +606,17 @@ if [ -n "${GIT_CREDENTIAL_HELPER}" ] ; then
 fi
 
 if [ -f "${NETRC_FILE}" ]; then
-	set -- "$@" -v "$(readlink -fv "${NETRC_FILE}")":/var/kas/userdata/.netrc:ro \
+	set -- "$@" -v "$(realpath -e "${NETRC_FILE}")":/var/kas/userdata/.netrc:ro \
 		-e NETRC_FILE="/var/kas/userdata/.netrc"
 fi
 
 if [ -f "${GITCONFIG_FILE}" ]; then
-	set -- "$@" -v "$(readlink -fv "${GITCONFIG_FILE}")":/var/kas/userdata/.gitconfig:ro \
+	set -- "$@" -v "$(realpath -e "${GITCONFIG_FILE}")":/var/kas/userdata/.gitconfig:ro \
 		-e GITCONFIG_FILE="/var/kas/userdata/.gitconfig"
 fi
 
 if [ -f "${REGISTRY_AUTH_FILE}" ]; then
-	set -- "$@" -v "$(readlink -fv "${REGISTRY_AUTH_FILE}")":/var/kas/userdata/.docker/config.json:ro \
+	set -- "$@" -v "$(realpath -e "${REGISTRY_AUTH_FILE}")":/var/kas/userdata/.docker/config.json:ro \
 		-e REGISTRY_AUTH_FILE="/var/kas/userdata/.docker/config.json"
 fi
 
@@ -584,34 +624,12 @@ if [ -t 1 ]; then
 	set -- "$@" -t -i
 fi
 
-if [ -n "${DL_DIR}" ]; then
-	trace mkdir -p "${DL_DIR}"
-	set -- "$@" \
-		-v "$(readlink -fv "${DL_DIR}")":/downloads:rw \
-		-e DL_DIR=/downloads
-fi
-
-if [ -n "${SSTATE_DIR}" ]; then
-	trace mkdir -p "${SSTATE_DIR}"
-	set -- "$@" \
-		-v "$(readlink -fv "${SSTATE_DIR}")":/sstate:rw \
-		-e SSTATE_DIR=/sstate
-fi
 if [ -n "${SSTATE_MIRRORS}" ]; then
 	if echo "${SSTATE_MIRRORS}" | grep -q "file:///"; then
 		warning "SSTATE_MIRRORS contains a local path." \
 		        "Make sure to make this path available inside the container."
 	fi
 	set -- "$@" -e "SSTATE_MIRRORS=${SSTATE_MIRRORS}"
-fi
-
-if [ -n "${KAS_REPO_REF_DIR}" ]; then
-	if [ ! -d "${KAS_REPO_REF_DIR}" ]; then
-		fatal_error "Passed KAS_REPO_REF_DIR '${KAS_REPO_REF_DIR}' is not a directory"
-	fi
-	set -- "$@" \
-		-v "$(readlink -fv "${KAS_REPO_REF_DIR}")":/repo-ref:rw \
-		-e KAS_REPO_REF_DIR=/repo-ref
 fi
 
 for var in TERM KAS_DISTRO KAS_MACHINE KAS_TARGET KAS_TASK KAS_CLONE_DEPTH \
