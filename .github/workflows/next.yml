@@ -82,10 +82,11 @@ jobs:
           outputs: type=docker,rewrite-timestamp=true
           tags: ghcr.io/${{ github.repository }}/${{ matrix.image-name }}:next
       - name: Test ${{ matrix.image-name }} image
+        env:
+          KAS_CONTAINER_IMAGE: ghcr.io/${{ github.repository }}/${{ matrix.image-name }}:next
+          KAS_CLONE_DEPTH: 1
         run: |
           cd image-tests/${{ matrix.image-name }}
-          KAS_CONTAINER_IMAGE=ghcr.io/${{ github.repository }}/${{ matrix.image-name }}:next \
-          KAS_CLONE_DEPTH=1 \
           ../../kas-container build kas.yml
       - name: Complete build and deploy ${{ matrix.image-name }} image
         if: github.ref == 'refs/heads/next'
