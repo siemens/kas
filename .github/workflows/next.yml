@@ -88,6 +88,15 @@ jobs:
         run: |
           cd image-tests/${{ matrix.image-name }}
           ../../kas-container build kas.yml
+          [ -d build/tmp ]
+          echo "Test kas clean"
+          ../../kas-container clean kas.yml
+          ! [ -d build/tmp/deploy ]
+          [ -d build/sstate-cache ] && [ -d build/downloads ]
+          [ -d poky ] || [ -d isar ]
+          echo "Test kas purge"
+          ../../kas-container purge kas.yml
+          ! [ -d poky ] && ! [ -d isar ] && ! [ -d build ]
       - name: Complete build and deploy ${{ matrix.image-name }} image
         if: github.ref == 'refs/heads/next'
         uses: docker/build-push-action@v6
