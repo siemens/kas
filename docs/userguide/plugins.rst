@@ -26,6 +26,43 @@ typically provides a single command.
     :prog: kas
     :path: checkout
 
+``clean`` plugin
+----------------
+
+.. automodule:: kas.plugins.clean
+
+``clean`` command
+^^^^^^^^^^^^^^^^^
+
+.. automodule:: kas.plugins.clean.Clean
+
+.. argparse::
+    :module: kas.kas
+    :func: kas_get_argparser
+    :prog: kas
+    :path: clean
+
+``cleansstate`` command
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: kas.plugins.clean.CleanSstate
+
+.. argparse::
+    :module: kas.kas
+    :func: kas_get_argparser
+    :prog: kas
+    :path: cleansstate
+
+``cleanall`` command
+^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: kas.plugins.clean.CleanAll
+
+.. argparse::
+    :module: kas.kas
+    :func: kas_get_argparser
+    :prog: kas
+    :path: cleanall
 
 ``dump`` plugin
 ---------------
