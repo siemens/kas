@@ -24,6 +24,20 @@
 
 # kas-isar: sudo update-binfmts --enable && [ -f /proc/sys/fs/binfmt_misc/status ]
 
+chown_managed_dirs()
+{
+	for DIR in /build /work /sstate /downloads /repo-ref; do
+		if [ -d "$DIR" ]; then
+			chown "$1":"$2" "$DIR"
+		fi
+	done
+}
+
+restore_managed_dirs_owner()
+{
+	chown_managed_dirs 0 0
+}
+
 if mount | grep -q "on / type aufs"; then
     cat <<EOF >&2
 WARNING: Generation of wic images will fail!
@@ -51,6 +65,15 @@ else
 
 	GOSU="gosu builder"
 fi
+# kas-container on rootless docker workaround
+if [ -n "$USER_ID" ] && [ "$USER_ID" -ne 0 ] && \
+   [ "$KAS_DOCKER_ROOTLESS" = "1" ] && [ "$(stat -c %u /repo)" -eq 0 ]; then
+	# Docker rootless does not support keeping the user namespace
+	# (podman option --userns=keep-id). By that, the bind mounts
+	# are owned by root.
+	sudo git config --system safe.directory /repo
+	chown_managed_dirs "$USER_ID" "$GROUP_ID"
+fi
 
 if [ "$PWD" = / ]; then
 	cd /builder || exit 1
@@ -59,9 +82,16 @@ fi
 if [ -n "$1" ]; then
 	case "$1" in
 	build|checkout|clean*|dump|for-all-repos|lock|menu|purge|shell|-*)
-		# SC2086: Double quote to prevent globbing and word splitting.
-		# shellcheck disable=2086
-		exec $GOSU kas "$@"
+		# We must restore the dir owner after every kas invocation.
+		# This is cheap as only the top-level dirs are changed (non recursive).
+		if [ "$KAS_DOCKER_ROOTLESS" = "1" ]; then
+			trap restore_managed_dirs_owner EXIT INT TERM
+			$GOSU kas "$@"
+		else
+			# SC2086: Double quote to prevent globbing and word splitting.
+			# shellcheck disable=2086
+			exec $GOSU kas "$@"
+		fi
 		;;
 	*)
 		# SC2086: Double quote to prevent globbing and word splitting.

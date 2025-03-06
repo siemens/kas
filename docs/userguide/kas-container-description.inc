@@ -14,3 +14,15 @@ By default ``kas-container`` uses the official images provided by the kas projec
 ``KAS_CONTAINER_IMAGE`` environment variable. As container backends, Docker and
 Podman are supported. To force the use of podman over docker, set
 ``KAS_CONTAINER_ENGINE=podman``. For details, see :ref:`env-vars-label`.
+
+Running under docker in `rootless mode <https://docs.docker.com/engine/security/rootless/>`_
+is partially supported. It is recommended to use a distinct ``KAS_WORK_DIR`` outside of the
+calling directory (repo-dir), as kas temporarily changes the ownership of the working
+directory during its operation. All files managed by kas (including the repos) must not be
+written to from the host. To completely remove all data managed by kas, use
+``kas-container purge``. This also restores the directory owners of the dirs passed to kas,
+so they can be removed from the host.
+
+.. note::
+    The ISAR build system is not compatible with rootless execution. By that,
+    we fall back to the system docker or podman instance.

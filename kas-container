@@ -130,6 +130,12 @@ enable_isar_mode()
 		KAS_CONTAINER_COMMAND="sudo --preserve-env ${KAS_CONTAINER_COMMAND}"
 		# preserved user PATH may lack sbin needed by privileged podman
 		export PATH="${PATH}:/usr/sbin"
+	elif [ "${KAS_DOCKER_ROOTLESS}" = "1" ]; then
+		export DOCKER_HOST="${DOCKER_HOST:-unix:///var/run/docker.sock}"
+		debug "kas-isar does not support rootless docker. Using system docker"
+		# force use of well-known system docker socket
+		KAS_CONTAINER_COMMAND="sudo --preserve-env ${KAS_CONTAINER_COMMAND}"
+		KAS_DOCKER_ROOTLESS=0
 	fi
 }
 
@@ -188,6 +194,27 @@ forward_dir()
 	else
 		KAS_RUNTIME_ARGS="${KAS_RUNTIME_ARGS} -e $1=/work/${FW_DIR_REL}"
 	fi
+}
+
+check_docker_rootless()
+{
+	KAS_DOCKER_ROOTLESS=0
+	if [ "$(docker context show)" = "rootless" ]; then
+		KAS_DOCKER_ROOTLESS=1
+	fi
+}
+
+enable_docker_rootless()
+{
+	warning "Rootless docker used, only limited functionality available."
+	if [ "${KAS_WORK_DIR}" = "${KAS_REPO_DIR}" ]; then
+		warning "On docker rootless a exclusive KAS_WORK_DIR should be used" \
+		        "as kas temporarily changes the ownership of this directory."
+	fi
+	if [ "${KAS_REPO_MOUNT_OPT}" = "rw" ]; then
+		fatal_error "Docker rootless requires read-only repo."
+	fi
+	KAS_RUNTIME_ARGS="${KAS_RUNTIME_ARGS} -e KAS_DOCKER_ROOTLESS=1"
 }
 
 KAS_GIT_OVERLAY_FILE=""
@@ -251,6 +278,7 @@ case "${KAS_CONTAINER_ENGINE}" in
 docker)
 	KAS_CONTAINER_COMMAND="docker"
 	enable_unpriv_userns_docker
+	check_docker_rootless
 	;;
 podman)
 	KAS_CONTAINER_COMMAND="podman"
@@ -494,6 +522,9 @@ fi
 
 set_container_image_var
 
+if [ "${KAS_DOCKER_ROOTLESS}" = "1" ]; then
+	KAS_REPO_MOUNT_OPT_DEFAULT="ro"
+fi
 KAS_REPO_MOUNT_OPT="${KAS_REPO_MOUNT_OPT:-${KAS_REPO_MOUNT_OPT_DEFAULT}}"
 
 KAS_FILES="$(echo "${KAS_FILES}" | sed 's|'"${KAS_REPO_DIR}"'/|/repo/|g')"
@@ -502,6 +533,10 @@ if [ "$(id -u)" -eq 0 ] && [ "${KAS_ALLOW_ROOT}" != "yes" ] ; then
 	fatal_error "Running as root - may break certain recipes." \
 	            "Better give a regular user docker access. Set" \
 	            "KAS_ALLOW_ROOT=yes to override."
+fi
+
+if [ "${KAS_DOCKER_ROOTLESS}" = "1" ]; then
+	enable_docker_rootless
 fi
 
 set -- "$@" -v "${KAS_REPO_DIR}:/repo:${KAS_REPO_MOUNT_OPT}" \
