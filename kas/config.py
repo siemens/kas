@@ -45,7 +45,7 @@ class Config:
         self._override_target = target
         self._override_task = task
         self._build_dir = ctx.build_dir
-        self._config = {}
+        self.__config = {}
         if not filename:
             filename = os.path.join(ctx.kas_work_dir, CONFIG_YAML_FILE)
 
@@ -55,8 +55,14 @@ class Config:
         update = ctx.args.update if hasattr(ctx.args, 'update') else False
 
         self.handler = IncludeHandler(self.filenames, not update)
-        self.repo_dict = self._get_repo_dict()
+        self.repo_dict = {}
         self.repo_cfg_hashes = {}
+
+    @property
+    def _config(self):
+        if not self.__config:
+            raise RuntimeError("Config has not been imported yet.")
+        return self.__config
 
     def get_build_system(self):
         """
@@ -66,9 +72,10 @@ class Config:
 
     def find_missing_repos(self, repo_paths={}):
         """
-            Returns repos that are in config but not on disk
+            Returns repos that are in config but not on disk and updates
+            the internal config dictionary.
         """
-        (self._config, missing_repo_names) = \
+        (self.__config, missing_repo_names) = \
             self.handler.get_config(repos=repo_paths)
 
         return missing_repo_names
