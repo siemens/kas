@@ -90,6 +90,11 @@ def test_menu_inc_workdir(monkeykas, tmpdir):
     os.mkdir(kas_workdir)
     monkeykas.setenv('KAS_WORK_DIR', kas_workdir)
     kas.kas(['menu'])
+    default_config = os.path.join(kas_workdir, '.config.yaml')
+    assert os.path.exists(default_config)
+    # check if purge removes all files (including the generated .config.yml)
+    kas.kas(['purge'])
+    assert not os.path.exists(default_config)
 
 
 def test_menu_implicit_workdir(monkeykas, tmpdir):

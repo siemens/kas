@@ -112,6 +112,9 @@ def test_checkout_create_refs(monkeykas, tmpdir):
     kas.kas(['checkout', 'test.yml'])
     assert os.path.exists(str(repo_cache / 'github.com.siemens.kas.git'))
     assert os.path.exists('kas_1.0/.git/objects/info/alternates')
+    # check if refs are removed on purge
+    kas.kas(['purge', 'test.yml'])
+    assert not os.path.exists(repo_cache / 'github.com.siemens.kas.git')
 
 
 @pytest.mark.online
