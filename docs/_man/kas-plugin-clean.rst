@@ -17,6 +17,7 @@ SEE ALSO
 --------
 
 :manpage:`kas-plugin-cleanall`,
-:manpage:`kas-plugin-cleansstate`
+:manpage:`kas-plugin-cleansstate`,
+:manpage:`kas-plugin-purge`
 
 .. include:: _kas-man-footer.inc

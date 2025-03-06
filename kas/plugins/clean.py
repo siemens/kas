@@ -33,6 +33,9 @@ from pathlib import Path
 from kas.context import create_global_context, get_context
 from kas.config import Config, CONFIG_YAML_FILE
 from kas.libcmds import Macro
+from kas.kasusererror import KasUserError
+from kas import plugins
+
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens, 2025'
@@ -149,4 +152,81 @@ class CleanAll(CleanSstate):
                 self.clear_dir_content(downloads_dir)
 
 
-__KAS_PLUGINS__ = [Clean, CleanSstate, CleanAll]
+class Purge(CleanAll):
+    """
+    Clears the contents of the build directory, sstate-cache, downloads and
+    the repos managed by kas (including referenced repos in
+    ``KAS_REPO_REF_DIR``, if set). In ``KAS_WORK_DIR`` it will remove the
+    default configuration file and the ``KAS_BUILD_DIR`` (if present).
+    To preserve the reference repositories, run with ``--preserve-repo-refs``.
+    This command requires a configuration file to locate the managed repos.
+
+    .. note::
+        Before purging, kas needs to checkout and resolve all repos to locate
+        the repos managed by kas.
+    """
+
+    name = 'purge'
+    helpmsg = (
+        'Purge all data managed by kas, including managed repos.'
+    )
+
+    @classmethod
+    def setup_parser(cls, parser):
+        super().setup_parser(parser)
+        parser.add_argument('--preserve-repo-refs',
+                            action='store_true',
+                            default=False,
+                            help='Do not remove the reference repositories')
+
+    def run(self, args):
+        super().run(args)
+        ctx = get_context()
+        if not ctx.config:
+            raise KasUserError('Purge requires a config file to locate '
+                               'managed repos.')
+
+        for r in ctx.config.get_repos():
+            if r.operations_disabled:
+                logging.debug(f'Skipping {r.name} as not managed by kas')
+                continue
+            logging.info(f'Removing {r.path}')
+            if not args.dry_run:
+                shutil.rmtree(r.path)
+            if ctx.kas_repo_ref_dir and not args.preserve_repo_refs:
+                ref_repo = Path(ctx.kas_repo_ref_dir) / r.qualified_name
+                if ref_repo.exists():
+                    logging.info(f'Removing {ref_repo}')
+                    if not args.dry_run:
+                        shutil.rmtree(ref_repo)
+
+        build_dir = Path(ctx.build_dir)
+        logging.info(f'Removing {build_dir}/*')
+        if not args.dry_run:
+            self.clear_dir_content(build_dir)
+
+        work_dir = Path(ctx.kas_work_dir)
+        default_config = work_dir / CONFIG_YAML_FILE
+        if default_config.exists():
+            logging.info(f'Removing {default_config}')
+            if not args.dry_run:
+                default_config.unlink()
+
+        clean_paths = list(ctx.managed_paths)
+        # Plugins can register additional paths by providing get_managed_paths.
+        # These paths must be relative to the work_dir.
+        for plugin in plugins.all():
+            if hasattr(plugin, 'get_managed_paths'):
+                ppaths = plugin.get_managed_paths()
+                clean_paths.extend([work_dir / p for p in ppaths])
+
+        for path in [Path(p) for p in clean_paths if Path(p).exists()]:
+            logging.info(f'Removing {path}')
+            if not args.dry_run:
+                if path.is_file() or path.is_symlink():
+                    path.unlink()
+                else:
+                    shutil.rmtree(path)
+
+
+__KAS_PLUGINS__ = [Clean, CleanSstate, CleanAll, Purge]

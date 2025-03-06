@@ -90,6 +90,10 @@ class Shell:
         macro.add(ShellCommand(args.command))
         macro.run(ctx, args.skip)
 
+    @classmethod
+    def get_managed_paths(cls):
+        return [SHELL_HISTORY_FILE]
+
 
 class ShellCommand(Command):
     """

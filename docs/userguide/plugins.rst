@@ -108,6 +108,17 @@ typically provides a single command.
     :prog: kas
     :path: menu
 
+``purge`` plugin
+----------------
+
+.. automodule:: kas.plugins.clean.Purge
+
+.. argparse::
+    :module: kas.kas
+    :func: kas_get_argparser
+    :prog: kas
+    :path: purge
+
 ``shell`` plugin
 ----------------
 

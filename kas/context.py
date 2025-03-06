@@ -91,6 +91,10 @@ class Context:
             raise KasUserError('KAS_CLONE_DEPTH must be a number')
         self.repo_clone_depth = max(int(clone_depth), 0)
         self.setup_initial_environ()
+        # Register the paths that kas created and exclusively owns
+        self.managed_paths = set()
+        if not os.environ.get('KAS_BUILD_DIR'):
+            self.managed_paths.add(self.__kas_build_dir)
         self.config = None
         self.args = args
 

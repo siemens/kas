@@ -1,16 +1,16 @@
 :orphan:
 
-kas cleansstate command
-=======================
+kas purge command
+=================
 
 .. argparse::
     :module: kas.kas
     :func: kas_get_argparser
     :prog: kas
-    :path: cleansstate
+    :path: purge
     :manpage:
 
-    .. automodule:: kas.plugins.clean.CleanSstate
+    .. automodule:: kas.plugins.clean.Purge
         :noindex:
 
 SEE ALSO
@@ -18,6 +18,6 @@ SEE ALSO
 
 :manpage:`kas-plugin-clean`,
 :manpage:`kas-plugin-cleanall`,
-:manpage:`kas-plugin-purge`
+:manpage:`kas-plugin-cleansstate`
 
 .. include:: _kas-man-footer.inc

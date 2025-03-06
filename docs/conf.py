@@ -347,6 +347,8 @@ man_pages = [
      [author], 1),
     ('_man/kas-plugin-menu', 'kas-menu', 'kas menu plugin',
      [author], 1),
+    ('_man/kas-plugin-purge', 'kas-purge', 'kas purge command',
+     [author], 1),
     ('_man/kas-plugin-shell', 'kas-shell', 'kas shell plugin',
      [author], 1),
     ('_man/kas-project-config',
