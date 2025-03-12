@@ -171,7 +171,8 @@ class Dump(Checkout):
                             help='Output format (default: yaml)')
         parser.add_argument('--resolve-refs',
                             action='store_true',
-                            help='Replace floating refs with exact SHAs')
+                            help='Replace floating refs with exact SHAs. '
+                                 'Overrides are removed')
         parser.add_argument('--resolve-local',
                             action='store_true',
                             help='Add tracking information of root repo')
@@ -255,6 +256,9 @@ class Dump(Checkout):
                     config_expanded['repos'][k]['commit'] = r.revision
                 elif r.refspec:
                     config_expanded['repos'][k]['refspec'] = r.revision
+            # as the refs are resolved, the overrides are redundant
+            if 'overrides' in config_expanded:
+                del config_expanded['overrides']
 
         if args.resolve_local:
             for k, r in _filter_local(repos):
