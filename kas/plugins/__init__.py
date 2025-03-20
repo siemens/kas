@@ -38,21 +38,22 @@ def load():
     """
         Import all kas plugins
     """
+    # sort alphabetically
     from . import build
-    from . import for_all_repos
     from . import checkout
-    from . import shell
-    from . import menu
     from . import dump
+    from . import for_all_repos
     from . import lock
+    from . import menu
+    from . import shell
 
     register_plugins(build)
     register_plugins(checkout)
     register_plugins(dump)
     register_plugins(for_all_repos)
     register_plugins(lock)
-    register_plugins(shell)
     register_plugins(menu)
+    register_plugins(shell)
 
 
 def get(name):
