@@ -179,6 +179,7 @@ class SetupHome(Command):
         'AWS_SHARED_CREDENTIALS_FILE',
         'AWS_WEB_IDENTITY_TOKEN_FILE',
         'NETRC_FILE',
+        'NPMRC_FILE',
         'REGISTRY_AUTH_FILE',
     ]
 
@@ -217,6 +218,11 @@ class SetupHome(Command):
                 fds.write('machine ' + os.environ['CI_SERVER_HOST'] + '\n'
                           'login gitlab-ci-token\n'
                           'password ' + os.environ['CI_JOB_TOKEN'] + '\n')
+
+    def _setup_npmrc(self):
+        if os.environ.get('NPMRC_FILE', False):
+            shutil.copy(os.environ['NPMRC_FILE'],
+                        self.tmpdirname + "/.npmrc")
 
     def _setup_registry_auth(self):
         os.makedirs(self.tmpdirname + "/.docker")
@@ -331,6 +337,7 @@ class SetupHome(Command):
             logging.info(f'Running on {managed_env}')
         def_umask = os.umask(0o077)
         self._setup_netrc()
+        self._setup_npmrc()
         self._setup_registry_auth()
         self._setup_gitconfig()
         self._setup_aws_creds()

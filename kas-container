@@ -615,6 +615,11 @@ if [ -f "${NETRC_FILE}" ]; then
 		-e NETRC_FILE="/var/kas/userdata/.netrc"
 fi
 
+if [ -f "${NPMRC_FILE}" ]; then
+	set -- "$@" -v "$(realpath -e "${NPMRC_FILE}")":/var/kas/userdata/.npmrc:ro \
+		-e NPMRC_FILE="/var/kas/userdata/.npmrc"
+fi
+
 if [ -f "${GITCONFIG_FILE}" ]; then
 	set -- "$@" -v "$(realpath -e "${GITCONFIG_FILE}")":/var/kas/userdata/.gitconfig:ro \
 		-e GITCONFIG_FILE="/var/kas/userdata/.gitconfig"
