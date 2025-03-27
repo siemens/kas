@@ -109,7 +109,7 @@ async def _read_stream(stream, callback):
             break
 
 
-def _filter_stderr(capture_stderr, ret, out, err):
+def _filter_stderr(capture_stderr, ret, out, err=None):
     if capture_stderr:
         return (ret, out, err or '')
     else:
@@ -197,11 +197,11 @@ def run_cmd(cmd, cwd, env=None, fail=True, capture_stderr=False):
     except FileNotFoundError as ex:
         if fail:
             raise ex
-        return (errno.ENOENT, str(ex))
+        return _filter_stderr(capture_stderr, errno.ENOENT, str(ex))
     except PermissionError as ex:
         if fail:
             raise ex
-        return (errno.EPERM, str(ex))
+        return _filter_stderr(capture_stderr, errno.EPERM, str(ex))
     return _filter_stderr(capture_stderr, ret.returncode,
                           ret.stdout.decode('utf-8'),
                           ret.stderr.decode('utf-8'))
