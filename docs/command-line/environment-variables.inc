@@ -149,6 +149,9 @@ overwritten using the ``env`` section of the config file.
 | ``NETRC_FILE``           | Path to a .netrc file which will be copied to    |
 | (K,C)                    | the kas home dir as .netrc.                      |
 +--------------------------+--------------------------------------------------+
+| ``NPMRC_FILE``           | Path to a .npmrc file which will be copied to    |
+| (K,C)                    | the kas home dir as .npmrc.                      |
++--------------------------+--------------------------------------------------+
 | ``REGISTRY_AUTH_FILE``   | Path to a container registry authentication file.|
 | (K,C)                    |                                                  |
 +--------------------------+--------------------------------------------------+
