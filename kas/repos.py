@@ -88,7 +88,7 @@ class Repo:
     """
 
     def __init__(self, name, url, path, commit, tag, branch, refspec, layers,
-                 patches, disable_operations):
+                 patches, signers, disable_operations):
         self.name = name
         self.url = url
         self.path = path
@@ -98,6 +98,7 @@ class Repo:
         self.refspec = refspec
         self._layers = layers
         self._patches = patches
+        self.allowed_signers = signers
         self.operations_disabled = disable_operations
 
         if not self.url:
@@ -159,6 +160,10 @@ class Repo:
         (_, output) = run_cmd(self.is_dirty_cmd(),
                               cwd=self.path, fail=False)
         return bool(output)
+
+    @cached_property
+    def signed(self):
+        return self.allowed_signers is not None
 
     @staticmethod
     def get_type():
@@ -249,6 +254,8 @@ class Repo:
                                 '"%s" is unsafe as tags are mutable.', name)
                 Repo.__no_commit_tag_warned__.append(name)
         path = repo_config.get('path', None)
+        signed = repo_config.get('signed', False)
+        signers = repo_config.get('allowed_signers', None) if signed else None
         disable_operations = False
 
         if path is None:
@@ -271,13 +278,13 @@ class Repo:
                     f'{commit} is not a full-length hash for repo '
                     f'"{name}". This will be an error in future versions.')
             return GitRepo(name, url, path, commit, tag, branch, refspec,
-                           layers, patches, disable_operations)
+                           layers, patches, signers, disable_operations)
         if repo_type == 'hg':
             if not shutil.which('hg'):
                 raise UnsupportedRepoTypeError(
                     'hg is required for Mercurial repositories')
             return MercurialRepo(name, url, path, commit, tag, branch, refspec,
-                                 layers, patches, disable_operations)
+                                 layers, patches, signers, disable_operations)
         raise UnsupportedRepoTypeError(f'Repo type "{repo_type}" '
                                        'not supported.')
 
