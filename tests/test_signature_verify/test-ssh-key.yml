@@ -1,0 +1,17 @@
+header:
+  version: 19
+
+signers:
+  testkey:
+    type: ssh
+    repo: this
+    path: ssh/testkey.pub
+
+repos:
+  this:
+  local:
+    path: testrepo
+    tag: signed-tag
+    signed: true
+    allowed_signers:
+      - testkey

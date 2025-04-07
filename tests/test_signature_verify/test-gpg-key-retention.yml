@@ -1,0 +1,18 @@
+header:
+  version: 19
+
+signers:
+  jan-kiszka:
+    fingerprint: CA5F8C00F5FBC85466016C808AD4AC6F7AE5E714
+    gpg_keyserver: keyserver.ubuntu.com
+
+repos:
+  this:
+  kas:
+    url: https://github.com/siemens/kas.git
+    tag: '4.3'
+    commit: f650ebe2495a9cbe2fdf4a2c8becc7b3db470d55
+    signed: true
+    # use the wrong key to test the error message
+    allowed_signers:
+      - jan-kiszka

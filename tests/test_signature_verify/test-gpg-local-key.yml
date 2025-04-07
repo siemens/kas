@@ -1,0 +1,21 @@
+header:
+  version: 19
+
+signers:
+  jan-kiszka:
+    repo: this
+    path: jan-kiszka.asc
+  wrong-fp:
+    repo: this
+    path: jan-kiszka.asc
+    fingerprint: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+repos:
+  this:
+  kas:
+    url: https://github.com/siemens/kas.git
+    tag: '4.3'
+    commit: f650ebe2495a9cbe2fdf4a2c8becc7b3db470d55
+    signed: true
+    allowed_signers:
+      - jan-kiszka

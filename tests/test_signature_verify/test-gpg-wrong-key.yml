@@ -1,0 +1,18 @@
+header:
+  version: 19
+
+signers:
+  YoctoBuildandRelease:
+    fingerprint: 2AFB13F28FBBB0D1B9DAF63087EB3D32FB631AD9
+    gpg_keyserver: keyserver.ubuntu.com
+
+repos:
+  this:
+  kas:
+    url: https://github.com/siemens/kas.git
+    tag: '4.3'
+    commit: f650ebe2495a9cbe2fdf4a2c8becc7b3db470d55
+    signed: true
+    # use the wrong key to test the error message
+    allowed_signers:
+      - YoctoBuildandRelease
