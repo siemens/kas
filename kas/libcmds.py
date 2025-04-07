@@ -31,6 +31,7 @@ import pprint
 import configparser
 import json
 import base64
+from pathlib import Path
 from git.config import GitConfigParser
 from .libkas import (ssh_cleanup_agent, ssh_setup_agent, ssh_no_host_key_check,
                      get_build_environ, repos_fetch, repos_apply_patches)
@@ -38,6 +39,8 @@ from .context import ManagedEnvironment as ME
 from .context import get_context
 from .includehandler import IncludeException
 from .kasusererror import ArgsCombinationError
+from .keyhandler import GPGKeyHandler, SSHKeyHandler
+from .repos import RepoRefError
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
@@ -78,6 +81,7 @@ class Macro:
                 repo_loop,
                 FinishSetupRepos(),
                 ReposCheckout(),
+                ReposCheckSignatures(),
                 ReposApplyPatches(),
                 SetupEnviron(),
                 WriteBBConfig(),
@@ -577,3 +581,55 @@ class ReposCheckout(Command):
     def execute(self, ctx):
         for repo in ctx.config.get_repos():
             repo.checkout()
+
+
+class ReposCheckSignatures(Command):
+    """
+        Imports the keys defined in the configuration and checks the
+        signatures of the repositories.
+    """
+
+    def __str__(self):
+        return 'repos_check_signatures'
+
+    def execute(self, ctx):
+        self._import_keys(ctx)
+        self._check_signatures(ctx)
+
+    def _import_keys(self, ctx):
+        handlerdirs = {
+            'gpg': Path(ctx.kas_work_dir) / '.gnupg',
+            'ssh': Path(ctx.kas_work_dir) / '.ssh-handler',
+        }
+        for _, d in handlerdirs.items():
+            d.mkdir(exist_ok=True)
+            d.chmod(0o700)
+
+        ctx.keyhandler['gpg'] = \
+            GPGKeyHandler(handlerdirs['gpg'],
+                          ctx.config.get_signers_config('gpg'),
+                          ctx.config)
+        ctx.keyhandler['ssh'] = \
+            SSHKeyHandler(handlerdirs['ssh'],
+                          ctx.config.get_signers_config('ssh'),
+                          ctx.config)
+
+        for keyhandler in ctx.keyhandler.values():
+            ctx.environ.update(keyhandler.env)
+
+    def _check_signatures(self, ctx):
+        for repo in ctx.config.get_repos():
+            if not repo.signed:
+                continue
+            valid, keyid = repo.check_signature()
+            keyhandler = ctx.keyhandler[repo.signers_type]
+            info = keyhandler.get_key_repr(keyid) if keyid else 'No info'
+            if valid:
+                logging.info(f'Repository {repo.name} signature valid: {info}')
+                continue
+            elif keyid:
+                raise RepoRefError(f'Repository {repo.name} is not signed '
+                                   f'with a trusted key: {info}')
+
+            raise RepoRefError(f'Repository {repo.name} is not signed '
+                               'with a trusted key.')

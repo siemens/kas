@@ -162,6 +162,37 @@ class Repo:
         return bool(output)
 
     @cached_property
+    def signers_type(self):
+        if self.allowed_signers is None:
+            return 'gpg'
+        signers = get_context().config.get_signers_config()
+        try:
+            ktypes = [signers[k].get('type', 'gpg')
+                      for k in self.allowed_signers]
+        except KeyError as e:
+            raise KasUserError(f'Repository {self.name}: '
+                               f'Allowed signer "{e}" not found in config')
+        if len(set(ktypes)) > 1:
+            raise KasUserError(f'Repository {self.name}: '
+                               'Mixed signer types are not supported')
+        return ktypes[0]
+
+    @property
+    def keyhandler(self):
+        if not self.signed:
+            return None
+        return get_context().keyhandler[self.signers_type]
+
+    def check_signature(self):
+        self.keyhandler.prepare_validation(self)
+        (ret, _, err) = run_cmd(self.is_signed_cmd(),
+                                cwd=self.path, fail=False, capture_stderr=True)
+        logging.debug('Signature verification output (%d):\n%s', ret, err)
+        if ret != 0:
+            return (False, None)
+        return self.keyhandler.validate_allowed_signer(self, err)
+
+    @cached_property
     def signed(self):
         return self.allowed_signers is not None
 
@@ -256,6 +287,9 @@ class Repo:
         path = repo_config.get('path', None)
         signed = repo_config.get('signed', False)
         signers = repo_config.get('allowed_signers', None) if signed else None
+        if signed and not signers:
+            raise KasUserError(f'Repository "{name}" is signed but no allowed '
+                               'signers specified.')
         disable_operations = False
 
         if path is None:
@@ -650,6 +684,13 @@ class GitRepo(RepoImpl):
     def is_dirty_cmd(self):
         return ['git', 'diff', '--stat']
 
+    def is_signed_cmd(self):
+        if self.tag:
+            return ['git', 'verify-tag', '--raw', self.tag]
+        else:
+            refspec = self.commit or self.revision
+            return ['git', 'verify-commit', '--raw', refspec]
+
     def resolve_branch_cmd(self):
         refspec = self.remove_ref_prefix(self.branch or self.refspec)
         return ['git', 'rev-parse', '--verify', '-q', f'origin/{refspec}']
@@ -730,6 +771,9 @@ class MercurialRepo(RepoImpl):
     def is_dirty_cmd(self):
         return ['hg', 'status', '--modified', '--added',
                 '--removed', '--deleted']
+
+    def is_signed_cmd(self):
+        raise NotImplementedError()
 
     def resolve_branch_cmd(self):
         if self.branch:
