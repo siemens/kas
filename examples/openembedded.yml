@@ -1,7 +1,7 @@
 #
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2022-2024
+# Copyright (c) Siemens AG, 2022-2025
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,13 @@
 #
 
 header:
-  version: 14
+  version: 19
+
+# Optionally provide keys to verify signed repositories
+signers:
+  YoctoBuildandRelease:
+    fingerprint: 2AFB13F28FBBB0D1B9DAF63087EB3D32FB631AD9
+    gpg_keyserver: keyserver.ubuntu.com
 
 machine: qemux86-64
 distro: poky
@@ -33,7 +39,12 @@ target: zlib-native
 repos:
   poky:
     url: https://git.yoctoproject.org/poky.git
-    commit: fb91a49387cfb0c8d48303bb3354325ba2a05587
+    # when specifying a tag, optionally provide a commit hash
+    tag: yocto-5.1.1
+    commit: 7e081bd98fdc5435e850d1df79a5e0f1e30293d0
+    signed: true
+    allowed_signers:
+      - YoctoBuildandRelease
     layers:
       meta:
       meta-poky:
