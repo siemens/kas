@@ -181,3 +181,15 @@ Added
 The repo keys ``tag`` and ``branch`` can now be set to ``null`` to remove
 these properties from the repo. This is needed in case a default value is
 set in the ``defaults`` section that should not apply to a repo.
+
+Version 19
+----------
+
+Added
+~~~~~
+
+Various keys for signature verification of repositories were added:
+
+- top level ``signers`` object to specify keys for signature verification
+- in repo definitions, ``signed`` and ``allowed_signers`` are added to
+  specify whether a repo is signed and which data to use for verification.

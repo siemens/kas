@@ -329,6 +329,12 @@ Configuration reference
       + ``repo.name``.
       In case of a relative path name ``kas_work_dir`` is prepended.
 
+    ``signed``: boolean [optional]
+      :kasschemadesc:`repos.additionalProperties.anyOf[0].properties.signed`
+
+    ``allowed_signers``: list [optional]
+      :kasschemadesc:`repos.additionalProperties.anyOf[0].properties.allowed_signers`
+
     ``layers``: dict [optional]
       :kasschemadesc:`repos.additionalProperties.anyOf[0].properties.layers`
       This allows combinations:
@@ -427,6 +433,43 @@ Configuration reference
         disk-image: path/to/image.*.img
         firmware: path/to/firmware.bin
         swu: path/to/update.swu
+
+``signers``: dict [optional]
+  :kasschemadesc:`signers`
+
+  This dict contains the public keys or certificates that are used to verify
+  the authenticity of the repositories. In case of GPG keys, these are made
+  available to the build environment as well by pointing the ``GNUPGHOME``
+  environment variable to the local keystore.
+
+  .. note:: Currently only GnuPG keys are supported.
+
+  ``<signer_id>``: dict [optional]
+    :kasschemadesc:`signers.additionalProperties`
+    For each signer, a unique identifier is required. The ``<signer_id>`` is used to
+    reference the entry in the ``allowed_signers`` entries.
+
+    ``type``: enum [optional]
+      :kasschemadesc:`signers.additionalProperties.properties.type`
+
+    ``repo``: string [optional]
+      :kasschemadesc:`signers.additionalProperties.properties.repo`
+
+    ``path``: string [optional]
+      :kasschemadesc:`signers.additionalProperties.properties.path`
+
+    ``fingerprint``: string [optional]
+      :kasschemadesc:`signers.additionalProperties.properties.fingerprint`
+
+      **GPG key fingerprint**: The fingerprint can be obtained by running
+      ``gpg --list-keys --with-fingerprint --keyid-format=long <KEYID>``.
+      The needed string is the 40-character fingerprint without spaces.
+
+      **SSH key fingerprint**: The fingerprint can be obtained by running
+      ``ssh-keygen -lf key.pub | awk '{print $2}'``.
+
+    ``gpg_keyserver``: string [optional]
+      :kasschemadesc:`signers.additionalProperties.properties.gpg_keyserver`
 
 ``_source_dir``: string [optional]
   :kasschemadesc:`_source_dir`

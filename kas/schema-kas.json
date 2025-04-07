@@ -29,7 +29,7 @@
                         {
                             "type": "integer",
                             "minimum": 1,
-                            "maximum": 18
+                            "maximum": 19
                         }
                     ]
                 },
@@ -228,6 +228,18 @@
                                 "description": "Deprecated. Use 'commit' / 'branch' / 'tag' instead.",
                                 "type": "string"
                             },
+                            "signed": {
+                                "description": "Whether the commit / tag must be signed. If enabled, 'allowed_signers' must be defined. If both tag and commit are specified, only the signature of the tag is checked. Git only.",
+                                "type": "boolean",
+                                "default": false
+                            },
+                            "allowed_signers": {
+                                "description": "List of signer-ids to verify the signature against. Must be non-empty if 'signed=true'. Git only.",
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
                             "path": {
                                 "description": "Path where the repository is stored.",
                                 "anyOf": [
@@ -348,6 +360,51 @@
             "type": "object",
             "additionalProperties": {
                 "type": ["string"]
+            }
+        },
+        "signers": {
+            "description": "Specification of the repository signature verification.",
+            "type": "object",
+            "additionalProperties": {
+                "type": "object",
+                "description": "Pairs of name and location of a public key or certificate. The name is used to reference the entry in the repository configuration.",
+                "additionalProperties": false,
+                "properties": {
+                    "type": {
+                        "description": "Type of the cryptographic material.",
+                        "type": "string",
+                        "enum": ["gpg", "ssh"],
+                        "default": "gpg"
+                    },
+                    "repo": {
+                        "description": "Repo <repo-id> which provides the public key or certificate file."
+                    },
+                    "path": {
+                        "description": "Path to the public key or certificate file, relative to the repo. Must be used together with 'repo'.",
+                        "type": "string"
+                    },
+                    "fingerprint": {
+                        "description": "Fingerprint of the key or certificate (gpg: long-form, 40 hex digits, ssh: SHA256:...). If not provided, it is read from the file.",
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "description": "GnuPG fingerprint of the key (long-form, 40 hex digits).",
+                                "minLength": 40,
+                                "maxLength": 40
+                            },
+                            {
+                                "type": "string",
+                                "description": "SSH fingerprint of the key (SHA256:...).",
+                                "minLength": 50,
+                                "maxLength": 50
+                            }
+                        ]
+                    },
+                    "gpg_keyserver": {
+                        "description": "GnuPG keyserver to use for key retrieval (if no local path is provided). The 'fingerprint' must be provided. GPG only.",
+                        "type": "string"
+                    }
+                }
             }
         },
         "_source_dir": {

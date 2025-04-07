@@ -238,3 +238,14 @@ class Config:
             foundfiles.extend([(name, f) for f in files])
         return [(n, f.relative_to(self._build_dir))
                 for n, f in foundfiles]
+
+    def get_signers_config(self, keytype=None):
+        """
+            Returns the keys from the configuration
+        """
+        signers = self._config.get('signers', {})
+        if not keytype:
+            return signers
+        else:
+            return {k: v for k, v in signers.items()
+                    if v.get('type', 'gpg') == keytype}
