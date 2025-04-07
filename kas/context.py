@@ -95,6 +95,7 @@ class Context:
         self.managed_paths = set()
         if not os.environ.get('KAS_BUILD_DIR'):
             self.managed_paths.add(self.__kas_build_dir)
+        self.keyhandler = {}
         self.config = None
         self.args = args
 

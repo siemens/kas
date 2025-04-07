@@ -57,8 +57,12 @@ dependencies = [
 optional-dependencies.tui = [
   "kconfiglib>=14.1,<15"
 ]
+optional-dependencies.verify = [
+  "python-gnupg>=0.4.0,<1"
+]
 optional-dependencies.test = [
   "kas[tui]",
+  "kas[verify]",
   "pytest>=6,<9",
 ]
 

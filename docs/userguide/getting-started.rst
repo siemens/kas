@@ -13,6 +13,7 @@ This project depends on
 - GitPython Python 3 package
 - kconfiglib Python 3 package (optional, for menu plugin)
 - NEWT Python 3 distro package (optional, for menu plugin)
+- python-gnupg Python 3 package (optional, for signature verification)
 
 To install kas into your python site-package repository, run::
 
