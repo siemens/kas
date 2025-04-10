@@ -24,6 +24,13 @@ After making the changes, you need to update the minimum and maximum values
 of ``header.version``. If the version was already updated after the last
 release, the version bump is not required.
 
+Add a new CLI option
+^^^^^^^^^^^^^^^^^^^^
+
+Options that take a parameter (e.g. ``--format json``) must be handled
+in ``kas-container`` as well. To keep the handling in ``kas-container``
+simple, try to choose a unique option name across all plugins.
+
 Add a new sub-command (plugin)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
