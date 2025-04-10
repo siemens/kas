@@ -414,7 +414,7 @@ KAS_EXTRA_BITBAKE_ARGS=0
 # parse kas sub-command options
 while [ $# -gt 0 ] && [ $KAS_EXTRA_BITBAKE_ARGS -eq 0 ]; do
 	case "$1" in
-	--provenance|--skip|--target|--task)
+	--format|--indent|--provenance|--skip|--target|--task)
 		KAS_OPTIONS="${KAS_OPTIONS} $1 $2"
 		shift 1
 		shift 1 || KAS_OPTIONS="--help"
