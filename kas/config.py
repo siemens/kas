@@ -25,6 +25,7 @@
 
 import os
 import json
+import copy
 from pathlib import Path
 from .repos import Repo
 from .includehandler import IncludeHandler
@@ -80,11 +81,14 @@ class Config:
 
         return missing_repo_names
 
-    def get_config(self):
+    def get_config(self, remove_includes=False):
         """
-            Returns the config dict.
+            Returns a copy of the config dict
         """
-        return self._config
+        config = copy.deepcopy(self._config)
+        if remove_includes and 'includes' in config['header']:
+            del config['header']['includes']
+        return config
 
     def get_repos_config(self):
         """
