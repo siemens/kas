@@ -224,7 +224,7 @@ class Dump(Checkout):
         ctx = get_context()
         schema_v = 14 if args.lock else 7
         config_expanded = {'header': {'version': schema_v}} if args.lock \
-            else ctx.config.get_config()
+            else ctx.config.get_config(remove_includes=True)
         repos = ctx.config.repo_dict.items()
         output = IoTarget(target=sys.stdout, managed=False)
 
@@ -245,10 +245,6 @@ class Dump(Checkout):
             repos = _filter_enabled(repos)
             config_expanded['overrides'] = \
                 {'repos': {k: {'commit': r.revision} for k, r in repos}}
-
-        # includes are already expanded, delete the key
-        if 'includes' in config_expanded['header']:
-            del config_expanded['header']['includes']
 
         if args.resolve_refs and not args.lock:
             for k, r in _filter_enabled(repos):
