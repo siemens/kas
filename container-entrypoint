@@ -31,6 +31,13 @@ chown_managed_dirs()
 			chown "$1":"$2" "$DIR"
 		fi
 	done
+
+	# SSH Directory Permissions
+	for DIR in /builder/.ssh; do
+		if [ -d "$DIR" ]; then
+			chown -R "$1":"$2" "$DIR"
+		fi
+	done
 }
 
 restore_managed_dirs_owner()
