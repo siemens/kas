@@ -27,9 +27,11 @@ import pathlib
 import subprocess
 import re
 import pytest
+import json
 from kas import kas
 from kas.context import create_global_context
 from kas.kasusererror import ArgsCombinationError
+from kas.libcmds import SetupHome
 
 
 def test_build_dir_is_placed_inside_work_dir_by_default(monkeykas, tmpdir):
@@ -200,3 +202,41 @@ def test_managed_env_detection(monkeykas):
         assert bool(me)
         assert str(me) == 'VSCode Remote Containers'
         assert ctx.environ['REMOTE_CONTAINERS_FOO'] == 'bar'
+
+
+def test_env_file_processing(monkeykas, tmpdir):
+    ctx = create_global_context([])
+    rcfiles = [
+        ('NETRC_FILE', '.netrc'),
+        ('NPMRC_FILE', '.npmrc'),
+        ('REGISTRY_AUTH_FILE', '.docker/config.json'),
+        ('AWS_CONFIG_FILE', '.aws/config'),
+        ('AWS_WEB_IDENTITY_TOKEN_FILE', '.aws/web_identity_token')
+        # no need to test gitconfig, as tested in test_gitconfig
+    ]
+    for name, file in rcfiles:
+        with monkeykas.context() as mp:
+            local_file = tmpdir / '.rcfile'
+            with open(local_file, 'w') as f:
+                if name in ['NETRC_FILE', 'NPMRC_FILE']:
+                    f.write('machine foo\nlogin bar\npassword baz\n')
+                elif name in ['AWS_CONFIG_FILE',
+                              'AWS_WEB_IDENTITY_TOKEN_FILE']:
+                    f.write('[profile foo]\nregion=bar\n')
+                elif name == 'REGISTRY_AUTH_FILE':
+                    json.dump({'auths': {'example.com': {'auth': 'foo'}}}, f)
+                else:
+                    f.write('foo: bar\n')
+            mp.setenv(name, str(local_file))
+            if name in ['AWS_CONFIG_FILE', 'AWS_WEB_IDENTITY_TOKEN_FILE']:
+                mp.setenv('AWS_SHARED_CREDENTIALS_FILE', str(local_file))
+                mp.setenv('AWS_ROLE_ARN', 'arn:foo')
+                if name == 'AWS_WEB_IDENTITY_TOKEN_FILE':
+                    mp.setenv('AWS_CONFIG_FILE', str(local_file))
+            elif name == 'REGISTRY_AUTH_FILE':
+                mp.setenv('CI_JOB_TOKEN', 'foo')
+                mp.setenv('CI_REGISTRY_USER', 'reg-user')
+                mp.setenv('CI_REGISTRY', 'example.com')
+            sh = SetupHome()
+            sh.execute(ctx)
+            assert (pathlib.Path(sh.tmpdirname) / pathlib.Path(file)).exists()
