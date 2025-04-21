@@ -33,7 +33,7 @@ chown_managed_dirs()
 	done
 
 	# SSH Directory Permissions
-	for DIR in /builder/.ssh; do
+	for DIR in /builder/.ssh /var/kas/kas_userdata.rootless; do
 		if [ -d "$DIR" ]; then
 			chown -R "$1":"$2" "$DIR"
 		fi
@@ -43,6 +43,37 @@ chown_managed_dirs()
 restore_managed_dirs_owner()
 {
 	chown_managed_dirs 0 0
+}
+
+export_managed_dirs()
+{
+	
+	if [ -f "$1/.gitconfig" ]; then
+		export GITCONFIG_FILE = "$1/.gitconfig"
+	fi
+	if [ -f "$1/.aws/config" ]; then
+		export AWS_CONFIG_FILE = "$1/.aws/config"
+	fi
+	if [ -f "$1/.aws/credentials" ]; then
+		export AWS_SHARED_CREDENTIALS_FILE = "$1/.aws/credentials"
+	fi
+	if [ -f "$1/.netrc" ]; then
+		export NETRC_FILE = "$1/.netrc"
+	fi
+	if [ -f "$1/.npmrc" ]; then
+		export NPMRC_FILE = "$1/.npmrc"
+	fi
+	if [ -f "$1/.docker/config.json" ]; then
+		export REGISTRY_AUTH_FILE = "$1/.docker/config.json"
+	fi
+	if [ -f "$1/.aws/role" ]; then
+		export AWS_ROLE_ARN = "$1/.aws/role"
+	fi
+	if [ -f "$1/.aws/web-identity-token" ]; then
+		export AWS_WEB_IDENTITY_TOKEN_FILE = "$1/.aws/web-identity-token"
+	fi
+
+
 }
 
 if mount | grep -q "on / type aufs"; then
@@ -79,6 +110,10 @@ if [ -n "$USER_ID" ] && [ "$USER_ID" -ne 0 ] && \
 	# (podman option --userns=keep-id). By that, the bind mounts
 	# are owned by root.
 	sudo git config --system safe.directory /repo
+	TEMP_DIR=$(mkdir /var/kas/kas_userdata.rootless)
+	# Copy the userdata directory to a temporary location
+	cp -a /var/kas/userdata "$TEMP_DIR"
+	export_managed_dirs "$TEMP_DIR"
 	chown_managed_dirs "$USER_ID" "$GROUP_ID"
 fi
 
