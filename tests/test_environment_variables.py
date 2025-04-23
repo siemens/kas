@@ -30,7 +30,7 @@ import pytest
 import json
 from kas import kas
 from kas.context import create_global_context
-from kas.kasusererror import ArgsCombinationError
+from kas.kasusererror import ArgsCombinationError, EnvSetButNotFoundError
 from kas.libcmds import SetupHome
 
 
@@ -240,3 +240,11 @@ def test_env_file_processing(monkeykas, tmpdir):
             sh = SetupHome()
             sh.execute(ctx)
             assert (pathlib.Path(sh.tmpdirname) / pathlib.Path(file)).exists()
+
+
+def test_env_set_but_not_existing(monkeykas):
+    with monkeykas.context() as mp:
+        mp.setenv('NETRC_FILE', '/path/does/not/exist')
+        ctx = create_global_context([])
+        with pytest.raises(EnvSetButNotFoundError):
+            SetupHome().execute(ctx)
