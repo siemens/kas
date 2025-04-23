@@ -6,6 +6,8 @@ All directories that are passed to kas by setting the corresponding
 environment variables (e.g. ``KAS_WORK_DIR``, ``KAS_BUILD_DIR``, ...) must
 not overlap with each other, except for overlapping with ``KAS_WORK_DIR``
 (i.e. the build|sstate|downloads|repo-ref dirs can be below the work dir).
+Environment variables that reference a file or directory must have a valid
+path that is accessible and readable.
 
 Variable Scope
 ~~~~~~~~~~~~~~
