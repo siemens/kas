@@ -71,7 +71,7 @@ if [ -n "$USER_ID" ] && [ "$USER_ID" -ne 0 ] && \
 	# Docker rootless does not support keeping the user namespace
 	# (podman option --userns=keep-id). By that, the bind mounts
 	# are owned by root.
-	sudo git config --system safe.directory /repo
+	git config --system safe.directory /repo
 	chown_managed_dirs "$USER_ID" "$GROUP_ID"
 fi
 
