@@ -53,7 +53,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=${CACHE_SHARING} \
         python3-newt python3-colorlog python3-kconfiglib python3-websockets \
         gosu lsb-release file vim less procps tree tar bzip2 zstd pigz lz4 unzip tmux libncurses-dev \
         git-lfs mercurial iproute2 ssh-client telnet curl rsync gnupg awscli sudo \
-        socat bash-completion python3-shtab python3-git python3-gnupg && \
+        socat bash-completion python3-shtab python3-git python3-gnupg python3-cairo && \
     rm -rf /var/log/* /tmp/* /var/tmp/* /var/cache/ldconfig/aux-cache && \
     rm -f /etc/gitconfig && \
     git config --system filter.lfs.clean 'git-lfs clean -- %f' && \
