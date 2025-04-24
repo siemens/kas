@@ -51,6 +51,31 @@ must be registered in ``docs/userguide/plugins.rst``. In addition, a manpage
 should be added in ``docs/_man/kas-plugin-<name>`` and registered in
 ``docs/conf.py`` (as ``kas-<name>.1``).
 
+Add support for new credentials
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Credentials are passed using environment variables. For details, see
+:ref:`checkout-creds-label`. These can either contain the credential directly
+or point to a credential file (e.g. ``.netrc``). To add support for a new
+credential, the following steps are required:
+
+- document the variable in :ref:`env-vars-label`
+- add the variable to the ``ENV_VARS`` list in ``libcmds.py::SetupHome``
+- add a forward of the variable in ``kas-container``
+- add the variable to the ``test_environment_variables.py`` test
+
+For variables pointing to a credential file, the following applies in addition:
+
+- the variable should end in ``_FILE`` (exceptions may apply)
+- ``kas-container``
+
+  - bind-mount the variable into ``/var/kas/userdata/<credential file>``
+  - rewrite the variable to the path inside the container
+
+If the variable does not end in ``_FILE``, manual processing in the
+``container-entrypoint`` script is needed to support it under rootless
+docker.
+
 Container image build
 ---------------------
 
