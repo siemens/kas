@@ -14,6 +14,12 @@ able to call it from anywhere.
 For local development, use the **run-kas** wrapper from the project root
 directory. In this case, replace ``kas`` with ``path/to/run-kas``.
 
+Making Changes
+--------------
+
+These sections provide an overview of common modifications along with the
+required steps.
+
 Changes of the project configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
