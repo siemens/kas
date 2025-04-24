@@ -81,6 +81,9 @@ class GPGKeyHandler(KeyHandler):
         if not HAVE_GNUPG:
             raise MissingModuleError('python-gnupg', 'signature verification')
 
+        if logging.getLogger().level <= logging.DEBUG:
+            logging.getLogger('gnupg').setLevel(logging.INFO)
+
         self.gpg = gnupg.GPG(gnupghome=str(gnupghome))
         self.fingerprints = {}
         self._reset_trust()
