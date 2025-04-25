@@ -339,6 +339,11 @@ while [ $# -gt 0 ]; do
 		KAS_AWS_DIR="$2"
 		shift 2
 		;;
+	--gcloud-dir)
+		[ $# -gt 2 ] || usage
+		KAS_GCLOUD_DIR="$2"
+		shift 2
+		;;
 	--git-credential-store)
 		[ $# -gt 2 ] || usage
 		KAS_GIT_CREDENTIAL_STORE="$2"
@@ -579,6 +584,12 @@ if [ -n "${KAS_AWS_DIR}" ] ; then
 		-e AWS_CONFIG_FILE="${AWS_CONFIG_FILE:-/var/kas/userdata/.aws/config}" \
 		-e AWS_SHARED_CREDENTIALS_FILE="${AWS_SHARED_CREDENTIALS_FILE:-/var/kas/userdata/.aws/credentials}"
 fi
+
+if [ -n "${KAS_GCLOUD_DIR}" ] ; then
+	set -- "$@" -v "${KAS_GCLOUD_DIR}":/var/kas/userdata/.gcloud:ro \
+		-e GOOGLE_APPLICATION_DEFAULT_CREDENTIALS_FILE="${GOOGLE_APPLICATION_DEFAULT_CREDENTIALS_FILE:-/var/kas/userdata/.gcloud/application_default_credentials.json}"
+fi
+
 if [ -n "${AWS_WEB_IDENTITY_TOKEN_FILE}" ] ; then
 	if [ ! -f "${AWS_WEB_IDENTITY_TOKEN_FILE}" ]; then
 		echo "Passed AWS_WEB_IDENTITY_TOKEN_FILE '${AWS_WEB_IDENTITY_TOKEN_FILE}' is not a file"

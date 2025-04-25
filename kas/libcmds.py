@@ -185,6 +185,7 @@ class SetupHome(Command):
         'NETRC_FILE',
         'NPMRC_FILE',
         'REGISTRY_AUTH_FILE',
+        'GOOGLE_APPLICATION_DEFAULT_CREDENTIALS_FILE'
     ]
 
     def __init__(self):
@@ -279,6 +280,14 @@ class SetupHome(Command):
             shutil.copy(os.environ['AWS_WEB_IDENTITY_TOKEN_FILE'],
                         webid_token_file)
 
+    def _setup_gcloud_creds(self):
+        gcloud_dir = self.tmpdirname + "/.config/gcloud"
+        shared_creds_file = gcloud_dir + "/application_default_credentials.json"
+        os.makedirs(gcloud_dir)
+        if os.environ.get('GOOGLE_APPLICATION_DEFAULT_CREDENTIALS_FILE'):
+            shutil.copy(os.environ['GOOGLE_APPLICATION_DEFAULT_CREDENTIALS_FILE'],
+                        shared_creds_file)
+
     @staticmethod
     def _setup_gitlab_ci_ssh_rewrite(config):
         ci_host = os.environ.get('CI_SERVER_HOST', None)
@@ -345,6 +354,7 @@ class SetupHome(Command):
         self._setup_registry_auth()
         self._setup_gitconfig()
         self._setup_aws_creds()
+        self._setup_gcloud_creds()
         os.umask(def_umask)
 
         ctx.environ['HOME'] = self.tmpdirname
