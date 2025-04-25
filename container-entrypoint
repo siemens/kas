@@ -78,6 +78,13 @@ if [ -n "$USER_ID" ] && [ "$USER_ID" -ne 0 ] && \
 	# are owned by root.
 	git config --system safe.directory /repo
 	chown_managed_dirs "$USER_ID" "$GROUP_ID"
+
+	# Copy userdata to a writable location so we can chown it.
+	if [ -d "/var/kas/userdata" ]; then
+		mv /var/kas/userdata /var/kas/userdata.orig
+		cp -r /var/kas/userdata.orig /var/kas/userdata
+		chown -R "$USER_ID":"$GROUP_ID" /var/kas/userdata
+	fi
 fi
 
 if [ "$PWD" = / ]; then
