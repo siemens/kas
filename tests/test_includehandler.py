@@ -120,6 +120,14 @@ class TestLoadConfig:
 
         self.util_exception_content(testvector)
 
+    def test_err_parse_yaml(self):
+        exception = includehandler.LoadConfigException
+        testvector = [
+            # misaligned column
+            ('header:\n  version: 17\n repo:', exception),
+        ]
+        self.util_exception_content(testvector)
+
     def test_header_valid(self):
         testvector = [
             'header: {version: 4}',

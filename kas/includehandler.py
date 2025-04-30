@@ -69,8 +69,15 @@ def load_config(filename):
         with open(filename, 'rb') as fds:
             config = json.load(fds)
     elif ext in ['.yml', '.yaml']:
-        with open(filename, 'rb') as fds:
-            config = yaml.safe_load(fds)
+        try:
+            with open(filename, 'rb') as fds:
+                config = yaml.safe_load(fds)
+        except yaml.YAMLError as e:
+            msg = f'Error in line {e.problem_mark.line + 1}' \
+                  if hasattr(e, 'problem_mark') else ''
+            raise LoadConfigException(
+                f'Configuration file is not valid YAML: {msg}',
+                filename)
     else:
         raise LoadConfigException('Config file extension not recognized',
                                   filename)
