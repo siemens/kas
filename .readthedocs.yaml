@@ -1,6 +1,6 @@
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2021-2024
+# Copyright (c) Siemens AG, 2021-2025
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,7 @@ build:
 
 python:
   install:
-    - method: setuptools
+    - method: pip
       path: .
     - requirements: docs/requirements.txt
 
