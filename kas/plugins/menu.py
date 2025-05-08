@@ -74,7 +74,7 @@ from kas import __version__, __file_version__
 from kas.context import create_global_context
 from kas.config import CONFIG_YAML_FILE
 from kas.repos import Repo
-from kas.includehandler import load_config as load_config_yaml, \
+from kas.includehandler import ConfigFile, \
     SOURCE_DIR_OVERRIDE_KEY, SOURCE_DIR_HOST_OVERRIDE_KEY
 from kas.plugins.build import Build
 from kas.kasusererror import KasUserError, MissingModuleError
@@ -144,7 +144,8 @@ class Menu:
 
     def load_config(self, filename):
         try:
-            self.orig_config, _ = load_config_yaml(filename)
+            config = ConfigFile.load(filename)
+            self.orig_config = config.config
         except FileNotFoundError:
             self.orig_config = {}
             return

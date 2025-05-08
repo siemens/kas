@@ -29,6 +29,7 @@ import contextlib
 import pytest
 
 from kas import includehandler, context
+from kas.includehandler import ConfigFile
 
 
 @pytest.fixture(autouse=True)
@@ -70,13 +71,13 @@ class TestLoadConfig:
         # Test for invalid file extension:
         exception = includehandler.LoadConfigException
         with pytest.raises(exception):
-            includehandler.load_config('x.xyz')
+            ConfigFile.load('x.xyz')
 
     def util_exception_content(self, testvector):
         for string, exception in testvector:
             with patch_open(includehandler, string=string):
                 with pytest.raises(exception):
-                    includehandler.load_config('x.yml')
+                    ConfigFile.load('x.yml')
 
     def test_err_header_missing(self):
         exception = includehandler.LoadConfigException
@@ -135,12 +136,12 @@ class TestLoadConfig:
         ]
         for string in testvector:
             with patch_open(includehandler, string=string):
-                includehandler.load_config('x.yml')
+                ConfigFile.load('x.yml')
 
     def test_compat_version(self, monkeypatch):
         monkeypatch.setattr(includehandler, '__compatible_file_version__', 1)
         with patch_open(includehandler, string='header: {version: "0.10"}'):
-            includehandler.load_config('x.yml')
+            ConfigFile.load('x.yml')
 
 
 class TestIncludes:

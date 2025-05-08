@@ -59,73 +59,84 @@ class LoadConfigException(KasUserError):
         super().__init__(f'{message}: {filename}')
 
 
-def load_config(filename):
-    """
-        Load the configuration file and test if version is supported.
-    """
-    (_, ext) = os.path.splitext(filename)
-    config = None
-    if ext == '.json':
-        with open(filename, 'rb') as fds:
-            config = json.load(fds)
-    elif ext in ['.yml', '.yaml']:
-        try:
-            with open(filename, 'rb') as fds:
-                config = yaml.safe_load(fds)
-        except yaml.YAMLError as e:
-            msg = f'Error in line {e.problem_mark.line + 1}' \
-                  if hasattr(e, 'problem_mark') else ''
-            raise LoadConfigException(
-                f'Configuration file is not valid YAML: {msg}',
-                filename)
-    else:
-        raise LoadConfigException('Config file extension not recognized',
-                                  filename)
-
-    validator_class = validator_for(CONFIGSCHEMA)
-    validator = validator_class(CONFIGSCHEMA)
-    validation_error = False
-
-    for error in sorted(validator.iter_errors(config), key=str):
-        validation_error = True
-        logging.error('Config file validation Error:\n%s', error.message)
-        logging.error('For a list of supported configuration elements, see %s',
-                      PROJECT_CONFIG_URL)
-
-    if validation_error:
-        logging.debug('Validation against this schema failed:\n%s',
-                      json.dumps(error.schema, indent=2))
-        raise LoadConfigException('Error(s) occured while validating the '
-                                  'config file', filename)
-
-    try:
-        version_value = int(config['header']['version'])
-    except ValueError:
-        # Be compatible: version string '0.10' is equivalent to file version 1
-        # This check is already done in the config schema so here just set the
-        # right version
-        version_value = 1
-
-    if version_value < __compatible_file_version__ or \
-       version_value > __file_version__:
-        raise LoadConfigException('This version of kas is compatible with '
-                                  f'version {__compatible_file_version__} '
-                                  f'to {__file_version__}, '
-                                  f'file has version {version_value}',
-                                  filename)
-
-    if config.get('proxy_config'):
-        logging.warning('Obsolete ''proxy_config'' detected. '
-                        'This has no effect and will be rejected soon.')
-
-    return (config, config.get(SOURCE_DIR_OVERRIDE_KEY, None))
-
-
 class IncludeException(KasUserError):
     """
         Class for exceptions that appear in the include mechanism.
     """
     pass
+
+
+class ConfigFile():
+    def __init__(self, filename):
+        self.filename = Path(filename)
+        self.config = {}
+        # src_dir must only be set by auto-generated config file
+        self.src_dir = None
+
+    @staticmethod
+    def load(filename):
+        """
+            Load the configuration file and test if version is supported.
+        """
+        cf = ConfigFile(filename)
+        (_, ext) = os.path.splitext(filename)
+        if ext == '.json':
+            with open(filename, 'rb') as fds:
+                cf.config = json.load(fds)
+        elif ext in ['.yml', '.yaml']:
+            try:
+                with open(filename, 'rb') as fds:
+                    cf.config = yaml.safe_load(fds)
+            except yaml.YAMLError as e:
+                msg = f'Error in line {e.problem_mark.line + 1}' \
+                    if hasattr(e, 'problem_mark') else ''
+                raise LoadConfigException(
+                    f'Configuration file is not valid YAML: {msg}',
+                    filename)
+            with open(filename, 'rb') as fds:
+                cf.config = yaml.safe_load(fds)
+        else:
+            raise LoadConfigException('Config file extension not recognized',
+                                      filename)
+
+        validator_class = validator_for(CONFIGSCHEMA)
+        validator = validator_class(CONFIGSCHEMA)
+        validation_error = False
+
+        for error in sorted(validator.iter_errors(cf.config), key=str):
+            validation_error = True
+            logging.error('Config file validation Error:\n%s', error.message)
+            logging.error('For a list of supported configuration elements, '
+                          'see %s', PROJECT_CONFIG_URL)
+
+        if validation_error:
+            logging.debug('Validation against this schema failed:\n%s',
+                          json.dumps(error.schema, indent=2))
+            raise LoadConfigException('Error(s) occured while validating the '
+                                      'config file', filename)
+
+        try:
+            version_value = int(cf.config['header']['version'])
+        except ValueError:
+            # Be compatible: version string '0.10' is equivalent to file
+            # version 1 This check is already done in the config schema so
+            # here just set the right version
+            version_value = 1
+
+        if version_value < __compatible_file_version__ or \
+           version_value > __file_version__:
+            raise LoadConfigException('This version of kas is compatible with '
+                                      f'version {__compatible_file_version__} '
+                                      f'to {__file_version__}, '
+                                      f'file has version {version_value}',
+                                      filename)
+
+        if cf.config.get('proxy_config'):
+            logging.warning('Obsolete ''proxy_config'' detected. '
+                            'This has no effect and will be rejected soon.')
+
+        cf.src_dir = cf.config.get(SOURCE_DIR_OVERRIDE_KEY, None)
+        return cf
 
 
 class IncludeHandler:
@@ -227,7 +238,7 @@ class IncludeHandler:
             missing_repos = []
             configs = []
             try:
-                current_config, src_dir = load_config(filename)
+                current_config = ConfigFile.load(filename)
                 # if lockfile exists and locking, inject it after current file
                 lockfile = self.get_lock_filename(filename)
                 if self.use_lock and Path(lockfile).exists():
@@ -237,17 +248,17 @@ class IncludeHandler:
                     configs.extend(cfg)
                     missing_repos.extend(rep)
                 # src_dir must only be set by auto-generated config file
-                if src_dir:
-                    self.top_repo_path = src_dir
-                    repo_path = src_dir
+                if current_config.src_dir:
+                    self.top_repo_path = current_config.src_dir
+                    repo_path = current_config.src_dir
 
             except FileNotFoundError:
                 raise LoadConfigException('Configuration file not found',
                                           filename)
-            if not isinstance(current_config, Mapping):
+            if not isinstance(current_config.config, Mapping):
                 raise IncludeException('Configuration file does not contain a '
                                        'dictionary as base type')
-            header = current_config.get('header', {})
+            header = current_config.config.get('header', {})
 
             for include in header.get('includes', []):
                 if isinstance(include, str):
@@ -259,8 +270,11 @@ class IncludeHandler:
                             os.path.join(repo_path, include))
                         if not os.path.exists(includefile):
                             alternate = os.path.abspath(
-                                os.path.join(os.path.dirname(filename),
-                                             include))
+                                os.path.join(
+                                    os.path.dirname(current_config.filename),
+                                    include
+                                )
+                            )
                             if os.path.exists(alternate):
                                 logging.warning(
                                     'Falling back to file-relative addressing '
@@ -290,7 +304,7 @@ class IncludeHandler:
                         missing_repos.extend(rep)
                     else:
                         missing_repos.append(includerepo)
-            configs.append((filename, current_config))
+            configs.append(current_config)
             # Remove all possible duplicates in missing_repos
             missing_repos = list(OrderedDict.fromkeys(missing_repos))
             return (configs, missing_repos)
@@ -344,9 +358,9 @@ class IncludeHandler:
                     missing_repos.append(repo)
 
         config = functools.reduce(_internal_dict_merge,
-                                  map(lambda x: x[1], configs))
+                                  map(lambda x: x.config, configs))
         # the merged config must have the highest (used) version number
-        header_version = max([int(cfg['header']['version'])
-                              for _, cfg in configs])
+        header_version = max([int(cfg.config['header']['version'])
+                              for cfg in configs])
         config['header']['version'] = header_version
         return config, missing_repos

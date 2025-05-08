@@ -91,7 +91,7 @@ class Lock(Checkout):
         config_expanded['overrides'] = \
             {'repos': {k: {'commit': r.revision} for k, r in repos}}
 
-        lockfile = ctx.config.handler.get_lockfile()
+        lockfile = ctx.config.handler.get_lock_filename()
         output = IoTarget(target=lockfile, managed=True)
         format = "json" if lockfile.suffix == '.json' else "yaml"
 
