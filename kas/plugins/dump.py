@@ -77,6 +77,9 @@ from kas.kasusererror import KasUserError, ArgsCombinationError
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2022'
 
+LOCKFILE_VERSION_MIN = 14
+SCHEMA_VERSION_MIN = 7
+
 
 class OutputFormatError(KasUserError):
     def __init__(self, format):
@@ -222,7 +225,7 @@ class Dump(Checkout):
 
         super().run(args)
         ctx = get_context()
-        schema_v = 14 if args.lock else 7
+        schema_v = LOCKFILE_VERSION_MIN if args.lock else SCHEMA_VERSION_MIN
         config_expanded = {'header': {'version': schema_v}} if args.lock \
             else ctx.config.get_config(remove_includes=True)
         repos = ctx.config.repo_dict.items()
