@@ -128,22 +128,37 @@ The files are addressed relative to the git repository path.
 The include mechanism collects and merges the content from top to bottom and
 depth first. That means that settings in one include file are overwritten
 by settings in a latter include file and entries from the last include file can
-be overwritten by the current file. While merging all the dictionaries are
+be overwritten by the current file.
+
+.. warning::
+  The include mechanism does not support circular references with respect to
+  the ``repos`` entries. By that, a (transitive) include file must not change
+  the reference of the repository it is included from.
+
+While merging, all the dictionaries are
 merged recursively while preserving the order in which the entries are added to
 the dictionary. This means that ``local_conf_header`` entries are added to the
 ``local.conf`` file in the same order in which they are defined in the
 different include files. The ``header.version`` property is always set to the
 highest version number found in the config files.
 
+.. note::
+  Internally kas iterates the repository checkout step until all referenced
+  repositories are resolved (checked out). After each iteration, the (partial)
+  configuration is merged and the next iteration is started. Once all
+  repositories are available, the final configuration is build. Then, all
+  remaining repositories are checked out.
+
 Including configuration files via the command line
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When specifying the kas configuration file on the command line, additional
-configurations can be included ad-hoc:
+configurations can be included ad-hoc::
 
     $ kas build kas-base.yml:debug-image.yml:board.yml
 
-This is equivalent to static inclusion from some kas-combined.yml like this:
+This is equivalent to static inclusion from some ``kas-combined.yml`` like
+this:
 
 .. code-block:: yaml
 
@@ -176,9 +191,11 @@ kas supports the use of lockfiles to pinpoint repositories to exact commit ID
 defined in a kas file. When performing the checkout operation (or any other
 operation that performs a checkout), kas checks if a file named
 ``<filename>.lock.<ext>`` is found next to the currently processed kas file.
-If this is found, kas loads this file right after processing the current one.
-Note, that this applies to both files on the kas cmdline, as well as included
-files.
+If this is found, kas loads this file right before processing the current one
+(similar to an include file).
+
+.. note::
+  The locking logic applies to both files on the kas cmdline and include files.
 
 The following example shows this mechanism for a file ``kas/kas-isar.yml``
 and its corresponding lockfile ``kas/kas-isar.lock.yml``.
