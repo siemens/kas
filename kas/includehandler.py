@@ -67,18 +67,20 @@ class IncludeException(KasUserError):
 
 
 class ConfigFile():
-    def __init__(self, filename):
+    def __init__(self, filename, is_external, is_lockfile):
         self.filename = Path(filename)
         self.config = {}
         # src_dir must only be set by auto-generated config file
         self.src_dir = None
+        self.is_external = is_external
+        self.is_lockfile = is_lockfile
 
     @staticmethod
-    def load(filename):
+    def load(filename, is_external=False, is_lockfile=False):
         """
             Load the configuration file and test if version is supported.
         """
-        cf = ConfigFile(filename)
+        cf = ConfigFile(filename, is_external, is_lockfile)
         (_, ext) = os.path.splitext(filename)
         if ext == '.json':
             with open(filename, 'rb') as fds:
@@ -209,7 +211,8 @@ class IncludeHandler:
 
         repos = repos or {}
 
-        def _internal_include_handler(filename, repo_path):
+        def _internal_include_handler(filename, repo_path,
+                                      is_external=False, is_lockfile=False):
             """
             Recursively loads include files and finds missing repos.
 
@@ -238,13 +241,18 @@ class IncludeHandler:
             missing_repos = []
             configs = []
             try:
-                current_config = ConfigFile.load(filename)
-                # if lockfile exists and locking, inject it after current file
+                current_config = \
+                    ConfigFile.load(filename, is_external, is_lockfile)
+                # if lockfile exists, inject it after current file
                 lockfile = self.get_lock_filename(filename)
                 if self.use_lock and Path(lockfile).exists():
                     logging.debug('append lockfile %s', lockfile)
-                    (cfg, rep) = _internal_include_handler(lockfile,
-                                                           repo_path)
+                    (cfg, rep) = _internal_include_handler(
+                        lockfile,
+                        repo_path,
+                        is_external=is_external,
+                        is_lockfile=True
+                    )
                     configs.extend(cfg)
                     missing_repos.extend(rep)
                 # src_dir must only be set by auto-generated config file
@@ -283,14 +291,18 @@ class IncludeHandler:
                                     'Update your layer to repo-relative '
                                     'addressing to avoid this warning')
                                 includefile = alternate
-                    (cfg, rep) = _internal_include_handler(includefile,
-                                                           repo_path)
+                    (cfg, rep) = _internal_include_handler(
+                        includefile,
+                        repo_path,
+                        is_external=is_external
+                    )
                     configs.extend(cfg)
                     missing_repos.extend(rep)
                 elif isinstance(include, Mapping):
                     includerepo = include.get('repo', None)
                     includedir = repos.get(includerepo, None)
                     if includedir is not None:
+                        incexternal = bool(includedir != self.top_repo_path)
                         try:
                             includefile = include['file']
                         except KeyError:
@@ -299,7 +311,7 @@ class IncludeHandler:
                         abs_includedir = os.path.abspath(includedir)
                         (cfg, rep) = _internal_include_handler(
                             os.path.join(abs_includedir, includefile),
-                            abs_includedir)
+                            abs_includedir, is_external=incexternal)
                         configs.extend(cfg)
                         missing_repos.extend(rep)
                     else:
