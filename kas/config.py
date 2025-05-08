@@ -90,6 +90,12 @@ class Config:
             del config['header']['includes']
         return config
 
+    def get_lockfiles(self):
+        """
+            Returns the list of in-use lockfiles.
+        """
+        return self.handler.get_lockfiles()
+
     def get_repos_config(self):
         """
             Returns the repository configuration

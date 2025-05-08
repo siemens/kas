@@ -166,6 +166,7 @@ class IncludeHandler:
     def __init__(self, top_files, use_lock=True):
         self.top_files = top_files
         self.use_lock = use_lock
+        self.config_files = []
 
     def get_lock_filename(self, kasfile=None):
         """
@@ -180,6 +181,13 @@ class IncludeHandler:
         Lazy resolve top repo path as we might need a prepared environment
         """
         return Repo.get_root_path(os.path.dirname(self.top_files[0]))
+
+    def get_lockfiles(self):
+        """
+        Returns a list of lockfiles in the order the configuration
+        files were parsed.
+        """
+        return list(filter(lambda x: x.is_lockfile, self.config_files))
 
     def get_top_repo_path(self):
         return self.top_repo_path
@@ -245,8 +253,7 @@ class IncludeHandler:
                     ConfigFile.load(filename, is_external, is_lockfile)
                 # if lockfile exists, inject it after current file
                 lockfile = self.get_lock_filename(filename)
-                if self.use_lock and Path(lockfile).exists():
-                    logging.debug('append lockfile %s', lockfile)
+                if Path(lockfile).exists():
                     (cfg, rep) = _internal_include_handler(
                         lockfile,
                         repo_path,
@@ -316,6 +323,8 @@ class IncludeHandler:
                         missing_repos.extend(rep)
                     else:
                         missing_repos.append(includerepo)
+            logging.debug('config file %s (%s)', current_config.filename,
+                          'external' if is_external else 'internal')
             configs.append(current_config)
             # Remove all possible duplicates in missing_repos
             missing_repos = list(OrderedDict.fromkeys(missing_repos))
@@ -358,21 +367,25 @@ class IncludeHandler:
                     dest[k] = upd[k]
             return dest
 
-        configs = []
+        self.config_files = []
         missing_repos = []
         self.ensure_from_same_repo()
         for configfile in self.top_files:
             cfgs, reps = _internal_include_handler(configfile,
                                                    self.get_top_repo_path())
-            configs.extend(cfgs)
+            self.config_files.extend(cfgs)
             for repo in reps:
                 if repo not in missing_repos:
                     missing_repos.append(repo)
 
+        config_files = self.config_files
+        if not self.use_lock:
+            config_files = [x for x in config_files if not x.is_lockfile]
+
         config = functools.reduce(_internal_dict_merge,
-                                  map(lambda x: x.config, configs))
+                                  map(lambda x: x.config, config_files))
         # the merged config must have the highest (used) version number
         header_version = max([int(cfg.config['header']['version'])
-                              for cfg in configs])
+                              for cfg in config_files])
         config['header']['version'] = header_version
         return config, missing_repos
