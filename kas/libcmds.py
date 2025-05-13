@@ -378,7 +378,6 @@ class SetupDir(Command):
         return 'setup_dir'
 
     def execute(self, ctx):
-        os.chdir(ctx.kas_work_dir)
         if not os.path.exists(ctx.build_dir):
             os.mkdir(ctx.build_dir)
 
