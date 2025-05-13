@@ -43,9 +43,10 @@ def mercurial_get_commit(path):
 
 @pytest.mark.online
 def test_patch(monkeykas, tmpdir, mercurial):
-    tdir = str(tmpdir / 'test_patch')
+    tdir = tmpdir / 'test_patch'
     shutil.copytree('tests/test_patch', tdir)
     monkeykas.chdir(tdir)
+    kas_wd = monkeykas.get_kwd()
 
     repo = mercurial(tmpdir, 'example')
     commit = repo.get_commit()
@@ -53,20 +54,22 @@ def test_patch(monkeykas, tmpdir, mercurial):
         ['sed', '-i', f's/82e55d328c8c/{commit}/', 'test.yml'])
 
     kas.kas(['shell', 'test.yml', '-c', 'true'])
-    for f in ['kas/tests/test_patch/hello.sh', 'hello/hello.sh']:
+    for f in [kas_wd / 'kas/tests/test_patch/hello.sh',
+              kas_wd / 'hello/hello.sh']:
         assert os.stat(f)[stat.ST_MODE] & stat.S_IXUSR
 
-    kas_head_ref = git_get_commit("kas")
-    kas_branch_head_ref = git_get_commit("kas-branch")
-    hello_head_ref = mercurial_get_commit("hello")
-    hello_branch_head_ref = mercurial_get_commit("hello-branch")
+    kas_head_ref = git_get_commit(kas_wd / "kas")
+    kas_branch_head_ref = git_get_commit(kas_wd / "kas-branch")
+    hello_head_ref = mercurial_get_commit(kas_wd / "hello")
+    hello_branch_head_ref = mercurial_get_commit(kas_wd / "hello-branch")
 
     kas.kas(['shell', 'test.yml', '-c', 'true'])
 
-    assert git_get_commit("kas") == kas_head_ref
-    assert git_get_commit("kas-branch") == kas_branch_head_ref
-    assert mercurial_get_commit("hello") == hello_head_ref
-    assert mercurial_get_commit("hello-branch") == hello_branch_head_ref
+    assert git_get_commit(kas_wd / "kas") == kas_head_ref
+    assert git_get_commit(kas_wd / "kas-branch") == kas_branch_head_ref
+    assert mercurial_get_commit(kas_wd / "hello") == hello_head_ref
+    assert mercurial_get_commit(kas_wd / "hello-branch") == \
+        hello_branch_head_ref
 
 
 @pytest.mark.online
@@ -79,6 +82,7 @@ def test_patch_update(monkeykas, tmpdir, mercurial):
     tdir = str(tmpdir / 'test_patch_update')
     shutil.copytree('tests/test_patch', tdir)
     monkeykas.chdir(tdir)
+    kas_wd = monkeykas.get_kwd()
 
     repo = mercurial(tmpdir, 'example')
     commit = repo.get_commit()
@@ -89,7 +93,8 @@ def test_patch_update(monkeykas, tmpdir, mercurial):
 
     kas.kas(['shell', 'test.yml', '-c', 'true'])
     kas.kas(['shell', 'test2.yml', '-c', 'true'])
-    for f in ['kas/tests/test_patch/hello.sh', 'hello/hello.sh']:
+    for f in [kas_wd / 'kas/tests/test_patch/hello.sh',
+              kas_wd / 'hello/hello.sh']:
         assert os.stat(f)[stat.ST_MODE] & stat.S_IXUSR
 
 
@@ -127,10 +132,12 @@ def test_patch_dirty_repo(monkeykas, tmpdir, mercurial):
         ['sed', '-i', f's/82e55d328c8c/{commit}/', 'test.yml'])
 
     kas.kas(['checkout', '--skip', 'repos_apply_patches', 'test.yml'])
-    with open('kas-branch/README.rst', 'a') as f:
+
+    kas_branch_dir = monkeykas.get_kwd() / 'kas-branch'
+    with open(kas_branch_dir / 'README.rst', 'a') as f:
         f.write('echo "dirty"')
     kas.kas(['checkout', 'test.yml'])
     # the dirty repo must not be patched
-    assert not os.path.exists('kas-branch/tests/test_patch/hello.sh')
+    assert not (kas_branch_dir / 'tests/test_patch/hello.sh').exists()
     # the clean repo must be patched
-    assert os.path.exists('hello-branch/hello.sh')
+    assert (monkeykas.get_kwd() / 'hello-branch/hello.sh').exists()

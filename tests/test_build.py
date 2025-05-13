@@ -44,13 +44,15 @@ def test_provenance(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_build')
     shutil.copytree('tests/test_build', tdir)
     monkeykas.chdir(tdir)
+    kas_bd = monkeykas.get_kbd()
 
     with pytest.raises(ArtifactNotFoundError):
         kas.kas(['build', '--provenance', 'mode=min',
                  'artifact-invalid.yml'])
 
+    provenance_path = kas_bd / 'attestation/kas-build.provenance.json'
     kas.kas(['build', '--provenance', 'mode=min', 'provenance.yml'])
-    with open('build/attestation/kas-build.provenance.json', 'r') as f:
+    with open(provenance_path, 'r') as f:
         prov = json.load(f)
         assert prov['subject'][0]['name'] == 'bitbake.options'
         assert 'env' not in \
@@ -59,7 +61,7 @@ def test_provenance(monkeykas, tmpdir):
     with monkeykas.context() as mp:
         mp.setenv('CAPTURE_THIS', 'OK Sir!')
         kas.kas(['build', '--provenance', 'mode=max', 'provenance.yml'])
-    with open('build/attestation/kas-build.provenance.json', 'r') as f:
+    with open(provenance_path, 'r') as f:
         prov = json.load(f)
         params = prov['predicate']['buildDefinition']['internalParameters']
         assert params['env']['CAPTURE_THIS'] == 'OK Sir!'

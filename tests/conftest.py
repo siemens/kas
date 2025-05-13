@@ -23,6 +23,8 @@
 import pytest
 import os
 import subprocess
+import shutil
+from pathlib import Path
 
 ENVVARS_KAS = [
     'KAS_WORK_DIR',
@@ -52,6 +54,26 @@ ENVVARS_TOOLS = [
 
 @pytest.fixture
 def monkeykas(monkeypatch, tmpdir):
+    def get_kas_work_dir():
+        work_dir = os.environ.get('KAS_WORK_DIR', '.')
+        return Path(work_dir).absolute()
+
+    def get_kas_build_dir():
+        build_dir = os.environ.get('KAS_BUILD_DIR')
+        if (not build_dir):
+            return get_kas_work_dir() / 'build'
+        return Path(build_dir).absolute()
+
+    def move_to_workdir(orig_path):
+        kas_wd = get_kas_work_dir()
+        _orig = Path(orig_path)
+        if not _orig.parent.samefile(kas_wd):
+            shutil.move(_orig, kas_wd / _orig.basename())
+
+    monkeypatch.get_kwd = get_kas_work_dir
+    monkeypatch.get_kbd = get_kas_build_dir
+    monkeypatch.move_to_kwd = move_to_workdir
+
     for var in ENVVARS_KAS + ENVVARS_TOOLS:
         monkeypatch.delenv(var, raising=False)
     # Set HOME to a temporary directory

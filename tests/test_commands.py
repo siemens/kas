@@ -69,16 +69,17 @@ def test_checkout(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_commands')
     shutil.copytree('tests/test_commands', tdir)
     monkeykas.chdir(tdir)
+    kas_bd = monkeykas.get_kbd()
     kas.kas(['checkout', 'test.yml'])
 
     # Ensure that local.conf and bblayers.conf are populated, check that no
     # build has been executed by ensuring that no tmp, sstate-cache or
     # downloads directories are present.
-    assert os.path.exists('build/conf/local.conf')
-    assert os.path.exists('build/conf/bblayers.conf')
-    assert not glob.glob('build/tmp*')
-    assert not os.path.exists('build/downloads')
-    assert not os.path.exists('build/sstate-cache')
+    assert (kas_bd / 'conf/local.conf').exists()
+    assert (kas_bd / 'conf/bblayers.conf').exists()
+    assert not glob.glob(f'{str(kas_bd)}/tmp*')
+    assert not (kas_bd / 'downloads').exists()
+    assert not (kas_bd / 'sstate-cache').exists()
 
 
 def test_invalid_checkout(monkeykas, tmpdir, capsys):
@@ -110,12 +111,13 @@ def test_checkout_create_refs(monkeykas, tmpdir):
     shutil.copytree('tests/test_commands', tdir)
     monkeykas.chdir(tdir)
     monkeykas.setenv('KAS_REPO_REF_DIR', str(repo_cache))
+    kas_wd = monkeykas.get_kwd()
     kas.kas(['checkout', 'test.yml'])
-    assert os.path.exists(str(repo_cache / 'github.com.siemens.kas.git'))
-    assert os.path.exists('kas_1.0/.git/objects/info/alternates')
+    assert (repo_cache / 'github.com.siemens.kas.git').exists()
+    assert (kas_wd / 'kas_1.0/.git/objects/info/alternates').exists()
     # check if refs are removed on purge
     kas.kas(['purge', 'test.yml'])
-    assert not os.path.exists(repo_cache / 'github.com.siemens.kas.git')
+    assert not (repo_cache / 'github.com.siemens.kas.git').exists()
 
 
 @pytest.mark.online
@@ -132,8 +134,9 @@ def test_checkout_shallow(monkeykas, tmpdir):
         mp.setenv('KAS_CLONE_DEPTH', '1')
         kas.kas(['checkout', 'test-shallow.yml'])
     for repo in ['kas_1', 'kas_2', 'kas_3', 'kas_4']:
+        repo_path = monkeykas.get_kwd() / repo
         output = subprocess.check_output(
-            ['git', 'rev-list', '--count', 'HEAD'], cwd=repo)
+            ['git', 'rev-list', '--count', 'HEAD'], cwd=repo_path)
         count = int(output.decode('utf-8').strip())
         if repo == 'kas_4':
             assert count >= 1
@@ -153,6 +156,7 @@ def test_shallow_updates(monkeykas, tmpdir):
     shutil.copy('tests/test_commands/oe-init-build-env', tdir)
     monkeykas.chdir(tdir)
     monkeykas.setenv('KAS_CLONE_DEPTH', '1')
+    kas_wd = monkeykas.get_kwd()
     # test non-pinned checkout of master branch
     base_yml = {'header': {'version': 15}, 'repos': {
                 'this': {},
@@ -175,25 +179,28 @@ def test_shallow_updates(monkeykas, tmpdir):
     with open(tdir / 'kas.lock.yml', 'w') as f:
         yaml.dump(base_yml_lock, f)
     kas.kas(['checkout', 'kas.yml'])
-    assert _get_commit('kas') == commit
+    assert _get_commit(kas_wd / 'kas') == commit
     # update to latest revision of next branch
     kas.kas(['checkout', '--update', 'kas.yml'])
-    assert _get_commit('kas') != commit
+    assert _get_commit(kas_wd / 'kas') != commit
 
 
 @pytest.mark.online
 def test_repo_includes(monkeykas, tmpdir):
-    tdir = str(tmpdir / 'test_commands')
+    tdir = tmpdir / 'test_commands'
     shutil.copytree('tests/test_repo_includes', tdir)
     monkeykas.chdir(tdir)
+    monkeykas.move_to_kwd('subrepo')
     kas.kas(['checkout', 'test.yml'])
 
 
 @pytest.mark.online
 def test_dump(monkeykas, tmpdir, capsys):
-    tdir = str(tmpdir / 'test_commands')
+    tdir = tmpdir / 'test_commands'
     shutil.copytree('tests/test_repo_includes', tdir)
     monkeykas.chdir(tdir)
+    kas_bd = monkeykas.get_kbd()
+    monkeykas.move_to_kwd('subrepo')
 
     formats = ['json', 'yaml']
     resolve = ['', '--resolve-refs', '--resolve-env']
@@ -225,24 +232,26 @@ def test_dump(monkeykas, tmpdir, capsys):
             assert 'includes' not in flatconf['header']
             # check if kas can read the generated file
             if f == 'yaml':
-                shutil.rmtree('%s/build' % tdir, ignore_errors=True)
+                shutil.rmtree(kas_bd, ignore_errors=True)
                 kas.kas(('checkout %s' % outfile).split())
-                assert os.path.exists('build/conf/local.conf')
+                assert (kas_bd / 'conf/local.conf').exists()
 
 
 @pytest.mark.online
 def test_lockfile(monkeykas, tmpdir, capsys):
-    tdir = str(tmpdir.mkdir('test_commands'))
+    tdir = tmpdir.mkdir('test_commands')
     shutil.rmtree(tdir, ignore_errors=True)
     shutil.copytree('tests/test_repo_includes', tdir)
     monkeykas.chdir(tdir)
+    kas_wd = monkeykas.get_kwd()
+    monkeykas.move_to_kwd('subrepo')
 
     # no lockfile yet, branches are floating
     kas.kas('dump test.yml'.split())
     rawspec = yaml.safe_load(capsys.readouterr().out)
     assert rawspec['repos']['externalrepo']['refspec'] == 'master'
 
-    with open('externalrepo/.git/refs/heads/master') as f:
+    with open(kas_wd / 'externalrepo/.git/refs/heads/master') as f:
         expected_commit = f.readline().strip()
 
     # create lockfile

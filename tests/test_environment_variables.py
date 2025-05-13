@@ -42,7 +42,7 @@ def test_build_dir_is_placed_inside_work_dir_by_default(monkeykas, tmpdir):
 
     kas.kas(['checkout', 'test.yml'])
 
-    assert os.path.exists(os.path.join(os.getcwd(), 'build', 'conf'))
+    assert (monkeykas.get_kbd() / 'conf').exists()
 
 
 def test_build_dir_can_be_specified_by_environment_variable(monkeykas, tmpdir):
@@ -111,16 +111,19 @@ def _get_env_from_file(filename):
 
 
 def _test_env_section_export(monkeykas, tmpdir, bb_env_var, bb_repo):
-    conf_dir = pathlib.Path(str(tmpdir / 'test_env_variables'))
+    conf_dir = tmpdir / 'test_env_variables'
     env_out = conf_dir / 'env_out'
     bb_env_out = conf_dir / 'bb_env_out'
     init_build_env = conf_dir / 'oe-init-build-env'
 
-    shutil.copytree('tests/test_environment_variables', str(conf_dir))
+    shutil.copytree('tests/test_environment_variables', conf_dir)
     monkeykas.chdir(conf_dir)
     monkeykas.setenv('KAS_CLONE_DEPTH', '1')
     monkeykas.setenv('KAS_PREMIRRORS', 'https://git\\.openembedded\\.org/ '
                      'https://github.com/openembedded/\n')
+    # resolve after we chdir'd
+    kas_wd = monkeykas.get_kwd()
+    kas_bd = monkeykas.get_kbd()
 
     # Overwrite oe-init-build-env script
     # BB_ENV_* filter variables are only exported by
@@ -128,14 +131,14 @@ def _test_env_section_export(monkeykas, tmpdir, bb_env_var, bb_repo):
     script = """#!/bin/sh
     export %s="FOO"
     export PATH="%s/%s/bin:${PATH}"
-    """ % (bb_env_var, str(conf_dir), bb_repo)
-    init_build_env.write_text(script)
+    """ % (bb_env_var, str(kas_wd), bb_repo)
+    init_build_env.write_text(script, encoding=None)
     init_build_env.chmod(0o775)
 
     # Before executing bitbake, first get the bitbake.conf
     kas.kas(['checkout', 'test_env.yml'])
-    shutil.copy(str(conf_dir / bb_repo / 'conf' / 'bitbake.conf'),
-                str(pathlib.Path('build') / 'conf' / 'bitbake.conf'))
+    shutil.copy(kas_wd / bb_repo / 'conf' / 'bitbake.conf',
+                kas_bd / 'conf' / 'bitbake.conf')
 
     kas.kas(['shell', '-c', 'env > %s' % env_out, 'test_env.yml'])
     kas.kas(['shell', '-c', 'bitbake -e > %s' % bb_env_out, 'test_env.yml'])

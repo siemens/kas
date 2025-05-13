@@ -24,6 +24,8 @@ import pytest
 import shutil
 import yaml
 import subprocess
+import os
+from pathlib import Path
 from kas import kas
 from kas.repos import RepoRefError, Repo
 
@@ -34,8 +36,12 @@ def run_cmd(cmd, cwd=None, fail=True):
         Replacement for kas internal run_cmd function which
         cannot be used outside of kas as there is no event loop.
     """
+    kas_wd = Path(os.environ.get('KAS_WORK_DIR', '.'))
+    _cwd = Path(cwd or '.')
+    if not _cwd.is_absolute():
+        _cwd = kas_wd / _cwd
     try:
-        output = subprocess.check_output(cmd, cwd=cwd)
+        output = subprocess.check_output(cmd, cwd=_cwd)
         return (0, output.decode('utf-8'))
     except subprocess.CalledProcessError as e:
         if fail:

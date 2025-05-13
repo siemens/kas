@@ -102,8 +102,10 @@ def test_signed_gpg_local_key(monkeykas, tmpdir):
 def test_signed_ssh_key(monkeykas, tmpdir):
     tdir = tmpdir / 'test_signature_verify'
     shutil.copytree('tests/test_signature_verify', tdir)
+    monkeykas.chdir(tdir)
+    kas_wd = monkeykas.get_kwd()
 
-    repodir = Path(tdir / 'testrepo')
+    repodir = Path(kas_wd / 'testrepo')
     repodir.mkdir()
     # create a new ssh key
     sshdir = Path(tdir / 'ssh')

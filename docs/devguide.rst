@@ -104,10 +104,37 @@ Testing
 
 The kas project has an extensive test suite. When adding new features or fixing
 bugs, it is recommended to add a test. The tests are written using the pytest
-framework. Please make sure to decouple the tests from your local environment.
+framework.
+
+Decoupling from the calling environment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Please make sure to decouple the tests from your local environment.
 To simplify this, we provide the ``monkeykas`` fixture to clean up the
 environment prior to each test. When adding new kas environment variables,
 make sure to add these to the cleanup handler as well.
+
+When writing tests, no assumptions about the values of the following
+environment variables should be made (they also can be unset):
+
+- ``KAS_WORK_DIR``
+- ``KAS_BUILD_DIR``
+
+As tests might want to check data in the work or build dir, we provide the
+following helpers to safely access the corresponding paths (by reading the
+value from the environment variable at call time):
+
+- ``monkeykas.get_kwd()``: absolute path to the current kas work dir
+- ``monkeykas.get_kbd()``: absolute path to the current kas build dir
+- ``monkeykas.move_to_kwd(path)``: move the path to into the ``KAS_WORK_DIR``,
+  if needed
+
+Tests that explicitly check for correct handling of the directory layout are
+encouraged to parameterize these paths by temporarily setting them via
+``monkeykas.setenv()``.
+
+Executing the testsuite
+^^^^^^^^^^^^^^^^^^^^^^^
 
 .. note::
     The menu plugin tests require the ``snack`` package to be installed. On

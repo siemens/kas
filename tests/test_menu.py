@@ -55,8 +55,8 @@ def file_contains(filename, expected):
     return False
 
 
-def check_bitbake_options(expected):
-    with open('build/bitbake.options') as file:
+def check_bitbake_options(expected, build_dir):
+    with open(build_dir / 'bitbake.options') as file:
         return file.readline() == expected
 
 
@@ -65,21 +65,25 @@ def test_menu(monkeykas, tmpdir):
     shutil.copytree('tests/test_menu', tdir)
     monkeykas.chdir(tdir)
 
+    kas_wd = monkeykas.get_kwd()
+    kas_bd = monkeykas.get_kbd()
+    local_conf = kas_bd / 'conf/local.conf'
     # select opt1 & build
     kas.kas(['menu'])
-    assert file_contains('build/conf/local.conf', 'OPT1 = "1"\n')
-    assert file_contains('.config.yaml', 'build_system: openembedded\n')
-    assert check_bitbake_options('-c build target1\n')
+    assert file_contains(local_conf, 'OPT1 = "1"\n')
+    assert file_contains(kas_wd / '.config.yaml',
+                         'build_system: openembedded\n')
+    assert check_bitbake_options('-c build target1\n', kas_bd)
 
     # rebuild test
     kas.kas(['build'])
-    assert file_contains('build/conf/local.conf', 'OPT1 = "1"\n')
-    assert check_bitbake_options('-c build target1\n')
+    assert file_contains(local_conf, 'OPT1 = "1"\n')
+    assert check_bitbake_options('-c build target1\n', kas_bd)
 
     # select alternative target & build
     kas.kas(['menu'])
-    assert file_contains('build/conf/local.conf', 'OPT1 = "1"\n')
-    assert check_bitbake_options('-c build target2\n')
+    assert file_contains(local_conf, 'OPT1 = "1"\n')
+    assert check_bitbake_options('-c build target2\n', kas_bd)
 
 
 def test_menu_inc_workdir(monkeykas, tmpdir):

@@ -38,9 +38,9 @@ def dokas(monkeykas, tmpdir):
 
 
 @pytest.mark.online
-def test_layers_default(dokas):
+def test_layers_default(dokas, monkeykas):
     match = 0
-    with open('build/conf/bblayers.conf', 'r') as f:
+    with open(monkeykas.get_kbd() / 'conf/bblayers.conf', 'r') as f:
         for line in f:
             if f'{LAYERBASE}/kas ' in line:
                 match += 1
@@ -48,9 +48,9 @@ def test_layers_default(dokas):
 
 
 @pytest.mark.online
-def test_layers_include(dokas):
+def test_layers_include(dokas, monkeykas):
     match = 0
-    with open('build/conf/bblayers.conf', 'r') as f:
+    with open(monkeykas.get_kbd() / 'conf/bblayers.conf', 'r') as f:
         for line in f:
             if f'{LAYERBASE}/kas1/meta-' in line:
                 match += 1
@@ -58,23 +58,23 @@ def test_layers_include(dokas):
 
 
 @pytest.mark.online
-def test_layers_exclude(dokas):
-    with open('build/conf/bblayers.conf', 'r') as f:
+def test_layers_exclude(dokas, monkeykas):
+    with open(monkeykas.get_kbd() / 'conf/bblayers.conf', 'r') as f:
         for line in f:
             assert f'{LAYERBASE}/kas2' not in line
 
 
 @pytest.mark.online
-def test_layers_strip_dot(dokas):
-    with open('build/conf/bblayers.conf', 'r') as f:
+def test_layers_strip_dot(dokas, monkeykas):
+    with open(monkeykas.get_kbd() / 'conf/bblayers.conf', 'r') as f:
         lines = f.readlines()
         assert any(f'{LAYERBASE}/kas3 ' in x for x in lines)
         assert any(f'{LAYERBASE}/kas3/meta-bar' in x for x in lines)
 
 
 @pytest.mark.online
-def test_layers_order(dokas):
-    with open('build/conf/bblayers.conf', 'r') as f:
+def test_layers_order(dokas, monkeykas):
+    with open(monkeykas.get_kbd() / 'conf/bblayers.conf', 'r') as f:
         layers = [x.strip(' \\"\n').replace(LAYERBASE, '')
                   for x in f.readlines() if x.lstrip().startswith(LAYERBASE)]
         # layers of a repo are sorted alphabetically
