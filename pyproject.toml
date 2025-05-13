@@ -84,6 +84,7 @@ namespaces = false
 [tool.pytest.ini_options]
 markers = [
   "online: tests requiring internet access",
+  "dirsfromenv: parameterize test work dirs and build dirs",
 ]
 filterwarnings = [
   "error",

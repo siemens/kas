@@ -52,8 +52,38 @@ ENVVARS_TOOLS = [
 ]
 
 
-@pytest.fixture
-def monkeykas(monkeypatch, tmpdir):
+class KasEnvConfig:
+    def __init__(self, work_dir: str, build_dir: str):
+        self.work_dir = work_dir
+        self.build_dir = build_dir
+
+
+KAS_OPERATING_DIRS = [
+    KasEnvConfig(None, None),
+    KasEnvConfig("kas-work", None),
+    KasEnvConfig("kas-work", "kas-build"),
+]
+KAS_OPERATING_IDS = ["noenv", "work", "workbuild"]
+
+
+# only fan-out offline tests
+def pytest_generate_tests(metafunc):
+    if "monkeykas" not in metafunc.fixturenames:
+        return
+    if next(metafunc.definition.iter_markers("dirsfromenv"), None):
+        metafunc.parametrize("monkeykas",
+                             KAS_OPERATING_DIRS,
+                             ids=KAS_OPERATING_IDS,
+                             indirect=True)
+    else:
+        metafunc.parametrize("monkeykas",
+                             [KAS_OPERATING_DIRS[0]],
+                             ids=[KAS_OPERATING_IDS[0]],
+                             indirect=True)
+
+
+@pytest.fixture()
+def monkeykas(request, monkeypatch, tmpdir):
     def get_kas_work_dir():
         work_dir = os.environ.get('KAS_WORK_DIR', '.')
         return Path(work_dir).absolute()
@@ -73,6 +103,17 @@ def monkeykas(monkeypatch, tmpdir):
     monkeypatch.get_kwd = get_kas_work_dir
     monkeypatch.get_kbd = get_kas_build_dir
     monkeypatch.move_to_kwd = move_to_workdir
+
+    _work_dir = request.param.work_dir
+    if _work_dir:
+        workdir = tmpdir / _work_dir
+        workdir.mkdir()
+        monkeypatch.setenv('KAS_WORK_DIR', str(workdir))
+    _build_dir = request.param.build_dir
+    if _build_dir:
+        builddir = workdir / _build_dir
+        builddir.mkdir()
+        monkeypatch.setenv('KAS_BUILD_DIR', str(builddir))
 
     for var in ENVVARS_KAS + ENVVARS_TOOLS:
         monkeypatch.delenv(var, raising=False)

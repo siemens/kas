@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 import shutil
+import pytest
 from kas import kas
 
 
@@ -42,6 +43,7 @@ def test_build_system(monkeykas, tmpdir):
         assert f.readline().strip() == 'openembedded'
 
 
+@pytest.mark.dirsfromenv
 def test_gitconfig(monkeykas, tmpdir, capsys):
     tdir = str(tmpdir / 'test_gitconfig')
     shutil.copytree('tests/test_build_system', tdir)

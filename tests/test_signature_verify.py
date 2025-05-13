@@ -71,6 +71,7 @@ def test_signed_gpg_remove_key(monkeykas, tmpdir):
         kas.kas(['checkout', 'test-gpg-key-retention.yml'])
 
 
+@pytest.mark.dirsfromenv
 @pytest.mark.online
 def test_signed_gpg_local_key(monkeykas, tmpdir):
     tdir = tmpdir / 'test_signature_verify'
@@ -99,6 +100,7 @@ def test_signed_gpg_local_key(monkeykas, tmpdir):
     kas.kas(['checkout', 'test-gpg-local-key.yml'])
 
 
+@pytest.mark.dirsfromenv
 def test_signed_ssh_key(monkeykas, tmpdir):
     tdir = tmpdir / 'test_signature_verify'
     shutil.copytree('tests/test_signature_verify', tdir)

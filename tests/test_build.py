@@ -30,6 +30,7 @@ BITBAKE_OPTIONS_SHA256 = "e35d535e81cfdc4ed304af8000284c36" \
                          "19d2c4c78392ddcefe9ca46b158235f8"
 
 
+@pytest.mark.dirsfromenv
 def test_artifact_node(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_build')
     shutil.copytree('tests/test_build', tdir)

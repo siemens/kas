@@ -34,6 +34,7 @@ from kas.kasusererror import ArgsCombinationError, EnvSetButNotFoundError
 from kas.libcmds import SetupHome
 
 
+@pytest.mark.dirsfromenv
 def test_build_dir_is_placed_inside_work_dir_by_default(monkeykas, tmpdir):
     conf_dir = str(tmpdir / 'test_env_variables')
     shutil.copytree('tests/test_environment_variables', conf_dir)
@@ -57,6 +58,7 @@ def test_build_dir_can_be_specified_by_environment_variable(monkeykas, tmpdir):
     assert os.path.exists(os.path.join(build_dir, 'conf'))
 
 
+@pytest.mark.dirsfromenv
 def test_ssh_agent_setup(monkeykas, tmpdir, capsys):
     conf_dir = str(tmpdir / 'test_ssh_agent_setup')
     shutil.copytree('tests/test_environment_variables', conf_dir)
@@ -207,6 +209,7 @@ def test_managed_env_detection(monkeykas):
         assert ctx.environ['REMOTE_CONTAINERS_FOO'] == 'bar'
 
 
+@pytest.mark.dirsfromenv
 def test_env_file_processing(monkeykas, tmpdir):
     ctx = create_global_context([])
     rcfiles = [

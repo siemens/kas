@@ -82,6 +82,7 @@ def test_transitive_includes(monkeykas, tmpdir, capsys):
     assert config_final['env']['KAS_REPO_BAR'] == "1"
 
 
+@pytest.mark.dirsfromenv
 def test_include_from_submodule(monkeykas, tmpdir):
     tmpdir.mkdir('main')
     tmpdir.mkdir('sub')

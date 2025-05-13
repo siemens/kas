@@ -33,6 +33,7 @@ from kas.libkas import TaskExecError, KasUserError, run_cmd
 from kas.attestation import file_digest_slow
 
 
+@pytest.mark.dirsfromenv
 @pytest.mark.online
 def test_for_all_repos(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_commands')
@@ -90,6 +91,7 @@ def test_invalid_checkout(monkeykas, tmpdir, capsys):
         kas.kas(['checkout', 'test-invalid.yml'])
 
 
+@pytest.mark.dirsfromenv
 @pytest.mark.online
 def test_checkout_with_ci_rewrite(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_commands')
@@ -185,6 +187,7 @@ def test_shallow_updates(monkeykas, tmpdir):
     assert _get_commit(kas_wd / 'kas') != commit
 
 
+@pytest.mark.dirsfromenv
 @pytest.mark.online
 def test_repo_includes(monkeykas, tmpdir):
     tdir = tmpdir / 'test_commands'
@@ -237,6 +240,7 @@ def test_dump(monkeykas, tmpdir, capsys):
                 assert (kas_bd / 'conf/local.conf').exists()
 
 
+@pytest.mark.dirsfromenv
 @pytest.mark.online
 def test_lockfile(monkeykas, tmpdir, capsys):
     tdir = tmpdir.mkdir('test_commands')
@@ -293,6 +297,7 @@ def test_lockfile(monkeykas, tmpdir, capsys):
             != test_commit
 
 
+@pytest.mark.dirsfromenv
 def test_root_resolve_novcs(monkeykas, tmpdir, capsys):
     tdir = str(tmpdir.mkdir('test_root_resolve_novcs'))
     shutil.rmtree(tdir, ignore_errors=True)
@@ -307,6 +312,7 @@ def test_root_resolve_novcs(monkeykas, tmpdir, capsys):
     assert data['repos']['local'] is None
 
 
+@pytest.mark.dirsfromenv
 def test_root_resolve_git(monkeykas, tmpdir, capsys):
     tdir = str(tmpdir.mkdir('test_root_resolve_git'))
     shutil.rmtree(tdir, ignore_errors=True)
@@ -338,6 +344,7 @@ def test_root_resolve_git(monkeykas, tmpdir, capsys):
     assert data['repos']['local']['url'] == upstream_url
 
 
+@pytest.mark.dirsfromenv
 def test_root_resolve_hg(monkeykas, tmpdir, capsys):
     tdir = str(tmpdir.mkdir('test_root_resolve_hg'))
     shutil.rmtree(tdir, ignore_errors=True)

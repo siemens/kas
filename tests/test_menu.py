@@ -86,6 +86,7 @@ def test_menu(monkeykas, tmpdir):
     assert check_bitbake_options('-c build target2\n', kas_bd)
 
 
+@pytest.mark.dirsfromenv
 def test_menu_inc_workdir(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_menu_inc')
     kas_workdir = str(tmpdir / 'test_menu_inc' / 'out')
@@ -101,6 +102,7 @@ def test_menu_inc_workdir(monkeykas, tmpdir):
     assert not os.path.exists(default_config)
 
 
+@pytest.mark.dirsfromenv
 def test_menu_implicit_workdir(monkeykas, tmpdir):
     tdir = str(tmpdir / 'test_menu_iwd')
     kas_workdir = str(tmpdir / 'test_menu_iwd_out')

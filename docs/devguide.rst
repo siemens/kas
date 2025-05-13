@@ -131,7 +131,10 @@ value from the environment variable at call time):
 
 Tests that explicitly check for correct handling of the directory layout are
 encouraged to parameterize these paths by temporarily setting them via
-``monkeykas.setenv()``.
+``monkeykas.setenv()``. Tests that rely on features that might be subject
+to the current working directory should be marked with the ``dirsfromenv``
+marker. By that, various combinations of ``KAS_WORK_DIR`` and ``KAS_BUILD_DIR``
+are tested.
 
 Executing the testsuite
 ^^^^^^^^^^^^^^^^^^^^^^^
