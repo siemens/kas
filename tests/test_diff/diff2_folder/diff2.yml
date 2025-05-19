@@ -1,0 +1,26 @@
+header:
+  version: 15
+  includes:
+   - subdir/sub.yml
+
+distro: distro2
+target: target2
+machine: machine2
+defaults:
+    repos:
+        patches:
+            repo: meta-iot2050
+repos:
+    meta-iot2050:
+        layers:
+            .:
+    isar:
+        url: https://github.com/ilbers/isar
+        tag: v0.10-rc1
+local_conf_header:
+  wic-swu: |
+    IMAGE_CLASSES += "squashfs"
+    IMAGE_TYPEDEP:wic += "squashfs"
+  swu_hw_compat: |
+    # Set hardware compatibility versions here
+    SWU_HW_COMPAT = "sdc-compatible-machine-2.0"

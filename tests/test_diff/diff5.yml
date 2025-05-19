@@ -1,0 +1,13 @@
+header:
+  version: 14
+
+build_system: isar
+
+distro: distro5
+target: target5
+machine: machine5
+
+local_conf_header:
+  swu_hw_compat: |
+    # Set hardware compatibility versions here
+    SWU_HW_COMPAT = "sdc-compatible-machine-2.0"

@@ -242,6 +242,42 @@ def test_dump(monkeykas, tmpdir, capsys):
 
 @pytest.mark.dirsfromenv
 @pytest.mark.online
+def test_diff(monkeykas, tmpdir, capsys):
+    tdir = str(tmpdir / 'test_commands')
+    shutil.copytree('tests/test_diff', tdir)
+    monkeykas.chdir(tdir)
+
+    diff = kas.kas(('diff diff1_folder/diff1.yml diff2_folder/diff2.yml')
+                   .split())
+    assert len(capsys.readouterr().out) > 0
+
+    diff = kas.kas(('diff diff4.yml:diff5.yml diff3.yml').split())
+    assert len(capsys.readouterr().out) > 0
+
+    diff = kas.kas(('diff diff3_cus_repopath.yml diff3.yml').split())
+    assert len(capsys.readouterr().out) > 0
+
+    diff = kas.kas(('diff  --format json diff1_folder/diff1.yml '
+                    'diff2_folder/diff2.yml')
+                   .split())
+    outfile = 'diff-output.json'
+    with open(outfile, 'w') as file:
+        file.write(capsys.readouterr().out)
+    with open(outfile, 'r') as cf:
+        diff = json.load(cf)
+        assert diff is not None
+        assert diff["values_changed"] is not None
+        assert diff["values_changed"]["target"]["old_value"] == "target1"
+        assert diff["values_changed"]["target"]["new_value"] == "target2"
+        assert diff["values_changed"]["machine"]["old_value"] == "machine1"
+        assert diff["values_changed"]["machine"]["new_value"] == "machine2"
+        assert diff["values_changed"]["distro"]["old_value"] == "distro1"
+        assert diff["values_changed"]["distro"]["new_value"] == "distro2"
+        assert len(diff["isar"]) == 59
+
+
+@pytest.mark.dirsfromenv
+@pytest.mark.online
 def test_lockfile(monkeykas, tmpdir, capsys):
     tdir = tmpdir.mkdir('test_commands')
     shutil.rmtree(tdir, ignore_errors=True)

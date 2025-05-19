@@ -1,0 +1,22 @@
+header:
+  version: 14
+
+build_system: isar
+
+distro: distro4
+target: target4
+machine: machine4
+
+defaults:
+  repos:
+    patches:
+      repo: test
+
+repos:
+  test:
+    layers:
+      .:
+
+  isar:
+    url: https://github.com/ilbers/isar
+    tag: v0.10

@@ -1,0 +1,27 @@
+header:
+  version: 14
+
+build_system: isar
+
+distro: distro3
+target: target3
+machine: machine3
+
+defaults:
+  repos:
+    patches:
+      repo: test
+
+repos:
+  test:
+    layers:
+      .:
+
+  isar:
+    url: https://github.com/ilbers/isar
+    tag: v0.10
+    path: isarcus
+local_conf_header:
+  swu_hw_compat: |
+    # Set hardware compatibility versions here
+    SWU_HW_COMPAT = "sdc-compatible-machine-2.0"
