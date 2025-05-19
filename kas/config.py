@@ -81,13 +81,18 @@ class Config:
 
         return missing_repo_names
 
-    def get_config(self, remove_includes=False):
+    def get_config(self, remove_includes=False, apply_overrides=False):
         """
             Returns a copy of the config dict
         """
         config = copy.deepcopy(self._config)
         if remove_includes and 'includes' in config['header']:
             del config['header']['includes']
+        if apply_overrides:
+            overrides = config.get('overrides', {})
+            if overrides:
+                config.update(overrides)
+                del config['overrides']
         return config
 
     def get_lockfiles(self):
