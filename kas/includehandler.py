@@ -95,8 +95,6 @@ class ConfigFile():
                 raise LoadConfigException(
                     f'Configuration file is not valid YAML: {msg}',
                     filename)
-            with open(filename, 'rb') as fds:
-                cf.config = yaml.safe_load(fds)
         else:
             raise LoadConfigException('Config file extension not recognized',
                                       filename)
