@@ -35,6 +35,7 @@ from .context import get_context
 from .libkas import run_cmd_async, run_cmd
 from .kasusererror import KasUserError
 from functools import cached_property
+from git import Repo as GitPythonRepo
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
@@ -739,6 +740,29 @@ class GitRepo(RepoImpl):
     def contains_path_cmd(self, path):
         return ['git', 'ls-files', '--error-unmatch', path]
 
+    def diff(self, commit1, commit2):
+        if commit1 is None:
+            commit1 = 'HEAD'
+        if commit2 is None:
+            commit2 = 'HEAD'
+        git_repo = GitPythonRepo(self.path)
+        shallow_file = os.path.join(git_repo.git_dir, 'shallow')
+        if os.path.isfile(shallow_file):
+            git_repo.git.fetch(unshallow=True)
+        commits = list(git_repo.iter_commits(
+                       f'{commit1}..{commit2}'))
+        diff_json = {self.name: []}
+        for commit in commits:
+            diff_json[self.name].append({
+                'commit': commit.hexsha,
+                'author': commit.author.name,
+                'email': commit.author.email,
+                'commit_date': commit.committed_datetime.
+                strftime("%Y-%m-%d %H:%M:%S"),
+                'message': commit.message
+            })
+        return diff_json
+
 
 class MercurialRepo(RepoImpl):
     """
@@ -825,3 +849,6 @@ class MercurialRepo(RepoImpl):
 
     def contains_path_cmd(self, path):
         return ['hg', 'files', path]
+
+    def diff(self, commit1, commit2):
+        raise NotImplementedError("Unsupported diff for MercurialRepo")
