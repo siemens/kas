@@ -182,6 +182,42 @@ check_and_expand()
 	realpath -e "$_varval"
 }
 
+# Params: FILE
+# Returns: root repo dir of file
+repo_path_of_file()
+{
+	_DIR="$(dirname "$1")"
+	_REPO_DIR=$(git -C "${_DIR}" rev-parse --show-toplevel 2>/dev/null) \
+		|| _REPO_DIR=$(hg --cwd "${_DIR}" root 2>/dev/null) \
+		|| _REPO_DIR=${_DIR}
+	echo "$_REPO_DIR"
+}
+
+# Params: ARG
+process_file_arg()
+{
+	_KAS_FILES=
+	_KAS_FIRST_FILE=
+	_KAS_REPO_DIR=
+	# SC2086: Double quote to prevent globbing and word splitting.
+	# shellcheck disable=2086
+	for FILE in $(IFS=':'; echo $ARG); do
+		if ! KAS_REAL_FILE="$(realpath -qe "$FILE")"; then
+			fatal_error "configuration file '${FILE}' not found"
+		fi
+		if [ -z "${_KAS_FILES}" ]; then
+			_KAS_FIRST_FILE="${KAS_REAL_FILE}"
+			_KAS_FILES="${KAS_REAL_FILE}"
+			_KAS_REPO_DIR=$(repo_path_of_file "${_KAS_FIRST_FILE}")
+		else
+			_KAS_FILES="${_KAS_FILES}:${KAS_REAL_FILE}"
+		fi
+	done
+	KAS_FILES="${KAS_FILES} ${_KAS_FILES}"
+	KAS_FIRST_FILES="${KAS_FIRST_FILES} ${_KAS_FIRST_FILE}"
+	KAS_REPO_DIRS="${KAS_REPO_DIRS} ${_KAS_REPO_DIR}"
+}
+
 # Params: NAME CONTAINER_PATH MODE
 # If the dir is not below KAS_WORK_DIR, the dir is mounted into the container.
 forward_dir()
@@ -446,29 +482,13 @@ while [ $# -gt 0 ] && [ $KAS_EXTRA_BITBAKE_ARGS -eq 0 ]; do
 				unset ARG
 			fi
 		fi
-		KAS_FILES=
-		# SC2086: Double quote to prevent globbing and word splitting.
-		# shellcheck disable=2086
-		for FILE in $(IFS=':'; echo $ARG); do
-			if ! KAS_REAL_FILE="$(realpath -qe "$FILE")"; then
-				fatal_error "configuration file '${FILE}' not found"
-			fi
-			if [ -z "${KAS_FILES}" ]; then
-				KAS_FIRST_FILE="${KAS_REAL_FILE}"
-				KAS_FILES="${KAS_REAL_FILE}"
-			else
-				KAS_FILES="${KAS_FILES}:${KAS_REAL_FILE}"
-			fi
-		done
+		process_file_arg "$ARG"
 		;;
 	esac
 done
 
-if [ -n "${KAS_FIRST_FILE}" ]; then
-	KAS_FILE_DIR="$(dirname "${KAS_FIRST_FILE}")"
-	KAS_REPO_DIR=$(git -C "${KAS_FILE_DIR}" rev-parse --show-toplevel 2>/dev/null) \
-		|| KAS_REPO_DIR=$(hg --cwd "${KAS_FILE_DIR}" root 2>/dev/null) \
-		|| KAS_REPO_DIR=${KAS_FILE_DIR}
+if [ -n "${KAS_FIRST_FILES}" ]; then
+	KAS_REPO_DIR=$(echo "${KAS_REPO_DIRS}" | awk '{print $1}')
 else
 	KAS_REPO_DIR=$(pwd)
 fi
@@ -481,8 +501,8 @@ if [ -n "${SOURCE_DIR_HOST}" ]; then
 fi
 
 if [ "${KAS_CMD}" = "menu" ]; then
-	if [ -z "${KAS_FIRST_FILE}" ]; then
-		KAS_FIRST_FILE="Kconfig"
+	if [ -z "${KAS_FIRST_FILES}" ]; then
+		KAS_FIRST_FILES="Kconfig"
 	fi
 
 	# When using the menu plugin, we need to track the KAS_REPO_DIR outside
@@ -496,16 +516,21 @@ if [ "${KAS_CMD}" = "menu" ]; then
 		set -- "$@" -e _KAS_REPO_DIR_HOST="${KAS_REPO_DIR}"
 	fi
 
-	BUILD_SYSTEM=$(tr '\n' '\f' 2>/dev/null < "${KAS_FIRST_FILE}" | \
+	if [ "$(echo "${KAS_FIRST_FILES}" | wc -w)" -ne "1" ]; then
+		fatal_error "menu plugin only supports a single Kconfig file"
+	fi
+	BUILD_SYSTEM=$(tr '\n' '\f' 2>/dev/null < "${KAS_FIRST_FILES}" | \
 		sed -e 's/\(.*\fconfig KAS_BUILD_SYSTEM\f\(.*\)\|.*\)/\2/' \
 		    -e 's/\f\([[:alpha:]].*\|$\)//' \
 		    -e 's/.*default \"\(.*\)\".*/\1/')
 else
-	if [ -z "${KAS_FIRST_FILE}" ]; then
-		KAS_FIRST_FILE="${KAS_WORK_DIR}/.config.yaml"
+	if [ -z "${KAS_FIRST_FILES}" ]; then
+		KAS_FIRST_FILES="${KAS_WORK_DIR}/.config.yaml"
 	fi
 
-	BUILD_SYSTEM=$(grep -e "^build_system: " "${KAS_FIRST_FILE}" 2>/dev/null | \
+	# We only get the first build system and let kas check if mixed
+	_KAS_FIRST_FILE=$(echo "${KAS_FIRST_FILES}" | awk '{print $1}')
+	BUILD_SYSTEM=$(grep -e "^build_system: " "${_KAS_FIRST_FILE}" 2>/dev/null | \
 		sed 's/build_system:[ ]\+//')
 fi
 
