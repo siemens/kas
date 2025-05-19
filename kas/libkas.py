@@ -446,10 +446,6 @@ def setup_parser_common_args(parser):
     from kas.libcmds import Macro
 
     setup_cmds = [str(s) for (s, _) in Macro().setup_commands]
-    parser.add_argument('config',
-                        help='Config file(s), separated by colon. Using '
-                        '.config.yaml in KAS_WORK_DIR if none is specified.',
-                        nargs='?')
     parser.add_argument('--skip',
                         help='Skip build steps. To skip more than one step, '
                         'use this argument multiple times.',
@@ -463,6 +459,14 @@ def setup_parser_common_args(parser):
     parser.add_argument('--update', action='store_true',
                         help='Pull new upstream changes to the desired '
                         'branch even if it is already checked out locally')
+
+
+def setup_parser_config_arg(parser):
+    parser.add_argument('config',
+                        help='Config file(s), separated by colon. Using '
+                        '.config.yaml in KAS_WORK_DIR if none is '
+                        'specified.',
+                        nargs='?')
 
 
 def setup_parser_preserve_env_arg(parser):

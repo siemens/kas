@@ -43,7 +43,7 @@ import subprocess
 from kas.context import create_global_context
 from kas.config import Config
 from kas.libcmds import Macro, Command, SetupHome
-from kas.libkas import setup_parser_common_args
+from kas.libkas import setup_parser_common_args, setup_parser_config_arg
 from kas.libkas import setup_parser_keep_config_unchanged_arg
 from kas.libkas import setup_parser_preserve_env_arg
 from kas.libkas import run_handle_preserve_env_arg
@@ -70,6 +70,7 @@ class Shell:
         """
 
         setup_parser_common_args(parser)
+        setup_parser_config_arg(parser)
         setup_parser_preserve_env_arg(parser)
         setup_parser_keep_config_unchanged_arg(parser)
         parser.add_argument('-c', '--command',

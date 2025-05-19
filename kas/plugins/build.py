@@ -48,7 +48,7 @@ from kas.config import Config
 from kas.libkas import find_program, run_cmd_async
 from kas.libkas import setup_parser_keep_config_unchanged_arg
 from kas.libcmds import Macro, Command
-from kas.libkas import setup_parser_common_args
+from kas.libkas import setup_parser_common_args, setup_parser_config_arg
 from kas.kasusererror import CommandExecError
 from kas.attestation import Provenance, Statement
 
@@ -75,6 +75,7 @@ class Build:
         """
 
         setup_parser_common_args(parser)
+        setup_parser_config_arg(parser)
         setup_parser_keep_config_unchanged_arg(parser)
         parser.add_argument('extra_bitbake_args',
                             nargs='*',

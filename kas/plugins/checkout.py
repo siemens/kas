@@ -36,7 +36,7 @@
 from kas.context import create_global_context
 from kas.config import Config
 from kas.libcmds import Macro
-from kas.libkas import setup_parser_common_args
+from kas.libkas import setup_parser_common_args, setup_parser_config_arg
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
@@ -52,6 +52,7 @@ class Checkout:
     @classmethod
     def setup_parser(cls, parser):
         setup_parser_common_args(parser)
+        setup_parser_config_arg(parser)
 
     def run(self, args):
         ctx = create_global_context(args)
