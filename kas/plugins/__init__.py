@@ -42,6 +42,7 @@ def load():
     from . import build
     from . import checkout
     from . import clean
+    from . import diff
     from . import dump
     from . import for_all_repos
     from . import lock
@@ -51,6 +52,7 @@ def load():
     register_plugins(build)
     register_plugins(checkout)
     register_plugins(clean)
+    register_plugins(diff)
     register_plugins(dump)
     register_plugins(for_all_repos)
     register_plugins(lock)
