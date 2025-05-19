@@ -338,6 +338,8 @@ man_pages = [
     ('_man/kas-plugin-cleansstate', 'kas-cleansstate',
      'kas cleansstate command',
      [author], 1),
+    ('_man/kas-plugin-diff', 'kas-diff', 'kas diff plugin',
+     [author], 1),
     ('_man/kas-plugin-dump', 'kas-dump', 'kas dump plugin',
      [author], 1),
     ('_man/kas-plugin-for-all-repos',

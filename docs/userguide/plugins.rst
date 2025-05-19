@@ -64,6 +64,17 @@ typically provides a single command.
     :prog: kas
     :path: cleanall
 
+``diff`` plugin
+----------------
+
+.. automodule:: kas.plugins.diff
+
+.. argparse::
+    :module: kas.kas
+    :func: kas_get_argparser
+    :prog: kas
+    :path: diff
+
 ``dump`` plugin
 ---------------
 
