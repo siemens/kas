@@ -35,7 +35,7 @@ cat - | \
     perl -0pe 's/\n\s\s+/ /g' | \
     sed    's/^Positional arguments:/|KAS-COMMANDS|\n--------------/g' | \
     # each commands starts with a new line
-    sed -r 's/^(build|checkout|dump|lock|shell|for-all-repos|clean|cleansstate|cleanall|purge|menu)\t\t*(.*)$/:\1: \2/g' | \
+    sed -r 's/^(build|checkout|diff|dump|lock|shell|for-all-repos|clean|cleansstate|cleanall|purge|menu)\t\t*(.*)$/:\1: \2/g' | \
     sed    's/^Optional arguments:/|OPTIONS|\n---------/g' | \
     sed    '/^You can force/d' | \
     cat

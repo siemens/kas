@@ -40,6 +40,7 @@ usage()
 
 	printf "%b" "Usage: ${SELF} [OPTIONS] { build | shell } [KASOPTIONS] [KASFILE]\n"
 	printf "%b" "       ${SELF} [OPTIONS] { checkout | dump | lock } [KASOPTIONS] [KASFILE]\n"
+	printf "%b" "       ${SELF} [OPTIONS] { diff } [KASOPTIONS] config1 config2\n"
 	printf "%b" "       ${SELF} [OPTIONS] for-all-repos [KASOPTIONS] [KASFILE] COMMAND\n"
 	printf "%b" "       ${SELF} [OPTIONS] { clean | cleansstate | cleanall | purge} [KASFILE]\n"
 	printf "%b" "       ${SELF} [OPTIONS] menu [KCONFIG]\n"
@@ -427,6 +428,12 @@ while [ $# -gt 0 ]; do
 		shift 1
 		break
 		;;
+	diff)
+		KAS_REPO_MOUNT_OPT_DEFAULT="ro"
+		KAS_CMD=$1
+		shift 1
+		break
+		;;
 	dump)
 		if printf '%s\0' "$@" | grep -xqz -- '--inplace\|-i'; then
 			KAS_REPO_MOUNT_OPT_DEFAULT="rw"
@@ -547,8 +554,6 @@ if [ "${KAS_DOCKER_ROOTLESS}" = "1" ]; then
 fi
 KAS_REPO_MOUNT_OPT="${KAS_REPO_MOUNT_OPT:-${KAS_REPO_MOUNT_OPT_DEFAULT}}"
 
-KAS_FILES="$(echo "${KAS_FILES}" | sed 's|'"${KAS_REPO_DIR}"'/|/repo/|g')"
-
 if [ "$(id -u)" -eq 0 ] && [ "${KAS_ALLOW_ROOT}" != "yes" ] ; then
 	fatal_error "Running as root - may break certain recipes." \
 	            "Better give a regular user docker access. Set" \
@@ -559,6 +564,18 @@ if [ "${KAS_DOCKER_ROOTLESS}" = "1" ]; then
 	enable_docker_rootless
 fi
 
+if [ "${KAS_CMD}" = "diff" ]; then
+	if [ "$(echo "${KAS_FILES}" | wc -w)" -eq "2" ]; then
+		_KAS_REPO_DIR1="$(echo "${KAS_REPO_DIRS}" | awk '{print $1}')"
+		_KAS_REPO_DIR2="$(echo "${KAS_REPO_DIRS}" | awk '{print $2}')"
+		_KAS_FILES1="$(echo "${KAS_FILES}" | awk '{print $1}' | sed 's|'"${_KAS_REPO_DIR1}"'/|/repo/|g')"
+		_KAS_FILES2="$(echo "${KAS_FILES}" | awk '{print $2}' | sed 's|'"${_KAS_REPO_DIR2}"'/|/repo2/|g')"
+		KAS_FILES="${_KAS_FILES1} ${_KAS_FILES2}"
+		set -- "$@" -v "${_KAS_REPO_DIR2}:/repo2:${KAS_REPO_MOUNT_OPT}"
+	fi
+else
+	KAS_FILES="$(echo "${KAS_FILES}" | sed 's|'"${KAS_REPO_DIR}"'/|/repo/|g')"
+fi
 set -- "$@" -v "${KAS_REPO_DIR}:/repo:${KAS_REPO_MOUNT_OPT}" \
 	-v "${KAS_WORK_DIR}":/work:rw -e KAS_WORK_DIR=/work \
 	--workdir=/repo \

@@ -93,7 +93,7 @@ fi
 
 if [ -n "$1" ]; then
 	case "$1" in
-	build|checkout|clean*|dump|for-all-repos|lock|menu|purge|shell|-*)
+	build|checkout|clean*|diff|dump|for-all-repos|lock|menu|purge|shell|-*)
 		# We must restore the dir owner after every kas invocation.
 		# This is cheap as only the top-level dirs are changed (non recursive).
 		if [ "$KAS_DOCKER_ROOTLESS" = "1" ]; then
