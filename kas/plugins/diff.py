@@ -27,11 +27,16 @@
     the configuration files and repository differences if commit
     IDs or tags have changed.
 
-    Additionally, you can use the `--format json` option to output
+    Additionally, you can use the ``--format json`` option to output
     the diff in JSON format.
+
+    .. note::
+      The text output of the plugin should not considered to be stable. If
+      stable output is needed, use a machine readable format like json.
 """
 
 import json
+import difflib
 from kas.context import create_global_context
 from kas.config import Config
 from kas.libcmds import Macro
@@ -118,6 +123,30 @@ class Diff:
         """
         Format the diff output.
         """
+        def print_unified_diff(oldv, newv, key):
+            # unified diff expects newline terminated input strings
+            if '\n' not in oldv:
+                oldv += '\n'
+            if '\n' not in newv:
+                newv += '\n'
+            diff = difflib.unified_diff(oldv.splitlines(keepends=True),
+                                        newv.splitlines(keepends=True))
+            print(f"{' ' * 5}{key}:")
+            for line in diff:
+                if line.startswith('+++') or line.startswith('---'):
+                    continue
+                elif line.startswith('@@'):
+                    print(f"{COLORS_FILES}{' ' * 9}{line}{COLORS_ENDC}",
+                          end='')
+                elif line[0] == '+':
+                    print(f"{COLORS_NEW}+{' ' * 8}{line[1:]}{COLORS_ENDC}",
+                          end='')
+                elif line[0] == '-':
+                    print(f"{COLORS_OLD}-{' ' * 8}{line[1:]}{COLORS_ENDC}",
+                          end='')
+                else:
+                    print(f"{' ' * 8}{line}", end='')
+
         if no_color:
             COLORS_OLD = ''
             COLORS_NEW = ''
@@ -145,26 +174,19 @@ class Diff:
                     continue
                 print(f"{COLORS_FILES}@@ config changed @@{COLORS_ENDC}")
                 for key2 in diff_output[key]:
+                    oldval = diff_output[key][key2]['old_value']
+                    newval = diff_output[key][key2]['new_value']
+                    if isinstance(oldval, str) and isinstance(newval, str):
+                        print_unified_diff(oldval, newval, key2)
+                        continue
                     for k, i in format_dict.items():
                         value = diff_output[key][key2][k]
-                        if value:
-                            if isinstance(value, str) and '\n' in value:
-                                print(f"{i['color']}"
-                                      f"{i['prefix']}{' ' * 4}{key2}: "
-                                      f"{COLORS_ENDC}")
-                                lines = value.splitlines()
-                                for line in lines:
-                                    print(f"{i['color']}"
-                                          f"{i['prefix']}{' ' * 8}{line}"
-                                          f"{COLORS_ENDC}")
-                            else:
-                                print(f"{i['color']}"
-                                      f"{i['prefix']}{' ' * 4}{key2}: {value}"
-                                      f"{COLORS_ENDC}")
-                        else:
-                            print(f"{i['color']}"
-                                  f"{i['prefix']}{' ' * 4}{key2}: None"
-                                  f"{COLORS_ENDC}")
+                        if not value:
+                            continue
+                        value = str(value).replace('\n', f"\n{i['prefix']}")
+                        print(f"{i['color']}"
+                              f"{i['prefix']}{' ' * 4}{key2}: {value}"
+                              f"{COLORS_ENDC}")
             else:
                 if content_only:
                     continue
