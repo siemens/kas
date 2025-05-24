@@ -48,6 +48,14 @@
        Those are picked up from kconfig string variables that have the name
        prefix ``KAS_TARGET_``.
 
+     - The ``MACHINE`` that will be used.
+       This is picked up from kconfig string variable that has the name
+       ``KAS_MACHINE``.
+
+     - The ``DISTO`` that will be used.
+       This is picked up from kconfig string variable that has the name
+       ``KAS_DISTRO``.
+
      - The ``build_system`` that will used. The static kconfig string variable
        ``KAS_BUILD_SYSTEM`` defines this value which must be ``openembedded``,
        ``oe`` or ``isar`` is set.
@@ -171,6 +179,8 @@ class Menu:
     def save_config(self, filename, top_repo_dir):
         kas_includes = []
         kas_targets = []
+        kas_machine = None
+        kas_distro = None
         kas_build_system = None
         kas_vars = {}
         menu_configuration = {}
@@ -207,6 +217,14 @@ class Menu:
                 check_sym_is_string(sym)
                 if symvalue != '':
                     kas_targets.append(symvalue)
+            elif symname == 'KAS_MACHINE':
+                check_sym_is_string(sym)
+                if symvalue != '':
+                    kas_machine = symvalue
+            elif symname == 'KAS_DISTRO':
+                check_sym_is_string(sym)
+                if symvalue != '':
+                    kas_distro = symvalue
             elif symname == 'KAS_BUILD_SYSTEM':
                 check_sym_is_string(sym)
                 if symvalue != '':
@@ -230,6 +248,10 @@ class Menu:
             config['build_system'] = kas_build_system
         if len(kas_targets) > 0:
             config['target'] = kas_targets
+        if kas_machine:
+            config['machine'] = kas_machine
+        if kas_distro:
+            config['distro'] = kas_distro
         if len(kas_vars) > 0:
             config['local_conf_header'] = {
                 '__menu_config_vars': '\n'.join([
