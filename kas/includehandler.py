@@ -108,10 +108,10 @@ class ConfigFile():
             logging.error('Config file validation Error:\n%s', error.message)
             logging.error('For a list of supported configuration elements, '
                           'see %s', PROJECT_CONFIG_URL)
-
-        if validation_error:
             logging.debug('Validation against this schema failed:\n%s',
                           json.dumps(error.schema, indent=2))
+
+        if validation_error:
             raise LoadConfigException('Error(s) occured while validating the '
                                       'config file', filename)
 
