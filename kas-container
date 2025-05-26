@@ -547,6 +547,11 @@ elif [ -z "${ISAR_MODE}" ]; then
 	enable_oe_mode
 fi
 
+# clean can be executed without config, hence manually forward the build system
+if [ "${ISAR_MODE}" = "1" ] && echo "${KAS_CMD}" | grep -qe "^clean\|purge"; then
+	KAS_OPTIONS="${KAS_OPTIONS} --isar"
+fi
+
 set_container_image_var
 
 if [ "${KAS_DOCKER_ROOTLESS}" = "1" ]; then
