@@ -11,7 +11,13 @@ directories and setting up the environment variables inside the container.
 
 By default ``kas-container`` uses the official images provided by the kas project:
 ``ghcr.io/siemens/kas/kas[-isar]:<version>``. To specify your own image set the
-``KAS_CONTAINER_IMAGE`` environment variable. As container backends, Docker and
+``KAS_CONTAINER_IMAGE`` environment variable. The ``kas-container`` script version
+should match the kas version inside the container. If kas detects that is was called
+from ``kas-container`` and the versions do not match, a warning is emitted. This
+limitation might be lessened in the future, once a stable interface between
+``kas-container`` and kas is introduced.
+
+As container backends, Docker and
 Podman are supported. To force the use of podman over docker, set
 ``KAS_CONTAINER_ENGINE=podman``. For details, see :ref:`env-vars-label`.
 

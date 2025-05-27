@@ -28,6 +28,7 @@ import os
 import logging
 from enum import Enum
 from kas.kasusererror import KasUserError
+from kas import __version__
 
 __context__ = None
 
@@ -91,6 +92,7 @@ class Context:
             raise KasUserError('KAS_CLONE_DEPTH must be a number')
         self.repo_clone_depth = max(int(clone_depth), 0)
         self.setup_initial_environ()
+        self.check_container_call()
         # Register the paths that kas created and exclusively owns
         self.managed_paths = set()
         if not os.environ.get('KAS_BUILD_DIR'):
@@ -133,6 +135,16 @@ class Context:
             for k in os.environ.keys():
                 if k.startswith('REMOTE_CONTAINERS_'):
                     self.environ[k] = os.environ[k]
+
+    @staticmethod
+    def check_container_call():
+        container_v = os.environ.get('KAS_CONTAINER_SCRIPT_VERSION')
+        if not container_v:
+            # not a kas-container call (or from a too old script)
+            return
+        if container_v != __version__:
+            logging.warning(f'kas-container ({container_v}) and '
+                            f'kas ({__version__}) versions do not match')
 
     @staticmethod
     def _get_managed_env():
