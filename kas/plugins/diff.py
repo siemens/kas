@@ -168,30 +168,28 @@ class Diff:
         print(f"kas diff {oldfile} {newfile}")
         print(prefix_old * 3, f" {oldfile}")
         print(prefix_new * 3, f" {newfile}")
-        for key in diff_output:
-            if key == 'values_changed':
-                if commit_only:
+        vc_dict = diff_output.get('values_changed', {})
+        vcs_dict = diff_output.get('vcs', {})
+        if vc_dict and not commit_only:
+            print(f"{COLORS_FILES}@@ config changed @@{COLORS_ENDC}")
+            for key in vc_dict.keys():
+                oldval = vc_dict[key]['old_value']
+                newval = vc_dict[key]['new_value']
+                if isinstance(oldval, str) and isinstance(newval, str):
+                    print_unified_diff(oldval, newval, key)
                     continue
-                print(f"{COLORS_FILES}@@ config changed @@{COLORS_ENDC}")
-                for key2 in diff_output[key]:
-                    oldval = diff_output[key][key2]['old_value']
-                    newval = diff_output[key][key2]['new_value']
-                    if isinstance(oldval, str) and isinstance(newval, str):
-                        print_unified_diff(oldval, newval, key2)
+                for k, i in format_dict.items():
+                    value = vc_dict[key][k]
+                    if not value:
                         continue
-                    for k, i in format_dict.items():
-                        value = diff_output[key][key2][k]
-                        if not value:
-                            continue
-                        value = str(value).replace('\n', f"\n{i['prefix']}")
-                        print(f"{i['color']}"
-                              f"{i['prefix']}{' ' * 4}{key2}: {value}"
-                              f"{COLORS_ENDC}")
-            else:
-                if content_only:
-                    continue
+                    value = str(value).replace('\n', f"\n{i['prefix']}")
+                    print(f"{i['color']}"
+                          f"{i['prefix']}{' ' * 4}{key}: {value}"
+                          f"{COLORS_ENDC}")
+        if vcs_dict and not content_only:
+            for key in vcs_dict.keys():
                 print(f"{COLORS_FILES}@@ {key} commits diff @@{COLORS_ENDC}")
-                for li in diff_output[key]:
+                for li in vcs_dict[key]:
                     msg = li['message']
                     if oneline:
                         msg = msg.split('\n')[0]
@@ -204,8 +202,8 @@ class Diff:
                         indented_msg = '\n'.join([' ' * 4 + s
                                                  for s in msg.split('\n')])
                         print(indented_msg)
-            if key != list(diff_output.keys())[-1]:
-                print("---")
+                if key != list(vcs_dict.keys())[-1]:
+                    print("---")
 
     def run(self, args):
         args.skip += [
@@ -237,6 +235,7 @@ class Diff:
             # combine the diff output and the repo diff to a dict
             diff_output.update(diff)
 
+            vcs_dict = {}
             # check for commit IDs/tags of repos and compare them
             for key in diff.get('values_changed', {}):
                 if 'commit' in key or 'tag' in key:
@@ -253,14 +252,16 @@ class Diff:
                            and each_repo.name == repo_name:
                             repo_diff = each_repo.diff(commit2, commit1)
                             if len(repo_diff.get(each_repo.name)) > 0:
-                                diff_output.update(repo_diff)
+                                vcs_dict.update(repo_diff)
 
                     for each_repo in repos2:
                         if each_repo.path and each_repo.url \
                            and each_repo.name == repo_name:
                             repo_diff = each_repo.diff(commit1, commit2)
                             if len(repo_diff.get(each_repo.name)) > 0:
-                                diff_output.update(repo_diff)
+                                vcs_dict.update(repo_diff)
+        if vcs_dict:
+            diff_output['vcs'] = vcs_dict
         if args.format == 'json':
             print(json.dumps(diff_output, indent=4))
         else:

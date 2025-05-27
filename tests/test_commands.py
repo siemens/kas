@@ -273,7 +273,7 @@ def test_diff(monkeykas, tmpdir, capsys):
         assert diff["values_changed"]["machine"]["new_value"] == "machine2"
         assert diff["values_changed"]["distro"]["old_value"] == "distro1"
         assert diff["values_changed"]["distro"]["new_value"] == "distro2"
-        assert len(diff["isar"]) == 59
+        assert len(diff["vcs"]["isar"]) == 59
 
 
 @pytest.mark.dirsfromenv
