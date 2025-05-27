@@ -106,6 +106,10 @@ if [ -n "$1" ]; then
 		fi
 		;;
 	*)
+		if [ -n "$USER_ID" ]; then
+			echo "kas-container: this container does not support \"kas $1\"" >&2
+			exit 1
+		fi
 		# SC2086: Double quote to prevent globbing and word splitting.
 		# shellcheck disable=2086
 		exec $GOSU "$@"

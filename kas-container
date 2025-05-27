@@ -27,7 +27,8 @@
 
 set -e
 
-KAS_IMAGE_VERSION_DEFAULT="4.7"
+KAS_CONTAINER_SCRIPT_VERSION="4.7"
+KAS_IMAGE_VERSION_DEFAULT="${KAS_CONTAINER_SCRIPT_VERSION}"
 KAS_CONTAINER_IMAGE_PATH_DEFAULT="ghcr.io/siemens/kas"
 KAS_CONTAINER_IMAGE_NAME_DEFAULT="kas"
 KAS_CONTAINER_SELF_NAME="$(basename "$0")"
@@ -584,6 +585,7 @@ fi
 set -- "$@" -v "${KAS_REPO_DIR}:/repo:${KAS_REPO_MOUNT_OPT}" \
 	-v "${KAS_WORK_DIR}":/work:rw -e KAS_WORK_DIR=/work \
 	--workdir=/repo \
+	-e KAS_CONTAINER_SCRIPT_VERSION="${KAS_CONTAINER_SCRIPT_VERSION}" \
 	-e USER_ID="$(id -u)" -e GROUP_ID="$(id -g)" --rm --init
 
 forward_dir KAS_BUILD_DIR "/build" "rw"
