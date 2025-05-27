@@ -28,10 +28,12 @@ import subprocess
 import re
 import pytest
 import json
+import logging
 from kas import kas
 from kas.context import create_global_context
 from kas.kasusererror import ArgsCombinationError, EnvSetButNotFoundError
 from kas.libcmds import SetupHome
+from kas import __version__
 
 
 @pytest.mark.dirsfromenv
@@ -254,3 +256,24 @@ def test_env_set_but_not_existing(monkeykas):
         ctx = create_global_context([])
         with pytest.raises(EnvSetButNotFoundError):
             SetupHome().execute(ctx)
+
+
+def test_kas_container_version(monkeykas, caplog):
+    caplog.set_level(logging.WARNING)
+    with monkeykas.context() as mp:
+        # not a kas-container call
+        create_global_context([])
+        assert 'versions do not match' not in caplog.text
+        caplog.clear()
+    with monkeykas.context() as mp:
+        # kas-container call from matching script
+        mp.setenv('KAS_CONTAINER_SCRIPT_VERSION', __version__)
+        create_global_context([])
+        assert 'versions do not match' not in caplog.text
+        caplog.clear()
+    with monkeykas.context() as mp:
+        # kas-container call from older/newer script
+        mp.setenv('KAS_CONTAINER_SCRIPT_VERSION', '0.0')
+        create_global_context([])
+        assert 'versions do not match' in caplog.text
+        caplog.clear()
