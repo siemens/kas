@@ -21,7 +21,6 @@
                     "description": "Version of the configuration file format.",
                     "anyOf": [
                         {
-                            "type": "string",
                             "enum": [
                                 "0.10"
                             ]
@@ -68,7 +67,6 @@
         },
         "build_system": {
             "description": "Defines the bitbake-based build system.",
-            "type": "string",
             "enum": [
                 "openembedded",
                 "oe",
@@ -195,7 +193,6 @@
                             "type": {
                                 "description": "Type of version control repository.",
                                 "default": "git",
-                                "type": "string",
                                 "enum": ["git", "hg"]
                             },
                             "commit": {
@@ -372,7 +369,6 @@
                 "properties": {
                     "type": {
                         "description": "Type of the cryptographic material.",
-                        "type": "string",
                         "enum": ["gpg", "ssh"],
                         "default": "gpg"
                     },
