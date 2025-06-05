@@ -21,9 +21,7 @@
                     "description": "Version of the configuration file format.",
                     "anyOf": [
                         {
-                            "enum": [
-                                "0.10"
-                            ]
+                            "const": "0.10"
                         },
                         {
                             "type": "integer",
