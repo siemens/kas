@@ -373,9 +373,9 @@ Configuration reference
       ``<layer-path>``: enum [optional]
         Adds the layer with ``<layer-path>`` that is relative to the
         repository root directory, to the ``bblayers.conf`` if the value of
-        this entry is not in this list: ``['disabled', 'excluded', 'n', 'no',
-        '0', 'false']``. This way it is possible to overwrite the inclusion
-        of a layer in latter loaded configuration files.
+        this entry is not ``disabled``. This way it is possible to overwrite
+        the inclusion of a layer in later loaded configuration files. To
+        re-enable it, set it to nothing (``null``).
 
     ``patches``: dict [optional]
       :kasschemadesc:`repos.additionalProperties.anyOf[0].properties.patches`

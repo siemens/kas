@@ -229,6 +229,13 @@ class Repo:
             This factory function is referential transparent.
         """
         layers_dict = repo_config.get('layers', {'': None})
+        # only bool(false) will be a valid value to disable a layer
+        for lname, prop in layers_dict.items():
+            if not (prop is None or prop == "disabled"):
+                logging.warning('Use of deprecated value "%s" for repo '
+                                '"%s", layer "%s". Replace with "disabled".',
+                                prop, name, lname)
+
         layers = list(filter(lambda x, laydict=layers_dict:
                              str(laydict[x]).lower() not in
                              ['disabled', 'excluded', 'n', 'no', '0', 'false'],
