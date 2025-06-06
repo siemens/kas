@@ -686,9 +686,18 @@ if [ -n "${SSTATE_MIRRORS}" ]; then
 	set -- "$@" -e "SSTATE_MIRRORS=${SSTATE_MIRRORS}"
 fi
 
+# propagate timezone information
+if [ -f "/etc/localtime" ]; then
+	set -- "$@" -v "$(realpath -e "/etc/localtime")":/etc/localtime:ro
+fi
+if [ -f "/etc/timezone" ]; then
+	set -- "$@" -v "$(realpath -e "/etc/timezone")":/etc/timezone:ro
+fi
+
 for var in TERM KAS_DISTRO KAS_MACHINE KAS_TARGET KAS_TASK KAS_CLONE_DEPTH \
            KAS_PREMIRRORS DISTRO_APT_PREMIRRORS BB_NUMBER_THREADS PARALLEL_MAKE \
-           GIT_CREDENTIAL_USEHTTPPATH; do
+           GIT_CREDENTIAL_USEHTTPPATH \
+           TZ; do
 	if [ -n "$(eval echo \$${var})" ]; then
 		set -- "$@" -e "${var}=$(eval echo \"\$${var}\")"
 	fi

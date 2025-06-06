@@ -137,6 +137,8 @@ overwritten using the ``env`` section of the config file.
 | ``TERM``                 | The terminal options used in the `shell` plugin. |
 | (C,K,E)                  |                                                  |
 +--------------------------+--------------------------------------------------+
+| ``TZ`` (C)               | Timezone settings.                               |
++--------------------------+--------------------------------------------------+
 | ``AWS_CONFIG_FILE``      | Path to the awscli configuration and credentials |
 | |aws_cred|               | files that are copied to the kas home dir.       |
 | (K,C)                    |                                                  |
