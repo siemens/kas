@@ -51,7 +51,7 @@ dynamic = [ "version" ]
 dependencies = [
   "distro>=1,<2",
   "gitpython>=3.1,<4",
-  "jsonschema>=2.5,<5",
+  "jsonschema>=3.2,<5",
   "pyyaml>=3,<7",
 ]
 optional-dependencies.tui = [
