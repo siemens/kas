@@ -257,13 +257,7 @@
                                             "type": "null"
                                         },
                                         {
-                                            "type": "integer"
-                                        },
-                                        {
-                                            "type": "boolean"
-                                        },
-                                        {
-                                            "type": "string"
+                                            "enum": ["disabled", "excluded", "n", "no", "0", "false", 0, false]
                                         }
                                     ]
                                 }
