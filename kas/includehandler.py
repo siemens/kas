@@ -168,7 +168,7 @@ class IncludeHandler:
 
     def get_lock_filename(self, kasfile=None):
         """
-        Returns the lockfile name for the given kasfile.
+        Returns the lockfile name for the given kas config file.
         """
         file = Path(kasfile or self.top_files[0])
         return file.parent / (file.stem + '.lock' + file.suffix)

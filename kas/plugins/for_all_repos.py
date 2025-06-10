@@ -62,7 +62,7 @@
       * ``KAS_REPO_REFSPEC``: The refspec which was checked out for this
         repository, or an empty string if no refspec was given in the config
         file. This variable is obsolete and will be removed when support for
-        respec keys is removed as well. Migrate your repos to commit/branch
+        refspec keys is removed as well. Migrate your repos to commit/branch
         and use the related variables instead.
 """
 

@@ -32,7 +32,7 @@ Git Configuration
 -----------------
 
 A ``.gitconfig`` file can be used to provide credentials as well as
-url rewrites of git repositories (``insteadof``). In addition, credential
+URL rewrites of git repositories (``insteadof``). In addition, credential
 helpers can be used by setting the corresponding environment variables.
 These are added to the ``.gitconfig`` file as well. To support the patching
 of git repositories, kas injects a ``[user]`` section, possibly overwriting
@@ -57,7 +57,7 @@ When running in the GitLab CI, the ``CI_JOB_TOKEN`` can be used to access
 git repositories via https. If ``CI_SERVER_HOST`` is also set,
 kas automatically adds this token to the ``.netrc`` file,
 where it is picked up by git. Further, kas configures git
-to automatically rewrite the urls of the repositories to clone via https
+to automatically rewrite the URLs of the repositories to clone via https
 for repos stored on the same server. Technically this is achieved by adding
 `insteadof` entries to the ``.gitconfig`` file.
 

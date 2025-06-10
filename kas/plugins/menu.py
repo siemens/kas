@@ -41,20 +41,20 @@
     will translate into a kas configuration:
 
      - kas configuration files that will be included when building the
-       generated configuration. Those are picked up from kconfig string
+       generated configuration. Those are picked up from Kconfig string
        variables that have the name prefix ``KAS_INCLUDE_``.
 
      - bitbake targets that shall be built via the generated configuration.
-       Those are picked up from kconfig string variables that have the name
+       Those are picked up from Kconfig string variables that have the name
        prefix ``KAS_TARGET_``.
 
-     - The ``build_system`` that will used. The static kconfig string variable
+     - The ``build_system`` that will used. The static Kconfig string variable
        ``KAS_BUILD_SYSTEM`` defines this value which must be ``openembedded``,
        ``oe`` or ``isar`` is set.
 
      - bitbake configuration variables that will be added to the
        ``local_conf_header`` section of the generated configuration. All other
-       active kconfig string, integer or hex variables are treated as such.
+       active Kconfig string, integer or hex variables are treated as such.
 
     See https://www.kernel.org/doc/html/latest/kbuild/kconfig-language.html
     for a complete documentation of the Kconfig language.

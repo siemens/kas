@@ -84,7 +84,7 @@ usage()
 		    "environment.\n"
 	printf "%b" "--repo-ro\t\tMount current repository read-only\n" \
 		    "\t\t\t(default for build command)\n"
-	printf "%b" "--repo-rw\t\tMount current repository writeable\n" \
+	printf "%b" "--repo-rw\t\tMount current repository writable\n" \
 		    "\t\t\t(default for shell command)\n"
 	printf "%b" "-h, --help\t\tShow this help message and exit.\n"
 	printf "%b" "\n"

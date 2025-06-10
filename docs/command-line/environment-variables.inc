@@ -65,9 +65,9 @@ overwritten using the ``env`` section of the config file.
 |                          | find those repositories, they have to be named   |
 |                          | in a specific way. The repo URLs are translated  |
 |                          | like this:                                       |
-|                          | "https://github.com/siemens/meta-iot2000.git"    |
+|                          | ``https://github.com/siemens/meta-iot2000.git``  |
 |                          | resolves to the name                             |
-|                          | "github.com.siemens.meta-iot2000.git".           |
+|                          | ``github.com.siemens.meta-iot2000.git``.         |
 |                          | Repositories that are not found will be cloned   |
 |                          | below this directory. Multiple instances of kas  |
 |                          | can simultaneously work on the same directory,   |
@@ -85,7 +85,8 @@ overwritten using the ``env`` section of the config file.
 |                          | of new-line separated entries. Each entry        |
 |                          | defines a regular expression to match a URL and, |
 |                          | space-separated, its replacement. E.g.:          |
-|                          | "http://.*\.someurl\.io/ http://localmirror.net/"|
+|                          | ``http://.*\.someurl\.io/                        |
+|                          | http://localmirror.net/``                        |
 +--------------------------+--------------------------------------------------+
 | ``DISTRO_APT_PREMIRRORS``| Specifies alternatives for apt URLs. Just like   |
 | (C,c)                    | ``KAS_PREMIRRORS``.                              |
@@ -165,7 +166,7 @@ overwritten using the ``env`` section of the config file.
 | ``CI_REGISTRY``          | in case ``NETRC_FILE`` was given as well. Note   |
 | ``CI_REGISTRY_USER``     | that if the file already contains an entry for   |
 | (K)                      | that host most tools would probably take that    |
-|                          | first one. The job url is added to the           |
+|                          | first one. The job URL is added to the           |
 |                          | provenance attestation (if enabled).             |
 |                          | If ``CI_REGISTRY`` and ``CI_REGISTRY_USER`` is   |
 |                          | also set, a container registry login file is     |

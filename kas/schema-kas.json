@@ -178,7 +178,7 @@
                                 "type": "string"
                             },
                             "url": {
-                                "description": "Url of the repository. If this is missing, no version control operations are performed.",
+                                "description": "URL of the repository. If this is missing, no version control operations are performed.",
                                 "anyOf": [
                                     {
                                         "type": "string"

@@ -225,7 +225,7 @@ class Repo:
     def factory(name, repo_config, repo_defaults, repo_fallback_path,
                 repo_overrides={}):
         """
-            Returns a Repo instance depending on params.
+            Returns a Repo instance depending on parameters.
             This factory function is referential transparent.
         """
         layers_dict = repo_config.get('layers', {'': None})

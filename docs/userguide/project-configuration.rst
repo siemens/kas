@@ -396,10 +396,10 @@ Configuration reference
   :kasschemadesc:`overrides`
 
   ``repos``: dict [optional]
-    Mapps to the top-level ``repos`` entry.
+    Maps to the top-level ``repos`` entry.
 
     ``<repo-id>``: dict [optional]
-      Mapps to the ``<repo-id>`` entry.
+      Maps to the ``<repo-id>`` entry.
 
     ``commit``: string [optional]
       Pinned commit ID which overrides the ``commit`` of the corresponding

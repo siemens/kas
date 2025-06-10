@@ -26,7 +26,7 @@
     referenced config files, expand includes and print a flattened yaml version
     of the configuration to stdout. This config is semantically identical to
     the input, but does not include any references to other configuration
-    files. The output of this command can be used to further analyse the build
+    files. The output of this command can be used to further analyze the build
     configuration.
 
     When running with ``--lock``, a locking spec is created which only contains

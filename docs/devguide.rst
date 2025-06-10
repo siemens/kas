@@ -185,7 +185,7 @@ Project home:
 Source code:
 
  - https://github.com/siemens/kas.git
- - git@github.com:siemens/kas.git
+ - ``git@github.com:siemens/kas.git``
 
 Documentation:
 
