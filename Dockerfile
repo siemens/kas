@@ -72,6 +72,7 @@ RUN pip3 --proxy=$https_proxy install \
     shtab --shell=bash -u kas.kas.kas_get_argparser --error-unimportable --prog kas \
         > /usr/local/share/bash-completion/completions/kas && \
     rm -rf $(pip3 cache dir) && \
+    rm -f /usr/local/bin/kas-container && \
     install -m 0755 /kas/contrib/oe-git-proxy /usr/bin/ && \
     install -m 0755 /kas/container-entrypoint / && \
     rm -rf /kas && \
