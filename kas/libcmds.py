@@ -615,23 +615,20 @@ class ReposCheckSignatures(Command):
         self._check_signatures(ctx)
 
     def _import_keys(self, ctx):
-        handlerdirs = {
-            'gpg': Path(ctx.kas_work_dir) / '.kas_gnupg',
-            'ssh': Path(ctx.kas_work_dir) / '.kas_ssh-handler',
+        handler_cfg = {
+            'gpg': (GPGKeyHandler,
+                    Path(ctx.kas_work_dir) / '.kas_gnupg'),
+            'ssh': (SSHKeyHandler,
+                    Path(ctx.kas_work_dir) / '.kas_ssh-handler'),
         }
-        for _, d in handlerdirs.items():
-            d.mkdir(exist_ok=True)
-            d.chmod(0o700)
-            ctx.managed_paths.add(d)
-
-        ctx.keyhandler['gpg'] = \
-            GPGKeyHandler(handlerdirs['gpg'],
-                          ctx.config.get_signers_config('gpg'),
-                          ctx.config)
-        ctx.keyhandler['ssh'] = \
-            SSHKeyHandler(handlerdirs['ssh'],
-                          ctx.config.get_signers_config('ssh'),
-                          ctx.config)
+        for name, (handler_cls, dir) in handler_cfg.items():
+            signers_cfg = ctx.config.get_signers_config(name)
+            if not signers_cfg:
+                continue
+            dir.mkdir(exist_ok=True)
+            dir.chmod(0o700)
+            ctx.managed_paths.add(dir)
+            ctx.keyhandler[name] = handler_cls(dir, signers_cfg, ctx.config)
 
         for keyhandler in ctx.keyhandler.values():
             ctx.environ.update(keyhandler.env)
