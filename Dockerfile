@@ -61,9 +61,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=${CACHE_SHARING} \
     git config --system filter.lfs.process 'git-lfs filter-process' && \
     git config --system filter.lfs.required true
 
-COPY . /kas
-
-RUN pip3 --proxy=$https_proxy install \
+RUN --mount=type=bind,target=/kas,rw \
+    pip3 --proxy=$https_proxy install \
         --no-deps \
         --no-build-isolation \
         --break-system-packages \
@@ -75,7 +74,6 @@ RUN pip3 --proxy=$https_proxy install \
     rm -f /usr/local/bin/kas-container && \
     install -m 0755 /kas/contrib/oe-git-proxy /usr/bin/ && \
     install -m 0755 /kas/container-entrypoint / && \
-    rm -rf /kas && \
     kas --version
 
 ENV GIT_PROXY_COMMAND="oe-git-proxy" \
