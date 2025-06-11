@@ -54,7 +54,8 @@ directory by default. You can specify a different location using the
 environment variable ``KAS_WORK_DIR``. Repositories managed by kas are stored
 under their ``path`` (or ``name`` if ``path`` is not set). The build directory
 is named ``build`` and is relative to ``KAS_WORK_DIR`` unless explicitly set
-with ``KAS_BUILD_DIR``.
+with ``KAS_BUILD_DIR``. Internal data that persists across executions is
+prefixed with ``.kas_``.
 
 
 Use Cases

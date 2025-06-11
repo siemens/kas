@@ -616,8 +616,8 @@ class ReposCheckSignatures(Command):
 
     def _import_keys(self, ctx):
         handlerdirs = {
-            'gpg': Path(ctx.kas_work_dir) / '.gnupg',
-            'ssh': Path(ctx.kas_work_dir) / '.ssh-handler',
+            'gpg': Path(ctx.kas_work_dir) / '.kas_gnupg',
+            'ssh': Path(ctx.kas_work_dir) / '.kas_ssh-handler',
         }
         for _, d in handlerdirs.items():
             d.mkdir(exist_ok=True)
