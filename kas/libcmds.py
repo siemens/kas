@@ -622,6 +622,7 @@ class ReposCheckSignatures(Command):
         for _, d in handlerdirs.items():
             d.mkdir(exist_ok=True)
             d.chmod(0o700)
+            ctx.managed_paths.add(d)
 
         ctx.keyhandler['gpg'] = \
             GPGKeyHandler(handlerdirs['gpg'],
