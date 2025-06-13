@@ -1,3 +1,33 @@
+4.8
+- kas: Add diff plugin to compare config files and repos
+- kas: add support to verify signatures of git repos
+- kas: add support for distributed lock file updates
+- kas: add purge command to remove all managed data
+- kas: add support for NPMRC_FILE environment variable
+- kas: GitLab CI: add git safe dir for project root
+- kas: Lift minimal Python version to 3.9
+- kas: drop overrides from output of dump when using --resolve-refs
+- kas: inject current version of kas into config dumps
+- kas: enforce allowed values for layer enabling/disabling
+- kas: deprecate various magic values to disable a layer
+- kas: consistently check for the validity of path provided via env vars
+- kas: skip shallow cloning for reference repos
+- kas: improve reporting of yaml format errors
+- kas: truly make kconfiglib a weak dependency
+- kas: fix output on patching errors
+- kas: perform packaging via pyproject.toml
+- kas-container: add limited support for docker rootless
+- kas-container: propagate timezone information into container
+- kas-container: warn if script version does not match container
+- kas-container: prepare for looser coupling of script and container versions
+- kas-container: install python3-cairo for pybootchartgui support
+- kas-container: add bubblewrap package to kas-isar
+- kas-container: do not ship kas-container script within the container
+- kas-container: do not ship unneeded artifacts of kas repository
+- docs: precisely describe how config files are merged
+- docs: make documentation of project layout more precise
+- docs: specify envs that are processed prior to reading the config
+
 4.7
 - kas: preserve history across shell plugin invocations
 - kas: adjust/improve dirty repo detection
