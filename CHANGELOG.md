@@ -1,3 +1,6 @@
+4.8.1
+- kas-container: Update new version variable on release, fixing mismatch in 4.8
+
 4.8
 - kas: Add diff plugin to compare config files and repos
 - kas: add support to verify signatures of git repos
