@@ -3,8 +3,8 @@
 Project Configuration
 =====================
 
-Currently, JSON and YAML are supported as the base file formats. Since YAML is
-arguably easier to read, this documentation focuses on the YAML format.
+Currently, JSON and YAML 1.1 are supported as the base file formats. Since YAML
+is arguably easier to read, this documentation focuses on the YAML format.
 
 .. code-block:: yaml
 
@@ -64,6 +64,13 @@ In given examples we assume that your configuration file is part of a
 ``meta-custom`` repository/layer. This way it is possible to overwrite or
 append entries in files that include this configuration by naming an entry
 the same (overwriting) or using an unused name (appending).
+
+.. note::
+  kas internally uses ``PyYAML`` to parse YAML documents, inheriting its
+  limitations. Notably, ``PyYAML`` only supports YAML 1.1 and does not
+  correctly handle non-string keys in mappings. To avoid this issue, we
+  recommend quoting keys of other types, such as octal numbers (``0001``),
+  integers (``42``), booleans (``false``) and special values (``no``).
 
 Including in-tree configuration files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
