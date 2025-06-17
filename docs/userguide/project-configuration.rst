@@ -466,8 +466,6 @@ Configuration reference
   available to the build environment as well by pointing the ``GNUPGHOME``
   environment variable to the local keystore.
 
-  .. note:: Currently only GnuPG keys are supported.
-
   ``<signer_id>``: dict [optional]
     :kasschemadesc:`signers.additionalProperties`
     For each signer, a unique identifier is required. The ``<signer_id>`` is used to
