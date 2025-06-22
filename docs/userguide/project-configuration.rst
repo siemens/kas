@@ -468,8 +468,8 @@ Configuration reference
 
   ``<signer_id>``: dict [optional]
     :kasschemadesc:`signers.additionalProperties`
-    For each signer, a unique identifier is required. The ``<signer_id>`` is used to
-    reference the entry in the ``allowed_signers`` entries.
+    For each signer, a unique identifier is required. The ``<signer_id>`` is
+    used to reference the entry in the ``allowed_signers`` entries.
 
     ``type``: enum [optional]
       :kasschemadesc:`signers.additionalProperties.properties.type`
