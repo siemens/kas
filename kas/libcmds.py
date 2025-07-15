@@ -189,10 +189,11 @@ class SetupHome(Command):
 
     def __init__(self):
         super().__init__()
-        self.tmpdirname = tempfile.mkdtemp()
+        self.tmpdirname = None
 
     def __del__(self):
-        shutil.rmtree(self.tmpdirname)
+        if self.tmpdirname:
+            shutil.rmtree(self.tmpdirname)
 
     def __str__(self):
         return 'setup_home'
@@ -358,6 +359,8 @@ class SetupHome(Command):
         managed_env = get_context().managed_env
         if managed_env:
             logging.info(f'Running on {managed_env}')
+        if not self.tmpdirname:
+            self.tmpdirname = tempfile.mkdtemp()
         def_umask = os.umask(0o077)
         self._setup_netrc()
         self._setup_npmrc()
