@@ -25,7 +25,9 @@
     When this command is executed, kas will checkout repositories, setup the
     build environment and then start a shell in the build environment. This
     can be used to manually run ``bitbake`` with custom command line options
-    or to execute other commands such as ``runqemu``.
+    or to execute other commands such as ``runqemu``. The ``SHELL`` environment
+    variable is inherited from the calling environment and controls which shell
+    is started.
 
     For example, to start a shell in the build environment for the file
     ``kas-project.yml`` you could run::

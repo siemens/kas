@@ -132,11 +132,11 @@ overwritten using the ``env`` section of the config file.
 | ``NO_PROXY`` (C,K,E)     | is evaluated by OpenEmbedded's oe-git-proxy      |
 |                          | script.                                          |
 +--------------------------+--------------------------------------------------+
-| ``SHELL``                | The shell to start when using the `shell`        |
-| (C,K,E)                  | plugin.                                          |
+| ``SHELL``                | The shell to start when using the ``shell``      |
+| (C,K,E)                  | plugin and in the bitbake environment.           |
 +--------------------------+--------------------------------------------------+
-| ``TERM``                 | The terminal options used in the `shell` plugin. |
-| (C,K,E)                  |                                                  |
+| ``TERM``                 | The terminal options used in the ``shell``       |
+| (C,K,E)                  | plugin and in the bitbake environment.           |
 +--------------------------+--------------------------------------------------+
 | ``TZ`` (C)               | Timezone settings.                               |
 +--------------------------+--------------------------------------------------+
