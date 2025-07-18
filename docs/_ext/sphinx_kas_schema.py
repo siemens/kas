@@ -45,7 +45,7 @@ class KasSchemaDescRole(SphinxRole):
 
     def __init__(self):
         super().__init__()
-        self.key_regex = re.compile(r'([a-zA-Z_]+)(?:\[(\d+)\])?')
+        self.key_regex = re.compile(r'([a-zA-Z0-9_]+)(?:\[(\d+)\])?')
 
     def run(self) -> tuple[list[nodes.Node], list[nodes.system_message]]:
         messages = []
