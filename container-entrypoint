@@ -54,6 +54,11 @@ may also need to update the host distribution (e.g. Debian Jessie -> Stretch).
 EOF
 fi
 
+# if the container is started from a not supported terminal, fallback to xterm
+if [ -n "$TERM" ]; then
+	infocmp "$TERM" > /dev/null 2>&1 || TERM=xterm
+fi
+
 if [ -z "$USER_ID" ] || [ "$USER_ID" = 0 ]; then
 	# Not a kas-container call, or we shall run everything as root
 	GOSU=""
