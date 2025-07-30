@@ -67,6 +67,11 @@ else
 	if [ -d /var/kas/userdata/.ssh ]; then
 		cp -a /var/kas/userdata/.ssh /builder/
 	fi
+	# adjust timezone to host
+	if [ -n "${KAS_HOST_TZ}" ] && [ -f "/usr/share/zoneinfo/${KAS_HOST_TZ}" ]; then
+		echo "${KAS_HOST_TZ}" > /etc/timezone
+		ln -sf "/usr/share/zoneinfo/${KAS_HOST_TZ}" /etc/localtime
+	fi
 
 	GOSU="gosu builder"
 fi

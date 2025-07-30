@@ -687,12 +687,9 @@ if [ -n "${SSTATE_MIRRORS}" ]; then
 	set -- "$@" -e "SSTATE_MIRRORS=${SSTATE_MIRRORS}"
 fi
 
-# propagate timezone information
-if [ -f "/etc/localtime" ]; then
-	set -- "$@" -v "$(realpath -e "/etc/localtime")":/etc/localtime:ro
-fi
-if [ -f "/etc/timezone" ]; then
-	set -- "$@" -v "$(realpath -e "/etc/timezone")":/etc/timezone:ro
+# propagate timezone information to entrypoint (requires systemd 239)
+if command -v timedatectl >/dev/null; then
+	set -- "$@" -e "KAS_HOST_TZ=$(timedatectl show -p Timezone --value 2>/dev/null)"
 fi
 
 for var in TERM KAS_DISTRO KAS_MACHINE KAS_TARGET KAS_TASK KAS_CLONE_DEPTH \
