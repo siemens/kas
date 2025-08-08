@@ -32,6 +32,7 @@ import subprocess
 from pathlib import Path
 from kas.context import create_global_context, get_context
 from kas.config import Config, CONFIG_YAML_FILE
+from kas.includehandler import ConfigFile
 from kas.libcmds import Macro
 from kas.kasusererror import KasUserError
 from kas import plugins
@@ -51,6 +52,7 @@ class Clean():
     helpmsg = (
         'Clean build artifacts, keep sstate cache and downloads.'
     )
+    config_files = None
 
     @classmethod
     def setup_parser(cls, parser):
@@ -71,14 +73,17 @@ class Clean():
 
     def run(self, args):
         ctx = create_global_context(args)
+        default_conf_file = Path(ctx.kas_work_dir) / CONFIG_YAML_FILE
         build_system = None
-        if args.config or (Path(ctx.kas_work_dir) / CONFIG_YAML_FILE).exists():
-            ctx.config = Config(ctx, args.config)
-            # to read the config, we need all repos (but no build env),
-            macro = Macro()
-            macro.run(ctx, skip=['repos_apply_patches', 'write_bb_config',
-                                 'setup_environ'])
-            build_system = ctx.config.get_build_system()
+        if args.config:
+            self.config_files = args.config
+        elif default_conf_file.exists():
+            self.config_files = str(default_conf_file)
+        if self.config_files:
+            # By definition, build_system key must be present in the first
+            # config file to take effect.
+            cf = ConfigFile.load(self.config_files.split(':')[0], False, False)
+            build_system = cf.config.get('build_system')
         if args.isar:
             build_system = 'isar'
 
@@ -182,9 +187,16 @@ class Purge(CleanAll):
     def run(self, args):
         super().run(args)
         ctx = get_context()
-        if not ctx.config:
+
+        if not self.config_files:
             raise KasUserError('Purge requires a config file to locate '
                                'managed repos.')
+
+        ctx.config = Config(ctx, self.config_files)
+        # to read the config, we need all repos (but no build env),
+        macro = Macro()
+        macro.run(ctx, skip=['repos_apply_patches', 'write_bb_config',
+                             'setup_environ'])
 
         for r in ctx.config.get_repos():
             if r.operations_disabled:
