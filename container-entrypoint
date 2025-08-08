@@ -59,6 +59,12 @@ if [ -n "$TERM" ]; then
 	infocmp "$TERM" > /dev/null 2>&1 || TERM=xterm
 fi
 
+if [ -z "$USER_ID" ] && [ -n "$CI_PROJECT_DIR" ]; then
+	# Work around for gitlab-runner not aligning checked out repo ownership
+	# with our builder user. We handle that internally in kas, but we
+	# need the exception here as well for git calls outside of kas.
+	sudo git config --system safe.directory "$CI_PROJECT_DIR"
+fi
 if [ -z "$USER_ID" ] || [ "$USER_ID" = 0 ]; then
 	# Not a kas-container call, or we shall run everything as root
 	GOSU=""
