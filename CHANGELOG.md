@@ -1,3 +1,15 @@
+4.8.2
+- kas: clean: avoid creation of tmp data to recover from full-disk scenario
+- kas: avoid duplicate creations of tmpdir
+- kas-container: fix host timezone propagation, resolving yocto breakage
+- kas-container: restore git safe.directory exception outside of kas for GitLab CI
+- kas-container: avoid collision of internal vars with environment
+- kas-container: fallback to xterm if a TERM value is not supported
+- docs: precisely describe where SHELL env var is in effect
+- docs: add note on YAML support and its limitations
+- docs: remove GnuPG limitation of repo verification
+- docs: sphinx_kas_schema.py: support numbers in regex
+
 4.8.1
 - kas-container: Update new version variable on release, fixing mismatch in 4.8
 
