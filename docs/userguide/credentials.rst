@@ -42,6 +42,40 @@ When running in a GitHub Action or GitLab CI job, the ``.gitconfig`` file
 is automatically injected. Otherwise, the environment variable
 ``GITCONFIG_FILE`` needs to point to the `.gitconfig` kas should use.
 
+
+Git credential cache
+~~~~~~~~~~~~~~~~~~~~
+
+You can share git credentials with the kas-container by using Git credential helpers. This allows you to avoid re-entering your credentials for every Git operation.
+
+Enable credential caching on your host machine with the following command:
+
+.. code-block:: bash
+
+    git config --global credential.helper 'cache --timeout=86400'
+
+From the host, perform a Git operation that requires authentication, such as a `git pull`, in a password-protected repository:
+
+.. code-block:: bash
+
+    git pull
+
+After entering your credentials once, Git will store them and make them available through a background daemon that exposes a socket.
+
+You should see a running process similar to this on your host:
+
+.. code-block:: bash
+
+    /usr/lib/git-core/git credential-cache--daemon $HOME/.cache/git/credential/socket
+
+
+Now, you can launch the Kas container with the Git credential socket option:
+
+.. code-block:: bash
+
+  kas-container --git-credential-socket $HOME/.cache/git/credential/socket <other options...>
+
+
 GitHub Actions
 ~~~~~~~~~~~~~~
 
