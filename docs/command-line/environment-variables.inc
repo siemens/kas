@@ -200,6 +200,13 @@ overwritten using the ``env`` section of the config file.
 | (C)                      | ``docker`` or ``podman``). If not set, this is   |
 |                          | auto-detected (preference: docker).              |
 +--------------------------+--------------------------------------------------+
+| ``KAS_SUDO_CMD``         | Explicitly set the sudo command (either ``sudo`` |
+| (C)                      | or ``run0``) for operations that require higher  |
+|                          | privileges. If not set, this is auto-detected    |
+|                          | (preference: ``sudo``). Note, that ``run0`` does |
+|                          | not preserve the environment and cannot setup    |
+|                          | loopback devices.                                |
++--------------------------+--------------------------------------------------+
 
 .. |aws_cred| replace:: ``AWS_ROLE_ARN``
                         ``AWS_SHARED_CREDENTIALS_FILE``

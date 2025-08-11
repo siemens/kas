@@ -64,7 +64,8 @@ usage()
 	printf "%b" "menu\t\t\tProvide configuration menu and trigger " \
 		    "configured build.\n"
 	printf "%b" "\nOptional arguments:\n"
-	printf "%b" "--isar\t\t\tUse kas-isar container to build Isar image.\n"
+	printf "%b" "--isar\t\t\tUse kas-isar container to build Isar image. To force\n"
+	printf "%b" "      \t\t\tthe use of run0 over sudo, set KAS_SUDO_CMD=run0.\n"
 	printf "%b" "--with-loop-dev		Pass a loop device to the " \
 		    "container. Only required if\n"
 	printf "%b" "\t\t\tloop-mounting is used by recipes.\n"
@@ -117,6 +118,26 @@ trace()
 	"$@"
 }
 
+prepare_sudo_cmd()
+{
+	if [ -z "${KAS_SUDO_CMD}" ]; then
+		# Try to auto-detect a privileged executor
+		if command -v sudo >/dev/null; then
+			KAS_SUDO_CMD="sudo"
+		elif command -v run0 >/dev/null; then
+			KAS_SUDO_CMD="run0"
+		else
+			fatal_error "No privileged executor found, need sudo or run0."
+		fi
+	fi
+
+	case "$KAS_SUDO_CMD" in
+		sudo) _KAS_SUDO_CMD="sudo --preserve-env";;
+		run0) _KAS_SUDO_CMD="run0 --background= --unit=kas-container@$$";;
+		*) fatal_error "Unsupported KAS_SUDO_CMD ('${KAS_SUDO_CMD}'), use sudo or run0.";;
+	esac
+}
+
 enable_isar_mode()
 {
 	if [ -n "${ISAR_MODE}" ]; then
@@ -128,15 +149,17 @@ enable_isar_mode()
 	KAS_ISAR_ARGS="--privileged"
 
 	if [ "${KAS_CONTAINER_ENGINE}" = "podman" ]; then
+		prepare_sudo_cmd
 		# sudo is needed for a privileged podman container
-		KAS_CONTAINER_COMMAND="sudo --preserve-env ${KAS_CONTAINER_COMMAND}"
+		KAS_CONTAINER_COMMAND="${_KAS_SUDO_CMD} ${KAS_CONTAINER_COMMAND}"
 		# preserved user PATH may lack sbin needed by privileged podman
 		export PATH="${PATH}:/usr/sbin"
 	elif [ "${KAS_DOCKER_ROOTLESS}" = "1" ]; then
+		prepare_sudo_cmd
 		export DOCKER_HOST="${DOCKER_HOST:-unix:///var/run/docker.sock}"
 		debug "kas-isar does not support rootless docker. Using system docker"
 		# force use of well-known system docker socket
-		KAS_CONTAINER_COMMAND="sudo --preserve-env ${KAS_CONTAINER_COMMAND}"
+		KAS_CONTAINER_COMMAND="${_KAS_SUDO_CMD} ${KAS_CONTAINER_COMMAND}"
 		KAS_DOCKER_ROOTLESS=0
 	fi
 }
@@ -338,6 +361,10 @@ while [ $# -gt 0 ]; do
 		if ! KAS_LOOP_DEV=$(/sbin/losetup -f 2>/dev/null); then
 			if [ "$(id -u)" -eq 0 ]; then
 				fatal_error "loop device not available!"
+			fi
+			prepare_sudo_cmd
+			if ! [ "$KAS_SUDO_CMD" = "sudo" ]; then
+				fatal_error '--with-loop-dev requires sudo for device setup.'
 			fi
 			sudo_command="/sbin/losetup -f"
 			sudo_message="[sudo] enter password to setup loop"
