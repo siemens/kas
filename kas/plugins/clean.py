@@ -91,18 +91,26 @@ class Clean():
         if args.dry_run:
             logging.warning('Dry run, not removing anything')
         tmpdirs = Path(ctx.build_dir).glob('tmp*')
+
+        dirs_to_remove = []
         for tmpdir in tmpdirs:
             logging.info(f'Removing {tmpdir}')
-            if args.dry_run:
-                continue
             if build_system == 'isar':
-                clean_args = [
-                    'sudo', '--prompt', '[sudo] enter password for %U '
-                    f'to clean ISAR artifacts in {tmpdir}',
-                    'rm', '-rf', str(tmpdir)]
-                subprocess.check_call(clean_args)
+                dirs_to_remove.append(tmpdir)
             else:
-                shutil.rmtree(tmpdir)
+                if not args.dry_run:
+                    shutil.rmtree(tmpdir)
+
+        if len(dirs_to_remove) == 0:
+            return
+
+        clean_args = ['sudo', '--prompt', '[sudo] enter password for %U '
+                      'to clean ISAR artifacts']
+        clean_args.extend(['rm', '-rf'])
+        clean_args.extend([p.as_posix() for p in dirs_to_remove])
+        logging.debug(' '.join(clean_args))
+        if not args.dry_run:
+            subprocess.check_call(clean_args)
 
     @staticmethod
     def clear_dir_content(directory):
