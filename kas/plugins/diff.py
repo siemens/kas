@@ -165,9 +165,10 @@ class Diff:
                        {'color': COLORS_OLD, 'prefix': prefix_old},
                        'new_value':
                        {'color': COLORS_NEW, 'prefix': prefix_new}}
-        print(f"kas diff {oldfile} {newfile}")
-        print(prefix_old * 3, f" {oldfile}")
-        print(prefix_new * 3, f" {newfile}")
+        if oldfile or newfile:
+            print(f"kas diff {oldfile} {newfile}")
+            print(prefix_old * 3, f" {oldfile}")
+            print(prefix_new * 3, f" {newfile}")
         vc_dict = diff_output.get('values_changed', {})
         vcs_dict = diff_output.get('vcs', {})
         if vc_dict and not commit_only:
