@@ -315,6 +315,8 @@ def test_lockfile(monkeykas, tmpdir, capsys):
 
     # insert older commit into lockfile (kas post commit/branch introduction)
     test_commit = '226e92a7f30667326a63fd9812b8cc4a6184e398'
+    # a commit message between test_commit and HEAD
+    test_shortmsg = 'Release 4.8'
     lockspec['overrides']['repos']['externalrepo']['commit'] = test_commit
     with open('test.lock.yml', 'w') as f:
         yaml.safe_dump(lockspec, f)
@@ -326,7 +328,9 @@ def test_lockfile(monkeykas, tmpdir, capsys):
         == test_commit
 
     # update lockfile, check if repo is pinned to other commit
+    capsys.readouterr()
     kas.kas('dump --lock --inplace --update test.yml'.split())
+    assert test_shortmsg in capsys.readouterr().out
     with open('test.lock.yml', 'r') as f:
         lockspec = yaml.safe_load(f)
         assert lockspec['overrides']['repos']['externalrepo']['commit'] \
