@@ -80,6 +80,7 @@ from kas.context import get_context
 from kas.includehandler import ConfigFile
 from kas.plugins.checkout import Checkout
 from kas.plugins.dump import Dump, IoTarget, LOCKFILE_VERSION_MIN
+from kas.plugins.diff import Diff
 from kas.repos import Repo
 
 __license__ = 'MIT'
@@ -105,6 +106,14 @@ class Lock(Checkout):
     def setup_parser(cls, parser):
         super().setup_parser(parser)
         Dump.setup_parser_format_args(parser)
+
+    def _print_log_diff(self, repo, old_commit):
+        try:
+            diff = repo.diff(old_commit, None)
+        except NotImplementedError:
+            return
+        Diff.formatting_diff_output(
+            None, None, {'vcs': diff}, True, False, True, False)
 
     def _update_lockfile(self, lockfile, repos_to_lock, update_only, args):
         """
@@ -138,6 +147,7 @@ class Lock(Checkout):
             elif not lockfile.is_external:
                 logging.info('Updating lock of %s: %s -> %s',
                              r.name, v['commit'], r.revision)
+                self._print_log_diff(r, v['commit'])
                 v['commit'] = r.revision
                 changed = True
             else:
