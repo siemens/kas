@@ -291,9 +291,13 @@ def get_build_environ(build_system):
         raise InitBuildEnvError('Did not find any init-build-env script')
 
     with tempfile.TemporaryDirectory() as temp_dir:
+        if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
+            init_script_log = pathlib.Path(temp_dir) / '.init_script.log'
+        else:
+            init_script_log = '/dev/null'
         script = f"""#!/bin/bash
         set -e
-        source {init_script} $1 > /dev/null
+        source {init_script} $1 > {init_script_log}
         env
         """
 
@@ -306,6 +310,12 @@ def get_build_environ(build_system):
 
         (_, output) = run_cmd([str(get_bb_env_file), get_context().build_dir],
                               cwd=init_repo.path, env=env)
+        if init_script_log != '/dev/null':
+            with open(init_script_log) as log:
+                msg = f'{init_script} output:\n'
+                for line in log.readlines():
+                    msg += line
+                logging.debug(msg.rstrip('\n'))
 
     env = {}
     for line in output.splitlines():
