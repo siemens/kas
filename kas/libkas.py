@@ -116,6 +116,13 @@ def _filter_stderr(capture_stderr, ret, out, err=None):
         return (ret, out)
 
 
+def _report_cmd_error(ret, cwd, cmdstr, cmd, stderr):
+    if stderr:
+        msg = f'Command "{cwd}$ {cmdstr}" failed:\n{stderr}'
+        logging.error(msg.rstrip('\n'))
+    raise CommandExecError(cmd, ret)
+
+
 async def run_cmd_async(cmd, cwd, env=None, fail=True, liveupdate=False,
                         capture_stderr=False):
     """
@@ -170,13 +177,7 @@ async def run_cmd_async(cmd, cwd, env=None, fail=True, liveupdate=False,
         raise
 
     if ret and fail:
-        msg = f'Command "{cwd}$ {cmdstr}" failed'
-        if logo.stderr:
-            msg += '\n--- Error summary ---\n'
-            for line in logo.stderr:
-                msg += line
-        logging.error(msg)
-        raise CommandExecError(cmd, ret)
+        _report_cmd_error(ret, cwd, cmdstr, cmd, logo.stderr)
 
     return _filter_stderr(capture_stderr, ret,
                           ''.join(logo.stdout), ''.join(logo.stderr))
@@ -193,7 +194,8 @@ def run_cmd(cmd, cwd, env=None, fail=True, capture_stderr=False):
     try:
         ret = subprocess_run(cmd, env=env, cwd=cwd, stdout=PIPE, stderr=PIPE)
         if ret.returncode and fail:
-            raise CommandExecError(cmd, ret.returncode)
+            _report_cmd_error(ret.returncode, cwd, cmdstr, cmd,
+                              ret.stderr.decode('utf-8'))
     except FileNotFoundError as ex:
         if fail:
             raise ex
