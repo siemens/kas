@@ -193,3 +193,11 @@ Various keys for signature verification of repositories were added:
 - top level ``signers`` object to specify keys for signature verification
 - in repo definitions, ``signed`` and ``allowed_signers`` are added to
   specify whether a repo is signed and which data to use for verification.
+
+Version 20
+----------
+
+Added
+~~~~~
+
+- The repo key ``branch`` can now be overridden, including to a null-value.

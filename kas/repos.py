@@ -273,6 +273,7 @@ class Repo:
                                'for local repositories.')
         if refspec is None:
             commit = repo_overrides.get('commit', commit)
+            branch = repo_overrides.get('branch', branch)
             if commit and get_context().update:
                 logging.warning(f'Update of "{name}" requested, but repo is '
                                 'pinned to a fixed commit. Not updating.')
