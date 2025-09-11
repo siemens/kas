@@ -26,7 +26,7 @@
                         {
                             "type": "integer",
                             "minimum": 1,
-                            "maximum": 19
+                            "maximum": 20
                         }
                     ]
                 },
@@ -118,6 +118,10 @@
                         "type": "object",
                         "additionalProperties": false,
                         "properties": {
+                            "branch": {
+                                "description": "Branch in which to find the overridden commit, can be Null",
+                                "type": ["string", "null"]
+                            },
                             "commit": {
                                 "type": "string"
                             }
