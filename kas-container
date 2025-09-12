@@ -306,6 +306,7 @@ setup_kas_dirs()
 	KAS_REPO_REF_DIR="$(check_and_expand KAS_REPO_REF_DIR required)"
 	DL_DIR="$(check_and_expand DL_DIR createrec)"
 	SSTATE_DIR="$(check_and_expand SSTATE_DIR createrec)"
+	KAS_BUILDTOOLS_DIR="$(check_and_expand KAS_BUILDTOOLS_DIR createrec)"
 }
 setup_kas_dirs
 
@@ -620,6 +621,7 @@ forward_dir KAS_BUILD_DIR "/build" "rw"
 forward_dir DL_DIR "/downloads" "rw"
 forward_dir KAS_REPO_REF_DIR "/repo-ref" "rw"
 forward_dir SSTATE_DIR "/sstate" "rw"
+forward_dir KAS_BUILDTOOLS_DIR "/buildtools" "rw"
 
 if git_com_dir=$(git -C "${KAS_REPO_DIR}" rev-parse --git-common-dir 2>/dev/null) \
 	&& [ "$git_com_dir" != "$(git -C "${KAS_REPO_DIR}" rev-parse --git-dir)" ]; then
