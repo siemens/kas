@@ -264,3 +264,12 @@ class Config:
         else:
             return {k: v for k, v in signers.items()
                     if v.get('type', 'gpg') == keytype}
+
+    def get_buildtools(self):
+        """
+            Returns the buildtools keys: version, download URL and
+            archive filename. These are provided so kas knows which
+            buildtools archive to fetch and from what source.
+        """
+
+        return self._config.get('buildtools')
