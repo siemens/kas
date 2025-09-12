@@ -584,7 +584,15 @@ both OpenEmbedded and ISAR based distributions.
 OpenEmbedded
 ------------
 
+**Poky**
+
 .. literalinclude:: ../../examples/openembedded.yml
+  :language: YAML
+  :lines: 25-
+
+**oe-core (nodistro)**
+
+.. literalinclude:: ../../examples/oe-core-nodistro.yml
   :language: YAML
   :lines: 25-
 

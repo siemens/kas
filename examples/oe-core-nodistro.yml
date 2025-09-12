@@ -1,0 +1,59 @@
+#
+# kas - setup tool for bitbake based projects
+#
+# Copyright (c) Siemens, 2025
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+
+header:
+  version: 19
+
+# Optionally provide keys to verify signed repositories
+signers:
+  YoctoBuildandRelease:
+    fingerprint: 2AFB13F28FBBB0D1B9DAF63087EB3D32FB631AD9
+    gpg_keyserver: keyserver.ubuntu.com
+
+machine: qemux86-64
+distro: nodistro
+
+target: zlib-native
+
+repos:
+  bitbake:
+    url: https://github.com/openembedded/bitbake.git
+    tag: yocto-5.2.3
+    commit: 710f98844ae30416bdf6a01b655df398b49574ec
+    signed: true
+    allowed_signers:
+      - YoctoBuildandRelease
+    # this repo does not provide any layers
+    layers:
+      .: disabled
+
+  core:
+    url: https://github.com/openembedded/openembedded-core.git
+    tag: yocto-5.2.3
+    commit: 347cb0861dde58613541ce692778f907943a60ea
+    signed: true
+    allowed_signers:
+      - YoctoBuildandRelease
+    layers:
+      meta:
