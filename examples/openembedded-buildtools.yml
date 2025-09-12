@@ -1,0 +1,46 @@
+#
+# kas - setup tool for bitbake based projects
+#
+# Copyright (c) Siemens AG, 2022-2025
+# Copyright (c) Bootlin, 2025
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+
+header:
+  version: 19
+  includes:
+    - examples/openembedded.yml
+
+repos:
+  poky:
+    url: https://git.yoctoproject.org/poky.git
+    # when specifying a tag, optionally provide a commit hash
+    tag: yocto-5.2
+    commit: 9b96fdbb0cab02f4a6180e812b02bc9d4c41b1a5
+    signed: true
+    allowed_signers:
+      - YoctoBuildandRelease
+    layers:
+      meta:
+      meta-poky:
+
+buildtools:
+  version: "5.2"
+  sha256sum: "6f69fba75c8f3142bb49558afa3ed5dd0723a3beda169b057a5238013623462d"
