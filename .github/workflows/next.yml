@@ -100,6 +100,11 @@ jobs:
           echo "Test kas purge"
           ../../kas-container purge kas.yml
           ! [ -d poky ] && ! [ -d isar ] && ! [ -d build ]
+          # kas only: build oe-core nodistro example
+          if [[ "${{ matrix.image-name }}" == "kas" ]]; then
+            echo "Test oe-core nodistro"
+            ../../kas-container build ../../examples/oe-core-nodistro.yml
+          fi
       - name: Complete build and deploy ${{ matrix.image-name }} image
         if: github.ref == 'refs/heads/next'
         uses: docker/build-push-action@v6
