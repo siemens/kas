@@ -31,11 +31,18 @@ import logging
 import tempfile
 import asyncio
 import errno
+import hashlib
+import hmac
 import pathlib
+import platform
+import shutil
 import signal
+import stat
 from subprocess import Popen, PIPE, run as subprocess_run
+from urllib.parse import quote
 from .context import get_context
 from .kasusererror import KasUserError, CommandExecError
+from .configschema import CONFIGSCHEMA
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
@@ -260,6 +267,122 @@ def repos_apply_patches(repos):
         raise TaskExecError('apply patches', e.ret_code)
 
 
+def get_buildtools_dir():
+    # Set the dest. directory for buildtools's setup
+    env_path = os.environ.get("KAS_BUILDTOOLS_DIR")
+    if env_path:
+        return pathlib.Path(env_path).resolve()
+
+    # defaults to KAS_BUILD_DIR/buildtools
+    return (pathlib.Path(get_context().build_dir) / 'buildtools').resolve()
+
+
+def get_buildtools_filename():
+    arch = platform.machine()
+    ctx = get_context()
+
+    conf_buildtools = ctx.config.get_buildtools()
+    version = conf_buildtools['version']
+    if 'filename' in conf_buildtools:
+        filename = conf_buildtools['filename']
+    else:
+        filename = (
+            f"{arch}-buildtools-extended-"
+            f"nativesdk-standalone-{version}.sh"
+        )
+
+    return filename
+
+
+def get_buildtools_path():
+    return get_buildtools_dir() / get_buildtools_filename()
+
+
+def get_buildtools_url():
+    ctx = get_context()
+    conf_buildtools = ctx.config.get_buildtools()
+    filename = get_buildtools_filename()
+    version = conf_buildtools['version']
+
+    if 'base_url' in conf_buildtools:
+        base_url = conf_buildtools['base_url']
+    else:
+        default = (
+            CONFIGSCHEMA['properties']['buildtools']['properties']
+            ['base_url']['default']
+        )
+        base_url = f"{default}/yocto-{version}/buildtools/"
+
+    return f"{base_url}/{quote(filename)}"
+
+
+def check_sha256sum(filename, expected_checksum):
+    hash_sha256 = hashlib.sha256()
+    with open(filename, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            hash_sha256.update(chunk)
+
+    actual_checksum = hash_sha256.hexdigest()
+    logging.info(
+        f"Buildtools installer's checksum (sha256) is: "
+        f"{actual_checksum}"
+    )
+
+    return hmac.compare_digest(actual_checksum, expected_checksum)
+
+
+def download_buildtools():
+    ctx = get_context()
+    conf_buildtools = ctx.config.get_buildtools()
+    version = conf_buildtools['version']
+    buildtools_dir = get_buildtools_dir()
+
+    # Enable extended buildtools tarball
+    buildtools_url = get_buildtools_url()
+    tmpbuildtools = get_buildtools_path()
+
+    logging.info(f"Downloading Buildtools {version}")
+    # Download installer
+    fetch_cmd = ['wget', '-q', '-O', str(tmpbuildtools), buildtools_url]
+    (ret, _) = run_cmd(fetch_cmd, cwd=ctx.kas_work_dir)
+    if ret != 0:
+        raise InitBuildEnvError("Could not download buildtools installer")
+
+    # Check if the installer's sha256sum matches
+    if not check_sha256sum(tmpbuildtools, conf_buildtools['sha256sum']):
+        raise InitBuildEnvError(
+            "sha256sum mismatch: installer may be corrupted"
+        )
+
+    # Make installer executable
+    st = tmpbuildtools.stat()
+    tmpbuildtools.chmod(st.st_mode | stat.S_IEXEC)
+
+    # Run installer (in an isolated environment)
+    installer_cmd = [str(tmpbuildtools), '-d', str(buildtools_dir), '-y']
+    env = {'PATH': '/usr/sbin:/usr/bin:/sbin:/bin'}
+    (ret, _) = run_cmd(installer_cmd, cwd=ctx.kas_work_dir, env=env)
+    if ret != 0:
+        raise InitBuildEnvError("Could not run buildtools installer")
+
+
+def get_buildtools_version():
+    try:
+        version_file = list(get_buildtools_dir().glob("version-*"))
+        if len(version_file) != 1:
+            raise ValueError("Invalid number of version files")
+
+        with version_file[0].resolve().open('r') as f:
+            lines = f.readlines()
+            for line in lines:
+                if line.startswith("Distro Version"):
+                    return lines[1].split(':', 1)[1].strip()
+    except Exception as e:
+        logging.warning(f"Unable to read buildtools version: {e}")
+
+    return -1
+
+
 def get_build_environ(build_system):
     """
         Creates the build environment variables.
@@ -290,6 +413,42 @@ def get_build_environ(build_system):
     if not init_repo:
         raise InitBuildEnvError('Did not find any init-build-env script')
 
+    conf_buildtools = get_context().config.get_buildtools()
+    buildtools_env = ""
+
+    if conf_buildtools:
+        # Create the dest. directory if it doesn't exist
+        buildtools_dir = get_buildtools_dir()
+        buildtools_dir.mkdir(parents=True, exist_ok=True)
+
+        if not any(buildtools_dir.iterdir()):
+            # Directory is empty, try to fetch from upstream
+            logging.info(f"Buildtools ({buildtools_dir}): directory is empty")
+            download_buildtools()
+        else:
+            # Fetch buildtools when versions differ in non-empty dir
+            found_version = get_buildtools_version()
+            if found_version != conf_buildtools['version']:
+                logging.warning("Buildtools: version mismatch")
+                logging.info(f"Required version: {conf_buildtools['version']}")
+                logging.info(f"Found version: {found_version}")
+                shutil.rmtree(os.path.realpath(buildtools_dir))
+                os.makedirs(os.path.realpath(buildtools_dir))
+                download_buildtools()
+
+        envfiles = list(get_buildtools_dir().glob("environment-setup-*"))
+        if len(envfiles) == 1:
+            # Ignore missing pkg-config error until oe-core fix is merged
+            buildtools_env = (
+                "source {} || true\n".format(envfiles[0].resolve())
+            )
+        else:
+            logging.error(
+                f"Expected 1 environment setup file, found {len(envfiles)}."
+                "Invalid or misconfigured buildtools package."
+            )
+            return -1
+
     with tempfile.TemporaryDirectory() as temp_dir:
         if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
             init_script_log = pathlib.Path(temp_dir) / '.init_script.log'
@@ -297,6 +456,7 @@ def get_build_environ(build_system):
             init_script_log = '/dev/null'
         script = f"""#!/bin/bash
         set -e
+        {buildtools_env}
         source {init_script} $1 > {init_script_log}
         env
         """
