@@ -88,6 +88,9 @@ jobs:
         run: |
           cd image-tests/${{ matrix.image-name }}
           ../../kas-container build kas.yml
+          if  [ "${{ matrix.image-name }}" = "kas" ]; then
+            ../../kas-container build kas-buildtools.yml
+          fi
           [ -d build/tmp ]
           echo "Test kas clean"
           ../../kas-container clean kas.yml
