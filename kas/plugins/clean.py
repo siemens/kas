@@ -225,6 +225,15 @@ class Purge(CleanAll):
         if not args.dry_run:
             self.clear_dir_content(build_dir)
 
+        if os.environ.get("KAS_BUILDTOOLS_DIR"):
+            buildtools_dir = (
+                Path(os.environ.get("KAS_BUILDTOOLS_DIR")).resolve()
+            )
+            if buildtools_dir.exists():
+                logging.info(f'Removing {buildtools_dir}')
+                if not args.dry_run:
+                    shutil.rmtree(buildtools_dir)
+
         work_dir = Path(ctx.kas_work_dir)
         default_config = work_dir / CONFIG_YAML_FILE
         if default_config.exists():
