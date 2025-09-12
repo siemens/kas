@@ -207,6 +207,10 @@ overwritten using the ``env`` section of the config file.
 |                          | not preserve the environment and cannot setup    |
 |                          | loopback devices.                                |
 +--------------------------+--------------------------------------------------+
+| ``KAS_BUILDTOOLS_DIR``   | Explicitly set the path where kas will download  |
+| (C,K)                    | and install buildtools. If not set, kas will use |
+|                          | ``KAS_BUILD_DIR/buildtools`` as the default path.|
++--------------------------+--------------------------------------------------+
 
 .. |aws_cred| replace:: ``AWS_ROLE_ARN``
                         ``AWS_SHARED_CREDENTIALS_FILE``

@@ -503,6 +503,76 @@ Configuration reference
   ``kas-container`` script. It must not be set manually and might only be
   defined in the top-level ``.config.yaml`` file.
 
+``buildtools``: dict [optional]
+  Provides variables to define which buildtools version should be fetched and
+  where it is (or will be) installed. Both ``version`` and ``sha256sum`` should
+  be set. The environment variable ``KAS_BUILDTOOLS_DIR`` can be used to set the
+  directory where buildtools will be installed, otherwise the default path
+  (i.e., ``KAS_BUILD_DIR/buildtools``) will be used. If such directory already
+  has buildtools installed, kas will check the ``Distro Version`` line in the
+  version file, and if it doesn't match with ``version``, the directory will
+  be cleaned and kas will download buildtools according to ``version``. After
+  the download, kas will perform integrity validation by calculating the
+  artifact's checksum and comparing it with ``sha256sum``. As for the optional
+  variables, they are meant to be used to support cases as: mirrors, changes in
+  the installer's file name, and fetching unofficial (i.e., custom) buildtools.
+  Finally, the environment-setup script will run before bitbake, so the whole
+  buildtools environment will be available. ``wget`` is the host tool required
+  for this feature. More information on how to install or generate buildtools
+  can be found at: |yp_doc_buildtools|
+
+  ``version``: string
+    :kasschemadesc:`buildtools.properties.version`
+
+  ``sha256sum``: string
+    :kasschemadesc:`buildtools.properties.sha256sum`
+
+  ``base_url``: string [optional]
+    :kasschemadesc:`buildtools.properties.base_url`
+
+  ``filename``: string [optional]
+    :kasschemadesc:`buildtools.properties.filename`
+    It will be combined with to ``base_url`` to form the whole download URL, if
+    set. If not set, kas will combine the platform architecture and ``version``
+    to form the standard script filename:
+    ``{arch}-buildtools-extended-nativesdk-standalone-{version}.sh``
+
+  Example:
+
+  .. code-block:: yaml
+
+      buildtools:
+        version: "5.0.5"
+
+  And for unofficial (custom) sources:
+
+  .. code-block:: yaml
+
+      buildtools:
+        version: "1.0.0"
+        base_url: "https://downloads.mysources.com/yocto/buildtools/"
+        filename: "x86_64-buildtools-beta-testing-1.0.0.sh"
+
+.. |yp_doc_buildtools| replace:: https://docs.yoctoproject.org/dev/ref-manual/system-requirements.html#downloading-a-pre-built-buildtools-tarball
+
+Buildtools archive
+------------------
+
+kas expects the buildtools installer to be a shell script (i.e., as a standard
+Yocto SDK). Once executed, the resulting directory should contain the elements
+below:
+
+- ``sysroots``: the native and target sysroots, containing (among libraries and
+  headers) the build system's requirements: Git, tar, Python and make.
+- ``environment-setup-*``: the environment setup script, sourced by kas, to
+  setup variables such as ``PATH`` in such a way that it points to
+  the directories in ``sysroots``.
+- ``version-*``: the version file. Its second line contains a string as
+  ``Distro Version: X.Y.Z``, parsed to retrieve the version number.
+
+The archive can contain other files, such as ``buildinfo``, but they are not
+relevant for kas.
+
 .. _example-configurations-label:
 
 Example project configurations
