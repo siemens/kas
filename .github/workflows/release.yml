@@ -28,6 +28,8 @@ jobs:
           deploy-user: ${{ github.actor }}
           deploy-token: ${{ secrets.GITHUB_TOKEN }}
           image-name: ${{ matrix.image-name }}
+      - name: Find latest tag
+        run: echo "LATEST_TAG=$(git tag | sort --version-sort | tail -n1)" >> $GITHUB_ENV
       - name: Build ${{ matrix.image-name }} image
         uses: docker/build-push-action@v6
         id: push
@@ -42,7 +44,7 @@ jobs:
           outputs: type=registry,rewrite-timestamp=true
           tags: |
             ghcr.io/${{ github.repository }}/${{ matrix.image-name }}:${{ env.RELEASE_VERSION }}
-            ghcr.io/${{ github.repository }}/${{ matrix.image-name }}:latest-release
+            ${{ github.ref_name == env.LATEST_TAG && format('ghcr.io/{0}/{1}:latest-release', github.repository, matrix.image-name) || '' }}
           annotations: ${{ env.DOCKER_METADATA_OUTPUT_ANNOTATIONS }}
       - name: Attest ${{ matrix.image-name }} image
         uses: actions/attest-build-provenance@v1
