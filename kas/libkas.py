@@ -178,7 +178,11 @@ async def run_cmd_async(cmd, cwd, env=None, fail=True, liveupdate=False,
         await asyncio.gather(*[asyncio.shield(t) for t in tasks])
         ret = await asyncio.shield(process.wait())
     except asyncio.CancelledError:
-        process.terminate()
+        try:
+            process.terminate()
+        except ProcessLookupError:
+            # Process already exited between the cancel and us reaching here.
+            pass
         logging.debug('Command "%s" cancelled', cmdstr)
         await process.wait()
         raise
@@ -244,7 +248,11 @@ def repos_fetch(repos):
     try:
         loop.run_until_complete(asyncio.gather(*tasks))
     except CommandExecError as e:
+        [t.cancel() for t in tasks]
         raise TaskExecError('fetch repos', e.ret_code)
+    except KasUserError:
+        [t.cancel() for t in tasks]
+        raise
 
 
 def repos_apply_patches(repos):
@@ -264,7 +272,11 @@ def repos_apply_patches(repos):
     try:
         loop.run_until_complete(asyncio.gather(*tasks))
     except CommandExecError as e:
+        [t.cancel() for t in tasks]
         raise TaskExecError('apply patches', e.ret_code)
+    except KasUserError:
+        [t.cancel() for t in tasks]
+        raise
 
 
 def get_buildtools_dir():
