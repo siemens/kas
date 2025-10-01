@@ -109,10 +109,15 @@ def termination():
 
 def shutdown_loop(loop):
     """
-        Waits for completion of the event loop
+        Waits for completion of the event loop but ignores any exceptions.
+        The tasks are either already cancelled or will be transitively
+        cancelled shortly. As this is the final cleanup, we cannot check for
+        exceptions as these might lead in an unclosed event loops.
     """
     pending = asyncio.all_tasks(loop)
-    loop.run_until_complete(asyncio.gather(*pending))
+    if len(pending):
+        logging.debug("Cleanup %d remaining tasks", len(pending))
+    loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
     loop.close()
 
 
