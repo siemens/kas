@@ -406,7 +406,10 @@ class RepoImpl(Repo):
            and self.refspec is None:
             return 0
 
-        if not get_context().update:
+        # check if we already have the commit. On update, check as well in case
+        # the commit is fixed, hence the repo must not be updated anyways
+        force_update = get_context().update
+        if not force_update or (force_update and self.commit):
             # Do commit/tag/branch/refspec exist in the current repository?
             (retc, output) = await run_cmd_async(self.contains_refspec_cmd(),
                                                  cwd=self.path,
