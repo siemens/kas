@@ -85,6 +85,17 @@ def cleanup_logger():
             logging.root.removeHandler(handler)
 
 
+def register_signal_handlers(loop):
+    """
+        Register the signal handlers which should be handled by the
+        event loop. Implemented as function to monkey-patch it out in tests.
+    """
+    loop.add_signal_handler(signal.SIGTERM, interruption)
+    # don't overwrite pytest's signal handler
+    if "PYTEST_CURRENT_TEST" not in os.environ:
+        loop.add_signal_handler(signal.SIGINT, interruption)
+
+
 def interruption():
     """
         Gracefully cancel all tasks in the event loop
@@ -190,11 +201,7 @@ def kas(argv):
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-
-    loop.add_signal_handler(signal.SIGTERM, interruption)
-    # don't overwrite pytest's signal handler
-    if "PYTEST_CURRENT_TEST" not in os.environ:
-        loop.add_signal_handler(signal.SIGINT, interruption)
+    register_signal_handlers(loop)
 
     try:
         plugin_class = plugins.get(args.cmd)
