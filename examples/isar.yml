@@ -28,14 +28,15 @@ header:
 build_system: isar
 
 machine: qemuamd64
-distro: debian-bullseye
+distro: debian-trixie
 
-target: mc:qemuamd64-bullseye:cowsay
+target: mc:qemuamd64-trixie:cowsay
 
 repos:
   isar:
     url: https://github.com/ilbers/isar.git
-    commit: 9dc362cd7115074c0f60843e687ed89db5c9339a
+    tag: v0.11
+    commit: f8558fcf3ecf98e58853b82d89645bcedb24b853
     layers:
       meta:
       meta-isar:
