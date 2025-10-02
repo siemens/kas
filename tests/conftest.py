@@ -20,11 +20,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import signal
 import pytest
 import os
 import subprocess
 import shutil
 from pathlib import Path
+
+from kas import kas
 
 ENVVARS_KAS = [
     'KAS_WORK_DIR',
@@ -81,6 +84,26 @@ def pytest_generate_tests(metafunc):
                              [KAS_OPERATING_DIRS[0]],
                              ids=[KAS_OPERATING_IDS[0]],
                              indirect=True)
+
+
+@pytest.fixture(autouse=True)
+def prepare_kas_for_tests(monkeypatch):
+    """
+        Patch-out some global logic kas modifies. The strategy is as
+        following: kas implements the problematic parts as dedicated
+        functions which we monkeypatch here.
+    """
+    def _register_signal_handlers(loop):
+        loop.add_signal_handler(signal.SIGTERM, kas.interruption)
+        # do not handle signal.SIGINT
+
+    def _set_global_loglevel(level):
+        # do not set global log level as this is handled by pytest
+        pass
+
+    monkeypatch.setattr(kas, "register_signal_handlers",
+                        _register_signal_handlers)
+    monkeypatch.setattr(kas, "set_global_loglevel", _set_global_loglevel)
 
 
 @pytest.fixture()

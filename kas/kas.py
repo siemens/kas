@@ -99,9 +99,7 @@ def register_signal_handlers(loop):
         event loop. Implemented as function to monkey-patch it out in tests.
     """
     loop.add_signal_handler(signal.SIGTERM, interruption)
-    # don't overwrite pytest's signal handler
-    if "PYTEST_CURRENT_TEST" not in os.environ:
-        loop.add_signal_handler(signal.SIGINT, interruption)
+    loop.add_signal_handler(signal.SIGINT, interruption)
 
 
 def interruption():
