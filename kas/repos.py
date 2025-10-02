@@ -83,6 +83,14 @@ class PatchApplyError(KasUserError):
         super().__init__(msg)
 
 
+class RepoFetchError(KasUserError):
+    """
+    An error occurred during repo fetching
+    """
+    def __init__(self, repo, output):
+        super().__init__(f'Fetching of repo: "{repo.name}" failed: {output}')
+
+
 class Repo:
     """
         Represents a repository in the kas configuration.
@@ -437,8 +445,9 @@ class RepoImpl(Repo):
                                              cwd=self.path,
                                              fail=False)
         if retc:
-            logging.warning('Could not update repository %s: %s',
-                            self.name, output)
+            logging.error('Could not update repository %s: %s',
+                          self.name, output)
+            raise RepoFetchError(self, output)
         else:
             logging.info('Repository %s updated', self.name)
 
