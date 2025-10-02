@@ -56,7 +56,7 @@ def create_logger():
         Setup the logging environment
     """
     log = logging.getLogger()  # root logger
-    log.setLevel(DEFAULT_LOG_LEVEL.upper())
+    set_global_loglevel(DEFAULT_LOG_LEVEL.upper())
     format_str = '%(asctime)s - %(levelname)-8s - %(message)s'
     date_format = '%Y-%m-%d %H:%M:%S'
     if HAVE_COLORLOG and os.isatty(2):
@@ -83,6 +83,14 @@ def cleanup_logger():
     for handler in logging.root.handlers[:]:
         if isinstance(handler, logging.StreamHandler):
             logging.root.removeHandler(handler)
+
+
+def set_global_loglevel(level):
+    """
+        Configure the global log level.
+        Implemented as function to monkey-patch it out in tests.
+    """
+    logging.getLogger().setLevel(level)
 
 
 def register_signal_handlers(loop):
@@ -195,7 +203,7 @@ def kas(argv):
     args = parser.parse_args(argv)
 
     if args.log_level:
-        logging.getLogger().setLevel(args.log_level.upper())
+        set_global_loglevel(args.log_level.upper())
 
     logging.info('%s %s started', os.path.basename(sys.argv[0]), __version__)
 
