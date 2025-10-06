@@ -193,6 +193,11 @@ overwritten using the ``env`` section of the config file.
 | ``KAS_IMAGE_VERSION`` (C)| Select the version of the (official) kas         |
 |                          | container (e.g. 4.5).                            |
 +--------------------------+--------------------------------------------------+
+| |container-distro| (C)   | Select the base distro and its release of the    |
+|                          | container image (e.g. ``debian-bookworm``).      |
+|                          | If not specified, the default (most-recent       |
+|                          | supported) distro version is used.               |
++--------------------------+--------------------------------------------------+
 | ``KAS_CONTAINER_IMAGE``  | Select the container image (full OCI path        |
 | (C)                      | including tag).                                  |
 +--------------------------+--------------------------------------------------+
@@ -221,6 +226,7 @@ overwritten using the ``env`` section of the config file.
                               ``CI_SERVER_PROTOCOL``
                               ``CI_SERVER_SHELL_SSH_HOST``
                               ``CI_SERVER_SHELL_SSH_PORT``
+.. |container-distro| replace:: ``KAS_CONTAINER_IMAGE_DISTRO``
 
 .. only:: html
 

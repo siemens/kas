@@ -17,6 +17,15 @@ from ``kas-container`` and the versions do not match, a warning is emitted. This
 limitation might be lessened in the future, once a stable interface between
 ``kas-container`` and kas is introduced.
 
+From version ``5.0`` onward, kas offers images built on several base
+distributions. Select a distribution by setting the environment variable
+``KAS_CONTAINER_IMAGE_DISTRO`` to the desired value (e.g. ``debian-bookworm``
+or ``debian-trixie``). The corresponding image tags follow the pattern
+``:<version>-<base-distro>`` (e.g. ``:5.0-debian-bookworm``).
+Alternatively, you can adjust ``KAS_CONTAINER_IMAGE_DISTRO_DEFAULT`` in the
+``kas-container`` script if you copy this into your downstream layer already
+for encoding the supported kas version.
+
 As container backends, Docker and
 Podman are supported. To force the use of podman over docker, set
 ``KAS_CONTAINER_ENGINE=podman``. For details, see :ref:`env-vars-label`.
