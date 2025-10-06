@@ -60,6 +60,7 @@ jobs:
     strategy:
       matrix:
         image-name: ["kas", "kas-isar"]
+        distro-release: ["debian-bookworm", "debian-trixie"]
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -69,6 +70,7 @@ jobs:
           deploy-user: ${{ github.actor }}
           deploy-token: ${{ secrets.GITHUB_TOKEN }}
           image-name: ${{ matrix.image-name }}
+          distro-release: ${{ matrix.distro-release }}
 
       - name: Build ${{ matrix.image-name }} image
         uses: docker/build-push-action@v6
@@ -80,10 +82,10 @@ jobs:
             SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
             DEBIAN_TAG=${{ env.DEBIAN_TAG }}
           outputs: type=docker,rewrite-timestamp=true
-          tags: ghcr.io/${{ github.repository }}/${{ matrix.image-name }}:next
+          tags: ghcr.io/${{ github.repository }}/${{ matrix.image-name }}:next-${{ matrix.distro-release }}
       - name: Test ${{ matrix.image-name }} image
         env:
-          KAS_CONTAINER_IMAGE: ghcr.io/${{ github.repository }}/${{ matrix.image-name }}:next
+          KAS_CONTAINER_IMAGE: ghcr.io/${{ github.repository }}/${{ matrix.image-name }}:next-${{ matrix.distro-release }}
           KAS_CLONE_DEPTH: 1
         run: |
           cd image-tests/${{ matrix.image-name }}
@@ -118,7 +120,9 @@ jobs:
             DEBIAN_TAG=${{ env.DEBIAN_TAG }}
           provenance: false
           outputs: type=registry,rewrite-timestamp=true
-          tags: ghcr.io/${{ github.repository }}/${{ matrix.image-name }}:next
+          tags: |
+            ${{ matrix.distro-release == env.DISTRO_LATEST_RELEASE && format('ghcr.io/{0}/{1}:next', github.repository, matrix.image-name) || '' }}
+            ghcr.io/${{ github.repository }}/${{ matrix.image-name }}:next-${{ matrix.distro-release }}
           annotations: ${{ env.DOCKER_METADATA_OUTPUT_ANNOTATIONS }}
       - name: Attest ${{ matrix.image-name }} image
         if: github.ref == 'refs/heads/next'

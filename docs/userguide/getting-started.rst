@@ -30,8 +30,8 @@ There are (at least) three options for using kas:
   use it in place of the ``kas`` command.
   The script version corresponds to the kas tool and the kas image version.
 - Use the container image in CI. Specify
-  ``ghcr.io/siemens/kas/kas[-isar][:<x.y>]`` in your CI script that requests
-  a container image as runtime environment.
+  ``ghcr.io/siemens/kas/kas[-isar][:<x.y>][-<distro-release>]`` in your CI script
+  that requests a container image as runtime environment.
 
 Start build::
 

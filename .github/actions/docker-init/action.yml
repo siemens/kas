@@ -7,6 +7,8 @@ inputs:
     required: true
   image-name:
     required: true
+  distro-release:
+    required: false
 
 runs:
   using: composite
@@ -42,12 +44,23 @@ runs:
 
     - name: Determine Debian tag
       run: |
+        if [[ ! "${{ inputs.distro-release }}" == debian-* ]]; then
+          echo "Non debian 'distro-release' values are currently not supported"
+          exit 1
+        fi
         COMMIT_DATE=$(date -d @$(git log -1 --pretty=%ct) +%Y%m%d)
-        DEBIAN_RELEASE=$(grep -m 1 'ARG DEBIAN_TAG=' Dockerfile | sed 's/.*DEBIAN_TAG=\(.*\)-.*/\1/')
+        DEBIAN_LATEST_RELEASE=$(grep -m 1 'ARG DEBIAN_TAG=' Dockerfile | sed 's/.*DEBIAN_TAG=\(.*\)-.*/\1/')
+        if [ -n "${{ inputs.distro-release }}" ]; then
+          DISTRO_RELEASE="${{ inputs.distro-release }}"
+          DEBIAN_RELEASE="${DISTRO_RELEASE#debian-}"
+        else
+          DEBIAN_RELEASE=$DEBIAN_LATEST_RELEASE
+        fi
         echo "DEBIAN_TAG=$(podman search --list-tags docker.io/debian --limit 1000000000 | \
                            grep "$DEBIAN_RELEASE-.*-slim" | sort -r | sed 's/.*[ ]\+//' | \
                            ./scripts/lower-bound.py $DEBIAN_RELEASE-$COMMIT_DATE-slim )" \
                            >> $GITHUB_ENV
+        echo "DISTRO_LATEST_RELEASE=debian-$DEBIAN_LATEST_RELEASE" >> $GITHUB_ENV
       shell: bash
 
     - name: Prepare repository for COPY-in
