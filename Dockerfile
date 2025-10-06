@@ -1,7 +1,7 @@
 #
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2017-2024
+# Copyright (c) Siemens AG, 2017-2025
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,14 +21,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-ARG DEBIAN_TAG=bookworm-slim
+ARG DEBIAN_TAG=trixie-slim
 
 FROM debian:${DEBIAN_TAG} AS kas-base
 
 ARG SOURCE_DATE_EPOCH
 ARG CACHE_SHARING=locked
 
-ARG DEBIAN_TAG=bookworm-slim
+ARG DEBIAN_TAG=trixie-slim
 ENV DEBIAN_BASE_IMAGE_TAG=${DEBIAN_TAG}
 
 ARG TARGETPLATFORM
@@ -106,7 +106,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=${CACHE_SHARING} \
     apt-get update && \
     apt-get install -y -f --no-install-recommends \
             binfmt-support bzip2 mmdebstrap arch-test apt-utils dosfstools \
-            dpkg-dev gettext-base git mtools parted python3 python3-distutils \
+            dpkg-dev gettext-base git mtools parted python3 \
             quilt qemu-user-static reprepro sudo unzip git-buildpackage \
             pristine-tar sbuild schroot zstd \
             umoci skopeo \
@@ -138,8 +138,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=${CACHE_SHARING} \
     apt-get install --no-install-recommends -y \
         gawk wget git diffstat unzip texinfo \
         gcc build-essential chrpath socat cpio python3 python3-pip python3-pexpect \
-        xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev \
-        pylint xterm python3-subunit mesa-common-dev zstd liblz4-tool && \
+        xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1 libsdl1.2-dev \
+        pylint xterm python3-subunit mesa-common-dev zstd lz4 && \
     if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
         apt-get install --no-install-recommends -y gcc-multilib g++-multilib; \
     fi && \
