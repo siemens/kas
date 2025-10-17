@@ -1,3 +1,18 @@
+5.0
+- kas: introduce buildtools support
+- kas: Allow branch override
+- kas: Dump output of init-build-env scripts at debug log-level
+- kas: fail on fetch errors, rather than warn and continue
+- kas: only fetch repos on update if commit is not pinned
+- kas: call sudo only once in ISAR mode of clean plugin
+- kas: avoid redundant diff output of filename
+- kas: print commit log on lock update
+- kas-container: Provide images based on both Debian 12 and 13
+- kas-container: allow to select specific image distribution
+- kas-container: add support for KAS_BUILDTOOLS_DIR
+- kas-container: add partial support for run0
+- docs: add oe-core nodistro example
+
 4.8.2
 - kas: clean: avoid creation of tmp data to recover from full-disk scenario
 - kas: avoid duplicate creations of tmpdir
