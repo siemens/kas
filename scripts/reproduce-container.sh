@@ -51,7 +51,7 @@ if [ -z "$DEBIAN_TAG" ]; then
 	exit 1
 fi
 
-GIT_REFSPEC="$TAG"
+GIT_REFSPEC="${TAG%%-debian-*}"
 if [ "$GIT_REFSPEC" = "latest" ]; then
 	GIT_REFSPEC=master
 fi
