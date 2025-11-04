@@ -29,6 +29,7 @@
 
 import argparse
 import asyncio
+import distro
 import traceback
 import logging
 import signal
@@ -203,7 +204,8 @@ def kas(argv):
     if args.log_level:
         set_global_loglevel(args.log_level.upper())
 
-    logging.info('%s %s started', os.path.basename(sys.argv[0]), __version__)
+    logging.info('%s %s started on %s %s', os.path.basename(sys.argv[0]),
+                 __version__, distro.name(), distro.version())
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
