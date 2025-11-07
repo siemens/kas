@@ -22,7 +22,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# kas-isar: sudo update-binfmts --enable && [ -f /proc/sys/fs/binfmt_misc/status ]
+enable_qemu_binfmts()
+{
+	if ! [ -f /proc/sys/fs/binfmt_misc/status ]; then
+		sudo mount -t binfmt_misc null /proc/sys/fs/binfmt_misc
+	fi
+	for CONF in /usr/lib/binfmt.d/qemu-*.conf; do
+		if ! [ -f /proc/sys/fs/binfmt_misc/"$(basename "${CONF%%.conf}")" ]; then
+			sudo sh -c "cat '$CONF' > /proc/sys/fs/binfmt_misc/register"
+		fi
+	done
+}
+
+# kas-isar: enable_qemu_binfmts
 
 chown_managed_dirs()
 {

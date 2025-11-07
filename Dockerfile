@@ -105,7 +105,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=${CACHE_SHARING} \
     --mount=type=cache,target=/var/lib/apt,sharing=${CACHE_SHARING} \
     apt-get update && \
     apt-get install -y -f --no-install-recommends \
-            binfmt-support bzip2 mmdebstrap arch-test apt-utils dosfstools \
+            bzip2 mmdebstrap arch-test apt-utils dosfstools \
             dpkg-dev gettext-base git mtools parted python3 \
             quilt qemu-user-static reprepro sudo unzip git-buildpackage \
             pristine-tar sbuild schroot zstd \
