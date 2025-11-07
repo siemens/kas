@@ -76,6 +76,11 @@ if [ -z "$USER_ID" ] && [ -n "$CI_PROJECT_DIR" ]; then
 	# with our builder user. We handle that internally in kas, but we
 	# need the exception here as well for git calls outside of kas.
 	sudo git config --system safe.directory "$CI_PROJECT_DIR"
+
+	# Account for externally specified git clone path
+	if [ -n "$GIT_CLONE_PATH" ]; then
+		sudo git config --system --add safe.directory "$GIT_CLONE_PATH"
+	fi
 fi
 if [ -z "$USER_ID" ] || [ "$USER_ID" = 0 ]; then
 	# Not a kas-container call, or we shall run everything as root
