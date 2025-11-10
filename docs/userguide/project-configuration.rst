@@ -542,7 +542,8 @@ Configuration reference
   .. code-block:: yaml
 
       buildtools:
-        version: "5.0.5"
+        version: "5.2"
+        sha256sum: "6f69fba75c8f3142bb49558afa3ed5dd0723a3beda169b057a5238013623462d"
 
   And for unofficial (custom) sources:
 
@@ -550,6 +551,7 @@ Configuration reference
 
       buildtools:
         version: "1.0.0"
+        sha256sum: "a6f87e5865b63f2bc28c1f605bcef3d6680d46fa8c8616a388d4e8aa0b5c100e"
         base_url: "https://downloads.mysources.com/yocto/buildtools/"
         filename: "x86_64-buildtools-beta-testing-1.0.0.sh"
 
