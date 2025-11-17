@@ -39,7 +39,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=${CACHE_SHARING} \
     rm -f /etc/apt/apt.conf.d/docker-clean && \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-packages.conf && \
     if echo "${DEBIAN_TAG}" | grep -q "[0-9]"; then \
-        sed -i -e '/^URIs:/d' -e 's|^# http://snapshot\.|URIs: http://snapshot.|' \
+        cp /etc/apt/sources.list.d/debian.sources /etc/apt/sources.list.d/debian.sources~; \
+        sed -i -e 's|^URIs:|#|' -e 's|^# http://snapshot\.|URIs: http://snapshot.|' \
             /etc/apt/sources.list.d/debian.sources; \
         echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/use-snapshot.conf; \
         echo 'Acquire::Retries "10";' >> /etc/apt/apt.conf.d/use-snapshot.conf; \
@@ -113,6 +114,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=${CACHE_SHARING} \
             python3-botocore \
             bubblewrap \
             debootstrap && \
+    rm -f /etc/apt/apt.conf.d/use-snapshot.conf /etc/apt/apt.conf.d/keep-packages.conf && \
+    if [ -f "/etc/apt/sources.list.d/debian.sources~" ]; then \
+        mv -f /etc/apt/sources.list.d/debian.sources~ /etc/apt/sources.list.d/debian.sources; \
+    fi && \
     rm -rf /var/log/* /tmp/* /var/tmp/* /var/cache/ldconfig/aux-cache && \
     sbuild-adduser builder && \
     sed -i 's|# kas-isar: ||g' /container-entrypoint
@@ -142,6 +147,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=${CACHE_SHARING} \
         pylint xterm python3-subunit mesa-common-dev zstd lz4 && \
     if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
         apt-get install --no-install-recommends -y gcc-multilib g++-multilib; \
+    fi && \
+    rm -f /etc/apt/apt.conf.d/use-snapshot.conf /etc/apt/apt.conf.d/keep-packages.conf && \
+    if [ -f "/etc/apt/sources.list.d/debian.sources~" ]; then \
+        mv -f /etc/apt/sources.list.d/debian.sources~ /etc/apt/sources.list.d/debian.sources; \
     fi && \
     rm -rf /var/log/* /tmp/* /var/tmp/* /var/cache/ldconfig/aux-cache
 
