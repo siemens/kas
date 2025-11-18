@@ -158,7 +158,8 @@ class CleanAll(CleanSstate):
     def run(self, args):
         super().run(args)
         ctx = get_context()
-        downloads_dir = Path(ctx.build_dir) / 'downloads'
+        downloads_dir = Path(os.environ.get('DL_DIR',
+                                            Path(ctx.build_dir) / 'downloads'))
         if downloads_dir.exists():
             logging.info(f'Removing {downloads_dir}/*')
             if not args.dry_run:
