@@ -506,8 +506,8 @@ Configuration reference
 ``buildtools``: dict [optional]
   Provides variables to define which buildtools version should be fetched and
   where it is (or will be) installed. Both ``version`` and ``sha256sum`` should
-  be set. The environment variable ``KAS_BUILDTOOLS_DIR`` can be used to set the
-  directory where buildtools will be installed, otherwise the default path
+  be set. The environment variable ``KAS_BUILDTOOLS_DIR`` can be used to set
+  the directory where buildtools will be installed, otherwise the default path
   (i.e., ``KAS_BUILD_DIR/buildtools``) will be used. If such directory already
   has buildtools installed, kas will check the ``Distro Version`` line in the
   version file, and if it doesn't match with ``version``, the directory will
