@@ -4,9 +4,32 @@ Getting Started
 Installation
 ------------
 
-To install kas into your python site-package repository, run::
+pipx is the recommended way to install kas. It creates an isolated Python
+virtual environment for kas and makes sure its dependencies are installed
+correctly. To install pipx, follow the instructions at
+https://pipx.pypa.io/stable/installation/
 
-    $ sudo pip3 install .
+To install the latest version of kas using pipx run::
+
+    $ pipx install kas
+
+With menu support
+~~~~~~~~~~~~~~~~~
+
+kas menu requires an additional system dependency. On Debian-based systems,
+run::
+
+    $ sudo apt install python3-newt
+    $ pipx install kas --system-site-packages
+
+Other installation methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Debian-based distributions provide a package for kas. However, this may be
+outdated compared to the latest release. To install kas using the system
+package manager, run::
+
+    $ sudo apt install kas
 
 Dependencies
 ------------
