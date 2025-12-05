@@ -1,3 +1,12 @@
+5.1
+- kas: use DL_DIR environment variable on cleanall
+- kas: Print distro name and version on startup
+- kas-container: Install binfmts for qemu manually
+- kas-container: add custom git path to safedirs
+- kas-container: restore debian sources list after installation
+- docs: Update installation instructions
+- docs: add missing property to buildtools examples
+
 5.0
 - kas: introduce buildtools support
 - kas: Allow branch override
