@@ -1,4 +1,7 @@
 The ``kas-container`` script is a wrapper to run `kas` inside a build container.
+The script is directly available in the root of the source code repository tree,
+but can be also directly downloaded with
+`this link <https://raw.githubusercontent.com/siemens/kas/refs/heads/master/kas-container>`
 It gives fine grained control over the data that is mapped into the build and
 decouples the build environment from the host system. For details, see
 :ref:`env-vars-label`. The wrapper also takes care of mounting the necessary
