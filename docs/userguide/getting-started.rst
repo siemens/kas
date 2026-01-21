@@ -105,3 +105,15 @@ Use Cases
     $ cd $PROJECT_DIR/meta-project
     $ kas menu
     $ kas build  # optional, if not triggered via kas menu
+
+
+Community Support
+-----------------
+
+If you have questions on kas, found a bug or would need an additional feature,
+please post to our mailing list:
+`kas-devel@googlegroups.com <mailto:kas-devel@googlegroups.com>`_. You do not
+need to be subscribed to post but if you like to do so, this works either
+`via email <mailto:kas-devel+subscribe@googlegroups.com>`_ or via the
+`Google Groups page <https://groups.google.com/g/kas-devel>`_ after signing
+in.
