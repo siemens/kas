@@ -25,7 +25,9 @@
     description of a node from the schema. The `<node>` hereby is a path
     to the node in the schema, separated by dots. For example, the
     header.version node can be accessed with
-    :kasschemadesc:`header.properties.version`.
+    :kasschemadesc:`header.properties.version`. Definitions inside the
+    `$defs` section are accessed by their full path, e.g.
+    :kasschemadesc:`$defs.path.to.node`.
 '''
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2024'
@@ -49,8 +51,12 @@ class KasSchemaDescRole(SphinxRole):
 
     def run(self) -> tuple[list[nodes.Node], list[nodes.system_message]]:
         messages = []
-        node = CONFIGSCHEMA['properties']
-        path = self.text.split('.')
+        if self.text.startswith('$defs.'):
+            node = CONFIGSCHEMA['$defs']
+            path = self.text.split('.')[1:]
+        else:
+            node = CONFIGSCHEMA['properties']
+            path = self.text.split('.')
         self.env.note_dependency(__schema_definition__)
         try:
             for part in path:
