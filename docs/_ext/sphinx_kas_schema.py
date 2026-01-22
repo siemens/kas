@@ -85,18 +85,18 @@ class KasSchemaDescRole(SphinxRole):
         processed, msgs = self.inliner.parse(desc, self.lineno, memo, parent)
         parent += processed
         messages += msgs
-        if default:
+        if default is not None:
             def_pg = nodes.paragraph()
             def_pg += nodes.strong(text='Default: ')
-            def_pg += nodes.literal(text=default)
+            def_pg += nodes.literal(text=str(default))
             parent += def_pg
-        if allowed_values:
+        if allowed_values is not None:
             av_pg = nodes.paragraph()
             av_pg += nodes.strong(text='Supported values: ')
             for i in range(len(allowed_values)):
                 if i != 0:
                     av_pg += nodes.Text(', ')
-                av_pg += nodes.literal(text=allowed_values[i])
+                av_pg += nodes.literal(text=str(allowed_values[i]))
             parent += av_pg
 
         return parent, messages
