@@ -201,3 +201,12 @@ Added
 ~~~~~
 
 - The repo key ``branch`` can now be overridden, including to a null-value.
+
+Version 21
+----------
+
+Added
+~~~~~
+
+- The repo layers ``prio`` can be used to control the order in which the
+  layers are added to the ``BBLAYERS`` bitbake variable.

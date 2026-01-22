@@ -4,6 +4,21 @@
     "title": "kas configuration",
     "description": "kas, a setup tool for bitbake based projects",
     "type": "object",
+    "$defs": {
+        "layerPrio": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "prio": {
+                    "description": "Include order priority, higher means earlier. The include priority is global, hence it is applied across all repositories.",
+                    "type": "integer",
+                    "minimum": -99,
+                    "maximum": 99,
+                    "default": 0
+                }
+            }
+        }
+    },
     "required": [
         "header"
     ],
@@ -26,7 +41,7 @@
                         {
                             "type": "integer",
                             "minimum": 1,
-                            "maximum": 20
+                            "maximum": 21
                         }
                     ]
                 },
@@ -168,7 +183,7 @@
             "type": "string"
         },
         "repos": {
-            "description": "Definitions of all available repos and layers. The layers are appended to the ``bblayers.conf`` sorted by the repository name first and then by the layer name.",
+            "description": "Definitions of all available repos and layers. The layers are appended to the ``bblayers.conf`` sorted by the layer priority first (descending), then repository name and then by the layer name (ascending).",
             "type": "object",
             "additionalProperties": {
                 "anyOf": [
@@ -265,6 +280,9 @@
                                         {
                                             "description": "Deprecated, use ``disabled`` instead.",
                                             "enum": ["excluded", "n", "no", "0", "false", 0, false]
+                                        },
+                                        {
+                                            "$ref": "#/$defs/layerPrio"
                                         }
                                     ]
                                 }

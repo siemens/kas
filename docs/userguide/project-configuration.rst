@@ -377,12 +377,15 @@ Configuration reference
       This adds both ``layers/meta-foo`` and ``layers/meta-foo/contrib`` from
       the ``meta-foo`` repository to ``bblayers.conf``.
 
-      ``<layer-path>``: enum [optional]
+      ``<layer-path>``: enum | dict [optional]
         Adds the layer with ``<layer-path>`` that is relative to the
         repository root directory, to the ``bblayers.conf`` if the value of
         this entry is not ``disabled``. This way it is possible to overwrite
         the inclusion of a layer in later loaded configuration files. To
         re-enable it, set it to nothing (``null``).
+
+        ``prio``: integer [optional]
+          :kasschemadesc:`$defs.layerPrio.properties.prio`
 
     ``patches``: dict [optional]
       :kasschemadesc:`repos.additionalProperties.anyOf[0].properties.patches`
