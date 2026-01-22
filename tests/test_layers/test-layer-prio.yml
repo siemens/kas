@@ -1,0 +1,24 @@
+header:
+  version: 14
+
+repos:
+  this:
+
+  01-kas:
+    url: https://github.com/siemens/kas.git
+    branch: master
+    layers:
+      .:
+        prio: -10
+      zz-test:
+      aa-test:
+
+
+  02-kas:
+    url: https://github.com/siemens/kas.git
+    branch: master
+    layers:
+      meta-bar:
+        prio: -20
+      meta-foo:
+        prio: 10

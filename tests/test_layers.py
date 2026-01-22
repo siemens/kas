@@ -83,3 +83,20 @@ def test_layers_order(dokas):
     assert layers[2] == '/kas1/meta-foo'
     # repos are sorted alphabetically (aa-kas from kas4 is last)
     assert layers[-1] == '/aa-kas/meta'
+
+
+@pytest.mark.online
+def test_layers_prio(dokas, monkeykas):
+    layers = dokas.run('test-layer-prio.yml')
+    # layers are sorted by global priority
+    # highest prio (10)
+    assert layers[0] == '/02-kas/meta-foo'
+    # no prio, sorted alphabetically by repo name, layer name
+    assert layers[1] == '/01-kas/aa-test'
+    assert layers[2] == '/01-kas/zz-test'
+    # default prio as not explicitly specified, sorted by repo name
+    assert layers[3] == ''
+    # lower than default prio (-10)
+    assert layers[4] == '/01-kas'
+    # even lower (-20)
+    assert layers[5] == '/02-kas/meta-bar'
