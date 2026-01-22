@@ -77,6 +77,8 @@ class KasSchemaDescRole(SphinxRole):
             return [], messages
         default = node.get('default', None)
         allowed_values = node.get('enum', None)
+        minval = node.get('minimum', None)
+        maxval = node.get('maximum', None)
 
         memo = Struct(document=self.inliner.document,
                       reporter=self.inliner.reporter,
@@ -98,6 +100,11 @@ class KasSchemaDescRole(SphinxRole):
                     av_pg += nodes.Text(', ')
                 av_pg += nodes.literal(text=str(allowed_values[i]))
             parent += av_pg
+        if minval is not None and maxval is not None:
+            range_pg = nodes.paragraph()
+            range_pg += nodes.strong(text='Range: ')
+            range_pg += nodes.literal(text=f'[{minval}, {maxval}]')
+            parent += range_pg
 
         return parent, messages
 
