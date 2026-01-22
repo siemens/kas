@@ -352,17 +352,23 @@ class Repo:
 
     @staticmethod
     def _create_layers_from_dict(repo_name, repo_path, layers_dict):
-        # only bool(false) will be a valid value to disable a layer
+        layers = []
+        disabled_token = "disabled"
+        legacy_disabled_tokens = ['excluded', 'n', 'no', '0', 'false', 0]
+
         for lname, prop in layers_dict.items():
-            if not (prop is None or prop == "disabled"):
+            if prop is None:
+                layers.append(lname)
+            elif isinstance(prop, str) and prop == disabled_token:
+                continue
+            elif isinstance(prop, (str, int)) and \
+                    prop in legacy_disabled_tokens:
                 logging.warning('Use of deprecated value "%s" for repo '
                                 '"%s", layer "%s". Replace with "disabled".',
                                 prop, repo_name, lname)
-
-        layers = list(filter(lambda x, laydict=layers_dict:
-                             str(laydict[x]).lower() not in
-                             ['disabled', 'excluded', 'n', 'no', '0', 'false'],
-                             layers_dict))
+                continue
+            else:
+                raise NotImplementedError()
         return layers
 
 
