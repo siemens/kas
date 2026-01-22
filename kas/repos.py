@@ -236,18 +236,6 @@ class Repo:
             Returns a Repo instance depending on parameters.
             This factory function is referential transparent.
         """
-        layers_dict = repo_config.get('layers', {'': None})
-        # only bool(false) will be a valid value to disable a layer
-        for lname, prop in layers_dict.items():
-            if not (prop is None or prop == "disabled"):
-                logging.warning('Use of deprecated value "%s" for repo '
-                                '"%s", layer "%s". Replace with "disabled".',
-                                prop, name, lname)
-
-        layers = list(filter(lambda x, laydict=layers_dict:
-                             str(laydict[x]).lower() not in
-                             ['disabled', 'excluded', 'n', 'no', '0', 'false'],
-                             layers_dict))
         default_patch_repo = repo_defaults.get('patches', {}).get('repo', None)
         patches_dict = repo_config.get('patches', {})
         patches = []
@@ -319,6 +307,9 @@ class Repo:
             # Relative pathes are assumed to start from work_dir
             path = os.path.join(get_context().kas_work_dir, path)
 
+        layers_dict = repo_config.get('layers', {'': None})
+        layers = Repo._create_layers_from_dict(name, path, layers_dict)
+
         if url is None:
             # No version control operation on repository
             disable_operations = True
@@ -358,6 +349,21 @@ class Repo:
             return output.strip()
 
         return path if fallback else None
+
+    @staticmethod
+    def _create_layers_from_dict(repo_name, repo_path, layers_dict):
+        # only bool(false) will be a valid value to disable a layer
+        for lname, prop in layers_dict.items():
+            if not (prop is None or prop == "disabled"):
+                logging.warning('Use of deprecated value "%s" for repo '
+                                '"%s", layer "%s". Replace with "disabled".',
+                                prop, repo_name, lname)
+
+        layers = list(filter(lambda x, laydict=layers_dict:
+                             str(laydict[x]).lower() not in
+                             ['disabled', 'excluded', 'n', 'no', '0', 'false'],
+                             layers_dict))
+        return layers
 
 
 class RepoImpl(Repo):
