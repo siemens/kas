@@ -28,57 +28,58 @@ import pytest
 LAYERBASE = '${TOPDIR}/..'
 
 
+class DoKas:
+    def __init__(self, monkeykas, tmpdir):
+        self.tmpdir = tmpdir
+        self.monkeykas = monkeykas
+
+    def run(self, filename):
+        tdir = str(self.tmpdir / 'test_layers')
+        shutil.copytree('tests/test_layers', tdir)
+        self.monkeykas.chdir(tdir)
+        self.monkeykas.setenv('KAS_CLONE_DEPTH', '1')
+        kas.kas(['shell', filename, '-c', 'true'])
+        # extract layer path from bblayers, keep order
+        with open(self.monkeykas.get_kbd() / 'conf/bblayers.conf', 'r') as f:
+            return [x.strip(' \\"\n').replace(LAYERBASE, '')
+                    for x in f.readlines() if x.lstrip().startswith(LAYERBASE)]
+
+
 @pytest.fixture
 def dokas(monkeykas, tmpdir):
-    tdir = str(tmpdir / 'test_layers')
-    shutil.copytree('tests/test_layers', tdir)
-    monkeykas.chdir(tdir)
-    monkeykas.setenv('KAS_CLONE_DEPTH', '1')
-    kas.kas(['shell', 'test.yml', '-c', 'true'])
+    return DoKas(monkeykas, tmpdir)
 
 
 @pytest.mark.online
-def test_layers_default(dokas, monkeykas):
-    match = 0
-    with open(monkeykas.get_kbd() / 'conf/bblayers.conf', 'r') as f:
-        for line in f:
-            if f'{LAYERBASE}/kas ' in line:
-                match += 1
-    assert match == 1
+def test_layers_default(dokas):
+    layers = dokas.run('test.yml')
+    assert len([l_ for l_ in layers if l_ == '/kas']) == 1
 
 
 @pytest.mark.online
-def test_layers_include(dokas, monkeykas):
-    match = 0
-    with open(monkeykas.get_kbd() / 'conf/bblayers.conf', 'r') as f:
-        for line in f:
-            if f'{LAYERBASE}/kas1/meta-' in line:
-                match += 1
-    assert match == 2
+def test_layers_include(dokas):
+    layers = dokas.run('test.yml')
+    assert len([l_ for l_ in layers if '/kas1/meta-' in l_]) == 2
 
 
 @pytest.mark.online
-def test_layers_exclude(dokas, monkeykas):
-    with open(monkeykas.get_kbd() / 'conf/bblayers.conf', 'r') as f:
-        for line in f:
-            assert f'{LAYERBASE}/kas2' not in line
+def test_layers_exclude(dokas):
+    layers = dokas.run('test.yml')
+    assert not any([l_ for l_ in layers if '/kas2' in l_])
 
 
 @pytest.mark.online
-def test_layers_strip_dot(dokas, monkeykas):
-    with open(monkeykas.get_kbd() / 'conf/bblayers.conf', 'r') as f:
-        lines = f.readlines()
-        assert any(f'{LAYERBASE}/kas3 ' in x for x in lines)
-        assert any(f'{LAYERBASE}/kas3/meta-bar' in x for x in lines)
+def test_layers_strip_dot(dokas):
+    layers = dokas.run('test.yml')
+    assert any([l_ for l_ in layers if l_ == '/kas3'])
+    assert any([l_ for l_ in layers if l_ == '/kas3/meta-bar'])
 
 
 @pytest.mark.online
-def test_layers_order(dokas, monkeykas):
-    with open(monkeykas.get_kbd() / 'conf/bblayers.conf', 'r') as f:
-        layers = [x.strip(' \\"\n').replace(LAYERBASE, '')
-                  for x in f.readlines() if x.lstrip().startswith(LAYERBASE)]
-        # layers of a repo are sorted alphabetically
-        assert layers[1] == '/kas1/meta-bar'
-        assert layers[2] == '/kas1/meta-foo'
-        # repos are sorted alphabetically (aa-kas from kas4 is last)
-        assert layers[-1] == '/aa-kas/meta'
+def test_layers_order(dokas):
+    layers = dokas.run('test.yml')
+    # layers of a repo are sorted alphabetically
+    assert layers[1] == '/kas1/meta-bar'
+    assert layers[2] == '/kas1/meta-foo'
+    # repos are sorted alphabetically (aa-kas from kas4 is last)
+    assert layers[-1] == '/aa-kas/meta'
