@@ -126,7 +126,7 @@ class Provenance:
             digest = {f'{r.get_type()}Commit': r.revision}
             annotations = {
                 'dirty': r.dirty,
-                'layers': [str(Path(layer).relative_to(r.path))
+                'layers': [str(layer.path.relative_to(r.path))
                            for layer in r.layers]
             }
             cleanurl = self._strip_credentials(r.url)

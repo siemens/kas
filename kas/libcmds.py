@@ -443,21 +443,23 @@ class WriteBBConfig(Command):
                 It is not expanded by KAS, hence we avoid
                 absolute paths pointing into the build host.
             """
-            relpath = os.path.relpath(layer, ctx.build_dir)
+            # we need to walk up, which would require pathlib.Path >= 3.12
+            relpath = os.path.relpath(layer.path, ctx.build_dir)
             return '${TOPDIR}/' + relpath
 
         def _write_bblayers_conf(ctx):
             filename = ctx.build_dir + '/conf/bblayers.conf'
             if not os.path.isdir(os.path.dirname(filename)):
                 os.makedirs(os.path.dirname(filename))
+            layers_sorted = \
+                sorted([layer for repo in ctx.config.get_repos()
+                        for layer in repo.layers])
             with open(filename, 'w') as fds:
                 fds.write(ctx.config.get_bblayers_conf_header())
                 fds.write('BBLAYERS ?= " \\\n    ')
                 fds.write(' \\\n    '.join(
                           [_get_layer_path_under_topdir(ctx, layer)
-                           for repo in sorted(ctx.config.get_repos(),
-                                              key=lambda r: r.name)
-                           for layer in sorted(repo.layers)]))
+                           for layer in layers_sorted]))
                 fds.write('"\n')
                 fds.write('BBPATH ?= "${TOPDIR}"\n')
                 fds.write('BBFILES ??= ""\n')

@@ -107,17 +107,13 @@ class Repo:
         self.tag = tag
         self.branch = branch
         self.refspec = refspec
-        self._layers = layers
+        self.layers = layers
         self._patches = patches
         self.allowed_signers = signers
         self.operations_disabled = disable_operations
 
         if not self.url:
             self.resolve_local()
-
-    @property
-    def layers(self):
-        return [str(layer.path) for layer in self._layers]
 
     @property
     def qualified_name(self):
@@ -225,7 +221,7 @@ class Repo:
             refspec = self.commit or self.tag or self.branch or self.refspec
 
         return f'{self.url}:{refspec} ' \
-               f'{self.path} {self._layers}'
+               f'{self.path} {self.layers}'
 
     __legacy_refspec_warned__ = []
     __no_commit_tag_warned__ = []
@@ -360,7 +356,8 @@ class Repo:
         for lname, prop in layers_dict.items():
             if prop is None:
                 layers.append(RepoLayer(name=lname,
-                                        repo_path=Path(repo_path)))
+                                        repo_path=Path(repo_path),
+                                        repo_name=repo_name))
             elif isinstance(prop, str) and prop == disabled_token:
                 continue
             elif isinstance(prop, (str, int)) and \
@@ -893,8 +890,14 @@ class RepoLayer:
     Standalone definition of a single bitbake layer.
     """
     name: str
+    repo_name: str
     repo_path: Path
 
     @property
     def path(self):
         return self.repo_path / self.name
+
+    def __lt__(self, other):
+        if isinstance(other, RepoLayer):
+            return (self.repo_name, self.name) < (other.repo_name, other.name)
+        return NotImplemented
