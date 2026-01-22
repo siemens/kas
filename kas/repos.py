@@ -33,6 +33,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from urllib.parse import urlparse
 from tempfile import TemporaryDirectory
+
+from kas.configschema import CONFIGSCHEMA
 from .context import get_context
 from .libkas import run_cmd_async, run_cmd
 from .kasusererror import KasUserError
@@ -352,12 +354,15 @@ class Repo:
         layers = []
         disabled_token = "disabled"
         legacy_disabled_tokens = ['excluded', 'n', 'no', '0', 'false', 0]
+        default_prio = \
+            CONFIGSCHEMA['$defs']['layerPrio']['properties']['prio']['default']
 
         for lname, prop in layers_dict.items():
             if prop is None:
                 layers.append(RepoLayer(name=lname,
                                         repo_path=Path(repo_path),
-                                        repo_name=repo_name))
+                                        repo_name=repo_name,
+                                        priority=default_prio))
             elif isinstance(prop, str) and prop == disabled_token:
                 continue
             elif isinstance(prop, (str, int)) and \
@@ -366,6 +371,12 @@ class Repo:
                                 '"%s", layer "%s". Replace with "disabled".',
                                 prop, repo_name, lname)
                 continue
+            elif isinstance(prop, dict):
+                layers.append(RepoLayer(name=lname,
+                                        repo_path=Path(repo_path),
+                                        repo_name=repo_name,
+                                        priority=prop.get('prio',
+                                                          default_prio)))
             else:
                 raise NotImplementedError()
         return layers
@@ -890,6 +901,7 @@ class RepoLayer:
     Standalone definition of a single bitbake layer.
     """
     name: str
+    priority: int
     repo_name: str
     repo_path: Path
 
@@ -899,5 +911,8 @@ class RepoLayer:
 
     def __lt__(self, other):
         if isinstance(other, RepoLayer):
-            return (self.repo_name, self.name) < (other.repo_name, other.name)
+            # The priority is negated because a higher priority means the
+            # element appears earlier in the list.
+            return (-self.priority, self.repo_name, self.name) < \
+                (-other.priority, other.repo_name, other.name)
         return NotImplemented
