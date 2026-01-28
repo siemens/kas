@@ -23,17 +23,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Identify release build
-        run: |
-          # The release workflow will push :latest for tagged revisions
-          if git describe --exact-match --tags --match '*.*'; then
-              echo "PUSH_MASTER=false" >> $GITHUB_ENV
-          else
-              echo "PUSH_MASTER=true" >> $GITHUB_ENV
-          fi
       - name: Set up docker build
         uses: ./.github/actions/docker-init
-        if: ${{ env.PUSH_MASTER == 'true' }}
         with:
           deploy-user: ${{ github.actor }}
           deploy-token: ${{ secrets.GITHUB_TOKEN }}
@@ -41,7 +32,6 @@ jobs:
           distro-release: ${{ matrix.distro-release }}
       - name: Build ${{ matrix.image-name }} image
         uses: docker/build-push-action@v6
-        if: ${{ env.PUSH_MASTER == 'true' }}
         id: push
         with:
           context: /home/runner/kas-clone
@@ -58,7 +48,6 @@ jobs:
           annotations: ${{ env.DOCKER_METADATA_OUTPUT_ANNOTATIONS }}
       - name: Attest ${{ matrix.image-name }} image
         uses: actions/attest-build-provenance@v1
-        if: ${{ env.PUSH_MASTER == 'true' }}
         with:
           subject-name: ghcr.io/${{ github.repository }}/${{ matrix.image-name }}
           subject-digest: ${{ steps.push.outputs.digest }}
