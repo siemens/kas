@@ -44,7 +44,7 @@ import os
 import subprocess
 from kas.context import create_global_context
 from kas.config import Config
-from kas.libcmds import Macro, Command, SetupHome
+from kas.libcmds import Macro, Command, SetupHome, MakeInteractive
 from kas.libkas import setup_parser_common_args, setup_parser_config_arg
 from kas.libkas import setup_parser_keep_config_unchanged_arg
 from kas.libkas import setup_parser_preserve_env_arg
@@ -90,6 +90,7 @@ class Shell:
         run_handle_preserve_env_arg(ctx, os, args, SetupHome)
 
         macro = Macro()
+        macro.add(MakeInteractive())
         macro.add(ShellCommand(args.command))
         macro.run(ctx, args.skip)
 

@@ -77,6 +77,7 @@ class Macro:
 
             self.setup_commands += [(x, None) for x in [
                 SetupHome(),
+                MakeNonInteractive(),
                 InitSetupRepos(),
                 repo_loop,
                 FinishSetupRepos(),
@@ -370,6 +371,30 @@ class SetupHome(Command):
         os.umask(def_umask)
 
         ctx.environ['HOME'] = self.tmpdirname
+
+
+class MakeNonInteractive(Command):
+    """
+        Make execution environment non-interactive
+    """
+
+    def __str__(self):
+        return 'make_non_interactive'
+
+    def execute(self, ctx):
+        ctx.environ['GIT_TERMINAL_PROMPT'] = 'false'
+
+
+class MakeInteractive(Command):
+    """
+        Make execution environment interactive
+    """
+
+    def __str__(self):
+        return 'make_interactive'
+
+    def execute(self, ctx):
+        ctx.environ['GIT_TERMINAL_PROMPT'] = 'true'
 
 
 class SetupDir(Command):
