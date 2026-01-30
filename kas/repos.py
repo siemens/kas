@@ -463,11 +463,11 @@ class RepoImpl(Repo):
 
         # Try to fetch if commit/tag/branch/refspec is missing or if --update
         # argument was passed
-        (retc, output) = await run_cmd_async(self.fetch_cmd(),
+        (retc, _, err) = await run_cmd_async(self.fetch_cmd(),
                                              cwd=self.path,
-                                             fail=False)
+                                             fail=False, capture_stderr=True)
         if retc:
-            raise RepoFetchError(self, output)
+            raise RepoFetchError(self, err)
         else:
             logging.info('Repository %s updated', self.name)
 
