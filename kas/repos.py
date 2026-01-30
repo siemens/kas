@@ -467,8 +467,6 @@ class RepoImpl(Repo):
                                              cwd=self.path,
                                              fail=False)
         if retc:
-            logging.error('Could not update repository %s: %s',
-                          self.name, output)
             raise RepoFetchError(self, output)
         else:
             logging.info('Repository %s updated', self.name)
