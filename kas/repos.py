@@ -338,7 +338,7 @@ class Repo:
         """
         git_cmd = ['git', 'rev-parse', '--show-toplevel',
                    '--show-superproject-working-tree']
-        (ret, output) = run_cmd(git_cmd, cwd=path, fail=False)
+        (ret, output) = run_cmd(git_cmd, cwd=path, env=os.environ, fail=False)
         if ret == 0:
             return sorted(output.strip().split('\n'))[0]
 
