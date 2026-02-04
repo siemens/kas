@@ -133,7 +133,7 @@ class ForAllReposCommand(Command):
             retcode = subprocess.call(self.command, shell=True, cwd=repo.path,
                                       env=env)
             if retcode != 0:
-                raise CommandExecError(self.command, retcode)
+                raise CommandExecError([self.command], retcode)
 
 
 __KAS_PLUGINS__ = [ForAllRepos]
