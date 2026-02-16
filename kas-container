@@ -80,6 +80,8 @@ usage()
 		    "container.\n"
 	printf "%b" "--ssh-agent\t\tForward ssh-agent socket to the container.\n"
 	printf "%b" "--aws-dir\t\tDirectory containing AWScli configuration.\n"
+	printf "%b" "\t\t\tAvoid \$HOME/.aws unless you fully trust the " \
+		    "container.\n"
 	printf "%b" "--git-credential-store\tFile path to the git credential " \
 		    "store\n"
 	printf "%b" "--no-proxy-from-env\tDo not inherit proxy settings from " \

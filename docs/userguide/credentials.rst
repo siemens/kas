@@ -23,10 +23,12 @@ into the isolated environment first.
 AWS Configuration
 -----------------
 
-For AWS, both conventional AWS config files as well as the environment
+For AWS, conventional AWS config files, AWS SSO as well as the environment
 variable controlled OAuth 2.0 workflow are supported. Note, that KAS
 internally rewrites the ``AWS_*`` environment variables into a AWS
 config file to also support older versions of bitbake.
+
+.. include:: aws-sso-warning.inc
 
 Git Configuration
 -----------------
@@ -112,3 +114,5 @@ by setting ``SSH_PRIVATE_KEY`` or ``SSH_PRIVATE_KEY_FILE``.
 .. note::
   The use of an external ssh agent cannot be combined with options that
   require an internal ssh agent.
+
+.. |AWS_CONFIG_SOURCE| replace:: ``AWS_CONFIG_FILE``

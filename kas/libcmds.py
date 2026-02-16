@@ -274,6 +274,7 @@ class SetupHome(Command):
         aws_dir = self.tmpdirname + "/.aws"
         conf_file = aws_dir + "/config"
         shared_creds_file = aws_dir + "/credentials"
+        sso_cache_dir = aws_dir + "/sso/cache"
         os.makedirs(aws_dir)
         aws_conf_file = self._path_from_env('AWS_CONFIG_FILE')
         aws_shared_creds_file = \
@@ -297,6 +298,26 @@ class SetupHome(Command):
             with open(aws_dir + '/config', 'w') as fds:
                 config.write(fds)
             shutil.copy(aws_web_identity_token_file, webid_token_file)
+
+        # SSO workflow
+        if aws_conf_file:
+            aws_cache_dir_conf = \
+                os.path.join(os.path.dirname(aws_conf_file), "sso/cache")
+            aws_cache_dir_home = os.path.join(Path.home(), ".aws/sso/cache")
+
+            # In kas-container the directory passed in --aws-dir is not
+            # mounted in $HOME. Look for sso/cache in directory containing
+            # AWS_CONFIG_FILE first to maintain the same behavior between
+            # kas and kas-container.
+            aws_cache_dir = None
+            if os.path.isdir(aws_cache_dir_conf):
+                aws_cache_dir = aws_cache_dir_conf
+            elif os.path.isdir(aws_cache_dir_home):
+                aws_cache_dir = aws_cache_dir_home
+
+            if aws_cache_dir:
+                shutil.copy(aws_conf_file, conf_file)
+                shutil.copytree(aws_cache_dir, sso_cache_dir)
 
     @staticmethod
     def _setup_gitlab_ci_ssh_rewrite(config):
