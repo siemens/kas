@@ -501,11 +501,12 @@ class RepoImpl(Repo):
 
             desired_ref = output.strip()
             if self.commit and desired_ref != self.commit:
-                # Ensure provided commit and tag match
-                raise RepoRefError(f'Provided tag "{self.tag}" '
-                                   f'("{desired_ref}") does not match '
-                                   f'provided commit "{self.commit}" in '
-                                   f'repository "{self.name}", aborting!')
+                if not self.annotated_tag_matches_commit():
+                    # Ensure provided commit and tag match
+                    raise RepoRefError(f'Provided tag "{self.tag}" '
+                                       f'("{desired_ref}") does not match '
+                                       f'provided commit "{self.commit}" in '
+                                       f'repository "{self.name}", aborting!')
             is_branch = False
         elif self.branch:
             (retc, output) = run_cmd(self.resolve_branch_cmd(),
@@ -738,6 +739,13 @@ class GitRepo(RepoImpl):
     def resolve_tag_cmd(self):
         return ['git', 'rev-list', '-n', '1', self.remove_ref_prefix(self.tag)]
 
+    def annotated_tag_matches_commit(self):
+        cmd = ['git', 'show-ref', '--tags', self.tag]
+        (retc, output) = run_cmd(cmd, cwd=self.path, fail=False)
+        if retc:
+            return False
+        return output.split()[0] == self.commit
+
     def branch_contains_ref(self):
         return ['git', 'branch', f'origin/{self.branch}',
                 '-r', '--contains', self.commit]
@@ -848,6 +856,9 @@ class MercurialRepo(RepoImpl):
     def resolve_tag_cmd(self):
         refspec = self.tag or self.refspec
         return ['hg', 'identify', '--id', '-r', f'tag({refspec})']
+
+    def annotated_tag_matches_commit(self):
+        return False
 
     def branch_contains_ref(self):
         return ['hg', 'log', '-r', self.commit, '-b', self.branch]
