@@ -31,7 +31,7 @@ import pytest
 from kas import kas
 from kas.libkas import TaskExecError, KasUserError, run_cmd
 from kas.attestation import file_digest_slow
-from kas.repos import RepoFetchError
+from kas.repos import RepoFetchError, RepoRefError
 
 
 @pytest.mark.dirsfromenv
@@ -99,12 +99,20 @@ def test_checkout(monkeykas, tmpdir):
             kas.kas(['checkout', '--update', 'test-no-commit.yml'])
 
 
-def test_invalid_checkout(monkeykas, tmpdir, capsys):
+@pytest.mark.parametrize(
+    "file, error",
+    [
+        ('test-invalid.yml', TaskExecError),
+        ('test-invalid-tag.yml', RepoRefError),
+    ],
+)
+@pytest.mark.online
+def test_invalid_checkout(monkeykas, tmpdir, capsys, file, error):
     tdir = str(tmpdir / 'test_commands')
     shutil.copytree('tests/test_commands', tdir)
     monkeykas.chdir(tdir)
-    with pytest.raises(TaskExecError):
-        kas.kas(['checkout', 'test-invalid.yml'])
+    with pytest.raises(error):
+        kas.kas(['checkout', file])
 
 
 @pytest.mark.dirsfromenv
@@ -151,7 +159,7 @@ def test_checkout_shallow(monkeykas, tmpdir):
     with monkeykas.context() as mp:
         mp.setenv('KAS_CLONE_DEPTH', '1')
         kas.kas(['checkout', 'test-shallow.yml'])
-    for repo in ['kas_1', 'kas_2', 'kas_3', 'kas_4']:
+    for repo in ['kas_1', 'kas_2', 'kas_3', 'kas_4', 'kas_5']:
         repo_path = monkeykas.get_kwd() / repo
         output = subprocess.check_output(
             ['git', 'rev-list', '--count', 'HEAD'], cwd=repo_path)

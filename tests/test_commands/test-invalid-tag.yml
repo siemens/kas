@@ -1,0 +1,9 @@
+header:
+  version: 15
+
+repos:
+  kas_invalid:
+    url: https://github.com/siemens/kas.git
+    tag: '4.3'
+    # non matching commit (tag: 4.2)
+    commit: 23211cbd3518936d83169722d1eb40656344ba27

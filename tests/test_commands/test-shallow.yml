@@ -21,3 +21,9 @@ repos:
     url: https://github.com/siemens/kas.git
     # keep legacy refspec here for testing purposes
     refspec: master
+
+  kas_5:
+    url: https://github.com/siemens/kas.git
+    tag: '4.3'
+    # commid id of tag object 4.3:
+    commit: beb5b60c6823ec53300efb3b854a5a921b22bd3d
