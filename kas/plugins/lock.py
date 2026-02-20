@@ -141,9 +141,10 @@ class Lock(Checkout):
                 continue
 
             r = ri.repo
-            if v['commit'] == r.revision:
+            if v['commit'] == r.revision or \
+                    v['commit'] == r.revision_annotated_tag:
                 logging.info('Lock of %s is up-to-date: %s',
-                             r.name, r.revision)
+                             r.name, v['commit'])
             elif not lockfile.is_external:
                 logging.info('Updating lock of %s: %s -> %s',
                              r.name, v['commit'], r.revision)
