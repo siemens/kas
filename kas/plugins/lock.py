@@ -81,7 +81,7 @@ from kas.includehandler import ConfigFile
 from kas.plugins.checkout import Checkout
 from kas.plugins.dump import Dump, IoTarget, LOCKFILE_VERSION_MIN
 from kas.plugins.diff import Diff
-from kas.repos import Repo
+from kas.repos import Repo, RepoRefError
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2024'
@@ -111,6 +111,9 @@ class Lock(Checkout):
         try:
             diff = repo.diff(old_commit, None)
         except NotImplementedError:
+            return
+        except RepoRefError as e:
+            logging.warning(e)
             return
         Diff.formatting_diff_output(
             None, None, {'vcs': diff}, True, False, True, False)

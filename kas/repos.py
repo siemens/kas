@@ -39,7 +39,7 @@ from .context import get_context
 from .libkas import run_cmd_async, run_cmd
 from .kasusererror import KasUserError
 from functools import cached_property
-from git import Repo as GitPythonRepo
+from git import GitCommandError, Repo as GitPythonRepo
 
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2017-2018'
@@ -805,8 +805,23 @@ class GitRepo(RepoImpl):
         shallow_file = os.path.join(git_repo.git_dir, 'shallow')
         if os.path.isfile(shallow_file):
             git_repo.git.fetch(unshallow=True)
-        commits = list(git_repo.iter_commits(
-                       f'{commit1}..{commit2}'))
+        try:
+            commits = list(git_repo.iter_commits(
+                           f'{commit1}..{commit2}'))
+        except GitCommandError as e:
+            valid1 = git_repo.is_valid_object(commit1)
+            valid2 = git_repo.is_valid_object(commit2)
+            if not valid1 and not valid2:
+                error_msg = f'Commits ({commit1} and {commit2}) are not valid'
+            elif not valid1:
+                error_msg = f'First commit ({commit1}) is not valid'
+            elif not valid2:
+                error_msg = f'Second commit ({commit2}) is not valid'
+            else:
+                error_msg = str(e)
+            raise RepoRefError(
+                'Could not compute diff for repository '
+                f'"{self.name}": {error_msg}')
         diff_json = {self.name: []}
         for commit in commits:
             diff_json[self.name].append({
