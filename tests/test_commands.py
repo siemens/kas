@@ -360,6 +360,19 @@ def test_lockfile(monkeykas, tmpdir, capsys):
         assert lockspec['overrides']['repos']['externalrepo']['commit'] \
             != test_commit
 
+    # check if lockfile gets updated when repo is pinned to a nonexistent
+    # commit
+    nonexistent_commit = '0000000000000000000000000000000000000000'
+    lockspec['overrides']['repos']['externalrepo']['commit'] = \
+        nonexistent_commit
+    with open('test.lock.yml', 'w') as f:
+        yaml.safe_dump(lockspec, f)
+    kas.kas('dump --lock --inplace --update test.yml'.split())
+    with open('test.lock.yml', 'r') as f:
+        lockspec = yaml.safe_load(f)
+        assert lockspec['overrides']['repos']['externalrepo']['commit'] \
+            != nonexistent_commit
+
 
 @pytest.mark.dirsfromenv
 def test_root_resolve_novcs(monkeykas, tmpdir, capsys):
