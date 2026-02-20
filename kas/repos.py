@@ -162,6 +162,19 @@ class Repo:
         return None
 
     @cached_property
+    def revision_annotated_tag(self):
+        if not self.tag:
+            return None
+        try:
+            cmd = self.resolve_annotated_tag_cmd()
+        except NotImplementedError:
+            return None
+        (retc, output) = run_cmd(cmd, cwd=self.path, fail=False)
+        if retc or not output:
+            return None
+        return output.strip()
+
+    @cached_property
     def dirty(self):
         if not self.url:
             return True
@@ -501,7 +514,7 @@ class RepoImpl(Repo):
 
             desired_ref = output.strip()
             if self.commit and desired_ref != self.commit:
-                if not self.annotated_tag_matches_commit():
+                if self.revision_annotated_tag != self.commit:
                     # Ensure provided commit and tag match
                     raise RepoRefError(f'Provided tag "{self.tag}" '
                                        f'("{desired_ref}") does not match '
@@ -739,12 +752,8 @@ class GitRepo(RepoImpl):
     def resolve_tag_cmd(self):
         return ['git', 'rev-list', '-n', '1', self.remove_ref_prefix(self.tag)]
 
-    def annotated_tag_matches_commit(self):
-        cmd = ['git', 'show-ref', '--tags', self.tag]
-        (retc, output) = run_cmd(cmd, cwd=self.path, fail=False)
-        if retc:
-            return False
-        return output.split()[0] == self.commit
+    def resolve_annotated_tag_cmd(self):
+        return ['git', 'show-ref', '--tags', '--hash', self.tag]
 
     def branch_contains_ref(self):
         return ['git', 'branch', f'origin/{self.branch}',
@@ -857,8 +866,8 @@ class MercurialRepo(RepoImpl):
         refspec = self.tag or self.refspec
         return ['hg', 'identify', '--id', '-r', f'tag({refspec})']
 
-    def annotated_tag_matches_commit(self):
-        return False
+    def resolve_annotated_tag_cmd(self):
+        raise NotImplementedError("Mercurial does not support annotated tags")
 
     def branch_contains_ref(self):
         return ['hg', 'log', '-r', self.commit, '-b', self.branch]
