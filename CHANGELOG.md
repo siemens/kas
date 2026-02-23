@@ -1,3 +1,18 @@
+5.2
+- kas: Add support for layer priorities
+- kas: Add support for AWS SSO login credentials
+- kas: Allow to specify commits via id of annotated tags as well
+- kas: Avoid unneeded commit ID updates in lockfiles
+- kas: Catch error when updating an invalid commit in a lockfile
+- kas: Disable terminal prompts in git
+- kas: Improve error logging on failed fetches
+- kas: Avoid redundant error logging of invoked commands
+- kas: Improve error logging of failed for_all_repos commands
+- docs: Add community support section to getting started guide
+- docs: Show schema defaults that evaluate to false
+- docs: Show allowed integer ranges in the schema
+- ci: Fix pushing of latest container tag on releases
+
 5.1
 - kas: use DL_DIR environment variable on cleanall
 - kas: Print distro name and version on startup
