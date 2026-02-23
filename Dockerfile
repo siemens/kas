@@ -48,7 +48,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=${CACHE_SHARING} \
     fi && \
     apt-get update && \
     apt-get install -y locales && \
-    localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 && \
+    localedef -i en_US -c -f UTF-8 en_US.UTF-8 && \
     apt-get install --no-install-recommends -y \
         python3-pip python3-setuptools python3-wheel python3-yaml python3-distro python3-jsonschema \
         python3-newt python3-colorlog python3-kconfiglib python3-websockets \
