@@ -22,7 +22,7 @@
 """
     This plugin implements the ``kas diff`` command.
 
-    This plugin compares two KAS configurations and outputs the
+    This plugin compares two kas configurations and outputs the
     differences. The diff includes both content differences in
     the configuration files and repository differences if commit
     IDs or tags have changed.
@@ -53,7 +53,7 @@ class Diff:
 
     name = 'diff'
     helpmsg = (
-        'Compare two KAS configurations.'
+        'Compare two kas configurations.'
     )
 
     @classmethod
@@ -78,13 +78,13 @@ class Diff:
         parser.add_argument('--commit-only',
                             action='store_true',
                             help='This will not display the differences in '
-                                 'the KAS configurations; it will only list '
+                                 'the kas configurations; it will only list '
                                  'commits resulting from different '
                                  'repository revisions.')
         parser.add_argument('--content-only',
                             action='store_true',
                             help='This will only display the differences in '
-                                 'the KAS configurations and will not '
+                                 'the kas configurations and will not '
                                  'include repository differences.')
 
     @staticmethod
