@@ -49,6 +49,7 @@ usage()
 	printf "%b" "\nPositional arguments:\n"
 	printf "%b" "build\t\t\tCheck out repositories and build target.\n"
 	printf "%b" "checkout\t\tCheck out repositories but do not build.\n"
+	printf "%b" "diff\t\t\tCompare two kas configurations.\n"
 	printf "%b" "dump\t\t\tCheck out repositories and write flat version\n"
 	printf "%b" "    \t\t\tof config to stdout.\n"
 	printf "%b" "lock\t\t\tCreate and update kas project lockfiles\n"
