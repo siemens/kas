@@ -205,7 +205,8 @@ def kas(argv):
         set_global_loglevel(args.log_level.upper())
 
     logging.info('%s %s started on %s %s', os.path.basename(sys.argv[0]),
-                 __version__, distro.name(), distro.version())
+                 __version__, distro.name(),
+                 distro.codename() or distro.version())
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
