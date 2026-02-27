@@ -34,7 +34,8 @@ import base64
 from pathlib import Path
 from git.config import GitConfigParser
 from .libkas import (ssh_cleanup_agent, ssh_setup_agent, ssh_no_host_key_check,
-                     get_build_environ, repos_fetch, repos_apply_patches)
+                     get_build_environ, repos_fetch, repos_apply_patches,
+                     add_cachedir_tag)
 from .context import ManagedEnvironment as ME
 from .context import get_context
 from .includehandler import IncludeException
@@ -429,6 +430,7 @@ class SetupDir(Command):
     def execute(self, ctx):
         if not os.path.exists(ctx.build_dir):
             os.mkdir(ctx.build_dir)
+        add_cachedir_tag(ctx.build_dir, "kas build directory")
 
 
 class SetupSSHAgent(Command):

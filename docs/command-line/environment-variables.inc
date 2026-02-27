@@ -58,6 +58,7 @@ overwritten using the ``env`` section of the config file.
 | ``KAS_BUILD_DIR``        | The path of the build directory,                 |
 | (C, K)                   | ``${KAS_WORK_DIR}/build`` is the default.        |
 |                          | The parent directory must exist if set.          |
+|                          | kas adds a ``CACHEDIR.TAG``.                     |
 +--------------------------+--------------------------------------------------+
 | ``KAS_REPO_REF_DIR``     | The path to the repository reference directory.  |
 | (C, K)                   | Repositories in this directory are used as       |

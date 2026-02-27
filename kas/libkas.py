@@ -626,6 +626,24 @@ def ssh_no_host_key_check():
                             ssh_config)
 
 
+def add_cachedir_tag(dir, comment=None):
+    """
+    Create a CACHEDIR.TAG below dir. If a comment is provided,
+    add this to the tag as well.
+    """
+    cachetag = pathlib.Path(dir) / 'CACHEDIR.TAG'
+    if cachetag.exists():
+        return
+    with open(cachetag, 'w') as f:
+        logging.debug(f'create CACHEDIR.TAG in {str(dir)}')
+        f.write('Signature: 8a477f597d28d172789f06886806bc55\n')
+        f.write('# This file is a cache directory tag created by kas.\n'
+                '# For information about cache directory tags, see:\n'
+                '# https://bford.info/cachedir/spec.html\n')
+        if comment:
+            f.write(f'#\n# {comment}\n')
+
+
 def setup_parser_common_args(parser):
     from kas.libcmds import Macro
 
