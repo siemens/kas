@@ -518,3 +518,17 @@ def test_cmd_not_found(monkeykas, tmpdir):
     assert ret != 0
     with pytest.raises(FileNotFoundError):
         run_cmd(cmd, tmpdir, os.environ, fail=True)
+
+
+@pytest.mark.dirsfromenv
+def test_build_dir_add_cachedir_tag(monkeykas, tmpdir):
+    tdir = str(tmpdir.mkdir('test_build_dir_add_cachedir_tag'))
+    shutil.rmtree(tdir, ignore_errors=True)
+    shutil.copytree('tests/test_commands', tdir)
+    monkeykas.chdir(tdir)
+
+    kas.kas(['checkout', 'test-local.yml'])
+    cachetag = monkeykas.get_kbd() / 'CACHEDIR.TAG'
+    assert cachetag.exists()
+    with cachetag.open() as f:
+        assert f.readline().startswith('Signature:')
