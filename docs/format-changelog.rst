@@ -210,3 +210,12 @@ Added
 
 - The repo layers ``prio`` can be used to control the order in which the
   layers are added to the ``BBLAYERS`` bitbake variable.
+
+Version 22
+----------
+
+Added
+~~~~~
+
+- Switch to nodistro which is the default distro setting in
+  openembedded-core.
