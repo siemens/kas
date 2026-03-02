@@ -160,8 +160,9 @@ enable_isar_mode()
 		export PATH="${PATH}:/usr/sbin"
 	elif [ "${KAS_DOCKER_ROOTLESS}" = "1" ]; then
 		prepare_sudo_cmd
-		export DOCKER_HOST="${DOCKER_HOST:-unix:///var/run/docker.sock}"
-		debug "kas-isar does not support rootless docker. Using system docker"
+		DOCKER_HOST_DEFAULT="$(docker context inspect default --format '{{.Endpoints.docker.Host}}')"
+		export DOCKER_HOST="${DOCKER_HOST:-$DOCKER_HOST_DEFAULT}"
+		debug "kas-isar does not support rootless docker. Using system docker in $DOCKER_HOST"
 		# force use of well-known system docker socket
 		KAS_CONTAINER_COMMAND="${_KAS_SUDO_CMD} ${KAS_CONTAINER_COMMAND}"
 		KAS_DOCKER_ROOTLESS=0
