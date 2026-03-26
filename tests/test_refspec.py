@@ -175,7 +175,7 @@ def test_unsafe_tag_warning(capsys, monkeykas, tmpdir):
     shutil.copytree('tests/test_refspec', tdir)
     monkeykas.chdir(tdir)
     # needs to be reset in case other tests ran before
-    Repo.__no_commit_tag_warned__ = []
+    Repo.__no_commit_warned__ = []
     kas.kas(['shell', 'test2.yml', '-c', 'true'])
     assert capsys.readouterr().err.count(
         'Using tag without commit for repository "kas4" is unsafe as tags '

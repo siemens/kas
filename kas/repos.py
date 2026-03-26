@@ -239,7 +239,7 @@ class Repo:
                f'{self.path} {self.layers}'
 
     __legacy_refspec_warned__ = []
-    __no_commit_tag_warned__ = []
+    __no_commit_warned__ = []
 
     @staticmethod
     def factory(name, repo_config, repo_defaults, repo_fallback_path,
@@ -296,11 +296,16 @@ class Repo:
                     'Unsupported mixture of legacy refspec and '
                     f'commit/tag/branch for repository "{name}"')
             refspec = repo_overrides.get('commit', refspec)
-        if tag and not commit:
-            if name not in Repo.__no_commit_tag_warned__:
+        if not commit and name not in Repo.__no_commit_warned__:
+            if tag:
                 logging.warning('Using tag without commit for repository '
                                 '"%s" is unsafe as tags are mutable.', name)
-                Repo.__no_commit_tag_warned__.append(name)
+                Repo.__no_commit_warned__.append(name)
+            elif branch:
+                logging.warning('Using branch without commit for repository '
+                                '"%s" is unsafe. Either add a commit or use '
+                                'a lock file.', name)
+                Repo.__no_commit_warned__.append(name)
         path = repo_config.get('path', None)
         signed = repo_config.get('signed', False)
         signers = repo_config.get('allowed_signers', None) if signed else None
