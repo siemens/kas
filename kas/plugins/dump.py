@@ -156,8 +156,8 @@ class Dump(Checkout):
     def setup_parser_format_args(parser):
         parser.add_argument('--indent',
                             type=int,
-                            default=4,
-                            help='Line indent (# of spaces, default: 4)')
+                            default=2,
+                            help='Line indent (# of spaces, default: 2)')
         parser.add_argument('--sort',
                             action='store_true',
                             default=False,
