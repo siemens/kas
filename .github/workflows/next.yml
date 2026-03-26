@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Check out repo
-      uses: actions/checkout@v4
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
     - name: Install Checkcode dependencies
       run: |
         pip install flake8 pycodestyle doc8 Pygments
@@ -40,7 +40,7 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
       - name: Check out repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: PyTest
         uses: ./.github/actions/perform-tests
         with:
@@ -57,13 +57,14 @@ jobs:
       packages: write
       contents: read
       attestations: write
+      artifact-metadata: write
     strategy:
       matrix:
         image-name: ["kas", "kas-isar"]
         distro-release: ["debian-bookworm", "debian-trixie"]
     steps:
       - name: Check out repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Set up docker build
         uses: ./.github/actions/docker-init
         with:
@@ -73,7 +74,7 @@ jobs:
           distro-release: ${{ matrix.distro-release }}
 
       - name: Build ${{ matrix.image-name }} image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294  # v7.0.0
         with:
           context: /home/runner/kas-clone
           target: ${{ matrix.image-name }}
@@ -109,7 +110,7 @@ jobs:
           fi
       - name: Complete build and deploy ${{ matrix.image-name }} image
         if: github.ref == 'refs/heads/next'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294  # v7.0.0
         id: push
         with:
           context: /home/runner/kas-clone
@@ -126,7 +127,7 @@ jobs:
           annotations: ${{ env.DOCKER_METADATA_OUTPUT_ANNOTATIONS }}
       - name: Attest ${{ matrix.image-name }} image
         if: github.ref == 'refs/heads/next'
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26  # v4.1.0
         with:
           subject-name: ghcr.io/${{ github.repository }}/${{ matrix.image-name }}
           subject-digest: ${{ steps.push.outputs.digest }}
@@ -143,7 +144,7 @@ jobs:
       matrix:
         image-name: ["kas", "kas-isar"]
     steps:
-      - uses: dataaxiom/ghcr-cleanup-action@98b4022383d6ddb70ccbf6a378b4d8c67a60f066 #v1.0.13
+      - uses: dataaxiom/ghcr-cleanup-action@cd0cdb900b5dbf3a6f2cc869f0dbb0b8211f50c4  # v1.0.16
         with:
           dry-run: false
           validate: true

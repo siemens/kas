@@ -14,13 +14,14 @@ jobs:
       packages: write
       contents: read
       attestations: write
+      artifact-metadata: write
     strategy:
       matrix:
         image-name: ["kas", "kas-isar"]
         distro-release: ["debian-bookworm", "debian-trixie"]
     steps:
       - name: Check out repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Get release
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
       - name: Set up docker build
@@ -33,7 +34,7 @@ jobs:
       - name: Find latest tag
         run: echo "LATEST_TAG=$(git tag | sort --version-sort | tail -n1)" >> $GITHUB_ENV
       - name: Build ${{ matrix.image-name }} image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294  # v7.0.0
         id: push
         with:
           context: /home/runner/kas-clone
@@ -50,7 +51,7 @@ jobs:
             ${{ matrix.distro-release == env.DISTRO_LATEST_RELEASE && github.ref_name == env.LATEST_TAG && format('ghcr.io/{0}/{1}:latest-release', github.repository, matrix.image-name) || '' }}
           annotations: ${{ env.DOCKER_METADATA_OUTPUT_ANNOTATIONS }}
       - name: Attest ${{ matrix.image-name }} image
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26  # v4.1.0
         with:
           subject-name: ghcr.io/${{ github.repository }}/${{ matrix.image-name }}
           subject-digest: ${{ steps.push.outputs.digest }}
