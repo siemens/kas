@@ -183,6 +183,22 @@ def test_unsafe_tag_warning(capsys, monkeykas, tmpdir):
 
 
 @pytest.mark.online
+def test_unsafe_branch_warning(capsys, monkeykas, tmpdir):
+    """
+        Test that using branch without commit issues a warning, but only once.
+    """
+    tdir = str(tmpdir / 'test_unsafe_branch_warning')
+    shutil.copytree('tests/test_refspec', tdir)
+    monkeykas.chdir(tdir)
+    # needs to be reset in case other tests ran before
+    Repo.__no_commit_warned__ = []
+    kas.kas(['shell', 'test2.yml', '-c', 'true'])
+    assert capsys.readouterr().err.count(
+        'Using branch without commit for repository "kas3" is unsafe. Either '
+        'add a commit or use a lock file.') == 1
+
+
+@pytest.mark.online
 def test_tag_branch_same_name(capsys, monkeykas, tmpdir):
     """
         Test that kas uses the tag if a branch has the same name as the tag.
