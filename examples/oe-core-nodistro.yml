@@ -45,8 +45,7 @@ repos:
     allowed_signers:
       - YoctoBuildandRelease
     # this repo does not provide any layers
-    layers:
-      .: disabled
+    layers: {}
 
   core:
     url: https://github.com/openembedded/openembedded-core.git
