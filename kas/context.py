@@ -114,7 +114,7 @@ class Context:
                                 'LANG': 'en_US.utf8',
                                 'LANGUAGE': 'en_US'}
                 break
-            elif distro_base in ['debian', 'ubuntu', 'gentoo']:
+            elif distro_base in ['debian', 'ubuntu', 'gentoo', 'arch']:
                 self.environ = {'LC_ALL': 'en_US.UTF-8',
                                 'LANG': 'en_US.UTF-8',
                                 'LANGUAGE': 'en_US:en'}
