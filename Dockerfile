@@ -109,7 +109,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=${CACHE_SHARING} \
             bzip2 mmdebstrap arch-test apt-utils dosfstools \
             dpkg-dev gettext-base git mtools parted python3 \
             quilt qemu-user-static reprepro sudo unzip git-buildpackage \
-            pristine-tar sbuild schroot zstd \
+            pristine-tar '(^sbuild-schroot$|^sbuild$)' schroot zstd \
             umoci skopeo \
             python3-botocore \
             bubblewrap \
