@@ -53,7 +53,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=${CACHE_SHARING} \
         python3-pip python3-setuptools python3-wheel python3-yaml python3-distro python3-jsonschema \
         python3-newt python3-colorlog python3-kconfiglib python3-websockets \
         gosu lsb-release file vim less procps tree tar bzip2 zstd pigz lz4 unzip tmux libncurses-dev \
-        git-lfs mercurial iproute2 ssh-client telnet curl rsync gnupg awscli sudo \
+        git-lfs mercurial iproute2 ssh-client telnet curl rsync gnupg awscli sudo iptables \
         socat bash-completion python3-shtab python3-git python3-gnupg python3-cairo && \
     rm -rf /var/log/* /tmp/* /var/tmp/* /var/cache/ldconfig/aux-cache && \
     rm -f /etc/gitconfig && \
