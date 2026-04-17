@@ -44,6 +44,62 @@ When running in a GitHub Action or GitLab CI job, the ``.gitconfig`` file
 is automatically injected. Otherwise, the environment variable
 ``GITCONFIG_FILE`` needs to point to the `.gitconfig` kas should use.
 
+
+Git credential cache
+~~~~~~~~~~~~~~~~~~~~
+
+You can share git credentials with the kas-container by using the Git
+credential cache helper. This allows credentials to be securely stored in
+memory via a background daemon and reused across Git operations without
+re-entering them or writing them to disk in plain text.
+
+For a full description of the available options, refer to the official
+`git-credential-cache documentation
+<https://git-scm.com/docs/git-credential-cache>`_.
+
+Enable credential caching on your host machine with a command like:
+
+.. code-block:: bash
+
+    git config --global credential.helper 'cache --timeout=86400'
+
+.. note::
+  The ``--timeout`` value (in seconds) controls how long credentials are
+  kept in the cache after the last use. The value ``86400`` (24 hours) is
+  just an example. Adjust it to fit your workflow and security requirements.
+
+From the host, perform a Git operation that requires authentication, such as
+a ``git pull`` against a password-protected repository:
+
+.. code-block:: bash
+
+    git pull
+
+After entering your credentials once, Git will store them and make them
+available through a background daemon that exposes a Unix socket.
+
+You should see a running process similar to this on your host:
+
+.. code-block:: bash
+
+    /usr/lib/git-core/git credential-cache--daemon $HOME/.cache/git/credential/socket
+
+Now you can launch the kas container passing the socket path via
+``--git-credential-socket``, or equivalently by setting the
+``KAS_GIT_CREDENTIAL_SOCKET`` environment variable:
+
+.. code-block:: bash
+
+  kas-container --git-credential-socket $HOME/.cache/git/credential/socket <other options...>
+
+.. note::
+  The ``git credential-cache`` daemon supports custom socket paths via the
+  ``--socket`` flag. This allows running a separate daemon per repository,
+  enabling credential isolation between projects. To use this, start the
+  daemon explicitly with a custom socket path and pass that path to
+  ``--git-credential-socket``.
+
+
 GitHub Actions
 ~~~~~~~~~~~~~~
 
