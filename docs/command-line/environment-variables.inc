@@ -162,6 +162,12 @@ overwritten using the ``env`` section of the config file.
 | (K,C)                    | credential helper in the `.gitconfig` of the kas |
 |                          | user.                                            |
 +--------------------------+--------------------------------------------------+
+| |kas_git_cred_store|     | Path to a git credential store file on the host. |
+| (C)                      | When set, the file is bind-mounted into the      |
+|                          | container (read-only) and the git credential     |
+|                          | store helper is configured to use it.            |
+|                          | Equivalent to ``--git-credential-store``.        |
++--------------------------+--------------------------------------------------+
 | |kas_git_cred_socket|    | Path to the git credential cache daemon socket   |
 | (C)                      | on the host. When set, the socket is             |
 |                          | bind-mounted into the container and the git      |
@@ -241,6 +247,7 @@ overwritten using the ``env`` section of the config file.
                         ``AWS_SHARED_CREDENTIALS_FILE``
                         ``AWS_WEB_IDENTITY_TOKEN_FILE``
 .. |git_cred| replace:: ``GIT_CREDENTIAL_HELPER`` ``GIT_CREDENTIAL_USEHTTPPATH``
+.. |kas_git_cred_store| replace:: ``KAS_GIT_CREDENTIAL_STORE``
 .. |kas_git_cred_socket| replace:: ``KAS_GIT_CREDENTIAL_SOCKET``
 .. |ci_server_vars| replace:: ``CI_SERVER_HOST``
                               ``CI_SERVER_PORT``
