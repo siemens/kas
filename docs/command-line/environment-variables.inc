@@ -2,6 +2,19 @@ kas uses a number of environment variables to configure its behavior.
 The `Variables Glossary`_ provides an overview, wherein the tuple (C,K,E)
 denotes the scope of the variable.
 
+By default, kas does not inherit the full host shell environment into the
+build environment. Instead, kas constructs a controlled environment to
+improve reproducibility and reduce host contamination.
+
+How additional environment variables are handled depends on their scope and
+on the selected sub-command. Where supported, variables can be defined in the
+kas configuration or preserved explicitly from the host environment, for
+example with ``-E/--preserve-env``.
+
+When using ``kas-container``, this is more limited, especially for variables
+that contain file or directory paths, because the container may use a
+different directory layout.
+
 All directories that are passed to kas by setting the corresponding
 environment variables (e.g. ``KAS_WORK_DIR``, ``KAS_BUILD_DIR``, ...) must
 not overlap with each other, except for overlapping with ``KAS_WORK_DIR``
