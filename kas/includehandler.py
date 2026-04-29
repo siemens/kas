@@ -282,27 +282,23 @@ class IncludeHandler:
 
             for include in header.get('includes', []):
                 if isinstance(include, str):
-                    includefile = ''
-                    if include.startswith(os.path.pathsep):
-                        includefile = include
-                    else:
-                        includefile = os.path.abspath(
-                            os.path.join(repo_path, include))
-                        if not os.path.exists(includefile):
-                            alternate = os.path.abspath(
-                                os.path.join(
-                                    os.path.dirname(current_config.filename),
-                                    include
-                                )
+                    includefile = os.path.abspath(
+                        os.path.join(repo_path, include))
+                    if not os.path.exists(includefile):
+                        alternate = os.path.abspath(
+                            os.path.join(
+                                os.path.dirname(current_config.filename),
+                                include
                             )
-                            if os.path.exists(alternate):
-                                logging.warning(
-                                    'Falling back to file-relative addressing '
-                                    'of local include "%s"', include)
-                                logging.warning(
-                                    'Update your layer to repo-relative '
-                                    'addressing to avoid this warning')
-                                includefile = alternate
+                        )
+                        if os.path.exists(alternate):
+                            logging.warning(
+                                'Falling back to file-relative addressing '
+                                'of local include "%s"', include)
+                            logging.warning(
+                                'Update your layer to repo-relative '
+                                'addressing to avoid this warning')
+                            includefile = alternate
                     (cfg, rep) = _internal_include_handler(
                         includefile,
                         repo_path,

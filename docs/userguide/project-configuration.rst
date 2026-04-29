@@ -87,13 +87,9 @@ repository/layer like this:
         - bsp.yml
         - product.yml
 
-The paths to the files in the include list are either absolute, if they start
-with a `/`, or relative.
-
-If the path is relative and the configuration file is inside a repository,
-then path is relative to the repositories base directory. If the
-configuration file is not in a repository, then the path is relative to the
-parent directory of the file.
+If the configuration file is inside a repository, then path is relative to
+the repositories base directory. If the configuration file is not in a
+repository, then the path is relative to the parent directory of the file.
 
 Including configuration files from other repos
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
