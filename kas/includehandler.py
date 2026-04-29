@@ -76,7 +76,8 @@ class ConfigFile():
         self.is_lockfile = is_lockfile
 
     @staticmethod
-    def load(filename, is_external=False, is_lockfile=False):
+    def load(filename, is_external=False, is_lockfile=False,
+             is_main_file=True):
         """
             Load the configuration file and test if version is supported.
         """
@@ -136,6 +137,10 @@ class ConfigFile():
                             'This has no effect and will be rejected soon.')
 
         cf.src_dir = cf.config.get(SOURCE_DIR_OVERRIDE_KEY, None)
+        if cf.src_dir is not None and not is_main_file:
+            raise LoadConfigException(
+                f'{SOURCE_DIR_OVERRIDE_KEY!r} is only allowed in the '
+                'top-level kas configuration', filename)
         return cf
 
 
@@ -218,7 +223,8 @@ class IncludeHandler:
         repos = repos or {}
 
         def _internal_include_handler(filename, repo_path,
-                                      is_external=False, is_lockfile=False):
+                                      is_external=False, is_lockfile=False,
+                                      is_main_file=False):
             """
             Recursively loads include files and finds missing repos.
 
@@ -248,7 +254,8 @@ class IncludeHandler:
             configs = []
             try:
                 current_config = \
-                    ConfigFile.load(filename, is_external, is_lockfile)
+                    ConfigFile.load(filename, is_external, is_lockfile,
+                                    is_main_file)
                 # if lockfile exists, inject it after current file
                 lockfile = self.get_lock_filename(filename)
                 if Path(lockfile).exists():
@@ -368,9 +375,10 @@ class IncludeHandler:
         self.config_files = []
         missing_repos = []
         self.ensure_from_same_repo()
-        for configfile in self.top_files:
+        for idx, configfile in enumerate(self.top_files):
             cfgs, reps = _internal_include_handler(configfile,
-                                                   self.get_top_repo_path())
+                                                   self.get_top_repo_path(),
+                                                   is_main_file=(idx == 0))
             self.config_files.extend(cfgs)
             for repo in reps:
                 if repo not in missing_repos:
