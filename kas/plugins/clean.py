@@ -82,7 +82,7 @@ class Clean():
         if self.config_files:
             # By definition, build_system key must be present in the first
             # config file to take effect.
-            cf = ConfigFile.load(self.config_files.split(':')[0], False, False)
+            cf = ConfigFile.load(self.config_files.split(':')[0])
             build_system = cf.config.get('build_system')
         if args.isar:
             build_system = 'isar'
