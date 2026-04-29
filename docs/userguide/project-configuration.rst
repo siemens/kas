@@ -126,7 +126,8 @@ It's also possible to include configuration files from other repos like this:
           # overwrite it by setting:
           meta-yocto-bsp: excluded
 
-The files are addressed relative to the git repository path.
+The files are addressed relative to the git repository path and must not
+traverse outside of the referenced repo.
 
 The include mechanism collects and merges the content from top to bottom and
 depth first. That means that settings in one include file are overwritten

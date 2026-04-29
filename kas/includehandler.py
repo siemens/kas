@@ -208,6 +208,18 @@ class IncludeHandler:
                                    'belong to the same repository or all '
                                    'must be outside of versioning control')
 
+    def sanitize_include_path(self, base_path, include):
+        """
+        Ensure the created path is with the base_path.
+        Returns the resolved path of base_path / include.
+        """
+        repo = Path(base_path)
+        candidate = (repo / Path(include)).resolve()
+        if not candidate.is_relative_to(repo.resolve()):
+            raise IncludeException(
+                f'include {candidate} resolves outside repository {repo}')
+        return str(candidate)
+
     def get_config(self, repos=None):
         """
         Parameters:
@@ -282,15 +294,12 @@ class IncludeHandler:
 
             for include in header.get('includes', []):
                 if isinstance(include, str):
-                    includefile = os.path.abspath(
-                        os.path.join(repo_path, include))
+                    includefile = self.sanitize_include_path(
+                        repo_path, include)
                     if not os.path.exists(includefile):
-                        alternate = os.path.abspath(
-                            os.path.join(
-                                os.path.dirname(current_config.filename),
-                                include
-                            )
-                        )
+                        alternate = self.sanitize_include_path(
+                            os.path.dirname(current_config.filename),
+                            include)
                         if os.path.exists(alternate):
                             logging.warning(
                                 'Falling back to file-relative addressing '
@@ -316,9 +325,10 @@ class IncludeHandler:
                         except KeyError:
                             raise IncludeException(
                                 f'"file" is not specified: {include}')
-                        abs_includedir = os.path.abspath(includedir)
+                        abs_includedir = Path(includedir).absolute()
                         (cfg, rep) = _internal_include_handler(
-                            os.path.join(abs_includedir, includefile),
+                            self.sanitize_include_path(abs_includedir,
+                                                       includefile),
                             abs_includedir, is_external=incexternal)
                         configs.extend(cfg)
                         missing_repos.extend(rep)
