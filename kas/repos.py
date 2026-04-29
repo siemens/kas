@@ -699,11 +699,11 @@ class GitRepo(RepoImpl):
                                 self.remove_ref_prefix(self.branch)])
 
         if createref:
-            cmd.extend([self.effective_url, '--bare', srcdir])
+            cmd.extend(['--bare', '--', self.effective_url, srcdir])
         elif srcdir:
-            cmd.extend([srcdir, '--reference', srcdir, self.path])
+            cmd.extend(['--reference', srcdir, '--', srcdir, self.path])
         else:
-            cmd.extend([self.effective_url, self.path])
+            cmd.extend(['--', self.effective_url, self.path])
         return cmd
 
     def commit_cmd(self, env, author, msg, date):
