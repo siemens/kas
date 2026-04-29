@@ -188,7 +188,7 @@ async def run_cmd_async(cmd, cwd, env=None, fail=True, liveupdate=False,
         raise
 
     if ret and fail:
-        _report_cmd_error(ret, cwd, cmdstr, cmd, logo.stderr)
+        _report_cmd_error(ret, cwd, cmdstr, cmd, ''.join(logo.stderr))
 
     return _filter_stderr(capture_stderr, ret,
                           ''.join(logo.stdout), ''.join(logo.stderr))
