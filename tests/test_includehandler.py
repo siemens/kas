@@ -485,3 +485,30 @@ v: {v3: z, v4: z}''')}
             assert index['v2'] < index['v1']
             assert index['v3'] < index['v1']
             assert index['v5'] < index['v1']
+
+    def test_err_string_include_traversal(self, monkeypatch):
+        monkeypatch.setattr(includehandler, 'CONFIGSCHEMA', {})
+        header = self.__class__.header
+        fdict = {
+            'x.yml': header.format(
+                '  includes: [{repo: rep, file: y.yml}]'),
+            '/top-repo/repos/rep/y.yml': header.format(
+                '  includes: ["../../other-repo/secret.yml"]'),
+        }
+        with patch_open(includehandler, dictionary=fdict):
+            ginc = includehandler.IncludeHandler(['x.yml'])
+            with pytest.raises(includehandler.IncludeException):
+                ginc.get_config(repos={'rep': '/top-repo/repos/rep'})
+
+    def test_err_repo_include_traversal(self, monkeypatch):
+        monkeypatch.setattr(includehandler, 'CONFIGSCHEMA', {})
+        header = self.__class__.header
+        fdict = {
+            'x.yml': header.format(
+                '  includes: [{repo: rep, '
+                'file: "../../other-repo/secret.yml"}]'),
+        }
+        with patch_open(includehandler, dictionary=fdict):
+            ginc = includehandler.IncludeHandler(['x.yml'])
+            with pytest.raises(includehandler.IncludeException):
+                ginc.get_config(repos={'rep': '/top-repo/repos/rep'})
