@@ -112,6 +112,10 @@ class GPGKeyHandler(KeyHandler):
                                        'with "fingerprint"')
                 import_result = self.gpg.recv_keys(keyserver,
                                                    fingerprint)
+            else:
+                raise KasUserError(
+                    'neither "path" nor "gpg_keyserver" specified for signer '
+                    f'"{name}"')
             if import_result.count == 0:
                 raise KeyImportError(name, 'No keys imported')
             if import_result.count > 1:
