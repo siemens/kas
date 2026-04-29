@@ -143,6 +143,18 @@ class TestLoadConfig:
         with patch_open(includehandler, string='header: {version: "0.10"}'):
             ConfigFile.load('x.yml')
 
+    def test_source_dir_rejected_in_non_main_file(self):
+        string = 'header: {version: 5}\n_source_dir: /some/path'
+        with patch_open(includehandler, string=string):
+            with pytest.raises(includehandler.LoadConfigException):
+                ConfigFile.load('x.yml', is_main_file=False)
+
+    def test_source_dir_allowed_in_main_file(self):
+        string = 'header: {version: 5}\n_source_dir: /some/path'
+        with patch_open(includehandler, string=string):
+            cf = ConfigFile.load('x.yml', is_main_file=True)
+            assert cf.src_dir == '/some/path'
+
 
 class TestIncludes:
     header = '''
