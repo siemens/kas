@@ -31,7 +31,7 @@ import hashlib
 import base64
 import sys
 from enum import Enum
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlunparse
 from pathlib import Path
 from datetime import datetime, timezone
 from kas import __version__ as KASVERSION
@@ -89,14 +89,18 @@ class Provenance:
     @staticmethod
     def _strip_credentials(url):
         """
-            Returns the url with all credentials removed (best effort)
+            Returns the url with all credentials removed
         """
-        if not url.startswith('http://') and not url.startswith('https://'):
+        try:
+            parsed = urlparse(url)
+        except ValueError:
             return url
-        parsed = urlparse(url)
-        if parsed.username and parsed.password:
-            url = url.replace(f'{parsed.username}:{parsed.password}@', '')
-        return url
+        netloc = parsed.hostname or ''
+        if parsed.port:
+            netloc += f':{parsed.port}'
+        safe_url = (parsed.scheme, netloc, parsed.path,
+                    parsed.params, parsed.query, parsed.fragment)
+        return urlunparse(safe_url)
 
     @staticmethod
     def _get_filetype(f: Path):
