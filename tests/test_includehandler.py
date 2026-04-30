@@ -155,6 +155,86 @@ class TestLoadConfig:
             cf = ConfigFile.load('x.yml', is_main_file=True)
             assert cf.src_dir == '/some/path'
 
+    def test_signers_require_path_or_keyserver(self):
+        exception = includehandler.LoadConfigException
+        testvector = [
+            # signer with neither path nor gpg_keyserver
+            ('header: {version: 5}\n'
+             'signers:\n'
+             '  mysigner:\n'
+             '    type: gpg\n', exception),
+        ]
+        self.util_exception_content(testvector)
+
+    def test_signers_path_requires_repo(self):
+        exception = includehandler.LoadConfigException
+        testvector = [
+            # path without repo
+            ('header: {version: 5}\n'
+             'signers:\n'
+             '  mysigner:\n'
+             '    path: key.asc\n', exception),
+        ]
+        self.util_exception_content(testvector)
+
+    def test_signers_keyserver_requires_fingerprint(self):
+        exception = includehandler.LoadConfigException
+        testvector = [
+            # gpg_keyserver without fingerprint
+            ('header: {version: 5}\n'
+             'signers:\n'
+             '  mysigner:\n'
+             '    gpg_keyserver: keyserver.ubuntu.com\n', exception),
+        ]
+        self.util_exception_content(testvector)
+
+    def test_signers_ssh_requires_path_and_repo(self):
+        exception = includehandler.LoadConfigException
+        testvector = [
+            # ssh type with keyserver but no path
+            ('header: {version: 5}\n'
+             'signers:\n'
+             '  mysigner:\n'
+             '    type: ssh\n'
+             '    gpg_keyserver: keyserver.ubuntu.com\n'
+             '    fingerprint: 2AFB13F28FBBB0D1B9DAF63087EB3D32FB631AD9\n',
+             exception),
+            # ssh type with path but no repo
+            ('header: {version: 5}\n'
+             'signers:\n'
+             '  mysigner:\n'
+             '    type: ssh\n'
+             '    path: key.pub\n',
+             exception),
+        ]
+        self.util_exception_content(testvector)
+
+    def test_signers_valid(self):
+        testvector = [
+            # path with repo
+            ('header: {version: 5}\n'
+             'signers:\n'
+             '  mysigner:\n'
+             '    repo: this\n'
+             '    path: key.asc\n'),
+            # keyserver with fingerprint
+            ('header: {version: 5}\n'
+             'signers:\n'
+             '  mysigner:\n'
+             '    gpg_keyserver: keyserver.ubuntu.com\n'
+             '    fingerprint: 2AFB13F28FBBB0D1B9DAF63087EB3D32FB631AD9\n'),
+            # ssh type with path and repo
+            ('header: {version: 5}\n'
+             'signers:\n'
+             '  mysigner:\n'
+             '    type: ssh\n'
+             '    repo: this\n'
+             '    path: key.pub\n'),
+        ]
+        for string in testvector:
+            with patch_open(includehandler, string=string):
+                ConfigFile.load('x.yml')
+
 
 class TestIncludes:
     header = '''
