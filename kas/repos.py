@@ -35,6 +35,7 @@ from urllib.parse import urlparse
 from tempfile import TemporaryDirectory
 
 from kas.configschema import CONFIGSCHEMA
+from kas.keyhandler import GPGKeyHandler, SSHKeyHandler
 from .context import get_context
 from .libkas import run_cmd_async, run_cmd
 from .kasusererror import KasUserError
@@ -957,3 +958,47 @@ class RepoLayer:
             return (-self.priority, self.repo_name, self.name) < \
                 (-other.priority, other.repo_name, other.name)
         return NotImplemented
+
+
+class SignatureValidator:
+    """
+        Handles key loading and signature validation of repos
+        based on the configuration.
+    """
+
+    @staticmethod
+    def import_keys(ctx):
+        handler_cfg = {
+            'gpg': (GPGKeyHandler,
+                    Path(ctx.kas_work_dir) / '.kas_gnupg'),
+            'ssh': (SSHKeyHandler,
+                    Path(ctx.kas_work_dir) / '.kas_ssh-handler'),
+        }
+        for name, (handler_cls, dir) in handler_cfg.items():
+            signers_cfg = ctx.config.get_signers_config(name)
+            if not signers_cfg:
+                continue
+            dir.mkdir(exist_ok=True)
+            dir.chmod(0o700)
+            ctx.managed_paths.add(dir)
+            ctx.keyhandler[name] = handler_cls(dir, signers_cfg, ctx.config)
+
+        for keyhandler in ctx.keyhandler.values():
+            ctx.environ.update(keyhandler.env)
+
+    @staticmethod
+    def ensure_valid_if_signed(ctx, repo):
+        if not repo.signed:
+            return
+        valid, keyid = repo.check_signature()
+        keyhandler = ctx.keyhandler[repo.signers_type]
+        info = keyhandler.get_key_repr(keyid) if keyid else 'No info'
+        if valid:
+            logging.info(f'Repository {repo.name} signature valid: {info}')
+            return
+        elif keyid:
+            raise RepoRefError(f'Repository {repo.name} is not signed '
+                               f'with a trusted key: {info}')
+
+        raise RepoRefError(f'Repository {repo.name} is not signed '
+                           'with a trusted key.')
