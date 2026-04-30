@@ -385,6 +385,24 @@
                 "type": "object",
                 "description": "Pairs of name and location of a public key or certificate. The name is used to reference the entry in the repository configuration.",
                 "additionalProperties": false,
+                "oneOf": [
+                    {"required": ["path"]},
+                    {"required": ["gpg_keyserver"]}
+                ],
+                "allOf": [
+                    {
+                        "if": {"required": ["path"]},
+                        "then": {"required": ["repo"]}
+                    },
+                    {
+                        "if": {"required": ["gpg_keyserver"]},
+                        "then": {"required": ["fingerprint"]}
+                    },
+                    {
+                        "if": {"properties": {"type": {"const": "ssh"}}, "required": ["type"]},
+                        "then": {"required": ["path", "repo"]}
+                    }
+                ],
                 "properties": {
                     "type": {
                         "description": "Type of the cryptographic material.",

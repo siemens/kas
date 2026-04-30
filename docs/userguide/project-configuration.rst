@@ -464,7 +464,8 @@ Configuration reference
   This dict contains the public keys or certificates that are used to verify
   the authenticity of the repositories. In case of GPG keys, these are made
   available to the build environment as well by pointing the ``GNUPGHOME``
-  environment variable to the local keystore.
+  environment variable to the local keystore. A single signer configuration
+  must not be split across multiple config files.
 
   ``<signer_id>``: dict [optional]
     :kasschemadesc:`signers.additionalProperties`

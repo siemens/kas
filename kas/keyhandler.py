@@ -97,19 +97,19 @@ class GPGKeyHandler(KeyHandler):
             self.gpg.trust_keys(fingerprint, 'TRUST_NEVER')
 
     def _import_keys(self, signers, confinst):
+        """
+        Import the keys based on the config entries.
+        The schema ensures, that only valid combinations can
+        be passed to this function.
+        """
         for name, loc in signers.items():
             fingerprint = loc.get('fingerprint')
             keyserver = loc.get('gpg_keyserver')
             if 'path' in loc:
-                if 'repo' not in loc:
-                    raise KasUserError('path must be used together with repo')
                 repo = confinst.get_repo(loc['repo'])
                 keyfile = Path(repo.path) / Path(loc['path'])
                 import_result = self.gpg.import_keys_file(keyfile)
-            elif keyserver:
-                if not fingerprint:
-                    raise KasUserError('"gpg_keyserver" must be used together '
-                                       'with "fingerprint"')
+            else:
                 import_result = self.gpg.recv_keys(keyserver,
                                                    fingerprint)
             if import_result.count == 0:
@@ -177,10 +177,6 @@ class SSHKeyHandler(KeyHandler):
         self.signers = {}
 
         for name, loc in signers.items():
-            if 'repo' not in loc:
-                raise KasUserError('For SSH keys, a repo must be specified')
-            if 'path' not in loc:
-                raise KasUserError('For SSH keys, a path must be specified')
             repo = confinst.get_repo(loc['repo'])
             pubfile = Path(repo.path) / Path(loc['path'])
             keydata = subprocess.check_output(['ssh-keygen', '-lf',
