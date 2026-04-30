@@ -109,6 +109,13 @@ class GPGKeyHandler(KeyHandler):
                 repo = confinst.get_repo(loc['repo'])
                 keyfile = Path(repo.path) / Path(loc['path'])
                 import_result = self.gpg.import_keys_file(keyfile)
+            elif self._key_cached(fingerprint):
+                logging.debug(f'Key "{name}" with fingerprint '
+                              f'"{fingerprint}" already cached, '
+                              f'skipping download')
+                self.gpg.trust_keys(fingerprint, 'TRUST_ULTIMATE')
+                self.fingerprints[name] = fingerprint
+                continue
             else:
                 import_result = self.gpg.recv_keys(keyserver,
                                                    fingerprint)
@@ -132,6 +139,10 @@ class GPGKeyHandler(KeyHandler):
             self.fingerprints[name] = actual_fp
             logging.debug(f'Imported key "{name}" with fingerprint '
                           f'"{actual_fp}"')
+
+    def _key_cached(self, fingerprint):
+        keys = self.gpg.list_keys(keys=fingerprint)
+        return len(keys) > 0
 
     def _fingerprint(self, keyname):
         fingerprint = self.fingerprints.get(keyname)
