@@ -28,6 +28,7 @@ import os
 from pathlib import Path
 from kas import kas
 from kas.repos import RepoRefError, Repo
+from kas.kasusererror import CommandExecError
 
 
 def run_cmd(cmd, cwd=None, fail=True):
@@ -292,3 +293,37 @@ def test_commit_expand(monkeykas, tmpdir, capsys):
     rawspec = yaml.safe_load(capsys.readouterr().out)
     assert rawspec['repos']['kas']['commit'] == \
         'abd109469d17b7ff4d958b5aa5ab5f5511cc4d43'
+
+
+@pytest.mark.online
+def test_sha_like_branch_tag(monkeykas, tmpdir, capsys):
+    """
+        Test if branches or tags that look like shas are rejected.
+    """
+    tdir = str(tmpdir / 'test_sha_like_branch_tag')
+    shutil.copytree('tests/test_refspec', tdir)
+    monkeykas.chdir(tdir)
+
+    # Checkout the repositories
+    kas.kas(['checkout', 'test13.yml'])
+
+    def test_non_commit(variant, commit):
+        (rc, output) = run_cmd(['git', variant, commit],
+                                cwd='kas', fail=False)
+        assert rc == 0
+
+        with open(f'{tdir}/sha-test.yml', 'w') as f:
+            f.write('header:\n')
+            f.write('  version: 15\n')
+            f.write('repos:\n')
+            f.write('  this:\n')
+            f.write('  kas-2:\n')
+            f.write(f'    url: file://{tdir}/kas\n')
+            f.write(f'    commit: {commit}\n')
+
+        with pytest.raises(CommandExecError):
+            kas.kas(['checkout', 'sha-test.yml'])
+
+    test_non_commit('branch', '123456789abcdef0123456789abcdef012345678')
+
+    test_non_commit('tag', '123456789abcdef0123456789abcdef012345679')
