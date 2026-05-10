@@ -765,7 +765,10 @@ class GitRepo(RepoImpl):
                 '-r', '--contains', self.commit]
 
     def checkout_cmd(self, desired_ref, is_branch):
-        cmd = ['git', 'checkout', '-q', self.remove_ref_prefix(desired_ref)]
+        desired_ref = self.remove_ref_prefix(desired_ref)
+        if re.match(r'^[0-9a-f]{40}|[0-9a-f]{64}$', desired_ref):
+            desired_ref += '^{commit}'
+        cmd = ['git', 'checkout', '-q', desired_ref]
         if is_branch:
             branch = self.remove_ref_prefix(self.branch or self.refspec)
             branch = branch[branch.startswith('heads/') and len('heads/'):]
