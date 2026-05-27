@@ -309,7 +309,7 @@ def test_sha_like_branch_tag(monkeykas, tmpdir, capsys):
 
     def test_non_commit(variant, commit):
         (rc, output) = run_cmd(['git', variant, commit],
-                                cwd='kas', fail=False)
+                               cwd='kas', fail=False)
         assert rc == 0
 
         with open(f'{tdir}/sha-test.yml', 'w') as f:
