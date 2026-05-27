@@ -1,3 +1,27 @@
+5.3
+- kas: git: Avoid checking out sha-like branches as commits (CVE-2026-47191)
+- kas: verify signatures prior to checkout (CVE-2026-47192)
+- kas: strip credentials from attestation also if token is used
+- kas: ensure _source_dir is only set from main config file
+- kas: ensure git-clone path is not processed as option
+- kas: drop never correctly support for absolute include path
+- kas: limit include path traversals to repository
+- kas: Warn about repos with branches but without commit or lock file
+- kas: create a CACHEDIR.TAG in the kas build directory
+- kas: add Arch Linux to supported distros for locale settings
+- kas: schema: switch default distro to nodistro
+- kas: schema: enforce signer config constraints via schema
+- kas: dump: Use 2 spaces as indention in generated yaml
+- kas: Properly convert error list to string prior to output
+- kas: improve printing of os version
+- kas-container: do not construct image name if providing KAS_CONTAINER_IMAGE
+- kas-container: Fix podman detection
+- kas-container: do not process locale aliases
+- kas-container: query system docker path in isar mode, not assuming it
+- docs: Document a simpler way to disable layers in a repo
+- docs: Clarify environment variable handling
+- release: Publish both source and wheel to PyPI
+
 5.2
 - kas: Add support for layer priorities
 - kas: Add support for AWS SSO login credentials
