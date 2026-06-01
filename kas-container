@@ -146,11 +146,6 @@ prepare_sudo_cmd()
 
 enable_isar_mode()
 {
-	if [ -n "${ISAR_MODE}" ]; then
-		return
-	fi
-	ISAR_MODE=1
-
 	KAS_CONTAINER_IMAGE_NAME_DEFAULT="kas-isar"
 	KAS_ISAR_ARGS="--privileged"
 
@@ -353,11 +348,13 @@ podman)
 	;;
 esac
 
-# parse kas-container options
+# parse kas-container options, leave build system empty to distinguish between
+# explicitly set via flag and implicitly via config.
+BUILD_SYSTEM=""
 while [ $# -gt 0 ]; do
 	case "$1" in
 	--isar)
-		enable_isar_mode
+		BUILD_SYSTEM="isar"
 		shift 1
 		;;
 	--with-loop-dev)
@@ -565,10 +562,10 @@ if [ "${KAS_CMD}" = "menu" ]; then
 	if [ "$(echo "${KAS_FIRST_FILES}" | wc -w)" -ne "1" ]; then
 		fatal_error "menu plugin only supports a single Kconfig file"
 	fi
-	BUILD_SYSTEM=$(tr '\n' '\f' 2>/dev/null < "${KAS_FIRST_FILES}" | \
+	BUILD_SYSTEM=${BUILD_SYSTEM:-$(tr '\n' '\f' 2>/dev/null < "${KAS_FIRST_FILES}" |
 		sed -e 's/\(.*\fconfig KAS_BUILD_SYSTEM\f\(.*\)\|.*\)/\2/' \
 		    -e 's/\f\([[:alpha:]].*\|$\)//' \
-		    -e 's/.*default \"\(.*\)\".*/\1/')
+		    -e 's/.*default \"\(.*\)\".*/\1/')}
 else
 	if [ -z "${KAS_FIRST_FILES}" ]; then
 		KAS_FIRST_FILES="${KAS_WORK_DIR}/.config.yaml"
@@ -576,18 +573,18 @@ else
 
 	# We only get the first build system and let kas check if mixed
 	_KAS_FIRST_FILE=$(echo "${KAS_FIRST_FILES}" | awk '{print $1}')
-	BUILD_SYSTEM=$(grep -e "^build_system: " "${_KAS_FIRST_FILE}" 2>/dev/null | \
-		sed 's/build_system:[ ]\+//')
+	BUILD_SYSTEM=${BUILD_SYSTEM:-$(grep -e "^build_system: " "${_KAS_FIRST_FILE}" 2>/dev/null |
+		sed 's/build_system:[ ]\+//')}
 fi
 
 if [ "${BUILD_SYSTEM}" = "isar" ]; then
 	enable_isar_mode
-elif [ -z "${ISAR_MODE}" ]; then
+else
 	enable_oe_mode
 fi
 
 # clean can be executed without config, hence manually forward the build system
-if [ "${ISAR_MODE}" = "1" ] && echo "${KAS_CMD}" | grep -qe "^clean\|purge"; then
+if [ "${BUILD_SYSTEM}" = "isar" ] && echo "${KAS_CMD}" | grep -qe "^clean\|purge"; then
 	KAS_OPTIONS="${KAS_OPTIONS} --isar"
 fi
 
