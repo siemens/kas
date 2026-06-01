@@ -104,7 +104,7 @@ usage()
 # Allow --help to work without a container engine or other pre-condition checks
 for _arg in "$@"; do
 	case "$_arg" in
-	-h|--help)
+	-h | --help)
 		usage 0
 		;;
 	esac
@@ -394,7 +394,7 @@ while [ $# -gt 0 ]; do
 		KAS_WITH_LOOP_DEV="--device ${KAS_LOOP_DEV}"
 		shift 1
 		;;
-	--runtime-args|--docker-args)
+	--runtime-args | --docker-args)
 		[ $# -gt 0 ] || usage
 		KAS_RUNTIME_ARGS="${KAS_RUNTIME_ARGS} $2"
 		shift 2
@@ -454,19 +454,19 @@ while [ $# -gt 0 ]; do
 	--*)
 		usage
 		;;
-	clean|cleansstate|cleanall|purge)
+	clean | cleansstate | cleanall | purge)
 		KAS_REPO_MOUNT_OPT_DEFAULT="ro"
 		KAS_CMD=$1
 		shift 1
 		break
 		;;
-	shell|lock)
+	shell | lock)
 		KAS_REPO_MOUNT_OPT_DEFAULT="rw"
 		KAS_CMD=$1
 		shift 1
 		break
 		;;
-	build|checkout|for-all-repos|menu)
+	build | checkout | for-all-repos | menu)
 		KAS_REPO_MOUNT_OPT_DEFAULT="ro"
 		KAS_CMD=$1
 		shift 1
@@ -502,17 +502,17 @@ KAS_FILES=
 # parse kas sub-command options
 while [ $# -gt 0 ] && [ $KAS_EXTRA_BITBAKE_ARGS -eq 0 ]; do
 	case "$1" in
-	--format|--indent|--provenance|--skip|--target|--task)
+	--format | --indent | --provenance | --skip | --target | --task)
 		KAS_OPTIONS="${KAS_OPTIONS} $1 $2"
 		shift 1
 		shift 1 || KAS_OPTIONS="--help"
 		;;
-	-c|--cmd|--command)
+	-c | --cmd | --command)
 		KAS_BITBAKE_C_OPTION_ARGS="$2"
 		shift 1
 		shift 1 || KAS_OPTIONS="--help"
 		;;
-	-E|--preserve-env)
+	-E | --preserve-env)
 		fatal_error "$1 is not supported with ${KAS_CONTAINER_SELF_NAME}"
 		;;
 	--)
@@ -755,7 +755,7 @@ done
 
 # propagate only supported SHELL settings
 case "$SHELL" in
-/bin/sh|/bin/bash|/bin/dash)
+/bin/sh | /bin/bash | /bin/dash)
 	set -- "$@" -e "SHELL=$SHELL"
 	;;
 *)
