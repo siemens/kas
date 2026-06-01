@@ -101,6 +101,15 @@ usage()
 	exit "${EXIT_CODE:-1}"
 }
 
+# Allow --help to work without a container engine or other pre-condition checks
+for _arg in "$@"; do
+	case "$_arg" in
+	-h|--help)
+		usage 0
+		;;
+	esac
+done
+
 fatal_error()
 {
 	echo "${KAS_CONTAINER_SELF_NAME}: Error: $*" >&2
@@ -441,9 +450,6 @@ while [ $# -gt 0 ]; do
 	--version)
 		echo "${KAS_CONTAINER_SELF_NAME} $KAS_IMAGE_VERSION_DEFAULT"
 		exit 0
-		;;
-	-h | --help)
-		usage 0
 		;;
 	--*)
 		usage
