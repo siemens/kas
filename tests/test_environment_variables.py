@@ -29,10 +29,11 @@ import re
 import pytest
 import json
 import logging
+from types import SimpleNamespace
 from kas import kas
 from kas.context import create_global_context
 from kas.kasusererror import ArgsCombinationError, EnvSetButNotFoundError
-from kas.libcmds import SetupHome
+from kas.libcmds import SetupHome, SetupSSHAgent
 from kas import __version__
 
 
@@ -103,6 +104,23 @@ def test_ssh_agent_setup(monkeykas, tmpdir, capsys):
         out = capsys.readouterr().err
         assert 'adding SSH key from env-var' in out
         assert 'ERROR' not in out
+
+
+def test_ssh_host_key_check_is_only_disabled_in_managed_env(monkeypatch):
+    calls = []
+
+    monkeypatch.setattr('kas.libcmds.shutil.which', lambda _: '/usr/bin/ssh')
+    monkeypatch.setattr('kas.libcmds.ssh_setup_agent',
+                        lambda: calls.append('setup'))
+    monkeypatch.setattr('kas.libcmds.ssh_no_host_key_check',
+                        lambda: calls.append('disable_host_key_check'))
+
+    SetupSSHAgent().execute(SimpleNamespace(managed_env=False))
+    assert calls == ['setup']
+
+    calls.clear()
+    SetupSSHAgent().execute(SimpleNamespace(managed_env=True))
+    assert calls == ['setup', 'disable_host_key_check']
 
 
 def _get_env_from_file(filename):
