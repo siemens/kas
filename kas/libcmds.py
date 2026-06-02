@@ -446,7 +446,10 @@ class SetupSSHAgent(Command):
                 raise RuntimeError('SSH setup requested but could '
                                    f'not find "{tool}" in PATH')
         ssh_setup_agent()
-        ssh_no_host_key_check()
+        # disabling host key checking is persistent and not limited to kas,
+        # hence only do it in externally managed environments
+        if ctx.managed_env:
+            ssh_no_host_key_check()
 
 
 class CleanupSSHAgent(Command):

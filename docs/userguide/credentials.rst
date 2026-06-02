@@ -160,7 +160,10 @@ items into the kas environment.
 
 .. note::
   Modifications to the ``.ssh/config`` file are only performed if the file
-  is not present yet.
+  is not present yet. In well-known CI environments, kas also disables ssh
+  host key checking when ``SSH_PRIVATE_KEY`` or ``SSH_PRIVATE_KEY_FILE`` is
+  set. Because this change persists across kas invocations, kas does not
+  apply it in local environments, starting with kas ``5.4``.
 
 In addition, an external ssh-agent can be made available in the kas
 environment by setting the ``SSH_AUTH_SOCK`` environment variable.
