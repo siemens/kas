@@ -141,8 +141,8 @@ class GPGKeyHandler(KeyHandler):
                           f'"{actual_fp}"')
 
     def _key_cached(self, fingerprint):
-        keys = self.gpg.list_keys(keys=fingerprint)
-        return len(keys) > 0
+        return any(key.get('fingerprint') == fingerprint
+                   for key in self.gpg.list_keys())
 
     def _fingerprint(self, keyname):
         fingerprint = self.fingerprints.get(keyname)
