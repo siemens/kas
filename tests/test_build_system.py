@@ -22,6 +22,7 @@
 
 import shutil
 import pytest
+import re
 from kas import kas
 
 
@@ -37,6 +38,17 @@ def test_build_system(monkeykas, tmpdir):
     kas.kas(['shell', 'test-isar.yml', '-c', 'true'])
     with open('build-env', 'r') as f:
         assert f.readline().strip() == 'isar'
+
+    kas.kas(['shell', 'test-isar-privileged.yml', '-c', 'true'])
+    with open('build-env', 'r') as f:
+        assert f.readline().strip() == 'isar'
+
+    kas.kas(['shell', 'test-isar-rootless.yml', '-c', 'true'])
+    with open('build-env', 'r') as f:
+        assert f.readline().strip() == 'isar'
+    with open(monkeykas.get_kbd() / 'conf/local.conf', 'r') as f:
+        assert any(re.match(r'^ISAR_ROOTLESS.*"1"', line)
+                   for line in f.readlines())
 
     kas.kas(['shell', 'test-openembedded.yml', '-c', 'true'])
     with open('build-env', 'r') as f:
