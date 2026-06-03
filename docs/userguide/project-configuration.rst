@@ -259,12 +259,16 @@ Configuration reference
 
 ``build_system``: string [optional]
   :kasschemadesc:`build_system`
-  Supported build systems are ``openembedded`` (or ``oe``) and ``isar``.
   This value determines which init script is searched for in the configured
   repositories (``oe-init-build-env`` or ``isar-init-build-env``,
   respectively). ``kas-container`` evaluates this property in the top-level kas
   configuration file only (includes are not evaluated) to select the required
   container image and invocation mode.
+
+  .. note:: Modern versions of isar support a rootless mode, whereby builds can
+            be executed as non-privileged user. To distinguish the two modes,
+            use ``isar-rootless`` or ``isar-privileged``. Whether the rootless
+            mode is supported depends on your layers.
 
 ``defaults``: dict [optional]
   :kasschemadesc:`defaults`

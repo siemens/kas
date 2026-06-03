@@ -41,7 +41,7 @@
                         {
                             "type": "integer",
                             "minimum": 1,
-                            "maximum": 22
+                            "maximum": 23
                         }
                     ]
                 },
@@ -79,12 +79,14 @@
             }
         },
         "build_system": {
-            "description": "Defines the bitbake-based build system.",
+            "description": "Defines the bitbake-based build system. ``openembedded`` and ``oe`` are equivalent. ``isar`` is deprecated, use ``isar-privileged`` or ``isar-rootless`` instead.",
             "default": "openembedded",
             "enum": [
                 "openembedded",
                 "oe",
-                "isar"
+                "isar",
+                "isar-privileged",
+                "isar-rootless"
             ]
         },
         "defaults": {
