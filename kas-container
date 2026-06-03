@@ -66,8 +66,10 @@ usage()
 	printf "%b" "menu\t\t\tProvide configuration menu and trigger " \
 		    "configured build.\n"
 	printf "%b" "\nOptional arguments:\n"
-	printf "%b" "--isar\t\t\tUse kas-isar container to build Isar image. To force\n"
-	printf "%b" "      \t\t\tthe use of run0 over sudo, set KAS_SUDO_CMD=run0.\n"
+	printf "%b" "--isar-privileged\tRun an Isar build in privileged mode. " \
+	            "To force the use\n"
+	printf "%b" "\t\t\tof run0 over sudo, set KAS_SUDO_CMD=run0.\n"
+	printf "%b" "--isar-rootless\t\tRun an Isar build in rootless mode\n"
 	printf "%b" "--runtime-args\t\tAdditional arguments to pass to the " \
 			"container runtime\n"
 	printf "%b" "\t\t\tfor running the build.\n"
@@ -163,6 +165,29 @@ enable_isar_mode()
 	fi
 }
 
+enable_isar_rootless_mode()
+{
+	KAS_CONTAINER_IMAGE_NAME_DEFAULT="kas-isar"
+
+	# Use --privileged to pass the ambient capabilities into the container.
+	# When calling from the user session (podman or docker-rootless), this
+	# is fundamentally different from the system docker run --privileged
+	if [ "${KAS_CONTAINER_ENGINE}" = "podman" ]; then
+		KAS_RUNTIME_ARGS="${KAS_RUNTIME_ARGS} --userns=keep-id --privileged"
+	elif [ "${KAS_DOCKER_ROOTLESS}" = "1" ]; then
+		KAS_ISAR_ARGS="--privileged"
+	else
+		# we don't need --privileged, but we need to run with SYS_ADMIN
+		# to be able to unshare.
+		KAS_ISAR_ARGS=" \
+			--security-opt seccomp=unconfined \
+			--security-opt apparmor=unconfined \
+			--security-opt systempaths=unconfined \
+			--cap-add=SYS_ADMIN \
+		"
+	fi
+}
+
 enable_oe_mode()
 {
 	if [ "${KAS_CONTAINER_ENGINE}" = "podman" ]; then
@@ -170,6 +195,7 @@ enable_oe_mode()
 		# calling "podman run" has a 1:1 mapping
 		KAS_RUNTIME_ARGS="${KAS_RUNTIME_ARGS} --userns=keep-id"
 	fi
+	BUILD_SYSTEM="openembedded"
 }
 
 enable_unpriv_userns_docker()
@@ -321,8 +347,16 @@ BUILD_SYSTEM=""
 KAS_OPTIONS_DIRECT=""
 while [ $# -gt 0 ]; do
 	case "$1" in
-	--isar)
-		BUILD_SYSTEM="isar"
+	--isar | --isar-privileged)
+		if [ "$1" = "--isar" ]; then
+			warning "The semantic of '--isar' might change in the" \
+				"future. Please use '--isar-privileged' instead."
+		fi
+		BUILD_SYSTEM="isar-privileged"
+		shift 1
+		;;
+	--isar-rootless)
+		BUILD_SYSTEM="isar-rootless"
 		shift 1
 		;;
 	--runtime-args | --docker-args)
@@ -553,16 +587,22 @@ else
 		sed 's/build_system:[ ]\+//')}
 fi
 
-if [ "${BUILD_SYSTEM}" = "isar" ]; then
+if [ "${BUILD_SYSTEM}" = "isar" ] || [ "${BUILD_SYSTEM}" = "isar-privileged" ]; then
 	enable_isar_mode
+elif [ "${BUILD_SYSTEM}" = "isar-rootless" ]; then
+	enable_isar_rootless_mode
 else
 	enable_oe_mode
 fi
 
 # clean can be executed without config, hence manually forward the build system
-if [ "${BUILD_SYSTEM}" = "isar" ] && echo "${KAS_CMD}" | grep -qe "^clean\|purge"; then
-	KAS_OPTIONS="${KAS_OPTIONS} --isar"
-fi
+case "${BUILD_SYSTEM}" in
+isar*)
+	if echo "${KAS_CMD}" | grep -qe "^clean\|purge"; then
+		KAS_OPTIONS="${KAS_OPTIONS} --${BUILD_SYSTEM}"
+	fi
+	;;
+esac
 
 set_container_image_var
 

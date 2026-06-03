@@ -39,5 +39,6 @@ written to from the host. To completely remove all data managed by kas, use
 so they can be removed from the host.
 
 .. note::
-    The ISAR build system is not compatible with rootless execution. By that,
-    we fall back to the system docker or podman instance.
+    The ISAR build system is compatible with rootless execution in ``isar-rootless``
+    mode only. The ``isar`` and ``isar-privileged`` modes fall back to the system docker
+    or podman instance.

@@ -113,7 +113,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=${CACHE_SHARING} \
             umoci skopeo \
             python3-botocore \
             bubblewrap \
-            debootstrap && \
+            debootstrap \
+            uidmap acl && \
     rm -f /etc/apt/apt.conf.d/use-snapshot.conf /etc/apt/apt.conf.d/keep-packages.conf && \
     if [ -f "/etc/apt/sources.list.d/debian.sources~" ]; then \
         mv -f /etc/apt/sources.list.d/debian.sources~ /etc/apt/sources.list.d/debian.sources; \
