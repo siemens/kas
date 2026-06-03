@@ -470,7 +470,9 @@ class SetupEnviron(Command):
         return 'setup_environ'
 
     def execute(self, ctx):
-        ctx.environ.update(get_build_environ(ctx.config.get_build_system()))
+        ctx.environ.update(
+            get_build_environ(ctx.config.get_build_system(), ctx)
+        )
 
 
 class WriteBBConfig(Command):

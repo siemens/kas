@@ -395,7 +395,7 @@ def get_buildtools_version():
     return -1
 
 
-def get_build_environ(build_system):
+def get_build_environ(build_system, ctx):
     """
         Creates the build environment variables.
     """
@@ -407,7 +407,7 @@ def get_build_environ(build_system):
         script = 'oe-init-build-env'
     elif build_system == 'isar':
         script = 'isar-init-build-env'
-    for repo in get_context().config.get_repos():
+    for repo in ctx.config.get_repos():
         if os.path.exists(repo.path + '/' + script):
             if init_repo:
                 raise InitBuildEnvError(
@@ -420,7 +420,7 @@ def get_build_environ(build_system):
     if not init_repo:
         raise InitBuildEnvError('Did not find any init-build-env script')
 
-    conf_buildtools = get_context().config.get_buildtools()
+    conf_buildtools = ctx.config.get_buildtools()
     buildtools_env = ""
 
     if conf_buildtools:
@@ -475,7 +475,7 @@ def get_build_environ(build_system):
         env = {}
         env['PATH'] = '/usr/sbin:/usr/bin:/sbin:/bin'
 
-        (_, output) = run_cmd([str(get_bb_env_file), get_context().build_dir],
+        (_, output) = run_cmd([str(get_bb_env_file), ctx.build_dir],
                               cwd=init_repo.path, env=env)
         if init_script_log != '/dev/null':
             with open(init_script_log) as log:
@@ -492,7 +492,7 @@ def get_build_environ(build_system):
         except ValueError:
             pass
 
-    conf_env = get_context().config.get_environment()
+    conf_env = ctx.config.get_environment()
 
     env_vars = ['SSTATE_DIR', 'SSTATE_MIRRORS', 'DL_DIR', 'TMPDIR']
     env_vars.extend(conf_env)
