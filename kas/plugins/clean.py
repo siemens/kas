@@ -61,20 +61,28 @@ class Clean():
                             default=False,
                             help='Do not remove anything, just print what '
                                  'would be removed')
-        parser.add_argument('--isar',
-                            action='store_true',
-                            default=False,
-                            help='Use ISAR build directory layout')
-        parser.add_argument('config',
-                            help='Config file(s), separated by colon. Using '
-                                 '.config.yaml in KAS_WORK_DIR if existing '
-                                 'and none is specified.',
-                            nargs='?')
+        isar_group = parser.add_mutually_exclusive_group()
+        isar_group.add_argument(
+            '--isar-privileged', '--isar',
+            action='store_true',
+            default=False,
+            help='Use ISAR (privileged) build directory layout')
+        isar_group.add_argument(
+            '--isar-rootless',
+            action='store_true',
+            default=False,
+            help='Use ISAR (rootless) build directory layout')
+        parser.add_argument(
+            'config',
+            help='Config file(s), separated by colon. Using '
+                 '.config.yaml in KAS_WORK_DIR if existing '
+                 'and none is specified.',
+            nargs='?')
 
     def run(self, args):
         ctx = create_global_context(args)
         default_conf_file = Path(ctx.kas_work_dir) / CONFIG_YAML_FILE
-        build_system = None
+        build_system = 'openembedded'
         if args.config:
             self.config_files = args.config
         elif default_conf_file.exists():
@@ -83,11 +91,13 @@ class Clean():
             # By definition, build_system key must be present in the first
             # config file to take effect.
             cf = ConfigFile.load(self.config_files.split(':')[0])
-            build_system = cf.config.get('build_system')
-        if args.isar:
-            build_system = 'isar'
+            build_system = cf.config.get('build_system', build_system)
+        if args.isar_privileged or build_system == 'isar':
+            build_system = 'isar-privileged'
+        elif args.isar_rootless:
+            build_system = 'isar-rootless'
 
-        logging.debug('Run clean in "%s" mode' % (build_system or 'default'))
+        logging.debug('Run clean in "%s" mode' % build_system)
         if args.dry_run:
             logging.warning('Dry run, not removing anything')
         tmpdirs = Path(ctx.build_dir).glob('tmp*')
@@ -95,7 +105,7 @@ class Clean():
         dirs_to_remove = []
         for tmpdir in tmpdirs:
             logging.info(f'Removing {tmpdir}')
-            if build_system == 'isar':
+            if build_system.startswith('isar'):
                 dirs_to_remove.append(tmpdir)
             else:
                 if not args.dry_run:
@@ -104,12 +114,39 @@ class Clean():
         if len(dirs_to_remove) == 0:
             return
 
+        # isar only
+        if build_system == 'isar-rootless':
+            self._rmtree_unshare(dirs_to_remove, args.dry_run)
+        else:
+            self._rmtree_sudo(dirs_to_remove, args.dry_run)
+
+    @staticmethod
+    def _rmtree_unshare(dirs_to_remove, dry_run):
+        uid = os.getuid()
+        for d in dirs_to_remove:
+            # find all dir entries that are not owned by the calling user
+            # and remove them by entering the user namespace first
+            clean_args = ['find', str(d), '(', '!', '-user', str(uid), '-type',
+                          'd', '-prune', ')', '-exec']
+            clean_args += ['unshare', '--map-auto', '--map-root-user',
+                           '--keep-caps', 'rm', '-rf', '{}', ';']
+            logging.debug(' '.join(clean_args))
+            if not dry_run:
+                subprocess.check_call(clean_args)
+            # clean remaining files (owned by caller)
+            clean_args = ['rm', '-rf', str(d)]
+            logging.debug(' '.join(clean_args))
+            if not dry_run:
+                subprocess.check_call(clean_args)
+
+    @staticmethod
+    def _rmtree_sudo(dirs_to_remove, dry_run):
         clean_args = ['sudo', '--prompt', '[sudo] enter password for %U '
                       'to clean ISAR artifacts']
         clean_args.extend(['rm', '-rf'])
         clean_args.extend([p.as_posix() for p in dirs_to_remove])
         logging.debug(' '.join(clean_args))
-        if not args.dry_run:
+        if not dry_run:
             subprocess.check_call(clean_args)
 
     @staticmethod
