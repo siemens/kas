@@ -67,6 +67,8 @@ class IncludeException(KasUserError):
 
 
 class ConfigFile():
+    __build_system_warned__ = False
+
     def __init__(self, filename, is_external, is_lockfile):
         self.filename = Path(filename)
         self.config = {}
@@ -135,6 +137,13 @@ class ConfigFile():
         if cf.config.get('proxy_config'):
             logging.warning('Obsolete ''proxy_config'' detected. '
                             'This has no effect and will be rejected soon.')
+
+        if cf.config.get('build_system') == 'isar' and is_main_file \
+           and not ConfigFile.__build_system_warned__:
+            ConfigFile.__build_system_warned__ = True
+            logging.warning(
+                "The semantics of build_system: isar might change in the "
+                "future. Please use 'isar-privileged' or 'isar-rootless'.")
 
         cf.src_dir = cf.config.get(SOURCE_DIR_OVERRIDE_KEY, None)
         if cf.src_dir is not None and not is_main_file:

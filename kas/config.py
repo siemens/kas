@@ -70,7 +70,10 @@ class Config:
             Returns the pre-selected build system
         """
         default_bs = CONFIGSCHEMA['properties']['build_system']['default']
-        return self._config.get('build_system', default_bs)
+        build_system = self._config.get('build_system', default_bs)
+        if build_system == 'isar':
+            build_system = 'isar-privileged'
+        return build_system
 
     def find_missing_repos(self, repo_paths={}):
         """

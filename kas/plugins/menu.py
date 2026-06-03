@@ -50,7 +50,7 @@
 
      - The ``build_system`` that will used. The static Kconfig string variable
        ``KAS_BUILD_SYSTEM`` defines this value which must be ``openembedded``,
-       ``oe`` or ``isar`` is set.
+       ``oe``, ``isar``, ``isar-privileged`` or ``isar-rootless`` is set.
 
      - bitbake configuration variables that will be added to the
        ``local_conf_header`` section of the generated configuration. All other

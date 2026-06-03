@@ -520,6 +520,8 @@ class WriteBBConfig(Command):
                 fds.write(f'DISTRO ??= "{ctx.config.get_distro()}"\n')
                 fds.write('BBMULTICONFIG ?= '
                           f'"{ctx.config.get_multiconfig()}"\n')
+                if ctx.config.get_build_system() == 'isar-rootless':
+                    fds.write('ISAR_ROOTLESS ?= "1"\n')
 
         _write_bblayers_conf(ctx)
         _write_local_conf(ctx)

@@ -405,7 +405,7 @@ def get_build_environ(build_system, ctx):
     init_repo = None
     if build_system in ['openembedded', 'oe']:
         script = 'oe-init-build-env'
-    elif build_system == 'isar':
+    elif build_system.startswith('isar'):
         script = 'isar-init-build-env'
     for repo in ctx.config.get_repos():
         if os.path.exists(repo.path + '/' + script):
