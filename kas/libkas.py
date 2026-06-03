@@ -404,15 +404,10 @@ def get_build_environ(build_system):
 
     init_repo = None
     if build_system in ['openembedded', 'oe']:
-        scripts = ['oe-init-build-env']
+        script = 'oe-init-build-env'
     elif build_system == 'isar':
-        scripts = ['isar-init-build-env']
-    else:
-        scripts = ['oe-init-build-env', 'isar-init-build-env']
-    permutations = \
-        [(repo, script) for repo in get_context().config.get_repos()
-         for script in scripts]
-    for (repo, script) in permutations:
+        script = 'isar-init-build-env'
+    for repo in get_context().config.get_repos():
         if os.path.exists(repo.path + '/' + script):
             if init_repo:
                 raise InitBuildEnvError(

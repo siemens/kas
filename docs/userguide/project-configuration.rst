@@ -259,13 +259,12 @@ Configuration reference
 
 ``build_system``: string [optional]
   :kasschemadesc:`build_system`
-  Known build systems are
-  ``openembedded`` (or ``oe``) and ``isar``. If set, this restricts the
-  search of kas for the init script in the configured repositories to
-  ``oe-init-build-env`` or ``isar-init-build-env``, respectively. If
-  ``kas-container`` finds this property in the top-level kas configuration
-  file (includes are not evaluated), it will automatically select the
-  required container image and invocation mode.
+  Supported build systems are ``openembedded`` (or ``oe``) and ``isar``.
+  This value determines which init script is searched for in the configured
+  repositories (``oe-init-build-env`` or ``isar-init-build-env``,
+  respectively). ``kas-container`` evaluates this property in the top-level kas
+  configuration file only (includes are not evaluated) to select the required
+  container image and invocation mode.
 
 ``defaults``: dict [optional]
   :kasschemadesc:`defaults`

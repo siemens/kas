@@ -80,6 +80,7 @@
         },
         "build_system": {
             "description": "Defines the bitbake-based build system.",
+            "default": "openembedded",
             "enum": [
                 "openembedded",
                 "oe",
