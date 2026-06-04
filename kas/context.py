@@ -100,6 +100,7 @@ class Context:
         self.keyhandler = {}
         self.config = None
         self.args = args
+        self.unpinned_repo_warnings = True
 
     def setup_initial_environ(self):
         """

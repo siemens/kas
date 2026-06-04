@@ -197,6 +197,7 @@ class Lock:
 
         ctx = create_global_context(args)
         ctx.config = Config(ctx, args.config)
+        ctx.unpinned_repo_warnings = False
 
         macro = Macro()
         macro.run(ctx, args.skip)
