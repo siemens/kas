@@ -76,9 +76,11 @@
 import logging
 import os
 from dataclasses import dataclass
-from kas.context import get_context
+from kas.context import create_global_context
+from kas.config import Config
 from kas.includehandler import ConfigFile
-from kas.plugins.checkout import Checkout
+from kas.libcmds import Macro
+from kas.libkas import setup_parser_common_args, setup_parser_config_arg
 from kas.plugins.dump import Dump, IoTarget, LOCKFILE_VERSION_MIN
 from kas.plugins.diff import Diff
 from kas.repos import Repo, RepoRefError
@@ -87,7 +89,7 @@ __license__ = 'MIT'
 __copyright__ = 'Copyright (c) Siemens AG, 2024'
 
 
-class Lock(Checkout):
+class Lock:
     """
     Implements a kas plugin to create and update kas project lockfiles.
     """
@@ -104,7 +106,8 @@ class Lock(Checkout):
 
     @classmethod
     def setup_parser(cls, parser):
-        super().setup_parser(parser)
+        setup_parser_common_args(parser)
+        setup_parser_config_arg(parser)
         Dump.setup_parser_format_args(parser)
 
     def _print_log_diff(self, repo, old_commit):
@@ -192,8 +195,11 @@ class Lock(Checkout):
             'write_bbconfig',
         ]
 
-        super().run(args)
-        ctx = get_context()
+        ctx = create_global_context(args)
+        ctx.config = Config(ctx, args.config)
+
+        macro = Macro()
+        macro.run(ctx, args.skip)
         repos_cfg = ctx.config.repo_dict.items()
         # when locking, only consider floating repos managed by kas
         # Important: process repos in the order they are defined in the
