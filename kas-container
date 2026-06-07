@@ -52,7 +52,7 @@ usage()
 	printf "%b" "diff\t\t\tCompare two kas configurations.\n"
 	printf "%b" "dump\t\t\tCheck out repositories and write flat version\n"
 	printf "%b" "    \t\t\tof config to stdout.\n"
-	printf "%b" "lock\t\t\tCreate and update kas project lockfiles\n"
+	printf "%b" "lock\t\t\tCreate and update kas project lockfiles.\n"
 	printf "%b" "shell\t\t\tRun a shell in the build environment.\n"
 	printf "%b" "for-all-repos\t\tRun specified command in each repository.\n"
 	printf "%b" "clean\t\t\tClean build artifacts, keep sstate cache and " \
@@ -62,19 +62,19 @@ usage()
 	printf "%b" "cleanall\t\tClean build artifacts, sstate cache and " \
 		    "downloads.\n"
 	printf "%b" "purge\t\t\tRemove all data managed by kas. Run with '--dry-run'\n"
-	printf "%b" "     \t\t\tto check what would be removed\n"
+	printf "%b" "     \t\t\tto check what would be removed.\n"
 	printf "%b" "menu\t\t\tProvide configuration menu and trigger " \
 		    "configured build.\n"
 	printf "%b" "\nOptional arguments:\n"
 	printf "%b" "--isar-privileged\tRun an Isar build in privileged mode. " \
 	            "To force the use\n"
 	printf "%b" "\t\t\tof run0 over sudo, set KAS_SUDO_CMD=run0.\n"
-	printf "%b" "--isar-rootless\t\tRun an Isar build in rootless mode\n"
+	printf "%b" "--isar-rootless\t\tRun an Isar build in rootless mode.\n"
 	printf "%b" "--runtime-args\t\tAdditional arguments to pass to the " \
-			"container runtime\n"
+			"container runtime.\n"
 	printf "%b" "\t\t\tfor running the build.\n"
 	printf "%b" "-l, --log-level\t\tSet log level (default=info).\n"
-	printf "%b" "--version\t\tprint program version.\n"
+	printf "%b" "--version\t\tPrint program version.\n"
 	printf "%b" "--ssh-dir\t\tDirectory containing SSH configurations.\n"
 	printf "%b" "\t\t\tAvoid \$HOME/.ssh unless you fully trust the " \
 		    "container.\n"
@@ -83,15 +83,15 @@ usage()
 	printf "%b" "\t\t\tAvoid \$HOME/.aws unless you fully trust the " \
 		    "container.\n"
 	printf "%b" "--git-credential-store\tFile path to the git credential " \
-		    "store\n"
+		    "store.\n"
 	printf "%b" "--git-credential-socket\tPath to the git credential cache " \
 	       "socket.\n"
 	printf "%b" "--no-proxy-from-env\tDo not inherit proxy settings from " \
 		    "environment.\n"
 	printf "%b" "--repo-ro\t\tMount current repository read-only\n" \
-		    "\t\t\t(default for build command)\n"
+		    "\t\t\t(default for build command).\n"
 	printf "%b" "--repo-rw\t\tMount current repository writable\n" \
-		    "\t\t\t(default for shell command)\n"
+		    "\t\t\t(default for shell command).\n"
 	printf "%b" "-h, --help\t\tShow this help message and exit.\n"
 	printf "%b" "\n"
 	printf "%b" "You can force the use of podman over docker using " \
