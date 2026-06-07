@@ -209,6 +209,19 @@ check_and_expand()
 	realpath -e "$_varval"
 }
 
+# SC2034: DIR appears unused (ignore, as they are used inside eval)
+# shellcheck disable=2034
+setup_kas_dirs()
+{
+	KAS_WORK_DIR="${KAS_WORK_DIR:-$(pwd)}"
+	KAS_WORK_DIR="$(check_and_expand KAS_WORK_DIR required)"
+	KAS_BUILD_DIR="$(check_and_expand KAS_BUILD_DIR create)"
+	KAS_REPO_REF_DIR="$(check_and_expand KAS_REPO_REF_DIR required)"
+	DL_DIR="$(check_and_expand DL_DIR createrec)"
+	SSTATE_DIR="$(check_and_expand SSTATE_DIR createrec)"
+	KAS_BUILDTOOLS_DIR="$(check_and_expand KAS_BUILDTOOLS_DIR createrec)"
+}
+
 # Params: FILE
 # Returns: root repo dir of file
 repo_path_of_file()
@@ -303,19 +316,6 @@ set_container_image_var()
 	if [ -n "${KAS_CONTAINER_IMAGE_DISTRO}" ]; then
 		KAS_CONTAINER_IMAGE="${KAS_CONTAINER_IMAGE}-${KAS_CONTAINER_IMAGE_DISTRO}"
 	fi
-}
-
-# SC2034: DIR appears unused (ignore, as they are used inside eval)
-# shellcheck disable=2034
-setup_kas_dirs()
-{
-	KAS_WORK_DIR="${KAS_WORK_DIR:-$(pwd)}"
-	KAS_WORK_DIR="$(check_and_expand KAS_WORK_DIR required)"
-	KAS_BUILD_DIR="$(check_and_expand KAS_BUILD_DIR create)"
-	KAS_REPO_REF_DIR="$(check_and_expand KAS_REPO_REF_DIR required)"
-	DL_DIR="$(check_and_expand DL_DIR createrec)"
-	SSTATE_DIR="$(check_and_expand SSTATE_DIR createrec)"
-	KAS_BUILDTOOLS_DIR="$(check_and_expand KAS_BUILDTOOLS_DIR createrec)"
 }
 
 # parse kas-container options, leave build system empty to distinguish between
