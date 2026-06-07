@@ -317,7 +317,6 @@ setup_kas_dirs()
 	SSTATE_DIR="$(check_and_expand SSTATE_DIR createrec)"
 	KAS_BUILDTOOLS_DIR="$(check_and_expand KAS_BUILDTOOLS_DIR createrec)"
 }
-setup_kas_dirs
 
 # parse kas-container options, leave build system empty to distinguish between
 # explicitly set via flag and implicitly via config.
@@ -484,6 +483,8 @@ podman)
 	fatal_error "unknown container engine '${KAS_CONTAINER_ENGINE}'"
 	;;
 esac
+
+setup_kas_dirs
 
 KAS_RUNTIME_ARGS="${KAS_RUNTIME_ARGS}${KAS_EXTRA_RUNTIME_ARGS}"
 
