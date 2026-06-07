@@ -68,9 +68,6 @@ usage()
 	printf "%b" "\nOptional arguments:\n"
 	printf "%b" "--isar\t\t\tUse kas-isar container to build Isar image. To force\n"
 	printf "%b" "      \t\t\tthe use of run0 over sudo, set KAS_SUDO_CMD=run0.\n"
-	printf "%b" "--with-loop-dev		Pass a loop device to the " \
-		    "container. Only required if\n"
-	printf "%b" "\t\t\tloop-mounting is used by recipes.\n"
 	printf "%b" "--runtime-args\t\tAdditional arguments to pass to the " \
 			"container runtime\n"
 	printf "%b" "\t\t\tfor running the build.\n"
@@ -326,31 +323,6 @@ while [ $# -gt 0 ]; do
 	case "$1" in
 	--isar)
 		BUILD_SYSTEM="isar"
-		shift 1
-		;;
-	--with-loop-dev)
-		if ! KAS_LOOP_DEV=$(/sbin/losetup -f 2>/dev/null); then
-			if [ "$(id -u)" -eq 0 ]; then
-				fatal_error "loop device not available!"
-			fi
-			prepare_sudo_cmd
-			if ! [ "$KAS_SUDO_CMD" = "sudo" ]; then
-				fatal_error '--with-loop-dev requires sudo for device setup.'
-			fi
-			sudo_command="/sbin/losetup -f"
-			sudo_message="[sudo] enter password to setup loop"
-			sudo_message="$sudo_message devices by calling"
-			sudo_message="$sudo_message '$sudo_command': "
-			# SC2086: Double quote to prevent globbing and word splitting.
-			# shellcheck disable=2086
-			if ! KAS_LOOP_DEV=$(sudo -p "$sudo_message" $sudo_command \
-				2>/dev/null); then
-				fatal_error "loop device setup unsuccessful!" \
-				            "try calling '$sudo_command' with root" \
-				            "permissions manually."
-			fi
-		fi
-		KAS_WITH_LOOP_DEV="--device ${KAS_LOOP_DEV}"
 		shift 1
 		;;
 	--runtime-args | --docker-args)
@@ -768,7 +740,7 @@ fi
 
 # SC2086: Double quote to prevent globbing and word splitting.
 # shellcheck disable=2086
-set -- "$@" ${KAS_ISAR_ARGS} ${KAS_WITH_LOOP_DEV} ${KAS_RUNTIME_ARGS} \
+set -- "$@" ${KAS_ISAR_ARGS} ${KAS_RUNTIME_ARGS} \
     ${KAS_CONTAINER_IMAGE} ${KAS_OPTIONS_DIRECT} ${KAS_CMD} ${KAS_OPTIONS}
 if [ -n "${KAS_BITBAKE_C_OPTION_ARGS}" ]; then
 	set -- "$@" -c "${KAS_BITBAKE_C_OPTION_ARGS}"
