@@ -321,6 +321,7 @@ set_container_image_var()
 # parse kas-container options, leave build system empty to distinguish between
 # explicitly set via flag and implicitly via config.
 BUILD_SYSTEM=""
+KAS_OPTIONS_DIRECT=""
 while [ $# -gt 0 ]; do
 	case "$1" in
 	--isar)
