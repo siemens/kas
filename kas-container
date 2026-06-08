@@ -316,15 +316,6 @@ enable_docker_rootless()
 	KAS_RUNTIME_ARGS="${KAS_RUNTIME_ARGS} -e KAS_DOCKER_ROOTLESS=1"
 }
 
-KAS_GIT_OVERLAY_FILE=""
-kas_container_cleanup()
-{
-	if [ -f "${KAS_GIT_OVERLAY_FILE}" ]; then
-		trace rm -f "${KAS_GIT_OVERLAY_FILE}"
-	fi
-}
-trap kas_container_cleanup EXIT INT TERM
-
 set_container_image_var()
 {
 	# if the image is explicitly set, use that
@@ -647,6 +638,16 @@ forward_dir KAS_BUILDTOOLS_DIR "/buildtools" "rw"
 
 if git_com_dir=$(git -C "${KAS_REPO_DIR}" rev-parse --git-common-dir 2>/dev/null) \
 	&& [ "$git_com_dir" != "$(git -C "${KAS_REPO_DIR}" rev-parse --git-dir)" ]; then
+
+	KAS_GIT_OVERLAY_FILE=""
+	kas_container_cleanup()
+	{
+		if [ -f "${KAS_GIT_OVERLAY_FILE}" ]; then
+			trace rm -f "${KAS_GIT_OVERLAY_FILE}"
+		fi
+	}
+	trap kas_container_cleanup EXIT INT TERM
+
 	# If (it's a git repo) and the common dir isn't the git-dir, it is shared worktree and
 	# we have to mount the common dir in the container to make git work
 	# The mount path inside the container is different from the host path. Hence, we over-mount
