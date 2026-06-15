@@ -229,3 +229,6 @@ Added
 - Extend the allowed values of ``build_system`` by adding ``isar-privileged``
   and ``isar-rootless``.
 - The repo key ``url`` can now be overridden.
+- The repo key ``commit`` can now be overriden with a null-value in such a way
+  that the head of a given branch is used instead of the commit's default
+  value.

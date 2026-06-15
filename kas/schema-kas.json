@@ -141,7 +141,7 @@
                                 "type": ["string", "null"]
                             },
                             "commit": {
-                                "type": "string"
+                                "type": ["string", "null"]
                             },
                             "url": {
                                 "type": "string"
