@@ -142,6 +142,9 @@
                             },
                             "commit": {
                                 "type": "string"
+                            },
+                            "url": {
+                                "type": "string"
                             }
                         }
                     }
