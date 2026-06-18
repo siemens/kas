@@ -453,34 +453,7 @@ while [ $# -gt 0 ]; do
 	esac
 done
 
-KAS_CONTAINER_ENGINE="${KAS_CONTAINER_ENGINE:-${KAS_DOCKER_ENGINE}}"
-if [ -z "${KAS_CONTAINER_ENGINE}" ]; then
-	# Try to auto-detect a container engine
-	if command -v docker >/dev/null 2>&1 && docker -v 2>/dev/null | grep -q '^Docker'; then
-		KAS_CONTAINER_ENGINE=docker
-	elif command -v podman >/dev/null 2>&1; then
-		KAS_CONTAINER_ENGINE=podman
-	else
-		fatal_error "no container engine found, need docker or podman"
-	fi
-fi
-
 KAS_RUNTIME_ARGS="--log-driver=none --user=root"
-
-case "${KAS_CONTAINER_ENGINE}" in
-docker)
-	KAS_CONTAINER_COMMAND="docker"
-	enable_unpriv_userns_docker
-	check_docker_rootless
-	;;
-podman)
-	KAS_CONTAINER_COMMAND="podman"
-	KAS_RUNTIME_ARGS="${KAS_RUNTIME_ARGS} --security-opt label=disable"
-	;;
-*)
-	fatal_error "unknown container engine '${KAS_CONTAINER_ENGINE}'"
-	;;
-esac
 
 setup_kas_dirs
 
@@ -575,6 +548,33 @@ else
 	BUILD_SYSTEM=${BUILD_SYSTEM:-$(grep -e "^build_system: " "${_KAS_FIRST_FILE}" 2>/dev/null |
 		sed 's/build_system:[ ]\+//')}
 fi
+
+KAS_CONTAINER_ENGINE="${KAS_CONTAINER_ENGINE:-${KAS_DOCKER_ENGINE}}"
+if [ -z "${KAS_CONTAINER_ENGINE}" ]; then
+	# Try to auto-detect a container engine
+	if command -v docker >/dev/null 2>&1 && docker -v 2>/dev/null | grep -q '^Docker'; then
+		KAS_CONTAINER_ENGINE=docker
+	elif command -v podman >/dev/null 2>&1; then
+		KAS_CONTAINER_ENGINE=podman
+	else
+		fatal_error "no container engine found, need docker or podman"
+	fi
+fi
+
+case "${KAS_CONTAINER_ENGINE}" in
+docker)
+	KAS_CONTAINER_COMMAND="docker"
+	enable_unpriv_userns_docker
+	check_docker_rootless
+	;;
+podman)
+	KAS_CONTAINER_COMMAND="podman"
+	KAS_RUNTIME_ARGS="${KAS_RUNTIME_ARGS} --security-opt label=disable"
+	;;
+*)
+	fatal_error "unknown container engine '${KAS_CONTAINER_ENGINE}'"
+	;;
+esac
 
 if [ "${BUILD_SYSTEM}" = "isar" ] || [ "${BUILD_SYSTEM}" = "isar-privileged" ]; then
 	enable_isar_mode
