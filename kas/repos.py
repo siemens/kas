@@ -298,7 +298,7 @@ class Repo:
                     'Unsupported mixture of legacy refspec and '
                     f'commit/tag/branch for repository "{name}"')
             refspec = repo_overrides.get('commit', refspec)
-        if not commit and name not in Repo.__no_commit_warned__ \
+        if url and not commit and name not in Repo.__no_commit_warned__ \
                 and get_context().unpinned_repo_warnings:
             if tag:
                 logging.warning('Using tag without commit for repository '
