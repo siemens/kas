@@ -552,7 +552,11 @@ fi
 KAS_CONTAINER_ENGINE="${KAS_CONTAINER_ENGINE:-${KAS_DOCKER_ENGINE}}"
 if [ -z "${KAS_CONTAINER_ENGINE}" ]; then
 	# Try to auto-detect a container engine
-	if command -v docker >/dev/null 2>&1 && docker -v 2>/dev/null | grep -q '^Docker'; then
+	# Defaults if there are multiple options:
+	# podman if build system is isar-rootless, docker otherwise
+	if [ "${BUILD_SYSTEM}" = "isar-rootless" ] && command -v podman >/dev/null 2>&1; then
+		KAS_CONTAINER_ENGINE=podman
+	elif command -v docker >/dev/null 2>&1 && docker -v 2>/dev/null | grep -q '^Docker'; then
 		KAS_CONTAINER_ENGINE=docker
 	elif command -v podman >/dev/null 2>&1; then
 		KAS_CONTAINER_ENGINE=podman
