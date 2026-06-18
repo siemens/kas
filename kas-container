@@ -484,8 +484,6 @@ esac
 
 setup_kas_dirs
 
-KAS_RUNTIME_ARGS="${KAS_RUNTIME_ARGS}${KAS_EXTRA_RUNTIME_ARGS}"
-
 [ -n "${KAS_CMD}" ] || usage
 
 KAS_EXTRA_BITBAKE_ARGS=0
@@ -781,7 +779,7 @@ fi
 
 # SC2086: Double quote to prevent globbing and word splitting.
 # shellcheck disable=2086
-set -- "$@" ${KAS_ISAR_ARGS} ${KAS_RUNTIME_ARGS} \
+set -- "$@" ${KAS_ISAR_ARGS} ${KAS_RUNTIME_ARGS} ${KAS_EXTRA_RUNTIME_ARGS} \
     ${KAS_CONTAINER_IMAGE} ${KAS_OPTIONS_DIRECT} ${KAS_CMD} ${KAS_OPTIONS}
 if [ -n "${KAS_BITBAKE_C_OPTION_ARGS}" ]; then
 	set -- "$@" -c "${KAS_BITBAKE_C_OPTION_ARGS}"
