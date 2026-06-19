@@ -328,6 +328,7 @@ set_container_image_var()
 # explicitly set via flag and implicitly via config.
 BUILD_SYSTEM=""
 KAS_OPTIONS_DIRECT=""
+KAS_EXTRA_RUNTIME_ARGS=""
 while [ $# -gt 0 ]; do
 	case "$1" in
 	--isar | --isar-privileged)
