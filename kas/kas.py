@@ -163,7 +163,7 @@ def kas_get_argparser():
                         default=f'{DEFAULT_LOG_LEVEL}',
                         help=f'Set log level (default: {DEFAULT_LOG_LEVEL})')
 
-    subparser = parser.add_subparsers(help='sub command help', dest='cmd')
+    subparser = parser.add_subparsers(dest='cmd')
 
     for plugin in plugins.all():
         plugin_parser = subparser.add_parser(
