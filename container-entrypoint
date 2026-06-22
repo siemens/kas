@@ -2,7 +2,7 @@
 #
 # kas - setup tool for bitbake based projects
 #
-# Copyright (c) Siemens AG, 2017-2023
+# Copyright (c) Siemens AG, 2017-2026
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,16 +22,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-enable_qemu_binfmts()
+do_enable_qemu_binfmts()
 {
 	if ! [ -f /proc/sys/fs/binfmt_misc/status ]; then
-		sudo mount -t binfmt_misc null /proc/sys/fs/binfmt_misc
+		sudo mount -t binfmt_misc null /proc/sys/fs/binfmt_misc || return
 	fi
 	for CONF in /usr/lib/binfmt.d/qemu-*.conf; do
 		if ! [ -f /proc/sys/fs/binfmt_misc/"$(basename "${CONF%%.conf}")" ]; then
-			sudo sh -c "cat '$CONF' > /proc/sys/fs/binfmt_misc/register"
+			sudo sh -c "cat '$CONF' > /proc/sys/fs/binfmt_misc/register" || return
 		fi
 	done
+}
+
+enable_qemu_binfmts()
+{
+	if ! do_enable_qemu_binfmts; then
+		echo "kas-container: failed to set up binfmt_misc" >&2
+		exit 1
+	fi
 }
 
 # For rootless nesting of the uid_ns, we need to provide a list of sub
