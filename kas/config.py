@@ -54,6 +54,8 @@ class Config:
                           for configfile in filename.split(':')]
 
         update = ctx.args.update if hasattr(ctx.args, 'update') else False
+        if update:
+            ctx.unpinned_repo_warnings = False
 
         self.handler = IncludeHandler(self.filenames, not update)
         self.repo_dict = {}
