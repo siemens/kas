@@ -406,14 +406,19 @@ Configuration reference
   :kasschemadesc:`overrides`
 
   ``repos``: dict [optional]
-    Maps to the top-level ``repos`` entry.
+    :kasschemadesc:`overrides.properties.repos`
 
     ``<repo-id>``: dict [optional]
-      Maps to the ``<repo-id>`` entry.
+      :kasschemadesc:`overrides.properties.repos.additionalProperties`
 
-    ``commit``: string [optional]
-      Pinned commit ID which overrides the ``commit`` of the corresponding
-      repo.
+      ``branch``: string [optional]
+        :kasschemadesc:`overrides.properties.repos.additionalProperties.properties.branch`
+
+      ``commit``: string [optional]
+        :kasschemadesc:`overrides.properties.repos.additionalProperties.properties.commit`
+
+      ``url``: string [optional]
+        :kasschemadesc:`overrides.properties.repos.additionalProperties.properties.url`
 
 ``bblayers_conf_header``: dict [optional]
   :kasschemadesc:`bblayers_conf_header`
