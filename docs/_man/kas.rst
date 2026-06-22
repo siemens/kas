@@ -34,7 +34,7 @@ For details, see :manpage:`kas-credentials(1)`.
 ENVIRONMENT VARIABLES
 ---------------------
 
-.. include:: ../command-line/environment-variables.inc
+.. include:: ../userguide/environment-variables.inc
 
 SEE ALSO
 --------

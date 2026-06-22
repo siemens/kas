@@ -6,7 +6,6 @@ Welcome to the kas documentation, a setup tool for bitbake based projects
 
    intro
    userguide
-   command-line
    devguide
    format-changelog
 
