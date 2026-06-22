@@ -3,13 +3,20 @@ Building in a Container
 
 .. include:: kas-container-description.inc
 
-.. include:: ../_build/kas-container-usage-synopsis.inc
+Synopsis
+--------
 
-.. include:: ../_build/kas-container-usage-options.inc
+.. kas-container-usage:: synopsis
+
+kas-container Commands
+----------------------
+
+.. kas-container-usage:: commands
+
+Options
+-------
+
+.. kas-container-usage:: options
 
 .. include:: aws-sso-warning.inc
-
-.. |SYNOPSIS| replace:: Synopsis
-.. |OPTIONS| replace:: Options
-.. |KAS-COMMANDS| replace:: kas-container Commands
 .. |AWS_CONFIG_SOURCE| replace:: ``--aws-dir ~/.aws``

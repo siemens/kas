@@ -43,7 +43,8 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinxarg.ext',
     'sphinx_rtd_theme',
-    'sphinx_kas_schema'
+    'sphinx_kas_schema',
+    'sphinx_kas_container_usage'
 ]
 
 # Add any paths that contain templates here, relative to this directory.

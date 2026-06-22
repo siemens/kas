@@ -3,14 +3,25 @@
 kas-container manpage
 =====================
 
-.. include:: ../_build/kas-container-usage-synopsis.inc
+SYNOPSIS
+--------
+
+.. kas-container-usage:: synopsis
 
 DESCRIPTION
 -----------
 
 .. include:: ../userguide/kas-container-description.inc
 
-.. include:: ../_build/kas-container-usage-options.inc
+KAS-CONTAINER COMMANDS
+----------------------
+
+.. kas-container-usage:: commands
+
+OPTIONS
+-------
+
+.. kas-container-usage:: options
 
 SEE ALSO
 --------
@@ -18,7 +29,3 @@ SEE ALSO
 :manpage:`kas(1)`,
 
 .. include:: _kas-man-footer.inc
-
-.. |SYNOPSIS| replace:: SYNOPSIS
-.. |OPTIONS| replace:: OPTIONS
-.. |KAS-COMMANDS| replace:: KAS-CONTAINER COMMANDS

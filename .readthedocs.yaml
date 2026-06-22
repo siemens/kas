@@ -28,11 +28,6 @@ build:
     python: "3.12"
   apt_packages:
     - python3-newt
-    - make
-    - podman
-  jobs:
-    pre_build:
-      - cd docs && make kas-container-usage && cd ..
 
 python:
   install:
