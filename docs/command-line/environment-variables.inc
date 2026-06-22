@@ -246,7 +246,8 @@ overwritten using the ``env`` section of the config file.
 .. |aws_cred| replace:: ``AWS_ROLE_ARN``
                         ``AWS_SHARED_CREDENTIALS_FILE``
                         ``AWS_WEB_IDENTITY_TOKEN_FILE``
-.. |git_cred| replace:: ``GIT_CREDENTIAL_HELPER`` ``GIT_CREDENTIAL_USEHTTPPATH``
+.. |git_cred| replace:: ``GIT_CREDENTIAL_HELPER``
+                        ``GIT_CREDENTIAL_USEHTTPPATH``
 .. |kas_git_cred_store| replace:: ``KAS_GIT_CREDENTIAL_STORE``
 .. |kas_git_cred_socket| replace:: ``KAS_GIT_CREDENTIAL_SOCKET``
 .. |ci_server_vars| replace:: ``CI_SERVER_HOST``
