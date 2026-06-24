@@ -230,44 +230,61 @@ class SetupHome(Command):
     def _setup_netrc(self):
         netrc_file = self._path_from_env('NETRC_FILE')
         if netrc_file:
-            shutil.copy(netrc_file, self.tmpdirname + "/.netrc")
+            netrc_path = self.tmpdirname + "/.netrc"
+            shutil.copy(netrc_file, netrc_path)
+            os.chmod(netrc_path, 0o600)
         if os.environ.get('CI_SERVER_HOST', False) \
                 and os.environ.get('CI_JOB_TOKEN', False):
-            with open(self.tmpdirname + '/.netrc', 'a') as fds:
+            netrc_path = self.tmpdirname + '/.netrc'
+            with open(netrc_path, 'a') as fds:
                 fds.write('machine ' + os.environ['CI_SERVER_HOST'] + '\n'
                           'login gitlab-ci-token\n'
                           'password ' + os.environ['CI_JOB_TOKEN'] + '\n')
+            os.chmod(netrc_path, 0o600)
 
     def _setup_npmrc(self):
         npmrc_file = self._path_from_env('NPMRC_FILE')
         if not npmrc_file:
             return
-        shutil.copy(npmrc_file, self.tmpdirname + "/.npmrc")
+        npmrc_path = self.tmpdirname + "/.npmrc"
+        try:
+            shutil.copy(npmrc_file, npmrc_path)
+            os.chmod(npmrc_path, 0o600)
+        except (OSError, shutil.Error) as e:
+            logging.warning('Failed to setup npmrc: %s', e)
 
     def _setup_registry_auth(self):
         os.makedirs(self.tmpdirname + "/.docker")
         reg_auth_file = self._path_from_env('REGISTRY_AUTH_FILE')
+        config_json = self.tmpdirname + '/.docker/config.json'
         if reg_auth_file:
-            shutil.copy(reg_auth_file,
-                        self.tmpdirname + "/.docker/config.json")
-        elif not os.path.exists(self.tmpdirname + '/.docker/config.json'):
-            with open(self.tmpdirname + '/.docker/config.json', 'w') as fds:
+            try:
+                shutil.copy(reg_auth_file, config_json)
+                os.chmod(config_json, 0o600)
+            except (OSError, shutil.Error) as e:
+                logging.warning('Failed to copy registry auth: %s', e)
+        elif not os.path.exists(config_json):
+            with open(config_json, 'w') as fds:
                 fds.write("{}")
 
         if os.environ.get('CI_REGISTRY', False) \
                 and os.environ.get('CI_JOB_TOKEN', False) \
                 and os.environ.get('CI_REGISTRY_USER', False):
-            with open(self.tmpdirname + '/.docker/config.json', 'r+') as fds:
-                data = json.loads(fds.read())
-                token = os.environ['CI_JOB_TOKEN']
-                base64_token = base64.b64encode(token.encode()).decode()
-                auths = data.get('auths', {})
-                auths.update(
-                    {os.environ['CI_REGISTRY']: {"auth": base64_token}})
-                data['auths'] = auths
-                fds.seek(0)
-                fds.write(json.dumps(data, indent=4))
-                fds.truncate()
+            try:
+                with open(config_json, 'r+') as fds:
+                    data = json.loads(fds.read())
+                    token = os.environ['CI_JOB_TOKEN']
+                    base64_token = base64.b64encode(token.encode()).decode()
+                    auths = data.get('auths', {})
+                    auths.update(
+                        {os.environ['CI_REGISTRY']: {"auth": base64_token}})
+                    data['auths'] = auths
+                    fds.seek(0)
+                    fds.write(json.dumps(data, indent=4))
+                    fds.truncate()
+                os.chmod(config_json, 0o600)
+            except (OSError, json.JSONDecodeError) as e:
+                logging.warning('Failed to update registry auth: %s', e)
 
     def _setup_aws_creds(self):
         aws_dir = self.tmpdirname + "/.aws"
@@ -279,8 +296,13 @@ class SetupHome(Command):
         aws_shared_creds_file = \
             self._path_from_env('AWS_SHARED_CREDENTIALS_FILE')
         if aws_conf_file and aws_shared_creds_file:
-            shutil.copy(aws_conf_file, conf_file)
-            shutil.copy(aws_shared_creds_file, shared_creds_file)
+            try:
+                shutil.copy(aws_conf_file, conf_file)
+                os.chmod(conf_file, 0o600)
+                shutil.copy(aws_shared_creds_file, shared_creds_file)
+                os.chmod(shared_creds_file, 0o600)
+            except (OSError, shutil.Error) as e:
+                logging.warning('Failed to copy AWS credentials: %s', e)
 
         # OAuth 2.0 workflow credentials
         aws_web_identity_token_file = \
@@ -383,12 +405,14 @@ class SetupHome(Command):
         if not self.tmpdirname:
             self.tmpdirname = tempfile.mkdtemp()
         def_umask = os.umask(0o077)
-        self._setup_netrc()
-        self._setup_npmrc()
-        self._setup_registry_auth()
-        self._setup_gitconfig()
-        self._setup_aws_creds()
-        os.umask(def_umask)
+        try:
+            self._setup_netrc()
+            self._setup_npmrc()
+            self._setup_registry_auth()
+            self._setup_gitconfig()
+            self._setup_aws_creds()
+        finally:
+            os.umask(def_umask)
 
         ctx.environ['HOME'] = self.tmpdirname
 
