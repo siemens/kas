@@ -1,3 +1,23 @@
+5.4
+- kas: only disable ssh host key checking in CI environments (CVE-2026-54548)
+- kas: add support for isar-rootless build system
+- kas: allow overriding the url property
+- kas: allow overrides to remove commit ID
+- kas: consistently use openembedded as default build_system
+- kas: Suppress unpinned repo warnings when running lock plugin
+- kas: Do not warn about unpinned local repos
+- kas: Do not warn about unpinned repos on enforced update
+- kas: Avoid GPG warning on check if key is cached
+- kas-container: add git credential cache socket support
+- kas-container: let buildsystem set via CLI take precedence
+- kas-container: Prefer podman over docker for new isar-rootless build mode
+- kas-container: Fail container start if binfmt_misc cannot be initialized
+- kas-container: Drop support for loop device
+- kas-container: show --help also in absence of container engine
+- kas-container: Avoid directory creations for only showing --help
+- kas-container: Ensure that --runtime-args are always appended last
+- docs: Fold Command Line Usage section into User Guide
+
 5.3
 - kas: git: Avoid checking out sha-like branches as commits (CVE-2026-47191)
 - kas: verify signatures prior to checkout (CVE-2026-47192)
