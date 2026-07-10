@@ -147,8 +147,8 @@
                                 "type": ["string", "null"]
                             },
                             "url": {
-                                "description": "Alternative URL for the corresponding repo.",
-                                "type": "string"
+                                "description": "Alternative URL for the corresponding repo. Can be Null",
+                                "type": ["string", "null"]
                             }
                         }
                     }
