@@ -782,8 +782,14 @@ fi
 
 # SC2086: Double quote to prevent globbing and word splitting.
 # shellcheck disable=2086
-set -- "$@" ${KAS_ISAR_ARGS} ${KAS_RUNTIME_ARGS} ${KAS_EXTRA_RUNTIME_ARGS} \
-    ${KAS_CONTAINER_IMAGE} ${KAS_OPTIONS_DIRECT} ${KAS_CMD} ${KAS_OPTIONS}
+set -- "$@" ${KAS_ISAR_ARGS} ${KAS_RUNTIME_ARGS}
+# eval so that quoting inside --runtime-args values is honored, allowing
+# runtime arguments whose values contain spaces, e.g.
+#   --runtime-args "--device-cgroup-rule 'b 7:* rmw'"
+eval "set -- \"\$@\" ${KAS_EXTRA_RUNTIME_ARGS}"
+# SC2086: Double quote to prevent globbing and word splitting.
+# shellcheck disable=2086
+set -- "$@" ${KAS_CONTAINER_IMAGE} ${KAS_OPTIONS_DIRECT} ${KAS_CMD} ${KAS_OPTIONS}
 if [ -n "${KAS_BITBAKE_C_OPTION_ARGS}" ]; then
 	set -- "$@" -c "${KAS_BITBAKE_C_OPTION_ARGS}"
 fi
