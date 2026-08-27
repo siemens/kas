@@ -273,8 +273,10 @@ class SetupHome(Command):
             try:
                 with open(config_json, 'r+') as fds:
                     data = json.loads(fds.read())
+                    user = os.environ['CI_REGISTRY_USER']
                     token = os.environ['CI_JOB_TOKEN']
-                    base64_token = base64.b64encode(token.encode()).decode()
+                    base64_token = base64.b64encode(
+                        f'{user}:{token}'.encode()).decode()
                     auths = data.get('auths', {})
                     auths.update(
                         {os.environ['CI_REGISTRY']: {"auth": base64_token}})
