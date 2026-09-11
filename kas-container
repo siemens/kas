@@ -238,8 +238,19 @@ check_and_expand()
 # shellcheck disable=2034
 setup_kas_dirs()
 {
+	# Use a stable umask for directories created by kas-container, without
+	# affecting permissions on user-provided directories.
+	umask 0022
+	KAS_WORK_DIR_HAS_S_IXOTH=1
 	KAS_WORK_DIR="${KAS_WORK_DIR:-$(pwd)}"
 	KAS_WORK_DIR="$(check_and_expand KAS_WORK_DIR required)"
+	# If KAS_WORK_DIR is not traversable by other users (e.g. chmod 700),
+	# the build user inside the container cannot reach directories located
+	# below it via /work. Force such directories into dedicated mounts.
+	if [ -z "$(find "${KAS_WORK_DIR}" -maxdepth 0 -perm -0001 2>/dev/null)" ]; then
+		KAS_WORK_DIR_HAS_S_IXOTH=0
+		KAS_BUILD_DIR=${KAS_BUILD_DIR:-${KAS_WORK_DIR}/build}
+	fi
 	KAS_BUILD_DIR="$(check_and_expand KAS_BUILD_DIR create)"
 	KAS_REPO_REF_DIR="$(check_and_expand KAS_REPO_REF_DIR required)"
 	DL_DIR="$(check_and_expand DL_DIR createrec)"
@@ -291,8 +302,9 @@ forward_dir()
 	eval _varval=\"\$"$1"\"
 	[ -z "$_varval" ] && return
 	FW_DIR_REL=$(realpath -q --relative-base="${KAS_WORK_DIR}" "$_varval")
-	if [ "${FW_DIR_REL}" = "$_varval" ]; then
-		KAS_RUNTIME_ARGS="${KAS_RUNTIME_ARGS} -v ${FW_DIR_REL}:$2:$3 -e $1=$2"
+	if [ "${FW_DIR_REL}" = "$_varval" ] || [ "${KAS_WORK_DIR_HAS_S_IXOTH}" = "0" ]; then
+		# varval always contains an absolute path, which ensures podman uses a bind-mount
+		KAS_RUNTIME_ARGS="${KAS_RUNTIME_ARGS} -v ${_varval}:$2:$3 -e $1=$2"
 	else
 		KAS_RUNTIME_ARGS="${KAS_RUNTIME_ARGS} -e $1=/work/${FW_DIR_REL}"
 	fi
