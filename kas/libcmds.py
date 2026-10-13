@@ -353,7 +353,8 @@ class SetupHome(Command):
         if gitconfig_host:
             shutil.copy(gitconfig_host, gitconfig_kas)
 
-        with GitConfigParser(gitconfig_kas, read_only=False) as config:
+        with GitConfigParser(gitconfig_kas, read_only=False,
+                             merge_includes=False) as config:
             if os.environ.get('GIT_CREDENTIAL_HELPER', False):
                 config['credential'] = {
                     'helper': os.environ.get('GIT_CREDENTIAL_HELPER')
@@ -540,7 +541,7 @@ class ReposApplyPatches(Command):
 
     def _vcs_operate_as_kas(self, gitconfig):
         # currently only implemented for git
-        with GitConfigParser(gitconfig, read_only=False) as config:
+        with GitConfigParser(gitconfig) as config:
             # in case no user is defined, we keep the kas user
             user_orig = {
                 'name': config.get('user', 'name',
@@ -548,14 +549,17 @@ class ReposApplyPatches(Command):
                 'email': config.get('user', 'email',
                                     fallback=KAS_USER_EMAIL)
             }
+        with GitConfigParser(gitconfig, read_only=False,
+                             merge_includes=False) as config:
             config.set_value('user', 'name', KAS_USER_NAME)
             config.set_value('user', 'email', KAS_USER_EMAIL)
             config.write()
-            return user_orig
+        return user_orig
 
     def _vcs_restore_user(self, gitconfig, user):
         # currently only implemented for git
-        with GitConfigParser(gitconfig, read_only=False) as config:
+        with GitConfigParser(gitconfig, read_only=False,
+                             merge_includes=False) as config:
             config['user'] = user
             config.write()
 
