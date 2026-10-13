@@ -85,3 +85,34 @@ def test_gitconfig(monkeykas, tmpdir, capsys):
     with open(f'{tdir}/url', 'r') as f:
         assert f.readline().strip() == 'git://github'
         assert f.readline().strip() == 'git://github.io'
+
+
+@pytest.mark.dirsfromenv
+def test_gitconfig_include(monkeykas, tmpdir):
+    tdir = str(tmpdir / 'test_gitconfig_include')
+    shutil.copytree('tests/test_build_system', tdir)
+    monkeykas.chdir(tdir)
+
+    with open(f'{tdir}/gitconfig-included', 'w') as f:
+        f.write('[user]\n')
+        f.write('\temail = included@kastest.io\n')
+        f.write('[url "git@github.com:"]\n')
+        f.write('\tinsteadOf = git://github\n')
+    monkeykas.setenv('GITCONFIG_FILE', f'{tdir}/gitconfig')
+    with open(f'{tdir}/gitconfig', 'w') as f:
+        f.write('[include]\n')
+        f.write(f'\tpath = {tdir}/gitconfig-included\n')
+    kas.kas(['shell', 'test-oe.yml', '-c',
+             f'git config --get user.name > {tdir}/user.name; '
+             f'git config --get user.email > {tdir}/user.email; '
+             'git config --get "url.git@github.com:.insteadof" '
+             f'> {tdir}/url'])
+    # the kas user is injected into a .gitconfig that includes another file
+    with open(f'{tdir}/user.name', 'r') as f:
+        assert f.readline().strip() == 'kas User'
+    # and a user from the included file is restored after patching
+    with open(f'{tdir}/user.email', 'r') as f:
+        assert f.readline().strip() == 'included@kastest.io'
+    # and the included file still applies
+    with open(f'{tdir}/url', 'r') as f:
+        assert f.readline().strip() == 'git://github'
