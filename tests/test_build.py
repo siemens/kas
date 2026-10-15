@@ -23,6 +23,8 @@
 import shutil
 import pytest
 import json
+import os
+import sys
 from kas import kas
 from kas.kasusererror import ArtifactNotFoundError
 
@@ -68,3 +70,23 @@ def test_provenance(monkeykas, tmpdir):
         assert params['env']['CAPTURE_THIS'] == 'OK Sir!'
         assert prov['subject'][0]['name'] == 'bitbake.options'
         assert prov['subject'][0]['digest']['sha256'] == BITBAKE_OPTIONS_SHA256
+
+
+def test_build_piped_long_line(monkeykas, tmpdir, caplog):
+    tdir = str(tmpdir / 'test_build')
+    shutil.copytree('tests/test_build', tdir)
+    monkeykas.chdir(tdir)
+    with open('long-line.yml', 'w') as f:
+        f.write('header:\n  version: 17\nrepos:\n  this:\n')
+    with open('bitbake', 'w') as f:
+        f.write('#!/bin/sh\n')
+        f.write('echo before\n')
+        f.write('head -c 100000 /dev/zero | tr "\\0" x; echo\n')
+        f.write('echo after\n')
+    os.chmod('bitbake', 0o755)
+
+    monkeykas.setattr(sys.stdout, 'isatty', lambda: False)
+    caplog.set_level('INFO')
+    kas.kas(['build', 'long-line.yml'])
+    assert 'x' * 100_000 in caplog.messages
+    assert 'after' in caplog.messages

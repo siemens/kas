@@ -103,17 +103,27 @@ async def _read_stream(stream, callback):
         This asynchronous method reads from the output stream of the
         application and transfers each line to the callback function.
     """
-    while True:
-        line = await stream.readline()
+    def emit(line):
         try:
             line = line.decode('utf-8')
         except UnicodeDecodeError as err:
             logging.warning('Could not decode line from stream, ignoring: %s',
                             err)
-        if line:
-            callback(line)
-        else:
+        callback(line)
+
+    pending = bytearray()
+    while True:
+        # stream.readline() can lose data if the line is too large, so we
+        # chunk it into lines ourselves.
+        data = await stream.read(2 ** 16)
+        if not data:
             break
+        pending += data
+        *lines, pending = pending.split(b'\n')
+        for line in lines:
+            emit(line + b'\n')
+    if pending:
+        emit(pending)
 
 
 def _filter_stderr(capture_stderr, ret, out, err=None):
