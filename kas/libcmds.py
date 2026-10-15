@@ -230,7 +230,7 @@ class SetupHome(Command):
     def _setup_netrc(self):
         netrc_file = self._path_from_env('NETRC_FILE')
         if netrc_file:
-            shutil.copy(netrc_file, self.tmpdirname + "/.netrc")
+            shutil.copyfile(netrc_file, self.tmpdirname + "/.netrc")
         if os.environ.get('CI_SERVER_HOST', False) \
                 and os.environ.get('CI_JOB_TOKEN', False):
             with open(self.tmpdirname + '/.netrc', 'a') as fds:
@@ -242,14 +242,14 @@ class SetupHome(Command):
         npmrc_file = self._path_from_env('NPMRC_FILE')
         if not npmrc_file:
             return
-        shutil.copy(npmrc_file, self.tmpdirname + "/.npmrc")
+        shutil.copyfile(npmrc_file, self.tmpdirname + "/.npmrc")
 
     def _setup_registry_auth(self):
         os.makedirs(self.tmpdirname + "/.docker")
         reg_auth_file = self._path_from_env('REGISTRY_AUTH_FILE')
         if reg_auth_file:
-            shutil.copy(reg_auth_file,
-                        self.tmpdirname + "/.docker/config.json")
+            shutil.copyfile(reg_auth_file,
+                            self.tmpdirname + "/.docker/config.json")
         elif not os.path.exists(self.tmpdirname + '/.docker/config.json'):
             with open(self.tmpdirname + '/.docker/config.json', 'w') as fds:
                 fds.write("{}")
@@ -279,8 +279,8 @@ class SetupHome(Command):
         aws_shared_creds_file = \
             self._path_from_env('AWS_SHARED_CREDENTIALS_FILE')
         if aws_conf_file and aws_shared_creds_file:
-            shutil.copy(aws_conf_file, conf_file)
-            shutil.copy(aws_shared_creds_file, shared_creds_file)
+            shutil.copyfile(aws_conf_file, conf_file)
+            shutil.copyfile(aws_shared_creds_file, shared_creds_file)
 
         # OAuth 2.0 workflow credentials
         aws_web_identity_token_file = \
@@ -296,7 +296,7 @@ class SetupHome(Command):
             config['default']['web_identity_token_file'] = webid_token_file
             with open(aws_dir + '/config', 'w') as fds:
                 config.write(fds)
-            shutil.copy(aws_web_identity_token_file, webid_token_file)
+            shutil.copyfile(aws_web_identity_token_file, webid_token_file)
 
         # SSO workflow
         if aws_conf_file:
@@ -315,7 +315,7 @@ class SetupHome(Command):
                 aws_cache_dir = aws_cache_dir_home
 
             if aws_cache_dir:
-                shutil.copy(aws_conf_file, conf_file)
+                shutil.copyfile(aws_conf_file, conf_file)
                 shutil.copytree(aws_cache_dir, sso_cache_dir)
 
     @staticmethod
@@ -383,12 +383,14 @@ class SetupHome(Command):
         if not self.tmpdirname:
             self.tmpdirname = tempfile.mkdtemp()
         def_umask = os.umask(0o077)
-        self._setup_netrc()
-        self._setup_npmrc()
-        self._setup_registry_auth()
-        self._setup_gitconfig()
-        self._setup_aws_creds()
-        os.umask(def_umask)
+        try:
+            self._setup_netrc()
+            self._setup_npmrc()
+            self._setup_registry_auth()
+            self._setup_gitconfig()
+            self._setup_aws_creds()
+        finally:
+            os.umask(def_umask)
 
         ctx.environ['HOME'] = self.tmpdirname
 

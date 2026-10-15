@@ -22,6 +22,7 @@
 # SOFTWARE.
 
 import os
+import stat
 import shutil
 import pathlib
 import subprocess
@@ -29,6 +30,7 @@ import re
 import pytest
 import json
 import logging
+from types import SimpleNamespace
 from kas import kas
 from kas.context import create_global_context
 from kas.kasusererror import ArgsCombinationError, EnvSetButNotFoundError
@@ -235,6 +237,7 @@ def test_env_file_processing(monkeykas, tmpdir):
                     json.dump({'auths': {'example.com': {'auth': 'foo'}}}, f)
                 else:
                     f.write('foo: bar\n')
+            os.chmod(local_file, 0o644)
             mp.setenv(name, str(local_file))
             if name in ['AWS_CONFIG_FILE', 'AWS_WEB_IDENTITY_TOKEN_FILE']:
                 mp.setenv('AWS_SHARED_CREDENTIALS_FILE', str(local_file))
@@ -247,7 +250,9 @@ def test_env_file_processing(monkeykas, tmpdir):
                 mp.setenv('CI_REGISTRY', 'example.com')
             sh = SetupHome()
             sh.execute(ctx)
-            assert (pathlib.Path(sh.tmpdirname) / pathlib.Path(file)).exists()
+            copied_file = pathlib.Path(sh.tmpdirname) / file
+            assert copied_file.exists()
+            assert stat.S_IMODE(copied_file.stat().st_mode) == 0o600
 
 
 def test_env_set_but_not_existing(monkeykas):
@@ -277,3 +282,16 @@ def test_kas_container_version(monkeykas, caplog):
         create_global_context([])
         assert 'versions do not match' in caplog.text
         caplog.clear()
+
+
+def test_setup_home_restores_umask_on_failure(monkeykas):
+    previous_umask = os.umask(0o027)
+    try:
+        with monkeykas.context() as mp:
+            mp.setenv('NETRC_FILE', '/path/does/not/exist')
+            ctx = create_global_context(SimpleNamespace(no_color=False))
+            with pytest.raises(EnvSetButNotFoundError):
+                SetupHome().execute(ctx)
+            assert os.umask(0o027) == 0o027
+    finally:
+        os.umask(previous_umask)
