@@ -260,7 +260,9 @@ class SetupHome(Command):
             with open(self.tmpdirname + '/.docker/config.json', 'r+') as fds:
                 data = json.loads(fds.read())
                 token = os.environ['CI_JOB_TOKEN']
-                base64_token = base64.b64encode(token.encode()).decode()
+                user = os.environ['CI_REGISTRY_USER']
+                base64_token = base64.b64encode(
+                    f'{user}:{token}'.encode()).decode()
                 auths = data.get('auths', {})
                 auths.update(
                     {os.environ['CI_REGISTRY']: {"auth": base64_token}})

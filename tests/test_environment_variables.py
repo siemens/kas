@@ -22,6 +22,7 @@
 # SOFTWARE.
 
 import os
+import base64
 import stat
 import shutil
 import pathlib
@@ -253,6 +254,10 @@ def test_env_file_processing(monkeykas, tmpdir):
             copied_file = pathlib.Path(sh.tmpdirname) / file
             assert copied_file.exists()
             assert stat.S_IMODE(copied_file.stat().st_mode) == 0o600
+            if name == 'REGISTRY_AUTH_FILE':
+                data = json.loads(copied_file.read_text())
+                assert data['auths']['example.com']['auth'] == \
+                    base64.b64encode(b'reg-user:foo').decode()
 
 
 def test_env_set_but_not_existing(monkeykas):
