@@ -251,6 +251,9 @@ class Dump(Checkout):
 
         if args.resolve_refs and not args.lock:
             for k, r in _filter_enabled(repos):
+                config_expanded['repos'][k]['url'] = r.url
+                if r.branch:
+                    config_expanded['repos'][k]['branch'] = r.branch
                 if r.commit or r.branch or r.tag:
                     config_expanded['repos'][k]['commit'] = r.revision
                 elif r.refspec:
