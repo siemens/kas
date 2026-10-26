@@ -228,6 +228,9 @@ def test_dump(monkeykas, tmpdir, capsys):
     monkeykas.chdir(tdir)
     kas_bd = monkeykas.get_kbd()
     monkeykas.move_to_kwd('subrepo')
+    overrides = {'overrides': {'repos': {'kas3': {'branch': 'next'}}}}
+    with open('test.yml', 'a') as f:
+        yaml.safe_dump(overrides, f)
 
     formats = ['json', 'yaml']
     resolve = ['', '--resolve-refs', '--resolve-env']
@@ -246,11 +249,14 @@ def test_dump(monkeykas, tmpdir, capsys):
         with open(outfile, 'r') as cf:
             flatconf = json.load(cf) if f == 'json' else yaml.safe_load(cf)
             commit = flatconf['repos']['kas3'].get('commit', None)
+            branch = flatconf['repos']['kas3']['branch']
             envvar = flatconf['env']['TESTVAR_FOO']
             if r == '--resolve-refs':
                 assert commit is not None
+                assert branch == 'next'
             else:
                 assert commit is None
+                assert branch == 'master'
             if r == '--resolve-env':
                 assert envvar == 'KAS'
             else:
